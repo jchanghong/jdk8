@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.lang.invoke;
 
@@ -31,12 +8,7 @@ import static java.lang.invoke.MethodHandleNatives.Constants.*;
 import static java.lang.invoke.MethodHandleStatics.*;
 import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
 
-/**
- * The JVM interface for the method handles package is all here.
- * This is an interface internal and private to an implementation of JSR 292.
- * <em>This class is not part of the JSR 292 standard.</em>
- * @author jrose
- */
+
 class MethodHandleNatives {
 
     private MethodHandleNatives() { } // static only
@@ -57,17 +29,14 @@ class MethodHandleNatives {
 
     /// MethodHandle support
 
-    /** Fetch MH-related JVM parameter.
-     *  which=0 retrieves MethodHandlePushLimit
-     *  which=1 retrieves stack slot push size (in address units)
-     */
+
     static native int getConstant(int which);
 
     static final boolean COUNT_GWT;
 
     /// CallSite support
 
-    /** Tell the JVM that we need to change the target of a CallSite. */
+
     static native void setCallSiteTargetNormal(CallSite site, MethodHandle target);
     static native void setCallSiteTargetVolatile(CallSite site, MethodHandle target);
 
@@ -107,11 +76,7 @@ class MethodHandleNatives {
                 MN_SEARCH_SUPERCLASSES = 0x00100000,
                 MN_SEARCH_INTERFACES   = 0x00200000;
 
-        /**
-         * Basic types as encoded in the JVM.  These code values are not
-         * intended for use outside this class.  They are used as part of
-         * a private interface between the JVM and this class.
-         */
+
         static final int
             T_BOOLEAN  =  4,
             T_CHAR     =  5,
@@ -127,9 +92,7 @@ class MethodHandleNatives {
             //T_ADDRESS  = 15
             T_ILLEGAL  = 99;
 
-        /**
-         * Constant pool entry types.
-         */
+
         static final byte
             CONSTANT_Utf8                = 1,
             CONSTANT_Integer             = 3,
@@ -147,9 +110,7 @@ class MethodHandleNatives {
             CONSTANT_InvokeDynamic       = 18,
             CONSTANT_LIMIT               = 19;   // Limit to tags found in classfiles
 
-        /**
-         * Access modifier flags.
-         */
+
         static final char
             ACC_PUBLIC                 = 0x0001,
             ACC_PRIVATE                = 0x0002,
@@ -171,9 +132,7 @@ class MethodHandleNatives {
             ACC_BRIDGE                 = ACC_VOLATILE,
             ACC_VARARGS                = ACC_TRANSIENT;
 
-        /**
-         * Constant pool reference-kind codes, as used by CONSTANT_MethodHandle CP entries.
-         */
+
         static final byte
             REF_NONE                    = 0,  // null value
             REF_getField                = 1,
@@ -281,9 +240,7 @@ class MethodHandleNatives {
     // Up-calls from the JVM.
     // These must NOT be public.
 
-    /**
-     * The JVM is linking an invokedynamic instruction.  Create a reified call site for it.
-     */
+
     static MemberName linkCallSite(Object callerObj,
                                    Object bootstrapMethodObj,
                                    Object nameObj, Object typeObj,
@@ -342,80 +299,12 @@ class MethodHandleNatives {
         }
     }
 
-    /**
-     * The JVM wants a pointer to a MethodType.  Oblige it by finding or creating one.
-     */
+
     static MethodType findMethodHandleType(Class<?> rtype, Class<?>[] ptypes) {
         return MethodType.makeImpl(rtype, ptypes, true);
     }
 
-    /**
-     * The JVM wants to link a call site that requires a dynamic type check.
-     * Name is a type-checking invoker, invokeExact or invoke.
-     * Return a JVM method (MemberName) to handle the invoking.
-     * The method assumes the following arguments on the stack:
-     * 0: the method handle being invoked
-     * 1-N: the arguments to the method handle invocation
-     * N+1: an optional, implicitly added argument (typically the given MethodType)
-     * <p>
-     * The nominal method at such a call site is an instance of
-     * a signature-polymorphic method (see @PolymorphicSignature).
-     * Such method instances are user-visible entities which are
-     * "split" from the generic placeholder method in {@code MethodHandle}.
-     * (Note that the placeholder method is not identical with any of
-     * its instances.  If invoked reflectively, is guaranteed to throw an
-     * {@code UnsupportedOperationException}.)
-     * If the signature-polymorphic method instance is ever reified,
-     * it appears as a "copy" of the original placeholder
-     * (a native final member of {@code MethodHandle}) except
-     * that its type descriptor has shape required by the instance,
-     * and the method instance is <em>not</em> varargs.
-     * The method instance is also marked synthetic, since the
-     * method (by definition) does not appear in Java source code.
-     * <p>
-     * The JVM is allowed to reify this method as instance metadata.
-     * For example, {@code invokeBasic} is always reified.
-     * But the JVM may instead call {@code linkMethod}.
-     * If the result is an * ordered pair of a {@code (method, appendix)},
-     * the method gets all the arguments (0..N inclusive)
-     * plus the appendix (N+1), and uses the appendix to complete the call.
-     * In this way, one reusable method (called a "linker method")
-     * can perform the function of any number of polymorphic instance
-     * methods.
-     * <p>
-     * Linker methods are allowed to be weakly typed, with any or
-     * all references rewritten to {@code Object} and any primitives
-     * (except {@code long}/{@code float}/{@code double})
-     * rewritten to {@code int}.
-     * A linker method is trusted to return a strongly typed result,
-     * according to the specific method type descriptor of the
-     * signature-polymorphic instance it is emulating.
-     * This can involve (as necessary) a dynamic check using
-     * data extracted from the appendix argument.
-     * <p>
-     * The JVM does not inspect the appendix, other than to pass
-     * it verbatim to the linker method at every call.
-     * This means that the JDK runtime has wide latitude
-     * for choosing the shape of each linker method and its
-     * corresponding appendix.
-     * Linker methods should be generated from {@code LambdaForm}s
-     * so that they do not become visible on stack traces.
-     * <p>
-     * The {@code linkMethod} call is free to omit the appendix
-     * (returning null) and instead emulate the required function
-     * completely in the linker method.
-     * As a corner case, if N==255, no appendix is possible.
-     * In this case, the method returned must be custom-generated to
-     * to perform any needed type checking.
-     * <p>
-     * If the JVM does not reify a method at a call site, but instead
-     * calls {@code linkMethod}, the corresponding call represented
-     * in the bytecodes may mention a valid method which is not
-     * representable with a {@code MemberName}.
-     * Therefore, use cases for {@code linkMethod} tend to correspond to
-     * special cases in reflective code such as {@code findVirtual}
-     * or {@code revealDirect}.
-     */
+
     static MemberName linkMethod(Class<?> callerClass, int refKind,
                                  Class<?> defc, String name, Object type,
                                  Object[] appendixResult) {
@@ -461,14 +350,7 @@ class MethodHandleNatives {
     }
 
 
-    /**
-     * The JVM is resolving a CONSTANT_MethodHandle CP entry.  And it wants our help.
-     * It will make an up-call to this method.  (Do not change the name or signature.)
-     * The type argument is a Class for field requests and a MethodType for non-fields.
-     * <p>
-     * Recent versions of the JVM may also pass a resolved MemberName for the type.
-     * In that case, the name is ignored and may be null.
-     */
+
     static MethodHandle linkMethodHandleConstant(Class<?> callerClass, int refKind,
                                                  Class<?> defc, String name, Object type) {
         try {
@@ -495,10 +377,7 @@ class MethodHandleNatives {
         }
     }
 
-    /**
-     * Use best possible cause for err.initCause(), substituting the
-     * cause for err itself if the cause has the same (or better) type.
-     */
+
     static private Error initCauseFrom(Error err, Exception ex) {
         Throwable th = ex.getCause();
         if (err.getClass().isInstance(th))
@@ -507,11 +386,7 @@ class MethodHandleNatives {
         return err;
     }
 
-    /**
-     * Is this method a caller-sensitive method?
-     * I.e., does it call Reflection.getCallerClass or a similer method
-     * to ask about the identity of its caller?
-     */
+
     static boolean isCallerSensitive(MemberName mem) {
         if (!mem.isInvocable())  return false;  // fields are not caller sensitive
 

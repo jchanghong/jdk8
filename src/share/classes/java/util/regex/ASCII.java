@@ -1,36 +1,9 @@
-/*
- * Copyright (c) 1999, 2000, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.util.regex;
 
 
-/**
- * Utility class that implements the standard C ctype functionality.
- *
- * @author Hong Zhang
- */
+
 
 final class ASCII {
 
@@ -65,134 +38,134 @@ final class ASCII {
     static final int XDIGIT  = (HEX);
 
     private static final int[] ctype = new int[] {
-        CNTRL,                  /* 00 (NUL) */
-        CNTRL,                  /* 01 (SOH) */
-        CNTRL,                  /* 02 (STX) */
-        CNTRL,                  /* 03 (ETX) */
-        CNTRL,                  /* 04 (EOT) */
-        CNTRL,                  /* 05 (ENQ) */
-        CNTRL,                  /* 06 (ACK) */
-        CNTRL,                  /* 07 (BEL) */
-        CNTRL,                  /* 08 (BS)  */
-        SPACE+CNTRL+BLANK,      /* 09 (HT)  */
-        SPACE+CNTRL,            /* 0A (LF)  */
-        SPACE+CNTRL,            /* 0B (VT)  */
-        SPACE+CNTRL,            /* 0C (FF)  */
-        SPACE+CNTRL,            /* 0D (CR)  */
-        CNTRL,                  /* 0E (SI)  */
-        CNTRL,                  /* 0F (SO)  */
-        CNTRL,                  /* 10 (DLE) */
-        CNTRL,                  /* 11 (DC1) */
-        CNTRL,                  /* 12 (DC2) */
-        CNTRL,                  /* 13 (DC3) */
-        CNTRL,                  /* 14 (DC4) */
-        CNTRL,                  /* 15 (NAK) */
-        CNTRL,                  /* 16 (SYN) */
-        CNTRL,                  /* 17 (ETB) */
-        CNTRL,                  /* 18 (CAN) */
-        CNTRL,                  /* 19 (EM)  */
-        CNTRL,                  /* 1A (SUB) */
-        CNTRL,                  /* 1B (ESC) */
-        CNTRL,                  /* 1C (FS)  */
-        CNTRL,                  /* 1D (GS)  */
-        CNTRL,                  /* 1E (RS)  */
-        CNTRL,                  /* 1F (US)  */
-        SPACE+BLANK,            /* 20 SPACE */
-        PUNCT,                  /* 21 !     */
-        PUNCT,                  /* 22 "     */
-        PUNCT,                  /* 23 #     */
-        PUNCT,                  /* 24 $     */
-        PUNCT,                  /* 25 %     */
-        PUNCT,                  /* 26 &     */
-        PUNCT,                  /* 27 '     */
-        PUNCT,                  /* 28 (     */
-        PUNCT,                  /* 29 )     */
-        PUNCT,                  /* 2A *     */
-        PUNCT,                  /* 2B +     */
-        PUNCT,                  /* 2C ,     */
-        PUNCT,                  /* 2D -     */
-        PUNCT,                  /* 2E .     */
-        PUNCT,                  /* 2F /     */
-        DIGIT+HEX+0,            /* 30 0     */
-        DIGIT+HEX+1,            /* 31 1     */
-        DIGIT+HEX+2,            /* 32 2     */
-        DIGIT+HEX+3,            /* 33 3     */
-        DIGIT+HEX+4,            /* 34 4     */
-        DIGIT+HEX+5,            /* 35 5     */
-        DIGIT+HEX+6,            /* 36 6     */
-        DIGIT+HEX+7,            /* 37 7     */
-        DIGIT+HEX+8,            /* 38 8     */
-        DIGIT+HEX+9,            /* 39 9     */
-        PUNCT,                  /* 3A :     */
-        PUNCT,                  /* 3B ;     */
-        PUNCT,                  /* 3C <     */
-        PUNCT,                  /* 3D =     */
-        PUNCT,                  /* 3E >     */
-        PUNCT,                  /* 3F ?     */
-        PUNCT,                  /* 40 @     */
-        UPPER+HEX+10,           /* 41 A     */
-        UPPER+HEX+11,           /* 42 B     */
-        UPPER+HEX+12,           /* 43 C     */
-        UPPER+HEX+13,           /* 44 D     */
-        UPPER+HEX+14,           /* 45 E     */
-        UPPER+HEX+15,           /* 46 F     */
-        UPPER+16,               /* 47 G     */
-        UPPER+17,               /* 48 H     */
-        UPPER+18,               /* 49 I     */
-        UPPER+19,               /* 4A J     */
-        UPPER+20,               /* 4B K     */
-        UPPER+21,               /* 4C L     */
-        UPPER+22,               /* 4D M     */
-        UPPER+23,               /* 4E N     */
-        UPPER+24,               /* 4F O     */
-        UPPER+25,               /* 50 P     */
-        UPPER+26,               /* 51 Q     */
-        UPPER+27,               /* 52 R     */
-        UPPER+28,               /* 53 S     */
-        UPPER+29,               /* 54 T     */
-        UPPER+30,               /* 55 U     */
-        UPPER+31,               /* 56 V     */
-        UPPER+32,               /* 57 W     */
-        UPPER+33,               /* 58 X     */
-        UPPER+34,               /* 59 Y     */
-        UPPER+35,               /* 5A Z     */
-        PUNCT,                  /* 5B [     */
-        PUNCT,                  /* 5C \     */
-        PUNCT,                  /* 5D ]     */
-        PUNCT,                  /* 5E ^     */
-        PUNCT|UNDER,            /* 5F _     */
-        PUNCT,                  /* 60 `     */
-        LOWER+HEX+10,           /* 61 a     */
-        LOWER+HEX+11,           /* 62 b     */
-        LOWER+HEX+12,           /* 63 c     */
-        LOWER+HEX+13,           /* 64 d     */
-        LOWER+HEX+14,           /* 65 e     */
-        LOWER+HEX+15,           /* 66 f     */
-        LOWER+16,               /* 67 g     */
-        LOWER+17,               /* 68 h     */
-        LOWER+18,               /* 69 i     */
-        LOWER+19,               /* 6A j     */
-        LOWER+20,               /* 6B k     */
-        LOWER+21,               /* 6C l     */
-        LOWER+22,               /* 6D m     */
-        LOWER+23,               /* 6E n     */
-        LOWER+24,               /* 6F o     */
-        LOWER+25,               /* 70 p     */
-        LOWER+26,               /* 71 q     */
-        LOWER+27,               /* 72 r     */
-        LOWER+28,               /* 73 s     */
-        LOWER+29,               /* 74 t     */
-        LOWER+30,               /* 75 u     */
-        LOWER+31,               /* 76 v     */
-        LOWER+32,               /* 77 w     */
-        LOWER+33,               /* 78 x     */
-        LOWER+34,               /* 79 y     */
-        LOWER+35,               /* 7A z     */
-        PUNCT,                  /* 7B {     */
-        PUNCT,                  /* 7C |     */
-        PUNCT,                  /* 7D }     */
-        PUNCT,                  /* 7E ~     */
-        CNTRL,                  /* 7F (DEL) */
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        SPACE+CNTRL+BLANK,
+        SPACE+CNTRL,
+        SPACE+CNTRL,
+        SPACE+CNTRL,
+        SPACE+CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        CNTRL,
+        SPACE+BLANK,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        DIGIT+HEX+0,
+        DIGIT+HEX+1,
+        DIGIT+HEX+2,
+        DIGIT+HEX+3,
+        DIGIT+HEX+4,
+        DIGIT+HEX+5,
+        DIGIT+HEX+6,
+        DIGIT+HEX+7,
+        DIGIT+HEX+8,
+        DIGIT+HEX+9,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        UPPER+HEX+10,
+        UPPER+HEX+11,
+        UPPER+HEX+12,
+        UPPER+HEX+13,
+        UPPER+HEX+14,
+        UPPER+HEX+15,
+        UPPER+16,
+        UPPER+17,
+        UPPER+18,
+        UPPER+19,
+        UPPER+20,
+        UPPER+21,
+        UPPER+22,
+        UPPER+23,
+        UPPER+24,
+        UPPER+25,
+        UPPER+26,
+        UPPER+27,
+        UPPER+28,
+        UPPER+29,
+        UPPER+30,
+        UPPER+31,
+        UPPER+32,
+        UPPER+33,
+        UPPER+34,
+        UPPER+35,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT|UNDER,
+        PUNCT,
+        LOWER+HEX+10,
+        LOWER+HEX+11,
+        LOWER+HEX+12,
+        LOWER+HEX+13,
+        LOWER+HEX+14,
+        LOWER+HEX+15,
+        LOWER+16,
+        LOWER+17,
+        LOWER+18,
+        LOWER+19,
+        LOWER+20,
+        LOWER+21,
+        LOWER+22,
+        LOWER+23,
+        LOWER+24,
+        LOWER+25,
+        LOWER+26,
+        LOWER+27,
+        LOWER+28,
+        LOWER+29,
+        LOWER+30,
+        LOWER+31,
+        LOWER+32,
+        LOWER+33,
+        LOWER+34,
+        LOWER+35,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        PUNCT,
+        CNTRL,
     };
 
     static int getType(int ch) {

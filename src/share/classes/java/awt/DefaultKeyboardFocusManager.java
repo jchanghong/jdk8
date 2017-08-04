@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 package java.awt;
 
 import java.awt.event.FocusEvent;
@@ -43,25 +20,7 @@ import sun.awt.AWTAccessor;
 import sun.awt.CausedFocusEvent;
 import sun.awt.TimedWindowEvent;
 
-/**
- * The default KeyboardFocusManager for AWT applications. Focus traversal is
- * done in response to a Component's focus traversal keys, and using a
- * Container's FocusTraversalPolicy.
- * <p>
- * Please see
- * <a href="https://docs.oracle.com/javase/tutorial/uiswing/misc/focus.html">
- * How to Use the Focus Subsystem</a>,
- * a section in <em>The Java Tutorial</em>, and the
- * <a href="../../java/awt/doc-files/FocusSpec.html">Focus Specification</a>
- * for more information.
- *
- * @author David Mendenhall
- *
- * @see FocusTraversalPolicy
- * @see Component#setFocusTraversalKeys
- * @see Component#getFocusTraversalKeys
- * @since 1.4
- */
+
 public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
     private static final PlatformLogger focusLog = PlatformLogger.getLogger("java.awt.focus.DefaultKeyboardFocusManager");
 
@@ -94,9 +53,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
             this.after = after;
             this.untilFocused = untilFocused;
         }
-        /**
-         * Returns string representation of the marker
-         */
+
         public String toString() {
             return ">>> Marker after " + after + " on " + untilFocused;
         }
@@ -110,11 +67,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         return window;
     }
 
-    /*
-     * This series of restoreFocus methods is used for recovering from a
-     * rejected focus or activation change. Rejections typically occur when
-     * the user attempts to focus a non-focusable Component or Window.
-     */
+
     private void restoreFocus(FocusEvent fe, Window newFocusedWindow) {
         Component realOppositeComponent = this.realOppositeComponentWR.get();
         Component vetoedComponent = fe.getComponent();
@@ -183,17 +136,11 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         }
     }
 
-    /**
-     * A special type of SentEvent which updates a counter in the target
-     * KeyboardFocusManager if it is an instance of
-     * DefaultKeyboardFocusManager.
-     */
+
     private static class DefaultKeyboardFocusManagerSentEvent
         extends SentEvent
     {
-        /*
-         * serialVersionUID
-         */
+
         private static final long serialVersionUID = -2924743257508701758L;
 
         public DefaultKeyboardFocusManagerSentEvent(AWTEvent nested,
@@ -224,15 +171,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         }
     }
 
-    /**
-     * Sends a synthetic AWTEvent to a Component. If the Component is in
-     * the current AppContext, then the event is immediately dispatched.
-     * If the Component is in a different AppContext, then the event is
-     * posted to the other AppContext's EventQueue, and this method blocks
-     * until the event is handled or target AppContext is disposed.
-     * Returns true if successfuly dispatched event, false if failed
-     * to dispatch.
-     */
+
     static boolean sendMessage(Component target, AWTEvent e) {
         e.isPosted = true;
         AppContext myAppContext = AppContext.getAppContext();
@@ -270,14 +209,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         return se.dispatched;
     }
 
-    /*
-     * Checks if the focus window event follows key events waiting in the type-ahead
-     * queue (if any). This may happen when a user types ahead in the window, the client
-     * listeners hang EDT for a while, and the user switches b/w toplevels. In that
-     * case the focus window events may be dispatched before the type-ahead events
-     * get handled. This may lead to wrong focus behavior and in order to avoid it,
-     * the focus window events are reposted to the end of the event queue. See 6981400.
-     */
+
     private boolean repostIfFollowsKeyEvents(WindowEvent e) {
         if (!(e instanceof TimedWindowEvent)) {
             return false;
@@ -302,20 +234,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         return false;
     }
 
-    /**
-     * This method is called by the AWT event dispatcher requesting that the
-     * current KeyboardFocusManager dispatch the specified event on its behalf.
-     * DefaultKeyboardFocusManagers dispatch all FocusEvents, all WindowEvents
-     * related to focus, and all KeyEvents. These events are dispatched based
-     * on the KeyboardFocusManager's notion of the focus owner and the focused
-     * and active Windows, sometimes overriding the source of the specified
-     * AWTEvent. If this method returns <code>false</code>, then the AWT event
-     * dispatcher will attempt to dispatch the event itself.
-     *
-     * @param e the AWTEvent to be dispatched
-     * @return <code>true</code> if this method dispatched the event;
-     *         <code>false</code> otherwise
-     */
+
     public boolean dispatchEvent(AWTEvent e) {
         if (focusLog.isLoggable(PlatformLogger.Level.FINE) && (e instanceof WindowEvent || e instanceof FocusEvent)) {
             focusLog.fine("" + e);
@@ -777,25 +696,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         return true;
     }
 
-    /**
-     * Called by <code>dispatchEvent</code> if no other
-     * KeyEventDispatcher in the dispatcher chain dispatched the KeyEvent, or
-     * if no other KeyEventDispatchers are registered. If the event has not
-     * been consumed, its target is enabled, and the focus owner is not null,
-     * this method dispatches the event to its target. This method will also
-     * subsequently dispatch the event to all registered
-     * KeyEventPostProcessors. After all this operations are finished,
-     * the event is passed to peers for processing.
-     * <p>
-     * In all cases, this method returns <code>true</code>, since
-     * DefaultKeyboardFocusManager is designed so that neither
-     * <code>dispatchEvent</code>, nor the AWT event dispatcher, should take
-     * further action on the event in any situation.
-     *
-     * @param e the KeyEvent to be dispatched
-     * @return <code>true</code>
-     * @see Component#dispatchEvent
-     */
+
     public boolean dispatchKeyEvent(KeyEvent e) {
         Component focusOwner = (((AWTEvent)e).isPosted) ? getFocusOwner() : e.getComponent();
 
@@ -840,17 +741,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         return true;
     }
 
-    /**
-     * This method will be called by <code>dispatchKeyEvent</code>. It will
-     * handle any unconsumed KeyEvents that map to an AWT
-     * <code>MenuShortcut</code> by consuming the event and activating the
-     * shortcut.
-     *
-     * @param e the KeyEvent to post-process
-     * @return <code>true</code>
-     * @see #dispatchKeyEvent
-     * @see MenuShortcut
-     */
+
     public boolean postProcessKeyEvent(KeyEvent e) {
         if (!e.isConsumed()) {
             Component target = e.getComponent();
@@ -894,9 +785,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         } while (ke != null);
     }
 
-    /**
-     * Dumps the list of type-ahead queue markers to stderr
-     */
+
     void dumpMarkers() {
         if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
             focusLog.finest(">>> Markers dump, time: {0}", System.currentTimeMillis());
@@ -997,11 +886,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         }
     }
 
-    /**
-     * Returns true if there are some marker associated with component <code>comp</code>
-     * in a markers' queue
-     * @since 1.5
-     */
+
     private boolean hasMarker(Component comp) {
         for (Iterator<TypeAheadMarker> iter = typeAheadMarkers.iterator(); iter.hasNext(); ) {
             if (iter.next().untilFocused == comp) {
@@ -1011,10 +896,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         return false;
     }
 
-    /**
-     * Clears markers queue
-     * @since 1.5
-     */
+
     void clearMarkers() {
         synchronized(this) {
             typeAheadMarkers.clear();
@@ -1036,13 +918,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         //   until its dispatching actually starts (by this method).
         EventQueue.setCurrentEventAndMostRecentTime(ke);
 
-        /**
-         * Fix for 4495473.
-         * This fix allows to correctly dispatch events when native
-         * event proxying mechanism is active.
-         * If it is active we should redispatch key events after
-         * we detected its correct target.
-         */
+
         if (KeyboardFocusManager.isProxyActive(ke)) {
             Component source = (Component)ke.getSource();
             Container target = source.getNativeContainer();
@@ -1050,9 +926,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
                 ComponentPeer peer = target.getPeer();
                 if (peer != null) {
                     peer.handleEvent(ke);
-                    /**
-                     * Fix for 4478780 - consume event after it was dispatched by peer.
-                     */
+
                     ke.consume();
                 }
             }
@@ -1074,10 +948,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         return dispatchKeyEvent(ke);
     }
 
-    /*
-     * @param e is a KEY_PRESSED event that can be used
-     *          to track the next KEY_TYPED related.
-     */
+
     private void consumeNextKeyTyped(KeyEvent e) {
         consumeNextKeyTyped = true;
     }
@@ -1088,9 +959,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
                               !e.isActionKey();
     }
 
-    /*
-     * return true if event was consumed
-     */
+
     private boolean consumeProcessedKeyEvent(KeyEvent e) {
         if ((e.getID() == KeyEvent.KEY_TYPED) && consumeNextKeyTyped) {
             e.consume();
@@ -1100,19 +969,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         return false;
     }
 
-    /**
-     * This method initiates a focus traversal operation if and only if the
-     * KeyEvent represents a focus traversal key for the specified
-     * focusedComponent. It is expected that focusedComponent is the current
-     * focus owner, although this need not be the case. If it is not,
-     * focus traversal will nevertheless proceed as if focusedComponent
-     * were the focus owner.
-     *
-     * @param focusedComponent the Component that is the basis for a focus
-     *        traversal operation if the specified event represents a focus
-     *        traversal key for the Component
-     * @param e the event that may represent a focus traversal key
-     */
+
     public void processKeyEvent(Component focusedComponent, KeyEvent e) {
         // consume processed event if needed
         if (consumeProcessedKeyEvent(e)) {
@@ -1195,21 +1052,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         }
     }
 
-    /**
-     * Delays dispatching of KeyEvents until the specified Component becomes
-     * the focus owner. KeyEvents with timestamps later than the specified
-     * timestamp will be enqueued until the specified Component receives a
-     * FOCUS_GAINED event, or the AWT cancels the delay request by invoking
-     * <code>dequeueKeyEvents</code> or <code>discardKeyEvents</code>.
-     *
-     * @param after timestamp of current event, or the current, system time if
-     *        the current event has no timestamp, or the AWT cannot determine
-     *        which event is currently being handled
-     * @param untilFocused Component which will receive a FOCUS_GAINED event
-     *        before any pending KeyEvents
-     * @see #dequeueKeyEvents
-     * @see #discardKeyEvents
-     */
+
     protected synchronized void enqueueKeyEvents(long after,
                                                  Component untilFocused) {
         if (untilFocused == null) {
@@ -1237,21 +1080,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
                              new TypeAheadMarker(after, untilFocused));
     }
 
-    /**
-     * Releases for normal dispatching to the current focus owner all
-     * KeyEvents which were enqueued because of a call to
-     * <code>enqueueKeyEvents</code> with the same timestamp and Component.
-     * If the given timestamp is less than zero, the outstanding enqueue
-     * request for the given Component with the <b>oldest</b> timestamp (if
-     * any) should be cancelled.
-     *
-     * @param after the timestamp specified in the call to
-     *        <code>enqueueKeyEvents</code>, or any value &lt; 0
-     * @param untilFocused the Component specified in the call to
-     *        <code>enqueueKeyEvents</code>
-     * @see #enqueueKeyEvents
-     * @see #discardKeyEvents
-     */
+
     protected synchronized void dequeueKeyEvents(long after,
                                                  Component untilFocused) {
         if (untilFocused == null) {
@@ -1289,16 +1118,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         }
     }
 
-    /**
-     * Discards all KeyEvents which were enqueued because of one or more calls
-     * to <code>enqueueKeyEvents</code> with the specified Component, or one of
-     * its descendants.
-     *
-     * @param comp the Component specified in one or more calls to
-     *        <code>enqueueKeyEvents</code>, or a parent of such a Component
-     * @see #enqueueKeyEvents
-     * @see #dequeueKeyEvents
-     */
+
     protected synchronized void discardKeyEvents(Component comp) {
         if (comp == null) {
             return;
@@ -1352,65 +1172,28 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
         }
     }
 
-    /**
-     * Focuses the Component before aComponent, typically based on a
-     * FocusTraversalPolicy.
-     *
-     * @param aComponent the Component that is the basis for the focus
-     *        traversal operation
-     * @see FocusTraversalPolicy
-     * @see Component#transferFocusBackward
-     */
+
     public void focusPreviousComponent(Component aComponent) {
         if (aComponent != null) {
             aComponent.transferFocusBackward();
         }
     }
 
-    /**
-     * Focuses the Component after aComponent, typically based on a
-     * FocusTraversalPolicy.
-     *
-     * @param aComponent the Component that is the basis for the focus
-     *        traversal operation
-     * @see FocusTraversalPolicy
-     * @see Component#transferFocus
-     */
+
     public void focusNextComponent(Component aComponent) {
         if (aComponent != null) {
             aComponent.transferFocus();
         }
     }
 
-    /**
-     * Moves the focus up one focus traversal cycle. Typically, the focus owner
-     * is set to aComponent's focus cycle root, and the current focus cycle
-     * root is set to the new focus owner's focus cycle root. If, however,
-     * aComponent's focus cycle root is a Window, then the focus owner is set
-     * to the focus cycle root's default Component to focus, and the current
-     * focus cycle root is unchanged.
-     *
-     * @param aComponent the Component that is the basis for the focus
-     *        traversal operation
-     * @see Component#transferFocusUpCycle
-     */
+
     public void upFocusCycle(Component aComponent) {
         if (aComponent != null) {
             aComponent.transferFocusUpCycle();
         }
     }
 
-    /**
-     * Moves the focus down one focus traversal cycle. If aContainer is a focus
-     * cycle root, then the focus owner is set to aContainer's default
-     * Component to focus, and the current focus cycle root is set to
-     * aContainer. If aContainer is not a focus cycle root, then no focus
-     * traversal operation occurs.
-     *
-     * @param aContainer the Container that is the basis for the focus
-     *        traversal operation
-     * @see Container#transferFocusDownCycle
-     */
+
     public void downFocusCycle(Container aContainer) {
         if (aContainer != null && aContainer.isFocusCycleRoot()) {
             aContainer.transferFocusDownCycle();

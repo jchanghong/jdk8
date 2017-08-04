@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.lang.invoke;
 
@@ -33,10 +10,7 @@ import static java.lang.invoke.MethodHandleNatives.Constants.*;
 import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
 import static java.lang.invoke.LambdaForm.*;
 
-/**
- * Construction and caching of often-used invokers.
- * @author jrose
- */
+
 class Invokers {
     // exact type (sans leading taget MH) for the outgoing call
     private final MethodType targetType;
@@ -50,28 +24,26 @@ class Invokers {
             INV_BASIC          =  2,  // MethodHandles.basicInvoker
             INV_LIMIT          =  3;
 
-    /** Compute and cache information common to all collecting adapters
-     *  that implement members of the erasure-family of the given erased type.
-     */
-    /*non-public*/ Invokers(MethodType targetType) {
+
+     Invokers(MethodType targetType) {
         this.targetType = targetType;
     }
 
-    /*non-public*/ MethodHandle exactInvoker() {
+     MethodHandle exactInvoker() {
         MethodHandle invoker = cachedInvoker(INV_EXACT);
         if (invoker != null)  return invoker;
         invoker = makeExactOrGeneralInvoker(true);
         return setCachedInvoker(INV_EXACT, invoker);
     }
 
-    /*non-public*/ MethodHandle genericInvoker() {
+     MethodHandle genericInvoker() {
         MethodHandle invoker = cachedInvoker(INV_GENERIC);
         if (invoker != null)  return invoker;
         invoker = makeExactOrGeneralInvoker(false);
         return setCachedInvoker(INV_GENERIC, invoker);
     }
 
-    /*non-public*/ MethodHandle basicInvoker() {
+     MethodHandle basicInvoker() {
         MethodHandle invoker = cachedInvoker(INV_BASIC);
         if (invoker != null)  return invoker;
         MethodType basicType = targetType.basicType();
@@ -113,7 +85,7 @@ class Invokers {
         return invoker;
     }
 
-    /** If the target type seems to be common enough, eagerly compile the invoker to bytecodes. */
+
     private void maybeCompileToBytecode(MethodHandle invoker) {
         final int EAGER_COMPILE_ARITY_LIMIT = 10;
         if (targetType == targetType.erase() &&
@@ -123,7 +95,7 @@ class Invokers {
     }
 
     // This next one is called from LambdaForm.NamedFunction.<init>.
-    /*non-public*/ static MemberName invokeBasicMethod(MethodType basicType) {
+     static MemberName invokeBasicMethod(MethodType basicType) {
         assert(basicType == basicType.basicType());
         try {
             //Lookup.findVirtual(MethodHandle.class, name, type);
@@ -142,15 +114,8 @@ class Invokers {
         return true;
     }
 
-    /**
-     * Find or create an invoker which passes unchanged a given number of arguments
-     * and spreads the rest from a trailing array argument.
-     * The invoker target type is the post-spread type {@code (TYPEOF(uarg*), TYPEOF(sarg*))=>RT}.
-     * All the {@code sarg}s must have a common type {@code C}.  (If there are none, {@code Object} is assumed.}
-     * @param leadingArgCount the number of unchanged (non-spread) arguments
-     * @return {@code invoker.invokeExact(mh, uarg*, C[]{sarg*}) := (RT)mh.invoke(uarg*, sarg*)}
-     */
-    /*non-public*/ MethodHandle spreadInvoker(int leadingArgCount) {
+
+     MethodHandle spreadInvoker(int leadingArgCount) {
         int spreadArgCount = targetType.parameterCount() - leadingArgCount;
         MethodType postSpreadType = targetType;
         Class<?> argArrayType = impliedRestargType(postSpreadType, leadingArgCount);
@@ -206,15 +171,7 @@ class Invokers {
     // argument count to account for trailing "appendix value" (typically the mtype)
     private static final int MH_LINKER_ARG_APPENDED = 1;
 
-    /** Returns an adapter for invokeExact or generic invoke, as a MH or constant pool linker.
-     * If !customized, caller is responsible for supplying, during adapter execution,
-     * a copy of the exact mtype.  This is because the adapter might be generalized to
-     * a basic type.
-     * @param mtype the caller's method type (either basic or full-custom)
-     * @param customized whether to use a trailing appendix argument (to carry the mtype)
-     * @param which bit-encoded 0x01 whether it is a CP adapter ("linker") or MHs.invoker value ("invoker");
-     *                          0x02 whether it is for invokeExact or generic invoke
-     */
+
     private static LambdaForm invokeHandleForm(MethodType mtype, boolean customized, int which) {
         boolean isCached;
         if (!customized) {
@@ -292,14 +249,14 @@ class Invokers {
         return lform;
     }
 
-    /*non-public*/ static
+     static
     WrongMethodTypeException newWrongMethodTypeException(MethodType actual, MethodType expected) {
         // FIXME: merge with JVM logic for throwing WMTE
         return new WrongMethodTypeException("expected "+expected+" but found "+actual);
     }
 
-    /** Static definition of MethodHandle.invokeExact checking code. */
-    /*non-public*/ static
+
+     static
     @ForceInline
     void checkExactType(Object mhObj, Object expectedObj) {
         MethodHandle mh = (MethodHandle) mhObj;
@@ -309,33 +266,14 @@ class Invokers {
             throw newWrongMethodTypeException(expected, actual);
     }
 
-    /** Static definition of MethodHandle.invokeGeneric checking code.
-     * Directly returns the type-adjusted MH to invoke, as follows:
-     * {@code (R)MH.invoke(a*) => MH.asType(TYPEOF(a*:R)).invokeBasic(a*)}
-     */
-    /*non-public*/ static
+
+     static
     @ForceInline
     Object checkGenericType(Object mhObj, Object expectedObj) {
         MethodHandle mh = (MethodHandle) mhObj;
         MethodType expected = (MethodType) expectedObj;
         return mh.asType(expected);
-        /* Maybe add more paths here.  Possible optimizations:
-         * for (R)MH.invoke(a*),
-         * let MT0 = TYPEOF(a*:R), MT1 = MH.type
-         *
-         * if MT0==MT1 or MT1 can be safely called by MT0
-         *  => MH.invokeBasic(a*)
-         * if MT1 can be safely called by MT0[R := Object]
-         *  => MH.invokeBasic(a*) & checkcast(R)
-         * if MT1 can be safely called by MT0[* := Object]
-         *  => checkcast(A)* & MH.invokeBasic(a*) & checkcast(R)
-         * if a big adapter BA can be pulled out of (MT0,MT1)
-         *  => BA.invokeBasic(MT0,MH,a*)
-         * if a local adapter LA can cached on static CS0 = new GICS(MT0)
-         *  => CS0.LA.invokeBasic(MH,a*)
-         * else
-         *  => MH.asType(MT0).invokeBasic(A*)
-         */
+
     }
 
     static MemberName linkToCallSiteMethod(MethodType mtype) {
@@ -383,14 +321,14 @@ class Invokers {
         return lform;
     }
 
-    /** Static definition of MethodHandle.invokeGeneric checking code. */
-    /*non-public*/ static
+
+     static
     @ForceInline
     Object getCallSiteTarget(Object site) {
         return ((CallSite)site).getTarget();
     }
 
-    /*non-public*/ static
+     static
     @ForceInline
     void checkCustomized(Object o) {
         MethodHandle mh = (MethodHandle)o;
@@ -399,7 +337,7 @@ class Invokers {
         }
     }
 
-    /*non-public*/ static
+     static
     @DontInline
     void maybeCustomize(MethodHandle mh) {
         byte count = mh.customizationCount;

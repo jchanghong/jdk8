@@ -1,40 +1,6 @@
-/*
- * Copyright (c) 1999, 2012, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
 
-/*
- * (C) Copyright Taligent, Inc. 1996, 1997 - All Rights Reserved
- * (C) Copyright IBM Corp. 1996-1998 - All Rights Reserved
- *
- *   The original version of this source code and documentation is copyrighted
- * and owned by Taligent, Inc., a wholly-owned subsidiary of IBM. These
- * materials are provided under terms of a License Agreement between Taligent
- * and Sun. This technology is protected by multiple US and International
- * patents. This notice and attribution to Taligent may not be removed.
- *   Taligent is a registered trademark of Taligent, Inc.
- *
- */
+
+
 
 package java.text;
 
@@ -42,12 +8,7 @@ import java.util.Vector;
 import sun.text.UCompactIntArray;
 import sun.text.IntHashtable;
 
-/**
- * This class contains the static state of a RuleBasedCollator: The various
- * tables that are used by the collation routines.  Several RuleBasedCollators
- * can share a single RBCollationTables object, easing memory requirements and
- * improving performance.
- */
+
 final class RBCollationTables {
     //===========================================================================================
     //  The following diagram shows the data structure of the RBCollationTables object.
@@ -85,30 +46,11 @@ final class RBCollationTables {
     }
 
     final class BuildAPI {
-        /**
-         * Private constructor.  Prevents anyone else besides RBTableBuilder
-         * from gaining direct access to the internals of this class.
-         */
+
         private BuildAPI() {
         }
 
-        /**
-         * This function is used by RBTableBuilder to fill in all the members of this
-         * object.  (Effectively, the builder class functions as a "friend" of this
-         * class, but to avoid changing too much of the logic, it carries around "shadow"
-         * copies of all these variables until the end of the build process and then
-         * copies them en masse into the actual tables object once all the construction
-         * logic is complete.  This function does that "copying en masse".
-         * @param f2ary The value for frenchSec (the French-secondary flag)
-         * @param swap The value for SE Asian swapping rule
-         * @param map The collator's character-mapping table (the value for mapping)
-         * @param cTbl The collator's contracting-character table (the value for contractTable)
-         * @param eTbl The collator's expanding-character table (the value for expandTable)
-         * @param cFlgs The hash table of characters that participate in contracting-
-         *              character sequences (the value for contractFlags)
-         * @param mso The value for maxSecOrder
-         * @param mto The value for maxTerOrder
-         */
+
         void fillInTables(boolean f2ary,
                           boolean swap,
                           UCompactIntArray map,
@@ -128,11 +70,7 @@ final class RBCollationTables {
         }
     }
 
-    /**
-     * Gets the table-based rules for the collation object.
-     * @return returns the collation rules that the table collation object
-     * was created from.
-     */
+
     public String getRules()
     {
         return rules;
@@ -150,11 +88,7 @@ final class RBCollationTables {
     // internal (for use by CollationElementIterator)
     // ==============================================================
 
-    /**
-     *  Get the entry of hash table of the contracting string in the collation
-     *  table.
-     *  @param ch the starting character of the contracting string
-     */
+
     Vector<EntryPair> getContractValues(int ch)
     {
         int index = mapping.elementAt(ch);
@@ -174,24 +108,12 @@ final class RBCollationTables {
         }
     }
 
-    /**
-     * Returns true if this character appears anywhere in a contracting
-     * character sequence.  (Used by CollationElementIterator.setOffset().)
-     */
+
     boolean usedInContractSeq(int c) {
         return contractFlags.get(c) == 1;
     }
 
-    /**
-      * Return the maximum length of any expansion sequences that end
-      * with the specified comparison order.
-      *
-      * @param order a collation order returned by previous or next.
-      * @return the maximum length of any expansion seuences ending
-      *         with the specified order.
-      *
-      * @see CollationElementIterator#getMaxExpansion
-      */
+
     int getMaxExpansion(int order) {
         int result = 1;
 
@@ -213,19 +135,12 @@ final class RBCollationTables {
         return result;
     }
 
-    /**
-     * Get the entry of hash table of the expanding string in the collation
-     * table.
-     * @param idx the index of the expanding string value list
-     */
+
     final int[] getExpandValueList(int idx) {
         return expandTable.elementAt(idx - EXPANDCHARINDEX);
     }
 
-    /**
-     * Get the comarison order of a character from the collation table.
-     * @return the comparison order of a character.
-     */
+
     int getUnicodeOrder(int ch) {
         return mapping.elementAt(ch);
     }
@@ -238,9 +153,7 @@ final class RBCollationTables {
         return maxTerOrder;
     }
 
-    /**
-     * Reverse a string.
-     */
+
     //shemran/Note: this is used for secondary order value reverse, no
     //              need to consider supplementary pair.
     static void reverse (StringBuffer result, int from, int to)

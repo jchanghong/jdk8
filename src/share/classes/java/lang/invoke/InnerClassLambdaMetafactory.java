@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.lang.invoke;
 
@@ -42,13 +19,8 @@ import java.util.Set;
 
 import static jdk.internal.org.objectweb.asm.Opcodes.*;
 
-/**
- * Lambda metafactory implementation which dynamically creates an
- * inner-class-like class per lambda callsite.
- *
- * @see LambdaMetafactory
- */
-/* package */ final class InnerClassLambdaMetafactory extends AbstractValidatingLambdaMetafactory {
+
+ final class InnerClassLambdaMetafactory extends AbstractValidatingLambdaMetafactory {
     private static final Unsafe UNSAFE = Unsafe.getUnsafe();
 
     private static final int CLASSFILE_VERSION = 52;
@@ -105,43 +77,7 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
     private final String[] argDescs;                 // Type descriptors for the constructor arguments
     private final String lambdaClassName;            // Generated name for the generated class "X$$Lambda$1"
 
-    /**
-     * General meta-factory constructor, supporting both standard cases and
-     * allowing for uncommon options such as serialization or bridging.
-     *
-     * @param caller Stacked automatically by VM; represents a lookup context
-     *               with the accessibility privileges of the caller.
-     * @param invokedType Stacked automatically by VM; the signature of the
-     *                    invoked method, which includes the expected static
-     *                    type of the returned lambda object, and the static
-     *                    types of the captured arguments for the lambda.  In
-     *                    the event that the implementation method is an
-     *                    instance method, the first argument in the invocation
-     *                    signature will correspond to the receiver.
-     * @param samMethodName Name of the method in the functional interface to
-     *                      which the lambda or method reference is being
-     *                      converted, represented as a String.
-     * @param samMethodType Type of the method in the functional interface to
-     *                      which the lambda or method reference is being
-     *                      converted, represented as a MethodType.
-     * @param implMethod The implementation method which should be called (with
-     *                   suitable adaptation of argument types, return types,
-     *                   and adjustment for captured arguments) when methods of
-     *                   the resulting functional interface instance are invoked.
-     * @param instantiatedMethodType The signature of the primary functional
-     *                               interface method after type variables are
-     *                               substituted with their instantiation from
-     *                               the capture site
-     * @param isSerializable Should the lambda be made serializable?  If set,
-     *                       either the target type or one of the additional SAM
-     *                       types must extend {@code Serializable}.
-     * @param markerInterfaces Additional interfaces which the lambda object
-     *                       should implement.
-     * @param additionalBridges Method types for additional signatures to be
-     *                          bridged to the implementation method
-     * @throws LambdaConversionException If any of the meta-factory protocol
-     * invariants are violated
-     */
+
     public InnerClassLambdaMetafactory(MethodHandles.Lookup caller,
                                        MethodType invokedType,
                                        String samMethodName,
@@ -177,18 +113,7 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         }
     }
 
-    /**
-     * Build the CallSite. Generate a class file which implements the functional
-     * interface, define the class, if there are no parameters create an instance
-     * of the class which the CallSite will return, otherwise, generate handles
-     * which will call the class' constructor.
-     *
-     * @return a CallSite, which, when invoked, will return an instance of the
-     * functional interface
-     * @throws ReflectiveOperationException
-     * @throws LambdaConversionException If properly formed functional interface
-     * is not found
-     */
+
     @Override
     CallSite buildCallSite() throws LambdaConversionException {
         final Class<?> innerClass = spinInnerClass();
@@ -231,21 +156,7 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         }
     }
 
-    /**
-     * Generate a class file which implements the functional
-     * interface, define and return the class.
-     *
-     * @implNote The class that is generated does not include signature
-     * information for exceptions that may be present on the SAM method.
-     * This is to reduce classfile size, and is harmless as checked exceptions
-     * are erased anyway, no one will ever compile against this classfile,
-     * and we make no guarantees about the reflective properties of lambda
-     * objects.
-     *
-     * @return a Class which implements the functional interface
-     * @throws LambdaConversionException If properly formed functional interface
-     * is not found
-     */
+
     private Class<?> spinInnerClass() throws LambdaConversionException {
         String[] interfaces;
         String samIntf = samBase.getName().replace('.', '/');
@@ -326,9 +237,7 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         return UNSAFE.defineAnonymousClass(targetClass, classBytes, null);
     }
 
-    /**
-     * Generate the factory method for the class
-     */
+
     private void generateFactory() {
         MethodVisitor m = cw.visitMethod(ACC_PRIVATE | ACC_STATIC, NAME_FACTORY, invokedType.toMethodDescriptorString(), null, null);
         m.visitCode();
@@ -346,9 +255,7 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         m.visitEnd();
     }
 
-    /**
-     * Generate the constructor for the class
-     */
+
     private void generateConstructor() {
         // Generate constructor
         MethodVisitor ctor = cw.visitMethod(ACC_PRIVATE, NAME_CTOR,
@@ -371,9 +278,7 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         ctor.visitEnd();
     }
 
-    /**
-     * Generate a writeReplace method that supports serialization
-     */
+
     private void generateSerializationFriendlyMethods() {
         TypeConvertingMethodAdapter mv
                 = new TypeConvertingMethodAdapter(
@@ -411,9 +316,7 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         mv.visitEnd();
     }
 
-    /**
-     * Generate a readObject/writeObject method that is hostile to serialization
-     */
+
     private void generateSerializationHostileMethods() {
         MethodVisitor mv = cw.visitMethod(ACC_PRIVATE + ACC_FINAL,
                                           NAME_METHOD_WRITE_OBJECT, DESCR_METHOD_WRITE_OBJECT,
@@ -442,10 +345,7 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         mv.visitEnd();
     }
 
-    /**
-     * This class generates a method body which calls the lambda implementation
-     * method, converting arguments, as needed.
-     */
+
     private class ForwardingMethodGenerator extends TypeConvertingMethodAdapter {
 
         ForwardingMethodGenerator(MethodVisitor mv) {

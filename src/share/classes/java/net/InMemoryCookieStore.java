@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2005, 2012, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.net;
 
@@ -37,12 +14,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * A simple in-memory java.net.CookieStore implementation
- *
- * @author Edward Wang
- * @since 1.6
- */
+
 class InMemoryCookieStore implements CookieStore {
     // the in-memory representation of cookies
     private List<HttpCookie> cookieJar = null;
@@ -58,9 +30,7 @@ class InMemoryCookieStore implements CookieStore {
     private ReentrantLock lock = null;
 
 
-    /**
-     * The default ctor
-     */
+
     public InMemoryCookieStore() {
         cookieJar = new ArrayList<HttpCookie>();
         domainIndex = new HashMap<String, List<HttpCookie>>();
@@ -69,9 +39,7 @@ class InMemoryCookieStore implements CookieStore {
         lock = new ReentrantLock(false);
     }
 
-    /**
-     * Add one cookie into cookie store.
-     */
+
     public void add(URI uri, HttpCookie cookie) {
         // pre-condition : argument can't be null
         if (cookie == null) {
@@ -102,13 +70,7 @@ class InMemoryCookieStore implements CookieStore {
     }
 
 
-    /**
-     * Get all cookies, which:
-     *  1) given uri domain-matches with, or, associated with
-     *     given uri when added to the cookie store.
-     *  3) not expired.
-     * See RFC 2965 sec. 3.3.4 for more detail.
-     */
+
     public List<HttpCookie> get(URI uri) {
         // argument can't be null
         if (uri == null) {
@@ -130,9 +92,7 @@ class InMemoryCookieStore implements CookieStore {
         return cookies;
     }
 
-    /**
-     * Get all cookies in cookie store, except those have expired
-     */
+
     public List<HttpCookie> getCookies() {
         List<HttpCookie> rt;
 
@@ -152,10 +112,7 @@ class InMemoryCookieStore implements CookieStore {
         return rt;
     }
 
-    /**
-     * Get all URIs, which are associated with at least one cookie
-     * of this cookie store.
-     */
+
     public List<URI> getURIs() {
         List<URI> uris = new ArrayList<URI>();
 
@@ -180,9 +137,7 @@ class InMemoryCookieStore implements CookieStore {
     }
 
 
-    /**
-     * Remove a cookie from store
-     */
+
     public boolean remove(URI uri, HttpCookie ck) {
         // argument can't be null
         if (ck == null) {
@@ -201,9 +156,7 @@ class InMemoryCookieStore implements CookieStore {
     }
 
 
-    /**
-     * Remove all cookies in this cookie store.
-     */
+
     public boolean removeAll() {
         lock.lock();
         try {
@@ -221,20 +174,10 @@ class InMemoryCookieStore implements CookieStore {
     }
 
 
-    /* ---------------- Private operations -------------- */
 
 
-    /*
-     * This is almost the same as HttpCookie.domainMatches except for
-     * one difference: It won't reject cookies when the 'H' part of the
-     * domain contains a dot ('.').
-     * I.E.: RFC 2965 section 3.3.2 says that if host is x.y.domain.com
-     * and the cookie domain is .domain.com, then it should be rejected.
-     * However that's not how the real world works. Browsers don't reject and
-     * some sites, like yahoo.com do actually expect these cookies to be
-     * passed along.
-     * And should be used for 'old' style cookies (aka Netscape type of cookies)
-     */
+
+
     private boolean netscapeDomainMatches(String domain, String host)
     {
         if (domain == null || host == null) {

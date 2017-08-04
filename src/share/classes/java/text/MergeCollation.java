@@ -1,71 +1,16 @@
-/*
- * Copyright (c) 1996, 2012, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
 
-/*
- * (C) Copyright Taligent, Inc. 1996, 1997 - All Rights Reserved
- * (C) Copyright IBM Corp. 1996, 1997 - All Rights Reserved
- *
- *   The original version of this source code and documentation is copyrighted
- * and owned by Taligent, Inc., a wholly-owned subsidiary of IBM. These
- * materials are provided under terms of a License Agreement between Taligent
- * and Sun. This technology is protected by multiple US and International
- * patents. This notice and attribution to Taligent may not be removed.
- *   Taligent is a registered trademark of Taligent, Inc.
- *
- */
+
+
 
 package java.text;
 
 import java.util.ArrayList;
 
-/**
- * Utility class for normalizing and merging patterns for collation.
- * Patterns are strings of the form <entry>*, where <entry> has the
- * form:
- * <pattern> := <entry>*
- * <entry> := <separator><chars>{"/"<extension>}
- * <separator> := "=", ",", ";", "<", "&"
- * <chars>, and <extension> are both arbitrary strings.
- * unquoted whitespaces are ignored.
- * 'xxx' can be used to quote characters
- * One difference from Collator is that & is used to reset to a current
- * point. Or, in other words, it introduces a new sequence which is to
- * be added to the old.
- * That is: "a < b < c < d" is the same as "a < b & b < c & c < d" OR
- * "a < b < d & b < c"
- * XXX: make '' be a single quote.
- * @see PatternEntry
- * @author             Mark Davis, Helena Shih
- */
+
 
 final class MergeCollation {
 
-    /**
-     * Creates from a pattern
-     * @exception ParseException If the input pattern is incorrect.
-     */
+
     public MergeCollation(String pattern) throws ParseException
     {
         for (int i = 0; i < statusArray.length; i++)
@@ -73,18 +18,12 @@ final class MergeCollation {
         setPattern(pattern);
     }
 
-    /**
-     * recovers current pattern
-     */
+
     public String getPattern() {
         return getPattern(true);
     }
 
-    /**
-     * recovers current pattern.
-     * @param withWhiteSpace puts spacing around the entries, and \n
-     * before & and <
-     */
+
     public String getPattern(boolean withWhiteSpace) {
         StringBuffer result = new StringBuffer();
         PatternEntry tmp = null;
@@ -129,22 +68,12 @@ final class MergeCollation {
         return null;
     }
 
-    /**
-     * emits the pattern for collation builder.
-     * @return emits the string in the format understable to the collation
-     * builder.
-     */
+
     public String emitPattern() {
         return emitPattern(true);
     }
 
-    /**
-     * emits the pattern for collation builder.
-     * @param withWhiteSpace puts spacing around the entries, and \n
-     * before & and <
-     * @return emits the string in the format understable to the collation
-     * builder.
-     */
+
     public String emitPattern(boolean withWhiteSpace) {
         StringBuffer result = new StringBuffer();
         for (int i = 0; i < patterns.size(); ++i)
@@ -157,19 +86,14 @@ final class MergeCollation {
         return result.toString();
     }
 
-    /**
-     * sets the pattern.
-     */
+
     public void setPattern(String pattern) throws ParseException
     {
         patterns.clear();
         addPattern(pattern);
     }
 
-    /**
-     * adds a pattern to the current one.
-     * @param pattern the new pattern to be added
-     */
+
     public void addPattern(String pattern) throws ParseException
     {
         if (pattern == null)
@@ -184,19 +108,12 @@ final class MergeCollation {
         }
     }
 
-    /**
-     * gets count of separate entries
-     * @return the size of pattern entries
-     */
+
     public int getCount() {
         return patterns.size();
     }
 
-    /**
-     * gets count of separate entries
-     * @param index the offset of the desired pattern entry
-     * @return the requested pattern entry
-     */
+
     public PatternEntry getItemAt(int index) {
         return patterns.get(index);
     }
@@ -226,12 +143,7 @@ final class MergeCollation {
     private final int  BYTEPOWER = 3;
     private final int  BYTEMASK = (1 << BYTEPOWER) - 1;
 
-    /*
-      If the strength is RESET, then just change the lastEntry to
-      be the current. (If the current is not in patterns, signal an error).
-      If not, then remove the current entry, and add it after lastEntry
-      (which is usually at the end).
-      */
+
     private final void fixEntry(PatternEntry newEntry) throws ParseException
     {
         // check to see whether the new entry has the same characters as the previous

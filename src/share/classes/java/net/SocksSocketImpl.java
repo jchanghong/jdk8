@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 package java.net;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,13 +9,9 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import sun.net.SocksProxy;
 import sun.net.www.ParseUtil;
-/* import org.ietf.jgss.*; */
 
-/**
- * SOCKS (V4 & V5) TCP socket implementation (RFC 1928).
- * This is a subclass of PlainSocketImpl.
- * Note this class should <b>NOT</b> be public.
- */
+
+
 
 class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
     private String server = null;
@@ -48,8 +21,8 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
     private Socket cmdsock = null;
     private InputStream cmdIn = null;
     private OutputStream cmdOut = null;
-    /* true if the Proxy has been set programatically */
-    private boolean applicationSetProxy;  /* false */
+
+    private boolean applicationSetProxy;
 
 
     SocksSocketImpl() {
@@ -132,9 +105,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         return received;
     }
 
-    /**
-     * Provides the authentication machanism required by the proxy.
-     */
+
     private boolean authenticate(byte method, InputStream in,
                                  BufferedOutputStream out) throws IOException {
         return authenticate(method, in, out, 0L);
@@ -146,11 +117,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         // No Authentication required. We're done then!
         if (method == NO_AUTH)
             return true;
-        /**
-         * User/Password authentication. Try, in that order :
-         * - The application provided Authenticator, if any
-         * - the user.name & no password (backward compatibility behavior).
-         */
+
         if (method == USER_PASSW) {
             String userName;
             String password = null;
@@ -192,20 +159,15 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
             byte[] data = new byte[2];
             int i = readSocksReply(in, data, deadlineMillis);
             if (i != 2 || data[1] != 0) {
-                /* RFC 1929 specifies that the connection MUST be closed if
-                   authentication fails */
+
                 out.close();
                 in.close();
                 return false;
             }
-            /* Authentication succeeded */
+
             return true;
         }
-        /**
-         * GSSAPI authentication mechanism.
-         * Unfortunately the RFC seems out of sync with the Reference
-         * implementation. I'll leave this in for future completion.
-         */
+
 //      if (method == GSSAPI) {
 //          try {
 //              GSSManager manager = GSSManager.getInstance();
@@ -248,8 +210,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
 //                  }
 //              }
 //          } catch (GSSException e) {
-//              /* RFC 1961 states that if Context initialisation fails the connection
-//                 MUST be closed */
+//
 //              e.printStackTrace();
 //              in.close();
 //              out.close();
@@ -309,20 +270,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         }
     }
 
-    /**
-     * Connects the Socks Socket to the specified endpoint. It will first
-     * connect to the SOCKS proxy and negotiate the access. If the proxy
-     * grants the connections, then the connect is successful and all
-     * further traffic will go to the "real" endpoint.
-     *
-     * @param   endpoint        the {@code SocketAddress} to connect to.
-     * @param   timeout         the timeout value in milliseconds
-     * @throws  IOException     if the connection can't be established.
-     * @throws  SecurityException if there is a security manager and it
-     *                          doesn't allow the connection
-     * @throws  IllegalArgumentException if endpoint is null or a
-     *          SocketAddress subclass not supported by this socket
-     */
+
     @Override
     protected void connect(SocketAddress endpoint, int timeout) throws IOException {
         final long deadlineMillis;
@@ -357,9 +305,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                         }
                     });
             if (sel == null) {
-                /*
-                 * No default proxySelector --> direct connection
-                 */
+
                 super.connect(epoint, remainingMillis(deadlineMillis));
                 return;
             }
@@ -419,10 +365,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                 }
             }
 
-            /*
-             * If server is still null at this point, none of the proxy
-             * worked
-             */
+
             if (server == null) {
                 throw new SocketException("Can't connect to SOCKS proxy:"
                                           + savedExc.getMessage());
@@ -475,7 +418,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         out.write(PROTO_VERS);
         out.write(CONNECT);
         out.write(0);
-        /* Test for IPV4/IPV6/Unresolved */
+
         if (epoint.isUnresolved()) {
             out.write(DOMAIN_NAME);
             out.write(epoint.getHostName().length());
@@ -587,7 +530,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         }
         super.bind(baddr, lport);
         byte[] addr1 = baddr.getAddress();
-        /* Test for AnyLocal */
+
         InetAddress naddr = baddr;
         if (naddr.isAnyLocalAddress()) {
             naddr = AccessController.doPrivileged(
@@ -645,14 +588,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
 
     }
 
-    /**
-     * Sends the Bind request to the SOCKS proxy. In the SOCKS protocol, bind
-     * means "accept incoming connection from", so the SocketAddress is the
-     * the one of the host we do accept connection from.
-     *
-     * @param      saddr   the Socket address of the remote host.
-     * @exception  IOException  if an I/O error occurs when binding this socket.
-     */
+
     protected synchronized void socksBind(InetSocketAddress saddr) throws IOException {
         if (socket != null) {
             // this is a client socket, not a server socket, don't
@@ -673,9 +609,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                         }
                     });
             if (sel == null) {
-                /*
-                 * No default proxySelector --> direct connection
-                 */
+
                 return;
             }
             URI uri;
@@ -740,10 +674,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                 }
             }
 
-            /*
-             * If server is still null at this point, none of the proxy
-             * worked
-             */
+
             if (server == null || cmdsock == null) {
                 throw new SocketException("Can't connect to SOCKS proxy:"
                                           + savedExc.getMessage());
@@ -911,15 +842,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         cmdOut = out;
     }
 
-    /**
-     * Accepts a connection from a specific host.
-     *
-     * @param      s   the accepted connection.
-     * @param      saddr the socket address of the host we do accept
-     *               connection from
-     * @exception  IOException  if an I/O error occurs when accepting the
-     *               connection.
-     */
+
     protected void acceptFrom(SocketImpl s, InetSocketAddress saddr) throws IOException {
         if (cmdsock == null) {
             // Not a Socks ServerSocket.
@@ -999,11 +922,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
             throw ex;
         }
 
-        /**
-         * This is where we have to do some fancy stuff.
-         * The datastream from the socket "accepted" by the proxy will
-         * come through the cmdSocket. So we have to swap the socketImpls
-         */
+
         if (s instanceof SocksSocketImpl) {
             ((SocksSocketImpl)s).external_address = real_end;
         }
@@ -1029,12 +948,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
     }
 
 
-    /**
-     * Returns the value of this socket's {@code address} field.
-     *
-     * @return  the value of this socket's {@code address} field.
-     * @see     java.net.SocketImpl#address
-     */
+
     @Override
     protected InetAddress getInetAddress() {
         if (external_address != null)
@@ -1043,12 +957,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
             return super.getInetAddress();
     }
 
-    /**
-     * Returns the value of this socket's {@code port} field.
-     *
-     * @return  the value of this socket's {@code port} field.
-     * @see     java.net.SocketImpl#port
-     */
+
     @Override
     protected int getPort() {
         if (external_address != null)
@@ -1080,7 +989,7 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         if (applicationSetProxy) {
             try {
                 userName = System.getProperty("user.name");
-            } catch (SecurityException se) { /* swallow Exception */ }
+            } catch (SecurityException se) {  }
         } else {
             userName = java.security.AccessController.doPrivileged(
                 new sun.security.action.GetPropertyAction("user.name"));

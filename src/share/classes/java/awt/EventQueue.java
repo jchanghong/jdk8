@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 1996, 2014, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.awt;
 
@@ -50,50 +27,7 @@ import java.security.AccessControlContext;
 import sun.misc.SharedSecrets;
 import sun.misc.JavaSecurityAccess;
 
-/**
- * <code>EventQueue</code> is a platform-independent class
- * that queues events, both from the underlying peer classes
- * and from trusted application classes.
- * <p>
- * It encapsulates asynchronous event dispatch machinery which
- * extracts events from the queue and dispatches them by calling
- * {@link #dispatchEvent(AWTEvent) dispatchEvent(AWTEvent)} method
- * on this <code>EventQueue</code> with the event to be dispatched
- * as an argument.  The particular behavior of this machinery is
- * implementation-dependent.  The only requirements are that events
- * which were actually enqueued to this queue (note that events
- * being posted to the <code>EventQueue</code> can be coalesced)
- * are dispatched:
- * <dl>
- *   <dt> Sequentially.
- *   <dd> That is, it is not permitted that several events from
- *        this queue are dispatched simultaneously.
- *   <dt> In the same order as they are enqueued.
- *   <dd> That is, if <code>AWTEvent</code>&nbsp;A is enqueued
- *        to the <code>EventQueue</code> before
- *        <code>AWTEvent</code>&nbsp;B then event B will not be
- *        dispatched before event A.
- * </dl>
- * <p>
- * Some browsers partition applets in different code bases into
- * separate contexts, and establish walls between these contexts.
- * In such a scenario, there will be one <code>EventQueue</code>
- * per context. Other browsers place all applets into the same
- * context, implying that there will be only a single, global
- * <code>EventQueue</code> for all applets. This behavior is
- * implementation-dependent.  Consult your browser's documentation
- * for more information.
- * <p>
- * For information on the threading issues of the event dispatch
- * machinery, see <a href="doc-files/AWTThreadIssues.html#Autoshutdown"
- * >AWT Threading Issues</a>.
- *
- * @author Thomas Ball
- * @author Fred Ecks
- * @author David Mendenhall
- *
- * @since       1.1
- */
+
 public class EventQueue {
     private static final AtomicInteger threadInitNumber = new AtomicInteger(0);
 
@@ -104,41 +38,20 @@ public class EventQueue {
 
     private static final int NUM_PRIORITIES = ULTIMATE_PRIORITY + 1;
 
-    /*
-     * We maintain one Queue for each priority that the EventQueue supports.
-     * That is, the EventQueue object is actually implemented as
-     * NUM_PRIORITIES queues and all Events on a particular internal Queue
-     * have identical priority. Events are pulled off the EventQueue starting
-     * with the Queue of highest priority. We progress in decreasing order
-     * across all Queues.
-     */
+
     private Queue[] queues = new Queue[NUM_PRIORITIES];
 
-    /*
-     * The next EventQueue on the stack, or null if this EventQueue is
-     * on the top of the stack.  If nextQueue is non-null, requests to post
-     * an event are forwarded to nextQueue.
-     */
+
     private EventQueue nextQueue;
 
-    /*
-     * The previous EventQueue on the stack, or null if this is the
-     * "base" EventQueue.
-     */
+
     private EventQueue previousQueue;
 
-    /*
-     * A single lock to synchronize the push()/pop() and related operations with
-     * all the EventQueues from the AppContext. Synchronization on any particular
-     * event queue(s) is not enough: we should lock the whole stack.
-     */
+
     private final Lock pushPopLock;
     private final Condition pushPopCond;
 
-    /*
-     * Dummy runnable to wake up EDT from getNextEvent() after
-     push/pop is performed
-     */
+
     private final static Runnable dummyRunnable = new Runnable() {
         public void run() {
         }
@@ -151,31 +64,19 @@ public class EventQueue {
     private final ClassLoader classLoader =
         Thread.currentThread().getContextClassLoader();
 
-    /*
-     * The time stamp of the last dispatched InputEvent or ActionEvent.
-     */
+
     private long mostRecentEventTime = System.currentTimeMillis();
 
-    /*
-     * The time stamp of the last KeyEvent .
-     */
+
     private long mostRecentKeyEventTime = System.currentTimeMillis();
 
-    /**
-     * The modifiers field of the current event, if the current event is an
-     * InputEvent or ActionEvent.
-     */
+
     private WeakReference<AWTEvent> currentEvent;
 
-    /*
-     * Non-zero if a thread is waiting in getNextEvent(int) for an event of
-     * a particular ID to be posted to the queue.
-     */
+
     private volatile int waitForID;
 
-    /*
-     * AppContext corresponding to the queue.
-     */
+
     private final AppContext appContext;
 
     private final String name = "AWT-EventQueue-" + threadInitNumber.getAndIncrement();
@@ -233,44 +134,20 @@ public class EventQueue {
         for (int i = 0; i < NUM_PRIORITIES; i++) {
             queues[i] = new Queue();
         }
-        /*
-         * NOTE: if you ever have to start the associated event dispatch
-         * thread at this point, be aware of the following problem:
-         * If this EventQueue instance is created in
-         * SunToolkit.createNewAppContext() the started dispatch thread
-         * may call AppContext.getAppContext() before createNewAppContext()
-         * completes thus causing mess in thread group to appcontext mapping.
-         */
+
 
         appContext = AppContext.getAppContext();
         pushPopLock = (Lock)appContext.get(AppContext.EVENT_QUEUE_LOCK_KEY);
         pushPopCond = (Condition)appContext.get(AppContext.EVENT_QUEUE_COND_KEY);
     }
 
-    /**
-     * Posts a 1.1-style event to the <code>EventQueue</code>.
-     * If there is an existing event on the queue with the same ID
-     * and event source, the source <code>Component</code>'s
-     * <code>coalesceEvents</code> method will be called.
-     *
-     * @param theEvent an instance of <code>java.awt.AWTEvent</code>,
-     *          or a subclass of it
-     * @throws NullPointerException if <code>theEvent</code> is <code>null</code>
-     */
+
     public void postEvent(AWTEvent theEvent) {
         SunToolkit.flushPendingEvents(appContext);
         postEventPrivate(theEvent);
     }
 
-    /**
-     * Posts a 1.1-style event to the <code>EventQueue</code>.
-     * If there is an existing event on the queue with the same ID
-     * and event source, the source <code>Component</code>'s
-     * <code>coalesceEvents</code> method will be called.
-     *
-     * @param theEvent an instance of <code>java.awt.AWTEvent</code>,
-     *          or a subclass of it
-     */
+
     private final void postEventPrivate(AWTEvent theEvent) {
         theEvent.isPosted = true;
         pushPopLock.lock();
@@ -313,14 +190,7 @@ public class EventQueue {
         return NORM_PRIORITY;
     }
 
-    /**
-     * Posts the event to the internal Queue of specified priority,
-     * coalescing as appropriate.
-     *
-     * @param theEvent an instance of <code>java.awt.AWTEvent</code>,
-     *          or a subclass of it
-     * @param priority  the desired priority of the event
-     */
+
     private void postEvent(AWTEvent theEvent, int priority) {
         if (coalesceEvent(theEvent, priority)) {
             return;
@@ -419,13 +289,7 @@ public class EventQueue {
         return false;
     }
 
-    /*
-     * Should avoid of calling this method by any means
-     * as it's working time is dependant on EQ length.
-     * In the wors case this method alone can slow down the entire application
-     * 10 times by stalling the Event processing.
-     * Only here by backward compatibility reasons.
-     */
+
     private boolean coalesceOtherEvent(AWTEvent e, int priority) {
         int id = e.getID();
         Component source = (Component)e.getSource();
@@ -513,11 +377,7 @@ public class EventQueue {
         }
     }
 
-    /**
-     * Returns whether an event is pending on any of the separate
-     * Queues.
-     * @return whether an event is pending on any of the separate Queues
-     */
+
     private boolean noEvents() {
         for (int i = 0; i < NUM_PRIORITIES; i++) {
             if (queues[i].head != null) {
@@ -528,21 +388,10 @@ public class EventQueue {
         return true;
     }
 
-    /**
-     * Removes an event from the <code>EventQueue</code> and
-     * returns it.  This method will block until an event has
-     * been posted by another thread.
-     * @return the next <code>AWTEvent</code>
-     * @exception InterruptedException
-     *            if any thread has interrupted this thread
-     */
+
     public AWTEvent getNextEvent() throws InterruptedException {
         do {
-            /*
-             * SunToolkit.flushPendingEvents must be called outside
-             * of the synchronized block to avoid deadlock when
-             * event queues are nested with push()/pop().
-             */
+
             SunToolkit.flushPendingEvents(appContext);
             pushPopLock.lock();
             try {
@@ -558,9 +407,7 @@ public class EventQueue {
         } while(true);
     }
 
-    /*
-     * Must be called under the lock. Doesn't call flushPendingEvents()
-     */
+
     AWTEvent getNextEventPrivate() throws InterruptedException {
         for (int i = NUM_PRIORITIES - 1; i >= 0; i--) {
             if (queues[i].head != null) {
@@ -578,11 +425,7 @@ public class EventQueue {
 
     AWTEvent getNextEvent(int id) throws InterruptedException {
         do {
-            /*
-             * SunToolkit.flushPendingEvents must be called outside
-             * of the synchronized block to avoid deadlock when
-             * event queues are nested with push()/pop().
-             */
+
             SunToolkit.flushPendingEvents(appContext);
             pushPopLock.lock();
             try {
@@ -613,11 +456,7 @@ public class EventQueue {
         } while(true);
     }
 
-    /**
-     * Returns the first event on the <code>EventQueue</code>
-     * without removing it.
-     * @return the first event
-     */
+
     public AWTEvent peekEvent() {
         pushPopLock.lock();
         try {
@@ -633,12 +472,7 @@ public class EventQueue {
         return null;
     }
 
-    /**
-     * Returns the first event with the specified id, if any.
-     * @param id the id of the type of event desired
-     * @return the first event of the specified id or <code>null</code>
-     *    if there is no such event
-     */
+
     public AWTEvent peekEvent(int id) {
         pushPopLock.lock();
         try {
@@ -660,44 +494,7 @@ public class EventQueue {
     private static final JavaSecurityAccess javaSecurityAccess =
         SharedSecrets.getJavaSecurityAccess();
 
-    /**
-     * Dispatches an event. The manner in which the event is
-     * dispatched depends upon the type of the event and the
-     * type of the event's source object:
-     *
-     * <table border=1 summary="Event types, source types, and dispatch methods">
-     * <tr>
-     *     <th>Event Type</th>
-     *     <th>Source Type</th>
-     *     <th>Dispatched To</th>
-     * </tr>
-     * <tr>
-     *     <td>ActiveEvent</td>
-     *     <td>Any</td>
-     *     <td>event.dispatch()</td>
-     * </tr>
-     * <tr>
-     *     <td>Other</td>
-     *     <td>Component</td>
-     *     <td>source.dispatchEvent(AWTEvent)</td>
-     * </tr>
-     * <tr>
-     *     <td>Other</td>
-     *     <td>MenuComponent</td>
-     *     <td>source.dispatchEvent(AWTEvent)</td>
-     * </tr>
-     * <tr>
-     *     <td>Other</td>
-     *     <td>Other</td>
-     *     <td>No action (ignored)</td>
-     * </tr>
-     * </table>
-     * <p>
-     * @param event an instance of <code>java.awt.AWTEvent</code>,
-     *          or a subclass of it
-     * @throws NullPointerException if <code>event</code> is <code>null</code>
-     * @since           1.2
-     */
+
     protected void dispatchEvent(final AWTEvent event) {
         final Object src = event.getSource();
         final PrivilegedAction<Void> action = new PrivilegedAction<Void>() {
@@ -745,9 +542,7 @@ public class EventQueue {
                     null;
     }
 
-    /**
-     * Called from dispatchEvent() under a correct AccessControlContext
-     */
+
     private void dispatchEventImpl(final AWTEvent event, final Object src) {
         event.isPosted = true;
         if (event instanceof ActiveEvent) {
@@ -772,34 +567,7 @@ public class EventQueue {
         }
     }
 
-    /**
-     * Returns the timestamp of the most recent event that had a timestamp, and
-     * that was dispatched from the <code>EventQueue</code> associated with the
-     * calling thread. If an event with a timestamp is currently being
-     * dispatched, its timestamp will be returned. If no events have yet
-     * been dispatched, the EventQueue's initialization time will be
-     * returned instead.In the current version of
-     * the JDK, only <code>InputEvent</code>s,
-     * <code>ActionEvent</code>s, and <code>InvocationEvent</code>s have
-     * timestamps; however, future versions of the JDK may add timestamps to
-     * additional event types. Note that this method should only be invoked
-     * from an application's {@link #isDispatchThread event dispatching thread}.
-     * If this method is
-     * invoked from another thread, the current system time (as reported by
-     * <code>System.currentTimeMillis()</code>) will be returned instead.
-     *
-     * @return the timestamp of the last <code>InputEvent</code>,
-     *         <code>ActionEvent</code>, or <code>InvocationEvent</code> to be
-     *         dispatched, or <code>System.currentTimeMillis()</code> if this
-     *         method is invoked on a thread other than an event dispatching
-     *         thread
-     * @see java.awt.event.InputEvent#getWhen
-     * @see java.awt.event.ActionEvent#getWhen
-     * @see java.awt.event.InvocationEvent#getWhen
-     * @see #isDispatchThread
-     *
-     * @since 1.4
-     */
+
     public static long getMostRecentEventTime() {
         return Toolkit.getEventQueue().getMostRecentEventTimeImpl();
     }
@@ -814,9 +582,7 @@ public class EventQueue {
         }
     }
 
-    /**
-     * @return most recent event time on all threads.
-     */
+
     long getMostRecentEventTimeEx() {
         pushPopLock.lock();
         try {
@@ -826,18 +592,7 @@ public class EventQueue {
         }
     }
 
-    /**
-     * Returns the the event currently being dispatched by the
-     * <code>EventQueue</code> associated with the calling thread. This is
-     * useful if a method needs access to the event, but was not designed to
-     * receive a reference to it as an argument. Note that this method should
-     * only be invoked from an application's event dispatching thread. If this
-     * method is invoked from another thread, null will be returned.
-     *
-     * @return the event currently being dispatched, or null if this method is
-     *         invoked on a thread other than an event dispatching thread
-     * @since 1.4
-     */
+
     public static AWTEvent getCurrentEvent() {
         return Toolkit.getEventQueue().getCurrentEventImpl();
     }
@@ -852,17 +607,7 @@ public class EventQueue {
         }
     }
 
-    /**
-     * Replaces the existing <code>EventQueue</code> with the specified one.
-     * Any pending events are transferred to the new <code>EventQueue</code>
-     * for processing by it.
-     *
-     * @param newEventQueue an <code>EventQueue</code>
-     *          (or subclass thereof) instance to be use
-     * @see      java.awt.EventQueue#pop
-     * @throws NullPointerException if <code>newEventQueue</code> is <code>null</code>
-     * @since           1.2
-     */
+
     public void push(EventQueue newEventQueue) {
         if (getEventLog().isLoggable(PlatformLogger.Level.FINE)) {
             getEventLog().fine("EventQueue.push(" + newEventQueue + ")");
@@ -917,19 +662,7 @@ public class EventQueue {
         }
     }
 
-    /**
-     * Stops dispatching events using this <code>EventQueue</code>.
-     * Any pending events are transferred to the previous
-     * <code>EventQueue</code> for processing.
-     * <p>
-     * Warning: To avoid deadlock, do not declare this method
-     * synchronized in a subclass.
-     *
-     * @exception EmptyStackException if no previous push was made
-     *  on this <code>EventQueue</code>
-     * @see      java.awt.EventQueue#push
-     * @since           1.2
-     */
+
     protected void pop() throws EmptyStackException {
         if (getEventLog().isLoggable(PlatformLogger.Level.FINE)) {
             getEventLog().fine("EventQueue.pop(" + this + ")");
@@ -981,21 +714,7 @@ public class EventQueue {
         }
     }
 
-    /**
-     * Creates a new {@code secondary loop} associated with this
-     * event queue. Use the {@link SecondaryLoop#enter} and
-     * {@link SecondaryLoop#exit} methods to start and stop the
-     * event loop and dispatch the events from this queue.
-     *
-     * @return secondaryLoop A new secondary loop object, which can
-     *                       be used to launch a new nested event
-     *                       loop and dispatch events from this queue
-     *
-     * @see SecondaryLoop#enter
-     * @see SecondaryLoop#exit
-     *
-     * @since 1.7
-     */
+
     public SecondaryLoop createSecondaryLoop() {
         return createSecondaryLoop(null, null, 0);
     }
@@ -1019,26 +738,7 @@ public class EventQueue {
         }
     }
 
-    /**
-     * Returns true if the calling thread is
-     * {@link Toolkit#getSystemEventQueue the current AWT EventQueue}'s
-     * dispatch thread. Use this method to ensure that a particular
-     * task is being executed (or not being) there.
-     * <p>
-     * Note: use the {@link #invokeLater} or {@link #invokeAndWait}
-     * methods to execute a task in
-     * {@link Toolkit#getSystemEventQueue the current AWT EventQueue}'s
-     * dispatch thread.
-     * <p>
-     *
-     * @return true if running in
-     * {@link Toolkit#getSystemEventQueue the current AWT EventQueue}'s
-     * dispatch thread
-     * @see             #invokeLater
-     * @see             #invokeAndWait
-     * @see             Toolkit#getSystemEventQueue
-     * @since           1.2
-     */
+
     public static boolean isDispatchThread() {
         EventQueue eq = Toolkit.getEventQueue();
         return eq.isDispatchThreadImpl();
@@ -1089,28 +789,16 @@ public class EventQueue {
     }
 
     final void detachDispatchThread(EventDispatchThread edt) {
-        /*
-         * Minimize discard possibility for non-posted events
-         */
+
         SunToolkit.flushPendingEvents(appContext);
-        /*
-         * This synchronized block is to secure that the event dispatch
-         * thread won't die in the middle of posting a new event to the
-         * associated event queue. It is important because we notify
-         * that the event dispatch thread is busy after posting a new event
-         * to its queue, so the EventQueue.dispatchThread reference must
-         * be valid at that point.
-         */
+
         pushPopLock.lock();
         try {
             if (edt == dispatchThread) {
                 dispatchThread = null;
             }
             AWTAutoShutdown.getInstance().notifyThreadFree(edt);
-            /*
-             * Event was posted after EDT events pumping had stopped, so start
-             * another EDT to handle this event
-             */
+
             if (peekEvent() != null) {
                 initDispatchThread();
             }
@@ -1119,15 +807,7 @@ public class EventQueue {
         }
     }
 
-    /*
-     * Gets the <code>EventDispatchThread</code> for this
-     * <code>EventQueue</code>.
-     * @return the event dispatch thread associated with this event queue
-     *         or <code>null</code> if this event queue doesn't have a
-     *         working thread associated with it
-     * @see    java.awt.EventQueue#initDispatchThread
-     * @see    java.awt.EventQueue#detachDispatchThread
-     */
+
     final EventDispatchThread getDispatchThread() {
         pushPopLock.lock();
         try {
@@ -1137,18 +817,7 @@ public class EventQueue {
         }
     }
 
-    /*
-     * Removes any pending events for the specified source object.
-     * If removeAllEvents parameter is <code>true</code> then all
-     * events for the specified source object are removed, if it
-     * is <code>false</code> then <code>SequencedEvent</code>, <code>SentEvent</code>,
-     * <code>FocusEvent</code>, <code>WindowEvent</code>, <code>KeyEvent</code>,
-     * and <code>InputMethodEvent</code> are kept in the queue, but all other
-     * events are removed.
-     *
-     * This method is normally called by the source's
-     * <code>removeNotify</code> method.
-     */
+
     final void removeSourceEvents(Object source, boolean removeAllEvents) {
         SunToolkit.flushPendingEvents(appContext);
         pushPopLock.lock();
@@ -1246,50 +915,13 @@ public class EventQueue {
         }
     }
 
-    /**
-     * Causes <code>runnable</code> to have its <code>run</code>
-     * method called in the {@link #isDispatchThread dispatch thread} of
-     * {@link Toolkit#getSystemEventQueue the system EventQueue}.
-     * This will happen after all pending events are processed.
-     *
-     * @param runnable  the <code>Runnable</code> whose <code>run</code>
-     *                  method should be executed
-     *                  asynchronously in the
-     *                  {@link #isDispatchThread event dispatch thread}
-     *                  of {@link Toolkit#getSystemEventQueue the system EventQueue}
-     * @see             #invokeAndWait
-     * @see             Toolkit#getSystemEventQueue
-     * @see             #isDispatchThread
-     * @since           1.2
-     */
+
     public static void invokeLater(Runnable runnable) {
         Toolkit.getEventQueue().postEvent(
             new InvocationEvent(Toolkit.getDefaultToolkit(), runnable));
     }
 
-    /**
-     * Causes <code>runnable</code> to have its <code>run</code>
-     * method called in the {@link #isDispatchThread dispatch thread} of
-     * {@link Toolkit#getSystemEventQueue the system EventQueue}.
-     * This will happen after all pending events are processed.
-     * The call blocks until this has happened.  This method
-     * will throw an Error if called from the
-     * {@link #isDispatchThread event dispatcher thread}.
-     *
-     * @param runnable  the <code>Runnable</code> whose <code>run</code>
-     *                  method should be executed
-     *                  synchronously in the
-     *                  {@link #isDispatchThread event dispatch thread}
-     *                  of {@link Toolkit#getSystemEventQueue the system EventQueue}
-     * @exception       InterruptedException  if any thread has
-     *                  interrupted this thread
-     * @exception       InvocationTargetException  if an throwable is thrown
-     *                  when running <code>runnable</code>
-     * @see             #invokeLater
-     * @see             Toolkit#getSystemEventQueue
-     * @see             #isDispatchThread
-     * @since           1.2
-     */
+
     public static void invokeAndWait(Runnable runnable)
         throws InterruptedException, InvocationTargetException
     {
@@ -1322,12 +954,7 @@ public class EventQueue {
         }
     }
 
-    /*
-     * Called from PostEventQueue.postEvent to notify that a new event
-     * appeared. First it proceeds to the EventQueue on the top of the
-     * stack, then notifies the associated dispatch thread if it exists
-     * or starts a new one otherwise.
-     */
+
     private void wakeup(boolean isShutdown) {
         pushPopLock.lock();
         try {
@@ -1354,12 +981,7 @@ public class EventQueue {
     }
 }
 
-/**
- * The Queue object holds pointers to the beginning and end of one internal
- * queue. An EventQueue object is composed of multiple internal Queues, one
- * for each priority supported by the EventQueue. All Events on a particular
- * internal Queue have identical priority.
- */
+
 class Queue {
     EventQueueItem head;
     EventQueueItem tail;

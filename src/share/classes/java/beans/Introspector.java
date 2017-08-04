@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 1996, 2014, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.beans;
 
@@ -49,61 +26,16 @@ import java.util.TreeMap;
 
 import sun.reflect.misc.ReflectUtil;
 
-/**
- * The Introspector class provides a standard way for tools to learn about
- * the properties, events, and methods supported by a target Java Bean.
- * <p>
- * For each of those three kinds of information, the Introspector will
- * separately analyze the bean's class and superclasses looking for
- * either explicit or implicit information and use that information to
- * build a BeanInfo object that comprehensively describes the target bean.
- * <p>
- * For each class "Foo", explicit information may be available if there exists
- * a corresponding "FooBeanInfo" class that provides a non-null value when
- * queried for the information.   We first look for the BeanInfo class by
- * taking the full package-qualified name of the target bean class and
- * appending "BeanInfo" to form a new class name.  If this fails, then
- * we take the final classname component of this name, and look for that
- * class in each of the packages specified in the BeanInfo package search
- * path.
- * <p>
- * Thus for a class such as "sun.xyz.OurButton" we would first look for a
- * BeanInfo class called "sun.xyz.OurButtonBeanInfo" and if that failed we'd
- * look in each package in the BeanInfo search path for an OurButtonBeanInfo
- * class.  With the default search path, this would mean looking for
- * "sun.beans.infos.OurButtonBeanInfo".
- * <p>
- * If a class provides explicit BeanInfo about itself then we add that to
- * the BeanInfo information we obtained from analyzing any derived classes,
- * but we regard the explicit information as being definitive for the current
- * class and its base classes, and do not proceed any further up the superclass
- * chain.
- * <p>
- * If we don't find explicit BeanInfo on a class, we use low-level
- * reflection to study the methods of the class and apply standard design
- * patterns to identify property accessors, event sources, or public
- * methods.  We then proceed to analyze the class's superclass and add
- * in the information from it (and possibly on up the superclass chain).
- * <p>
- * For more information about introspection and design patterns, please
- * consult the
- *  <a href="http://www.oracle.com/technetwork/java/javase/documentation/spec-136004.html">JavaBeans&trade; specification</a>.
- */
+
 
 public class Introspector {
 
     // Flags that can be used to control getBeanInfo:
-    /**
-     * Flag to indicate to use of all beaninfo.
-     */
+
     public final static int USE_ALL_BEANINFO           = 1;
-    /**
-     * Flag to indicate to ignore immediate beaninfo.
-     */
+
     public final static int IGNORE_IMMEDIATE_BEANINFO  = 2;
-    /**
-     * Flag to indicate to ignore all beaninfo.
-     */
+
     public final static int IGNORE_ALL_BEANINFO        = 3;
 
     // Static Caches to speed up introspection.
@@ -144,20 +76,7 @@ public class Introspector {
     //                          Public methods
     //======================================================================
 
-    /**
-     * Introspect on a Java Bean and learn about all its properties, exposed
-     * methods, and events.
-     * <p>
-     * If the BeanInfo class for a Java Bean has been previously Introspected
-     * then the BeanInfo class is retrieved from the BeanInfo cache.
-     *
-     * @param beanClass  The bean class to be analyzed.
-     * @return  A BeanInfo object describing the target bean.
-     * @exception IntrospectionException if an exception occurs during
-     *              introspection.
-     * @see #flushCaches
-     * @see #flushFromCaches
-     */
+
     public static BeanInfo getBeanInfo(Class<?> beanClass)
         throws IntrospectionException
     {
@@ -178,80 +97,19 @@ public class Introspector {
         return beanInfo;
     }
 
-    /**
-     * Introspect on a Java bean and learn about all its properties, exposed
-     * methods, and events, subject to some control flags.
-     * <p>
-     * If the BeanInfo class for a Java Bean has been previously Introspected
-     * based on the same arguments then the BeanInfo class is retrieved
-     * from the BeanInfo cache.
-     *
-     * @param beanClass  The bean class to be analyzed.
-     * @param flags  Flags to control the introspection.
-     *     If flags == USE_ALL_BEANINFO then we use all of the BeanInfo
-     *          classes we can discover.
-     *     If flags == IGNORE_IMMEDIATE_BEANINFO then we ignore any
-     *           BeanInfo associated with the specified beanClass.
-     *     If flags == IGNORE_ALL_BEANINFO then we ignore all BeanInfo
-     *           associated with the specified beanClass or any of its
-     *           parent classes.
-     * @return  A BeanInfo object describing the target bean.
-     * @exception IntrospectionException if an exception occurs during
-     *              introspection.
-     */
+
     public static BeanInfo getBeanInfo(Class<?> beanClass, int flags)
                                                 throws IntrospectionException {
         return getBeanInfo(beanClass, null, flags);
     }
 
-    /**
-     * Introspect on a Java bean and learn all about its properties, exposed
-     * methods, below a given "stop" point.
-     * <p>
-     * If the BeanInfo class for a Java Bean has been previously Introspected
-     * based on the same arguments, then the BeanInfo class is retrieved
-     * from the BeanInfo cache.
-     * @return the BeanInfo for the bean
-     * @param beanClass The bean class to be analyzed.
-     * @param stopClass The baseclass at which to stop the analysis.  Any
-     *    methods/properties/events in the stopClass or in its baseclasses
-     *    will be ignored in the analysis.
-     * @exception IntrospectionException if an exception occurs during
-     *              introspection.
-     */
+
     public static BeanInfo getBeanInfo(Class<?> beanClass, Class<?> stopClass)
                                                 throws IntrospectionException {
         return getBeanInfo(beanClass, stopClass, USE_ALL_BEANINFO);
     }
 
-    /**
-     * Introspect on a Java Bean and learn about all its properties,
-     * exposed methods and events, below a given {@code stopClass} point
-     * subject to some control {@code flags}.
-     * <dl>
-     *  <dt>USE_ALL_BEANINFO</dt>
-     *  <dd>Any BeanInfo that can be discovered will be used.</dd>
-     *  <dt>IGNORE_IMMEDIATE_BEANINFO</dt>
-     *  <dd>Any BeanInfo associated with the specified {@code beanClass} will be ignored.</dd>
-     *  <dt>IGNORE_ALL_BEANINFO</dt>
-     *  <dd>Any BeanInfo associated with the specified {@code beanClass}
-     *      or any of its parent classes will be ignored.</dd>
-     * </dl>
-     * Any methods/properties/events in the {@code stopClass}
-     * or in its parent classes will be ignored in the analysis.
-     * <p>
-     * If the BeanInfo class for a Java Bean has been
-     * previously introspected based on the same arguments then
-     * the BeanInfo class is retrieved from the BeanInfo cache.
-     *
-     * @param beanClass  the bean class to be analyzed
-     * @param stopClass  the parent class at which to stop the analysis
-     * @param flags      flags to control the introspection
-     * @return a BeanInfo object describing the target bean
-     * @exception IntrospectionException if an exception occurs during introspection
-     *
-     * @since 1.7
-     */
+
     public static BeanInfo getBeanInfo(Class<?> beanClass, Class<?> stopClass,
                                         int flags) throws IntrospectionException {
         BeanInfo bi;
@@ -268,19 +126,7 @@ public class Introspector {
     }
 
 
-    /**
-     * Utility method to take a string and convert it to normal Java variable
-     * name capitalization.  This normally means converting the first
-     * character from upper case to lower case, but in the (unusual) special
-     * case when there is more than one character and both the first and
-     * second characters are upper case, we leave it alone.
-     * <p>
-     * Thus "FooBah" becomes "fooBah" and "X" becomes "x", but "URL" stays
-     * as "URL".
-     *
-     * @param  name The string to be decapitalized.
-     * @return  The decapitalized version of the string.
-     */
+
     public static String decapitalize(String name) {
         if (name == null || name.length() == 0) {
             return name;
@@ -294,35 +140,13 @@ public class Introspector {
         return new String(chars);
     }
 
-    /**
-     * Gets the list of package names that will be used for
-     *          finding BeanInfo classes.
-     *
-     * @return  The array of package names that will be searched in
-     *          order to find BeanInfo classes. The default value
-     *          for this array is implementation-dependent; e.g.
-     *          Sun implementation initially sets to {"sun.beans.infos"}.
-     */
+
 
     public static String[] getBeanInfoSearchPath() {
         return ThreadGroupContext.getContext().getBeanInfoFinder().getPackages();
     }
 
-    /**
-     * Change the list of package names that will be used for
-     *          finding BeanInfo classes.  The behaviour of
-     *          this method is undefined if parameter path
-     *          is null.
-     *
-     * <p>First, if there is a security manager, its <code>checkPropertiesAccess</code>
-     * method is called. This could result in a SecurityException.
-     *
-     * @param path  Array of package names.
-     * @exception  SecurityException  if a security manager exists and its
-     *             <code>checkPropertiesAccess</code> method doesn't allow setting
-     *              of system properties.
-     * @see SecurityManager#checkPropertiesAccess
-     */
+
 
     public static void setBeanInfoSearchPath(String[] path) {
         SecurityManager sm = System.getSecurityManager();
@@ -333,12 +157,7 @@ public class Introspector {
     }
 
 
-    /**
-     * Flush all of the Introspector's internal caches.  This method is
-     * not normally required.  It is normally only needed by advanced
-     * tools that update existing "Class" objects in-place and need
-     * to make the Introspector re-analyze existing Class objects.
-     */
+
 
     public static void flushCaches() {
         synchronized (declaredMethodCache) {
@@ -347,21 +166,7 @@ public class Introspector {
         }
     }
 
-    /**
-     * Flush the Introspector's internal cached information for a given class.
-     * This method is not normally required.  It is normally only needed
-     * by advanced tools that update existing "Class" objects in-place
-     * and need to make the Introspector re-analyze an existing Class object.
-     *
-     * Note that only the direct state associated with the target Class
-     * object is flushed.  We do not flush state for other Class objects
-     * with the same name, nor do we flush state for any related Class
-     * objects (such as subclasses), even though their state may include
-     * information indirectly obtained from the target Class object.
-     *
-     * @param clz  Class object to be flushed.
-     * @throws NullPointerException If the Class object is null.
-     */
+
     public static void flushFromCaches(Class<?> clz) {
         if (clz == null) {
             throw new NullPointerException();
@@ -414,9 +219,7 @@ public class Introspector {
         }
     }
 
-    /**
-     * Constructs a GenericBeanInfo class from the state of the Introspector
-     */
+
     private BeanInfo getBeanInfo() throws IntrospectionException {
 
         // the evaluation order here is import, as we evaluate the
@@ -435,23 +238,12 @@ public class Introspector {
 
     }
 
-    /**
-     * Looks for an explicit BeanInfo class that corresponds to the Class.
-     * First it looks in the existing package that the Class is defined in,
-     * then it checks to see if the class is its own BeanInfo. Finally,
-     * the BeanInfo search path is prepended to the class and searched.
-     *
-     * @param beanClass  the class type of the bean
-     * @return Instance of an explicit BeanInfo class or null if one isn't found.
-     */
+
     private static BeanInfo findExplicitBeanInfo(Class<?> beanClass) {
         return ThreadGroupContext.getContext().getBeanInfoFinder().find(beanClass);
     }
 
-    /**
-     * @return An array of PropertyDescriptors describing the editable
-     * properties supported by the target bean.
-     */
+
 
     private PropertyDescriptor[] getTargetPropertyInfo() {
 
@@ -570,9 +362,7 @@ public class Introspector {
 
     private HashMap<String, List<PropertyDescriptor>> pdStore = new HashMap<>();
 
-    /**
-     * Adds the property descriptor to the list store.
-     */
+
     private void addPropertyDescriptor(PropertyDescriptor pd) {
         String propName = pd.getName();
         List<PropertyDescriptor> list = pdStore.get(propName);
@@ -625,10 +415,7 @@ public class Introspector {
         return descriptors;
     }
 
-    /**
-     * Populates the property descriptor table by merging the
-     * lists of Property descriptors.
-     */
+
     private void processPropertyDescriptors() {
         if (properties == null) {
             properties = new TreeMap<>();
@@ -845,12 +632,7 @@ public class Introspector {
         return pd;
     }
 
-    /**
-     * Adds the property descriptor to the indexedproperty descriptor only if the
-     * types are the same.
-     *
-     * The most specific property descriptor will take precedence.
-     */
+
     private PropertyDescriptor mergePropertyDescriptor(IndexedPropertyDescriptor ipd,
                                                        PropertyDescriptor pd) {
         PropertyDescriptor result = null;
@@ -930,10 +712,7 @@ public class Introspector {
         }
     }
 
-    /**
-     * @return An array of EventSetDescriptors describing the kinds of
-     * events fired by the target bean.
-     */
+
     private EventSetDescriptor[] getTargetEventInfo() throws IntrospectionException {
         if (events == null) {
             events = new HashMap<>();
@@ -1150,10 +929,7 @@ public class Introspector {
         events.put(key, composite);
     }
 
-    /**
-     * @return An array of MethodDescriptors describing the private
-     * methods supported by the target bean.
-     */
+
     private MethodDescriptor[] getTargetMethodInfo() {
         if (methods == null) {
             methods = new HashMap<>(100);
@@ -1262,9 +1038,7 @@ public class Introspector {
         methods.put(longKey, composite);
     }
 
-    /**
-     * Creates a key for a method in a method cache.
-     */
+
     private static String makeQualifiedMethodName(String name, String[] params) {
         StringBuffer sb = new StringBuffer(name);
         sb.append('=');
@@ -1321,9 +1095,7 @@ public class Introspector {
         return isSubclass(TypeResolver.erase(TypeResolver.resolveInClass(beanClass, argTypes[0])), EventObject.class);
     }
 
-    /*
-     * Internal method to return *public* methods within a class.
-     */
+
     private static Method[] getPublicDeclaredMethods(Class<?> clz) {
         // Looking up Class.getDeclaredMethods is relatively expensive,
         // so we cache the results.
@@ -1363,10 +1135,7 @@ public class Introspector {
     // Package private support methods.
     //======================================================================
 
-    /**
-     * Internal support for finding a target methodName with a given
-     * parameter list on a given class.
-     */
+
     private static Method internalFindMethod(Class<?> start, String methodName,
                                                  int argCount, Class args[]) {
         // For overriden methods we need to find the most derived version.
@@ -1423,25 +1192,12 @@ public class Introspector {
         return method;
     }
 
-    /**
-     * Find a target methodName on a given class.
-     */
+
     static Method findMethod(Class<?> cls, String methodName, int argCount) {
         return findMethod(cls, methodName, argCount, null);
     }
 
-    /**
-     * Find a target methodName with specific parameter list on a given class.
-     * <p>
-     * Used in the contructors of the EventSetDescriptor,
-     * PropertyDescriptor and the IndexedPropertyDescriptor.
-     * <p>
-     * @param cls The Class object on which to retrieve the method.
-     * @param methodName Name of the method.
-     * @param argCount Number of arguments for the desired method.
-     * @param args Array of argument types for the method.
-     * @return the method or null if not found
-     */
+
     static Method findMethod(Class<?> cls, String methodName, int argCount,
                              Class args[]) {
         if (methodName == null) {
@@ -1450,12 +1206,7 @@ public class Introspector {
         return internalFindMethod(cls, methodName, argCount, args);
     }
 
-    /**
-     * Return true if class a is either equivalent to class b, or
-     * if class a is a subclass of class b, i.e. if a either "extends"
-     * or "implements" b.
-     * Note tht either or both "Class" objects may represent interfaces.
-     */
+
     static  boolean isSubclass(Class<?> a, Class<?> b) {
         // We rely on the fact that for any given java class or
         // primtitive type there is a unqiue Class object, so
@@ -1482,9 +1233,7 @@ public class Introspector {
         return false;
     }
 
-    /**
-     * Return true iff the given method throws the given exception.
-     */
+
     private boolean throwsException(Method method, Class<?> exception) {
         Class exs[] = method.getExceptionTypes();
         for (int i = 0; i < exs.length; i++) {
@@ -1495,11 +1244,7 @@ public class Introspector {
         return false;
     }
 
-    /**
-     * Try to create an instance of a named class.
-     * First try the classloader of "sibling", then try the system
-     * classloader then the class loader of the current Thread.
-     */
+
     static Object instantiate(Class<?> sibling, String className)
                  throws InstantiationException, IllegalAccessException,
                                                 ClassNotFoundException {
@@ -1513,12 +1258,7 @@ public class Introspector {
 
 //===========================================================================
 
-/**
- * Package private implementation support class for Introspector's
- * internal use.
- * <p>
- * Mostly this is used as a placeholder for the descriptors.
- */
+
 
 class GenericBeanInfo extends SimpleBeanInfo {
 
@@ -1545,10 +1285,7 @@ class GenericBeanInfo extends SimpleBeanInfo {
                 : null;
     }
 
-    /**
-     * Package-private dup constructor
-     * This must isolate the new object from any changes to the old object.
-     */
+
     GenericBeanInfo(GenericBeanInfo old) {
 
         beanDescriptor = new BeanDescriptor(old.beanDescriptor);

@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 package java.util.stream;
 
 import java.util.Objects;
@@ -35,101 +12,40 @@ import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.LongConsumer;
 
-/**
- * Factory for creating instances of {@code TerminalOp} that perform an
- * action for every element of a stream.  Supported variants include unordered
- * traversal (elements are provided to the {@code Consumer} as soon as they are
- * available), and ordered traversal (elements are provided to the
- * {@code Consumer} in encounter order.)
- *
- * <p>Elements are provided to the {@code Consumer} on whatever thread and
- * whatever order they become available.  For ordered traversals, it is
- * guaranteed that processing an element <em>happens-before</em> processing
- * subsequent elements in the encounter order.
- *
- * <p>Exceptions occurring as a result of sending an element to the
- * {@code Consumer} will be relayed to the caller and traversal will be
- * prematurely terminated.
- *
- * @since 1.8
- */
+
 final class ForEachOps {
 
     private ForEachOps() { }
 
-    /**
-     * Constructs a {@code TerminalOp} that perform an action for every element
-     * of a stream.
-     *
-     * @param action the {@code Consumer} that receives all elements of a
-     *        stream
-     * @param ordered whether an ordered traversal is requested
-     * @param <T> the type of the stream elements
-     * @return the {@code TerminalOp} instance
-     */
+
     public static <T> TerminalOp<T, Void> makeRef(Consumer<? super T> action,
                                                   boolean ordered) {
         Objects.requireNonNull(action);
         return new ForEachOp.OfRef<>(action, ordered);
     }
 
-    /**
-     * Constructs a {@code TerminalOp} that perform an action for every element
-     * of an {@code IntStream}.
-     *
-     * @param action the {@code IntConsumer} that receives all elements of a
-     *        stream
-     * @param ordered whether an ordered traversal is requested
-     * @return the {@code TerminalOp} instance
-     */
+
     public static TerminalOp<Integer, Void> makeInt(IntConsumer action,
                                                     boolean ordered) {
         Objects.requireNonNull(action);
         return new ForEachOp.OfInt(action, ordered);
     }
 
-    /**
-     * Constructs a {@code TerminalOp} that perform an action for every element
-     * of a {@code LongStream}.
-     *
-     * @param action the {@code LongConsumer} that receives all elements of a
-     *        stream
-     * @param ordered whether an ordered traversal is requested
-     * @return the {@code TerminalOp} instance
-     */
+
     public static TerminalOp<Long, Void> makeLong(LongConsumer action,
                                                   boolean ordered) {
         Objects.requireNonNull(action);
         return new ForEachOp.OfLong(action, ordered);
     }
 
-    /**
-     * Constructs a {@code TerminalOp} that perform an action for every element
-     * of a {@code DoubleStream}.
-     *
-     * @param action the {@code DoubleConsumer} that receives all elements of
-     *        a stream
-     * @param ordered whether an ordered traversal is requested
-     * @return the {@code TerminalOp} instance
-     */
+
     public static TerminalOp<Double, Void> makeDouble(DoubleConsumer action,
                                                       boolean ordered) {
         Objects.requireNonNull(action);
         return new ForEachOp.OfDouble(action, ordered);
     }
 
-    /**
-     * A {@code TerminalOp} that evaluates a stream pipeline and sends the
-     * output to itself as a {@code TerminalSink}.  Elements will be sent in
-     * whatever thread they become available.  If the traversal is unordered,
-     * they will be sent independent of the stream's encounter order.
-     *
-     * <p>This terminal operation is stateless.  For parallel evaluation, each
-     * leaf instance of a {@code ForEachTask} will send elements to the same
-     * {@code TerminalSink} reference that is an instance of this class.
-     *
-     * @param <T> the output type of the stream pipeline
-     */
+
     static abstract class ForEachOp<T>
             implements TerminalOp<T, Void>, TerminalSink<T, Void> {
         private final boolean ordered;
@@ -170,7 +86,7 @@ final class ForEachOps {
 
         // Implementations
 
-        /** Implementation class for reference streams */
+
         static final class OfRef<T> extends ForEachOp<T> {
             final Consumer<? super T> consumer;
 
@@ -185,7 +101,7 @@ final class ForEachOps {
             }
         }
 
-        /** Implementation class for {@code IntStream} */
+
         static final class OfInt extends ForEachOp<Integer>
                 implements Sink.OfInt {
             final IntConsumer consumer;
@@ -206,7 +122,7 @@ final class ForEachOps {
             }
         }
 
-        /** Implementation class for {@code LongStream} */
+
         static final class OfLong extends ForEachOp<Long>
                 implements Sink.OfLong {
             final LongConsumer consumer;
@@ -227,7 +143,7 @@ final class ForEachOps {
             }
         }
 
-        /** Implementation class for {@code DoubleStream} */
+
         static final class OfDouble extends ForEachOp<Double>
                 implements Sink.OfDouble {
             final DoubleConsumer consumer;
@@ -249,7 +165,7 @@ final class ForEachOps {
         }
     }
 
-    /** A {@code ForkJoinTask} for performing a parallel for-each operation */
+
     @SuppressWarnings("serial")
     static final class ForEachTask<S, T> extends CountedCompleter<Void> {
         private Spliterator<S> spliterator;
@@ -312,55 +228,10 @@ final class ForEachOps {
         }
     }
 
-    /**
-     * A {@code ForkJoinTask} for performing a parallel for-each operation
-     * which visits the elements in encounter order
-     */
+
     @SuppressWarnings("serial")
     static final class ForEachOrderedTask<S, T> extends CountedCompleter<Void> {
-        /*
-         * Our goal is to ensure that the elements associated with a task are
-         * processed according to an in-order traversal of the computation tree.
-         * We use completion counts for representing these dependencies, so that
-         * a task does not complete until all the tasks preceding it in this
-         * order complete.  We use the "completion map" to associate the next
-         * task in this order for any left child.  We increase the pending count
-         * of any node on the right side of such a mapping by one to indicate
-         * its dependency, and when a node on the left side of such a mapping
-         * completes, it decrements the pending count of its corresponding right
-         * side.  As the computation tree is expanded by splitting, we must
-         * atomically update the mappings to maintain the invariant that the
-         * completion map maps left children to the next node in the in-order
-         * traversal.
-         *
-         * Take, for example, the following computation tree of tasks:
-         *
-         *       a
-         *      / \
-         *     b   c
-         *    / \ / \
-         *   d  e f  g
-         *
-         * The complete map will contain (not necessarily all at the same time)
-         * the following associations:
-         *
-         *   d -> e
-         *   b -> f
-         *   f -> g
-         *
-         * Tasks e, f, g will have their pending counts increased by 1.
-         *
-         * The following relationships hold:
-         *
-         *   - completion of d "happens-before" e;
-         *   - completion of d and e "happens-before b;
-         *   - completion of b "happens-before" f; and
-         *   - completion of f "happens-before" g
-         *
-         * Thus overall the "happens-before" relationship holds for the
-         * reporting of elements, covered by tasks d, e, f and g, as specified
-         * by the forEachOrdered operation.
-         */
+
 
         private final PipelineHelper<T> helper;
         private Spliterator<S> spliterator;
@@ -422,15 +293,7 @@ final class ForEachOps {
 
                 // If task is not on the left spine
                 if (task.leftPredecessor != null) {
-                    /*
-                     * Completion of left-predecessor, or left subtree,
-                     * "happens-before" completion of left-most leaf node of
-                     * right subtree.
-                     * The left child's pending count needs to be updated before
-                     * it is associated in the completion map, otherwise the
-                     * left child can complete prematurely and violate the
-                     * "happens-before" constraint.
-                     */
+
                     leftChild.addToPendingCount(1);
                     // Update association of left-predecessor to left-most
                     // leaf node of right subtree
@@ -461,14 +324,7 @@ final class ForEachOps {
                 taskToFork.fork();
             }
 
-            /*
-             * Task's pending count is either 0 or 1.  If 1 then the completion
-             * map will contain a value that is task, and two calls to
-             * tryComplete are required for completion, one below and one
-             * triggered by the completion of task's left-predecessor in
-             * onCompletion.  Therefore there is no data race within the if
-             * block.
-             */
+
             if (task.getPendingCount() > 0) {
                 // Cannot complete just yet so buffer elements into a Node
                 // for use when completion occurs

@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 1996, 2015, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.util.zip;
 
@@ -34,13 +11,7 @@ import java.nio.charset.StandardCharsets;
 import static java.util.zip.ZipConstants64.*;
 import static java.util.zip.ZipUtils.*;
 
-/**
- * This class implements an input stream filter for reading files in the
- * ZIP file format. Includes support for both compressed and uncompressed
- * entries.
- *
- * @author      David Connelly
- */
+
 public
 class ZipInputStream extends InflaterInputStream implements ZipConstants {
     private ZipEntry entry;
@@ -59,41 +30,19 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
 
     private ZipCoder zc;
 
-    /**
-     * Check to make sure that this stream has not been closed
-     */
+
     private void ensureOpen() throws IOException {
         if (closed) {
             throw new IOException("Stream closed");
         }
     }
 
-    /**
-     * Creates a new ZIP input stream.
-     *
-     * <p>The UTF-8 {@link java.nio.charset.Charset charset} is used to
-     * decode the entry names.
-     *
-     * @param in the actual input stream
-     */
+
     public ZipInputStream(InputStream in) {
         this(in, StandardCharsets.UTF_8);
     }
 
-    /**
-     * Creates a new ZIP input stream.
-     *
-     * @param in the actual input stream
-     *
-     * @param charset
-     *        The {@linkplain java.nio.charset.Charset charset} to be
-     *        used to decode the ZIP entry name (ignored if the
-     *        <a href="package-summary.html#lang_encoding"> language
-     *        encoding bit</a> of the ZIP entry's general purpose bit
-     *        flag is set).
-     *
-     * @since 1.7
-     */
+
     public ZipInputStream(InputStream in, Charset charset) {
         super(new PushbackInputStream(in, 512), new Inflater(true), 512);
         usesDefaultInflater = true;
@@ -105,13 +54,7 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         this.zc = ZipCoder.get(charset);
     }
 
-    /**
-     * Reads the next ZIP file entry and positions the stream at the
-     * beginning of the entry data.
-     * @return the next ZIP file entry, or null if there are no more entries
-     * @exception ZipException if a ZIP file error has occurred
-     * @exception IOException if an I/O error has occurred
-     */
+
     public ZipEntry getNextEntry() throws IOException {
         ensureOpen();
         if (entry != null) {
@@ -129,29 +72,14 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         return entry;
     }
 
-    /**
-     * Closes the current ZIP entry and positions the stream for reading the
-     * next entry.
-     * @exception ZipException if a ZIP file error has occurred
-     * @exception IOException if an I/O error has occurred
-     */
+
     public void closeEntry() throws IOException {
         ensureOpen();
         while (read(tmpbuf, 0, tmpbuf.length) != -1) ;
         entryEOF = true;
     }
 
-    /**
-     * Returns 0 after EOF has reached for the current entry data,
-     * otherwise always return 1.
-     * <p>
-     * Programs should not count on this method to return the actual number
-     * of bytes that could be read without blocking.
-     *
-     * @return     1 before EOF and 0 after EOF has reached for current entry.
-     * @exception  IOException  if an I/O error occurs.
-     *
-     */
+
     public int available() throws IOException {
         ensureOpen();
         if (entryEOF) {
@@ -161,23 +89,7 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         }
     }
 
-    /**
-     * Reads from the current ZIP entry into an array of bytes.
-     * If <code>len</code> is not zero, the method
-     * blocks until some input is available; otherwise, no
-     * bytes are read and <code>0</code> is returned.
-     * @param b the buffer into which the data is read
-     * @param off the start offset in the destination array <code>b</code>
-     * @param len the maximum number of bytes read
-     * @return the actual number of bytes read, or -1 if the end of the
-     *         entry is reached
-     * @exception  NullPointerException if <code>b</code> is <code>null</code>.
-     * @exception  IndexOutOfBoundsException if <code>off</code> is negative,
-     * <code>len</code> is negative, or <code>len</code> is greater than
-     * <code>b.length - off</code>
-     * @exception ZipException if a ZIP file error has occurred
-     * @exception IOException if an I/O error has occurred
-     */
+
     public int read(byte[] b, int off, int len) throws IOException {
         ensureOpen();
         if (off < 0 || len < 0 || off > b.length - len) {
@@ -226,14 +138,7 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         }
     }
 
-    /**
-     * Skips specified number of bytes in the current ZIP entry.
-     * @param n the number of bytes to skip
-     * @return the actual number of bytes skipped
-     * @exception ZipException if a ZIP file error has occurred
-     * @exception IOException if an I/O error has occurred
-     * @exception IllegalArgumentException if {@code n < 0}
-     */
+
     public long skip(long n) throws IOException {
         if (n < 0) {
             throw new IllegalArgumentException("negative skip length");
@@ -256,11 +161,7 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         return total;
     }
 
-    /**
-     * Closes this input stream and releases any system resources associated
-     * with the stream.
-     * @exception IOException if an I/O error has occurred
-     */
+
     public void close() throws IOException {
         if (!closed) {
             super.close();
@@ -270,9 +171,7 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
 
     private byte[] b = new byte[256];
 
-    /*
-     * Reads local file (LOC) header for next entry.
-     */
+
     private ZipEntry readLOC() throws IOException {
         try {
             readFully(tmpbuf, 0, LOCHDR);
@@ -305,7 +204,7 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         e.method = get16(tmpbuf, LOCHOW);
         e.xdostime = get32(tmpbuf, LOCTIM);
         if ((flag & 8) == 8) {
-            /* "Data Descriptor" present */
+
             if (e.method != DEFLATED) {
                 throw new ZipException(
                         "only DEFLATED entries can have EXT descriptor");
@@ -325,27 +224,19 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         return e;
     }
 
-    /**
-     * Creates a new <code>ZipEntry</code> object for the specified
-     * entry name.
-     *
-     * @param name the ZIP file entry name
-     * @return the ZipEntry just created
-     */
+
     protected ZipEntry createZipEntry(String name) {
         return new ZipEntry(name);
     }
 
-    /*
-     * Reads end of deflated entry as well as EXT descriptor if present.
-     */
+
     private void readEnd(ZipEntry e) throws IOException {
         int n = inf.getRemaining();
         if (n > 0) {
             ((PushbackInputStream)in).unread(buf, len - n, n);
         }
         if ((flag & 8) == 8) {
-            /* "Data Descriptor" present */
+
             if (inf.getBytesWritten() > ZIP64_MAGICVAL ||
                 inf.getBytesRead() > ZIP64_MAGICVAL) {
                 // ZIP64 format
@@ -395,9 +286,7 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         }
     }
 
-    /*
-     * Reads bytes, blocking until all bytes are read.
-     */
+
     private void readFully(byte[] b, int off, int len) throws IOException {
         while (len > 0) {
             int n = in.read(b, off, len);

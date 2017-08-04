@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 1997, 2012, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.awt.datatransfer;
 
@@ -33,63 +10,28 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 
-/**
- * A Multipurpose Internet Mail Extension (MIME) type, as defined
- * in RFC 2045 and 2046.
- *
- * THIS IS *NOT* - REPEAT *NOT* - A PUBLIC CLASS! DataFlavor IS
- * THE PUBLIC INTERFACE, AND THIS IS PROVIDED AS A ***PRIVATE***
- * (THAT IS AS IN *NOT* PUBLIC) HELPER CLASS!
- */
+
 class MimeType implements Externalizable, Cloneable {
 
-    /*
-     * serialization support
-     */
+
 
     static final long serialVersionUID = -6568722458793895906L;
 
-    /**
-     * Constructor for externalization; this constructor should not be
-     * called directly by an application, since the result will be an
-     * uninitialized, immutable <code>MimeType</code> object.
-     */
+
     public MimeType() {
     }
 
-    /**
-     * Builds a <code>MimeType</code> from a <code>String</code>.
-     *
-     * @param rawdata text used to initialize the <code>MimeType</code>
-     * @throws NullPointerException if <code>rawdata</code> is null
-     */
+
     public MimeType(String rawdata) throws MimeTypeParseException {
         parse(rawdata);
     }
 
-    /**
-     * Builds a <code>MimeType</code> with the given primary and sub
-     * type but has an empty parameter list.
-     *
-     * @param primary the primary type of this <code>MimeType</code>
-     * @param sub the subtype of this <code>MimeType</code>
-     * @throws NullPointerException if either <code>primary</code> or
-     *         <code>sub</code> is null
-     */
+
     public MimeType(String primary, String sub) throws MimeTypeParseException {
         this(primary, sub, new MimeTypeParameterList());
     }
 
-    /**
-     * Builds a <code>MimeType</code> with a pre-defined
-     * and valid (or empty) parameter list.
-     *
-     * @param primary the primary type of this <code>MimeType</code>
-     * @param sub the subtype of this <code>MimeType</code>
-     * @param mtpl the requested parameter list
-     * @throws NullPointerException if either <code>primary</code>,
-     *         <code>sub</code> or <code>mtpl</code> is null
-     */
+
     public MimeType(String primary, String sub, MimeTypeParameterList mtpl) throws
 MimeTypeParseException {
         //    check to see if primary is valid
@@ -120,15 +62,7 @@ MimeTypeParseException {
         return code;
     } // hashCode()
 
-    /**
-     * <code>MimeType</code>s are equal if their primary types,
-     * subtypes, and  parameters are all equal. No default values
-     * are taken into account.
-     * @param thatObject the object to be evaluated as a
-     *    <code>MimeType</code>
-     * @return <code>true</code> if <code>thatObject</code> is
-     *    a <code>MimeType</code>; otherwise returns <code>false</code>
-     */
+
     public boolean equals(Object thatObject) {
         if (!(thatObject instanceof MimeType)) {
             return false;
@@ -141,11 +75,7 @@ MimeTypeParseException {
         return isIt;
     } // equals()
 
-    /**
-     * A routine for parsing the MIME type out of a String.
-     *
-     * @throws NullPointerException if <code>rawdata</code> is null
-     */
+
     private void parse(String rawdata) throws MimeTypeParseException {
         int slashIndex = rawdata.indexOf('/');
         int semIndex = rawdata.indexOf(';');
@@ -191,80 +121,47 @@ MimeTypeParameterList(rawdata.substring(semIndex));
         }
     }
 
-    /**
-     * Retrieve the primary type of this object.
-     */
+
     public String getPrimaryType() {
         return primaryType;
     }
 
-    /**
-     * Retrieve the sub type of this object.
-     */
+
     public String getSubType() {
         return subType;
     }
 
-    /**
-     * Retrieve a copy of this object's parameter list.
-     */
+
     public MimeTypeParameterList getParameters() {
         return (MimeTypeParameterList)parameters.clone();
     }
 
-    /**
-     * Retrieve the value associated with the given name, or null if there
-     * is no current association.
-     */
+
     public String getParameter(String name) {
         return parameters.get(name);
     }
 
-    /**
-     * Set the value to be associated with the given name, replacing
-     * any previous association.
-     *
-     * @throw IllegalArgumentException if parameter or value is illegal
-     */
+
     public void setParameter(String name, String value) {
         parameters.set(name, value);
     }
 
-    /**
-     * Remove any value associated with the given name.
-     *
-     * @throw IllegalArgumentExcpetion if parameter may not be deleted
-     */
+
     public void removeParameter(String name) {
         parameters.remove(name);
     }
 
-    /**
-     * Return the String representation of this object.
-     */
+
     public String toString() {
         return getBaseType() + parameters.toString();
     }
 
-    /**
-     * Return a String representation of this object
-     * without the parameter list.
-     */
+
     public String getBaseType() {
         return primaryType + "/" + subType;
     }
 
-    /**
-     * Returns <code>true</code> if the primary type and the
-     * subtype of this object are the same as the specified
-     * <code>type</code>; otherwise returns <code>false</code>.
-     *
-     * @param type the type to compare to <code>this</code>'s type
-     * @return <code>true</code> if the primary type and the
-     *    subtype of this object are the same as the
-     *    specified <code>type</code>; otherwise returns
-     *    <code>false</code>
-     */
+
     public boolean match(MimeType type) {
         if (type == null)
             return false;
@@ -274,32 +171,14 @@ MimeTypeParameterList(rawdata.substring(semIndex));
                             || (subType.equals(type.getSubType())));
     }
 
-    /**
-     * Returns <code>true</code> if the primary type and the
-     * subtype of this object are the same as the content type
-     * described in <code>rawdata</code>; otherwise returns
-     * <code>false</code>.
-     *
-     * @param rawdata the raw data to be examined
-     * @return <code>true</code> if the primary type and the
-     *    subtype of this object are the same as the content type
-     *    described in <code>rawdata</code>; otherwise returns
-     *    <code>false</code>; if <code>rawdata</code> is
-     *    <code>null</code>, returns <code>false</code>
-     */
+
     public boolean match(String rawdata) throws MimeTypeParseException {
         if (rawdata == null)
             return false;
         return match(new MimeType(rawdata));
     }
 
-    /**
-     * The object implements the writeExternal method to save its contents
-     * by calling the methods of DataOutput for its primitive values or
-     * calling the writeObject method of ObjectOutput for objects, strings
-     * and arrays.
-     * @exception IOException Includes any I/O exceptions that may occur
-     */
+
     public void writeExternal(ObjectOutput out) throws IOException {
         String s = toString(); // contains ASCII chars only
         // one-to-one correspondence between ASCII char and byte in UTF string
@@ -313,15 +192,7 @@ MimeTypeParameterList(rawdata.substring(semIndex));
         }
     }
 
-    /**
-     * The object implements the readExternal method to restore its
-     * contents by calling the methods of DataInput for primitive
-     * types and readObject for objects, strings and arrays.  The
-     * readExternal method must read the values in the same sequence
-     * and with the same types as were written by writeExternal.
-     * @exception ClassNotFoundException If the class for an object being
-     *              restored cannot be found.
-     */
+
     public void readExternal(ObjectInput in) throws IOException,
 ClassNotFoundException {
         String s = in.readUTF();
@@ -337,10 +208,7 @@ ClassNotFoundException {
         }
     }
 
-    /**
-     * Returns a clone of this object.
-     * @return a clone of this object
-     */
+
 
     public Object clone() {
         MimeType newObj = null;
@@ -358,18 +226,12 @@ ClassNotFoundException {
 
     //    below here be scary parsing related things
 
-    /**
-     * Determines whether or not a given character belongs to a legal token.
-     */
+
     private static boolean isTokenChar(char c) {
         return ((c > 040) && (c < 0177)) && (TSPECIALS.indexOf(c) < 0);
     }
 
-    /**
-     * Determines whether or not a given string is a legal token.
-     *
-     * @throws NullPointerException if <code>s</code> is null
-     */
+
     private boolean isValidToken(String s) {
         int len = s.length();
         if(len > 0) {
@@ -385,9 +247,7 @@ ClassNotFoundException {
         }
     }
 
-    /**
-     * A string that holds all the special chars.
-     */
+
 
     private static final String TSPECIALS = "()<>@,;:\\\"/[]?=";
 

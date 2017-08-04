@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.lang.invoke;
 
@@ -42,11 +19,8 @@ import static java.lang.invoke.LambdaForm.*;
 import static java.lang.invoke.MethodHandleStatics.*;
 import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
 
-/**
- * Trusted implementation code for MethodHandle.
- * @author jrose
- */
-/*non-public*/ abstract class MethodHandleImpl {
+
+ abstract class MethodHandleImpl {
     // Do not adjust this except for special platforms:
     private static final int MAX_ARITY;
     static {
@@ -172,20 +146,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         }
     }
 
-    /**
-     * Create a JVM-level adapter method handle to conform the given method
-     * handle to the similar newType, using only pairwise argument conversions.
-     * For each argument, convert incoming argument to the exact type needed.
-     * The argument conversions allowed are casting, boxing and unboxing,
-     * integral widening or narrowing, and floating point widening or narrowing.
-     * @param srcType required call type
-     * @param target original method handle
-     * @param strict if true, only asType conversions are allowed; if false, explicitCastArguments conversions allowed
-     * @param monobox if true, unboxing conversions are assumed to be exactly typed (Integer to int only, not long or double)
-     * @return an adapter to the original handle with the desired new type,
-     *          or the original target if the types are already identical
-     *          or null if the adaptation cannot be made
-     */
+
     static MethodHandle makePairwiseConvert(MethodHandle target, MethodType srcType,
                                             boolean strict, boolean monobox) {
         MethodType dstType = target.type();
@@ -342,12 +303,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         return SimpleMethodHandle.make(srcType, form);
     }
 
-    /**
-     * Identity function, with reference cast.
-     * @param t an arbitrary reference type
-     * @param x an arbitrary reference value
-     * @return the same value x
-     */
+
     @ForceInline
     @SuppressWarnings("unchecked")
     static <T,U> T castReference(Class<? extends T> t, U x) {
@@ -369,7 +325,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
             boolean isRet = (i == INARG_COUNT);
             Class<?> src = isRet ? dstType.returnType() : srcType.parameterType(i);
             Class<?> dst = isRet ? srcType.returnType() : dstType.parameterType(i);
-            if (!VerifyType.isNullConversion(src, dst, /*keepInterfaces=*/ strict)) {
+            if (!VerifyType.isNullConversion(src, dst,  strict)) {
                 convSpecs[i] = valueConversion(src, dst, strict, monobox);
             }
         }
@@ -377,17 +333,12 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
     }
     static MethodHandle makePairwiseConvert(MethodHandle target, MethodType srcType,
                                             boolean strict) {
-        return makePairwiseConvert(target, srcType, strict, /*monobox=*/ false);
+        return makePairwiseConvert(target, srcType, strict,  false);
     }
 
-    /**
-     * Find a conversion function from the given source to the given destination.
-     * This conversion function will be used as a LF NamedFunction.
-     * Return a Class object if a simple cast is needed.
-     * Return void.class if void is involved.
-     */
+
     static Object valueConversion(Class<?> src, Class<?> dst, boolean strict, boolean monobox) {
-        assert(!VerifyType.isNullConversion(src, dst, /*keepInterfaces=*/ strict));  // caller responsibility
+        assert(!VerifyType.isNullConversion(src, dst,  strict));  // caller responsibility
         if (dst == void.class)
             return dst;
         MethodHandle fn;
@@ -409,7 +360,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
                     if (strict)
                         fn = fn.asType(mt);
                     else
-                        fn = MethodHandleImpl.makePairwiseConvert(fn, mt, /*strict=*/ false);
+                        fn = MethodHandleImpl.makePairwiseConvert(fn, mt,  false);
                 }
             }
         } else if (dst.isPrimitive()) {
@@ -521,7 +472,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         }
     }
 
-    /** Factory method:  Spread selected argument. */
+
     static MethodHandle makeSpreadArguments(MethodHandle target,
                                             Class<?> spreadArgType, int spreadArgPos, int spreadArgCount) {
         MethodType targetType = target.type();
@@ -584,10 +535,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         throw newIllegalArgumentException("array is not of length "+n);
     }
 
-    /**
-     * Pre-initialized NamedFunctions for bootstrapping purposes.
-     * Factored in an inner class to delay initialization until first usage.
-     */
+
     static class Lazy {
         private static final Class<?> MHI = MethodHandleImpl.class;
 
@@ -643,7 +591,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         }
     }
 
-    /** Factory method:  Collect or filter selected argument(s). */
+
     static MethodHandle makeCollectArguments(MethodHandle target,
                 MethodHandle collector, int collectArgPos, boolean retainOriginalArgs) {
         MethodType targetType = target.type();          // (a..., c, [b...])=>r
@@ -759,10 +707,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         }
     }
 
-    /**
-     * Block inlining during JIT-compilation of a target method handle if it hasn't been invoked enough times.
-     * Corresponding LambdaForm has @DontInline when compiled into bytecode.
-     */
+
     static
     MethodHandle makeBlockInlningWrapper(MethodHandle target) {
         LambdaForm lform = PRODUCE_BLOCK_INLINING_FORM.apply(target);
@@ -771,7 +716,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
                                    DONT_INLINE_THRESHOLD);
     }
 
-    /** Constructs reinvoker lambda form which block inlining during JIT-compilation for a particular method handle */
+
     private static final Function<MethodHandle, LambdaForm> PRODUCE_BLOCK_INLINING_FORM = new Function<MethodHandle, LambdaForm>() {
         @Override
         public LambdaForm apply(MethodHandle target) {
@@ -781,7 +726,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         }
     };
 
-    /** Constructs simple reinvoker lambda form for a particular method handle */
+
     private static final Function<MethodHandle, LambdaForm> PRODUCE_REINVOKER_FORM = new Function<MethodHandle, LambdaForm>() {
         @Override
         public LambdaForm apply(MethodHandle target) {
@@ -790,12 +735,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         }
     };
 
-    /**
-     * Counting method handle. It has 2 states: counting and non-counting.
-     * It is in counting state for the first n invocations and then transitions to non-counting state.
-     * Behavior in counting and non-counting states is determined by lambda forms produced by
-     * countingFormProducer & nonCountingFormProducer respectively.
-     */
+
     static class CountingWrapper extends DelegatingMethodHandle {
         private final MethodHandle target;
         private int count;
@@ -922,32 +862,12 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         invokeArgs[0] = names[SELECT_ALT];
         names[CALL_TARGET] = new Name(basicType, invokeArgs);
 
-        lform = new LambdaForm("guard", lambdaType.parameterCount(), names, /*forceInline=*/true);
+        lform = new LambdaForm("guard", lambdaType.parameterCount(), names, true);
 
         return basicType.form().setCachedLambdaForm(MethodTypeForm.LF_GWT, lform);
     }
 
-    /**
-     * The LambaForm shape for catchException combinator is the following:
-     * <blockquote><pre>{@code
-     *  guardWithCatch=Lambda(a0:L,a1:L,a2:L)=>{
-     *    t3:L=BoundMethodHandle$Species_LLLLL.argL0(a0:L);
-     *    t4:L=BoundMethodHandle$Species_LLLLL.argL1(a0:L);
-     *    t5:L=BoundMethodHandle$Species_LLLLL.argL2(a0:L);
-     *    t6:L=BoundMethodHandle$Species_LLLLL.argL3(a0:L);
-     *    t7:L=BoundMethodHandle$Species_LLLLL.argL4(a0:L);
-     *    t8:L=MethodHandle.invokeBasic(t6:L,a1:L,a2:L);
-     *    t9:L=MethodHandleImpl.guardWithCatch(t3:L,t4:L,t5:L,t8:L);
-     *   t10:I=MethodHandle.invokeBasic(t7:L,t9:L);t10:I}
-     * }</pre></blockquote>
-     *
-     * argL0 and argL2 are target and catcher method handles. argL1 is exception class.
-     * argL3 and argL4 are auxiliary method handles: argL3 boxes arguments and wraps them into Object[]
-     * (ValueConversions.array()) and argL4 unboxes result if necessary (ValueConversions.unbox()).
-     *
-     * Having t8 and t10 passed outside and not hardcoded into a lambda form allows to share lambda forms
-     * among catchException combinators with the same basic type.
-     */
+
     private static LambdaForm makeGuardWithCatchForm(MethodType basicType) {
         MethodType lambdaType = basicType.invokerType();
 
@@ -1041,10 +961,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         return mh;
     }
 
-    /**
-     * Intrinsified during LambdaForm compilation
-     * (see {@link InvokerBytecodeGenerator#emitGuardWithCatch emitGuardWithCatch}).
-     */
+
     @LambdaForm.Hidden
     static Object guardWithCatch(MethodHandle target, Class<? extends Throwable> exType, MethodHandle catcher,
                                  Object... av) throws Throwable {
@@ -1057,7 +974,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         }
     }
 
-    /** Prepend an element {@code elem} to an {@code array}. */
+
     @LambdaForm.Hidden
     private static Object[] prepend(Object elem, Object[] array) {
         Object[] newArray = new Object[array.length+1];
@@ -1104,14 +1021,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         return mh;
     }
 
-    /**
-     * Create an alias for the method handle which, when called,
-     * appears to be called from the same class loader and protection domain
-     * as hostClass.
-     * This is an expensive no-op unless the method which is called
-     * is sensitive to its caller.  A small number of system methods
-     * are in this category, including Class.forName and Method.invoke.
-     */
+
     static
     MethodHandle bindCaller(MethodHandle mh, Class<?> hostClass) {
         return BindCaller.bindCaller(mh, hostClass);
@@ -1261,7 +1171,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
     }
 
 
-    /** This subclass allows a wrapped method handle to be re-associated with an arbitrary member name. */
+
     private static final class WrappedMember extends DelegatingMethodHandle {
         private final MethodHandle target;
         private final MemberName member;
@@ -1308,8 +1218,8 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         return new WrappedMember(target, target.type(), member, isInvokeSpecial, null);
     }
 
-    /** Intrinsic IDs */
-    /*non-public*/
+
+
     enum Intrinsic {
         SELECT_ALTERNATIVE,
         GUARD_WITH_CATCH,
@@ -1321,8 +1231,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         NONE // no intrinsic associated
     }
 
-    /** Mark arbitrary method handle as intrinsic.
-     * InvokerBytecodeGenerator uses this info to produce more efficient bytecode shape. */
+
     private static final class IntrinsicMethodHandle extends DelegatingMethodHandle {
         private final MethodHandle target;
         private final Intrinsic intrinsicName;
@@ -1435,12 +1344,12 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
 
     // filling versions of the above:
     // using Integer len instead of int len and no varargs to avoid bootstrapping problems
-    private static Object[] fillNewArray(Integer len, Object[] /*not ...*/ args) {
+    private static Object[] fillNewArray(Integer len, Object[]  args) {
         Object[] a = new Object[len];
         fillWithArguments(a, 0, args);
         return a;
     }
-    private static Object[] fillNewTypedArray(Object[] example, Integer len, Object[] /*not ...*/ args) {
+    private static Object[] fillNewTypedArray(Object[] example, Integer len, Object[]  args) {
         Object[] a = Arrays.copyOf(example, len);
         assert(a.getClass() != Object[].class);
         fillWithArguments(a, 0, args);
@@ -1499,9 +1408,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         return a;
     }
 
-    /** Return a method handle that takes the indicated number of Object
-     *  arguments and returns an Object array of them, as if for varargs.
-     */
+
     static MethodHandle varargsArray(int nargs) {
         MethodHandle mh = Lazy.ARRAYS[nargs];
         if (mh != null)  return mh;
@@ -1549,10 +1456,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
 
     private static final int LEFT_ARGS = FILL_ARRAYS_COUNT - 1;
     private static final MethodHandle[] FILL_ARRAY_TO_RIGHT = new MethodHandle[MAX_ARITY+1];
-    /** fill_array_to_right(N).invoke(a, argL..arg[N-1])
-     *  fills a[L]..a[N-1] with corresponding arguments,
-     *  and then returns a.  The value L is a global constant (LEFT_ARGS).
-     */
+
     private static MethodHandle fillToRight(int nargs) {
         MethodHandle filler = FILL_ARRAY_TO_RIGHT[nargs];
         if (filler != null)  return filler;
@@ -1603,10 +1507,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
 
     static final int MAX_JVM_ARITY = 255;  // limit imposed by the JVM
 
-    /** Return a method handle that takes the indicated number of
-     *  typed arguments and returns an array of them.
-     *  The type argument is the array type.
-     */
+
     static MethodHandle varargsArray(Class<?> arrayType, int nargs) {
         Class<?> elemType = arrayType.getComponentType();
         if (elemType == null)  throw new IllegalArgumentException("not an array: "+arrayType);
@@ -1653,7 +1554,7 @@ import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
         return Lazy.MH_copyAsPrimitiveArray.bindTo(Wrapper.forPrimitiveType(elemType));
     }
 
-    /*non-public*/ static void assertSame(Object mh1, Object mh2) {
+     static void assertSame(Object mh1, Object mh2) {
         if (mh1 != mh2) {
             String msg = String.format("mh1 != mh2: mh1 = %s (form: %s); mh2 = %s (form: %s)",
                     mh1, ((MethodHandle)mh1).form,

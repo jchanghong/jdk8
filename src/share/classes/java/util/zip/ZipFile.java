@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 1995, 2015, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.util.zip;
 
@@ -47,15 +24,7 @@ import java.util.stream.StreamSupport;
 
 import static java.util.zip.ZipConstants64.*;
 
-/**
- * This class is used to read entries from a zip file.
- *
- * <p> Unless otherwise noted, passing a <tt>null</tt> argument to a constructor
- * or method in this class will cause a {@link NullPointerException} to be
- * thrown.
- *
- * @author      David Connelly
- */
+
 public
 class ZipFile implements ZipConstants, Closeable {
     private long jzfile;  // address of jzfile data
@@ -67,22 +36,14 @@ class ZipFile implements ZipConstants, Closeable {
     private static final int STORED = ZipEntry.STORED;
     private static final int DEFLATED = ZipEntry.DEFLATED;
 
-    /**
-     * Mode flag to open a zip file for reading.
-     */
+
     public static final int OPEN_READ = 0x1;
 
-    /**
-     * Mode flag to open a zip file and mark it for deletion.  The file will be
-     * deleted some time between the moment that it is opened and the moment
-     * that it is closed, but its contents will remain accessible via the
-     * <tt>ZipFile</tt> object until either the close method is invoked or the
-     * virtual machine exits.
-     */
+
     public static final int OPEN_DELETE = 0x4;
 
     static {
-        /* Zip library is loaded from System.initializeSystemClass */
+
         initIDs();
     }
 
@@ -98,105 +59,24 @@ class ZipFile implements ZipConstants, Closeable {
                    !(prop.length() == 0 || prop.equalsIgnoreCase("true")));
     }
 
-    /**
-     * Opens a zip file for reading.
-     *
-     * <p>First, if there is a security manager, its <code>checkRead</code>
-     * method is called with the <code>name</code> argument as its argument
-     * to ensure the read is allowed.
-     *
-     * <p>The UTF-8 {@link java.nio.charset.Charset charset} is used to
-     * decode the entry names and comments.
-     *
-     * @param name the name of the zip file
-     * @throws ZipException if a ZIP format error has occurred
-     * @throws IOException if an I/O error has occurred
-     * @throws SecurityException if a security manager exists and its
-     *         <code>checkRead</code> method doesn't allow read access to the file.
-     *
-     * @see SecurityManager#checkRead(java.lang.String)
-     */
+
     public ZipFile(String name) throws IOException {
         this(new File(name), OPEN_READ);
     }
 
-    /**
-     * Opens a new <code>ZipFile</code> to read from the specified
-     * <code>File</code> object in the specified mode.  The mode argument
-     * must be either <tt>OPEN_READ</tt> or <tt>OPEN_READ | OPEN_DELETE</tt>.
-     *
-     * <p>First, if there is a security manager, its <code>checkRead</code>
-     * method is called with the <code>name</code> argument as its argument to
-     * ensure the read is allowed.
-     *
-     * <p>The UTF-8 {@link java.nio.charset.Charset charset} is used to
-     * decode the entry names and comments
-     *
-     * @param file the ZIP file to be opened for reading
-     * @param mode the mode in which the file is to be opened
-     * @throws ZipException if a ZIP format error has occurred
-     * @throws IOException if an I/O error has occurred
-     * @throws SecurityException if a security manager exists and
-     *         its <code>checkRead</code> method
-     *         doesn't allow read access to the file,
-     *         or its <code>checkDelete</code> method doesn't allow deleting
-     *         the file when the <tt>OPEN_DELETE</tt> flag is set.
-     * @throws IllegalArgumentException if the <tt>mode</tt> argument is invalid
-     * @see SecurityManager#checkRead(java.lang.String)
-     * @since 1.3
-     */
+
     public ZipFile(File file, int mode) throws IOException {
         this(file, mode, StandardCharsets.UTF_8);
     }
 
-    /**
-     * Opens a ZIP file for reading given the specified File object.
-     *
-     * <p>The UTF-8 {@link java.nio.charset.Charset charset} is used to
-     * decode the entry names and comments.
-     *
-     * @param file the ZIP file to be opened for reading
-     * @throws ZipException if a ZIP format error has occurred
-     * @throws IOException if an I/O error has occurred
-     */
+
     public ZipFile(File file) throws ZipException, IOException {
         this(file, OPEN_READ);
     }
 
     private ZipCoder zc;
 
-    /**
-     * Opens a new <code>ZipFile</code> to read from the specified
-     * <code>File</code> object in the specified mode.  The mode argument
-     * must be either <tt>OPEN_READ</tt> or <tt>OPEN_READ | OPEN_DELETE</tt>.
-     *
-     * <p>First, if there is a security manager, its <code>checkRead</code>
-     * method is called with the <code>name</code> argument as its argument to
-     * ensure the read is allowed.
-     *
-     * @param file the ZIP file to be opened for reading
-     * @param mode the mode in which the file is to be opened
-     * @param charset
-     *        the {@linkplain java.nio.charset.Charset charset} to
-     *        be used to decode the ZIP entry name and comment that are not
-     *        encoded by using UTF-8 encoding (indicated by entry's general
-     *        purpose flag).
-     *
-     * @throws ZipException if a ZIP format error has occurred
-     * @throws IOException if an I/O error has occurred
-     *
-     * @throws SecurityException
-     *         if a security manager exists and its <code>checkRead</code>
-     *         method doesn't allow read access to the file,or its
-     *         <code>checkDelete</code> method doesn't allow deleting the
-     *         file when the <tt>OPEN_DELETE</tt> flag is set
-     *
-     * @throws IllegalArgumentException if the <tt>mode</tt> argument is invalid
-     *
-     * @see SecurityManager#checkRead(java.lang.String)
-     *
-     * @since 1.7
-     */
+
     public ZipFile(File file, int mode, Charset charset) throws IOException
     {
         if (((mode & OPEN_READ) == 0) ||
@@ -224,64 +104,19 @@ class ZipFile implements ZipConstants, Closeable {
         this.locsig = startsWithLOC(jzfile);
     }
 
-    /**
-     * Opens a zip file for reading.
-     *
-     * <p>First, if there is a security manager, its <code>checkRead</code>
-     * method is called with the <code>name</code> argument as its argument
-     * to ensure the read is allowed.
-     *
-     * @param name the name of the zip file
-     * @param charset
-     *        the {@linkplain java.nio.charset.Charset charset} to
-     *        be used to decode the ZIP entry name and comment that are not
-     *        encoded by using UTF-8 encoding (indicated by entry's general
-     *        purpose flag).
-     *
-     * @throws ZipException if a ZIP format error has occurred
-     * @throws IOException if an I/O error has occurred
-     * @throws SecurityException
-     *         if a security manager exists and its <code>checkRead</code>
-     *         method doesn't allow read access to the file
-     *
-     * @see SecurityManager#checkRead(java.lang.String)
-     *
-     * @since 1.7
-     */
+
     public ZipFile(String name, Charset charset) throws IOException
     {
         this(new File(name), OPEN_READ, charset);
     }
 
-    /**
-     * Opens a ZIP file for reading given the specified File object.
-     * @param file the ZIP file to be opened for reading
-     * @param charset
-     *        The {@linkplain java.nio.charset.Charset charset} to be
-     *        used to decode the ZIP entry name and comment (ignored if
-     *        the <a href="package-summary.html#lang_encoding"> language
-     *        encoding bit</a> of the ZIP entry's general purpose bit
-     *        flag is set).
-     *
-     * @throws ZipException if a ZIP format error has occurred
-     * @throws IOException if an I/O error has occurred
-     *
-     * @since 1.7
-     */
+
     public ZipFile(File file, Charset charset) throws IOException
     {
         this(file, OPEN_READ, charset);
     }
 
-    /**
-     * Returns the zip file comment, or null if none.
-     *
-     * @return the comment string for the zip file, or null if none
-     *
-     * @throws IllegalStateException if the zip file has been closed
-     *
-     * Since 1.7
-     */
+
     public String getComment() {
         synchronized (this) {
             ensureOpen();
@@ -292,14 +127,7 @@ class ZipFile implements ZipConstants, Closeable {
         }
     }
 
-    /**
-     * Returns the zip file entry for the specified name, or null
-     * if not found.
-     *
-     * @param name the name of the entry
-     * @return the zip file entry, or null if not found
-     * @throws IllegalStateException if the zip file has been closed
-     */
+
     public ZipEntry getEntry(String name) {
         if (name == null) {
             throw new NullPointerException("name");
@@ -327,20 +155,7 @@ class ZipFile implements ZipConstants, Closeable {
     // mapped to the inflater objects they use.
     private final Map<InputStream, Inflater> streams = new WeakHashMap<>();
 
-    /**
-     * Returns an input stream for reading the contents of the specified
-     * zip file entry.
-     *
-     * <p> Closing this ZIP file will, in turn, close all input
-     * streams that have been returned by invocations of this method.
-     *
-     * @param entry the zip file entry
-     * @return the input stream for reading the contents of the specified
-     * zip file entry.
-     * @throws ZipException if a ZIP format error has occurred
-     * @throws IOException if an I/O error has occurred
-     * @throws IllegalStateException if the zip file has been closed
-     */
+
     public InputStream getInputStream(ZipEntry entry) throws IOException {
         if (entry == null) {
             throw new NullPointerException("entry");
@@ -438,10 +253,7 @@ class ZipFile implements ZipConstants, Closeable {
         }
     }
 
-    /*
-     * Gets an inflater from the list of available inflaters or allocates
-     * a new one.
-     */
+
     private Inflater getInflater() {
         Inflater inf;
         synchronized (inflaterCache) {
@@ -454,9 +266,7 @@ class ZipFile implements ZipConstants, Closeable {
         return new Inflater(true);
     }
 
-    /*
-     * Releases the specified inflater to the list of available inflaters.
-     */
+
     private void releaseInflater(Inflater inf) {
         if (false == inf.ended()) {
             inf.reset();
@@ -469,10 +279,7 @@ class ZipFile implements ZipConstants, Closeable {
     // List of available Inflater objects for decompression
     private Deque<Inflater> inflaterCache = new ArrayDeque<>();
 
-    /**
-     * Returns the path name of the ZIP file.
-     * @return the path name of the ZIP file
-     */
+
     public String getName() {
         return name;
     }
@@ -528,24 +335,12 @@ class ZipFile implements ZipConstants, Closeable {
         }
     }
 
-    /**
-     * Returns an enumeration of the ZIP file entries.
-     * @return an enumeration of the ZIP file entries
-     * @throws IllegalStateException if the zip file has been closed
-     */
+
     public Enumeration<? extends ZipEntry> entries() {
         return new ZipEntryIterator();
     }
 
-    /**
-     * Return an ordered {@code Stream} over the ZIP file entries.
-     * Entries appear in the {@code Stream} in the order they appear in
-     * the central directory of the ZIP file.
-     *
-     * @return an ordered {@code Stream} of entries in this ZIP file
-     * @throws IllegalStateException if the zip file has been closed
-     * @since 1.8
-     */
+
     public Stream<? extends ZipEntry> stream() {
         return StreamSupport.stream(Spliterators.spliterator(
                 new ZipEntryIterator(), size(),
@@ -587,24 +382,13 @@ class ZipFile implements ZipConstants, Closeable {
 
     private static native long getNextEntry(long jzfile, int i);
 
-    /**
-     * Returns the number of entries in the ZIP file.
-     * @return the number of entries in the ZIP file
-     * @throws IllegalStateException if the zip file has been closed
-     */
+
     public int size() {
         ensureOpen();
         return total;
     }
 
-    /**
-     * Closes the ZIP file.
-     * <p> Closing this ZIP file will close all of the input streams
-     * previously returned by invocations of the {@link #getInputStream
-     * getInputStream} method.
-     *
-     * @throws IOException if an I/O error has occurred
-     */
+
     public void close() throws IOException {
         if (closeRequested)
             return;
@@ -644,20 +428,7 @@ class ZipFile implements ZipConstants, Closeable {
         }
     }
 
-    /**
-     * Ensures that the system resources held by this ZipFile object are
-     * released when there are no more references to it.
-     *
-     * <p>
-     * Since the time when GC would invoke this method is undetermined,
-     * it is strongly recommended that applications invoke the <code>close</code>
-     * method as soon they have finished accessing this <code>ZipFile</code>.
-     * This will prevent holding up system resources for an undetermined
-     * length of time.
-     *
-     * @throws IOException if an I/O error has occurred
-     * @see    java.util.zip.ZipFile#close()
-     */
+
     protected void finalize() throws IOException {
         close();
     }
@@ -680,10 +451,7 @@ class ZipFile implements ZipConstants, Closeable {
         }
     }
 
-    /*
-     * Inner class implementing the input stream used to read a
-     * (possibly compressed) zip file entry.
-     */
+
    private class ZipFileInputStream extends InputStream {
         private volatile boolean zfisCloseRequested = false;
         protected long jzentry; // address of jzentry data
@@ -787,10 +555,7 @@ class ZipFile implements ZipConstants, Closeable {
         );
     }
 
-    /**
-     * Returns {@code true} if, and only if, the zip file begins with {@code
-     * LOCSIG}.
-     */
+
     private boolean startsWithLocHeader() {
         return locsig;
     }

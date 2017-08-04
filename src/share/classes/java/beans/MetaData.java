@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 package java.beans;
 
 import com.sun.beans.finder.PrimitiveWrapperMap;
@@ -59,17 +36,7 @@ import sun.swing.PrintColorUIResource;
 
 import static sun.reflect.misc.ReflectUtil.isPackageAccessible;
 
-/*
- * Like the <code>Intropector</code>, the <code>MetaData</code> class
- * contains <em>meta</em> objects that describe the way
- * classes should express their state in terms of their
- * own public APIs.
- *
- * @see java.beans.Intropector
- *
- * @author Philip Milne
- * @author Steve Langley
- */
+
 class MetaData {
 
 static final class NullPersistenceDelegate extends PersistenceDelegate {
@@ -84,11 +51,7 @@ static final class NullPersistenceDelegate extends PersistenceDelegate {
     }
 }
 
-/**
- * The persistence delegate for <CODE>enum</CODE> classes.
- *
- * @author Sergey A. Malenkov
- */
+
 static final class EnumPersistenceDelegate extends PersistenceDelegate {
     protected boolean mutatesTo(Object oldInstance, Object newInstance) {
         return oldInstance == newInstance;
@@ -261,14 +224,7 @@ static final class java_lang_reflect_Method_PersistenceDelegate extends Persiste
 
 // Dates
 
-/**
- * The persistence delegate for <CODE>java.util.Date</CODE> classes.
- * Do not extend DefaultPersistenceDelegate to improve performance and
- * to avoid problems with <CODE>java.sql.Date</CODE>,
- * <CODE>java.sql.Time</CODE> and <CODE>java.sql.Timestamp</CODE>.
- *
- * @author Sergey A. Malenkov
- */
+
 static class java_util_Date_PersistenceDelegate extends PersistenceDelegate {
     protected boolean mutatesTo(Object oldInstance, Object newInstance) {
         if (!super.mutatesTo(oldInstance, newInstance)) {
@@ -286,12 +242,7 @@ static class java_util_Date_PersistenceDelegate extends PersistenceDelegate {
     }
 }
 
-/**
- * The persistence delegate for <CODE>java.sql.Timestamp</CODE> classes.
- * It supports nanoseconds.
- *
- * @author Sergey A. Malenkov
- */
+
 static final class java_sql_Timestamp_PersistenceDelegate extends java_util_Date_PersistenceDelegate {
     private static final Method getNanosMethod = getNanosMethod();
 
@@ -306,9 +257,7 @@ static final class java_sql_Timestamp_PersistenceDelegate extends java_util_Date
         }
     }
 
-    /**
-     * Invoke Timstamp getNanos.
-     */
+
     private static int getNanos(Object obj) {
         if (getNanosMethod == null)
             throw new AssertionError("Should not get here");
@@ -337,25 +286,9 @@ static final class java_sql_Timestamp_PersistenceDelegate extends java_util_Date
 
 // Collections
 
-/*
-The Hashtable and AbstractMap classes have no common ancestor yet may
-be handled with a single persistence delegate: one which uses the methods
-of the Map insterface exclusively. Attatching the persistence delegates
-to the interfaces themselves is fraught however since, in the case of
-the Map, both the AbstractMap and HashMap classes are declared to
-implement the Map interface, leaving the obvious implementation prone
-to repeating their initialization. These issues and questions around
-the ordering of delegates attached to interfaces have lead us to
-ignore any delegates attached to interfaces and force all persistence
-delegates to be registered with concrete classes.
-*/
 
-/**
- * The base class for persistence delegates for inner classes
- * that can be created using {@link Collections}.
- *
- * @author Sergey A. Malenkov
- */
+
+
 private static abstract class java_util_Collections extends PersistenceDelegate {
     protected boolean mutatesTo(Object oldInstance, Object newInstance) {
         if (!super.mutatesTo(oldInstance, newInstance)) {
@@ -570,11 +503,7 @@ private static abstract class java_util_Collections extends PersistenceDelegate 
     }
 }
 
-/**
- * The persistence delegate for <CODE>java.util.EnumMap</CODE> classes.
- *
- * @author Sergey A. Malenkov
- */
+
 static final class java_util_EnumMap_PersistenceDelegate extends PersistenceDelegate {
     protected boolean mutatesTo(Object oldInstance, Object newInstance) {
         return super.mutatesTo(oldInstance, newInstance) && (getType(oldInstance) == getType(newInstance));
@@ -589,11 +518,7 @@ static final class java_util_EnumMap_PersistenceDelegate extends PersistenceDele
     }
 }
 
-/**
- * The persistence delegate for <CODE>java.util.EnumSet</CODE> classes.
- *
- * @author Sergey A. Malenkov
- */
+
 static final class java_util_EnumSet_PersistenceDelegate extends PersistenceDelegate {
     protected boolean mutatesTo(Object oldInstance, Object newInstance) {
         return super.mutatesTo(oldInstance, newInstance) && (getType(oldInstance) == getType(newInstance));
@@ -708,13 +633,7 @@ static final class java_beans_beancontext_BeanContextSupport_PersistenceDelegate
 
 // AWT
 
-/**
- * The persistence delegate for {@link Insets}.
- * It is impossible to use {@link DefaultPersistenceDelegate}
- * because this class does not have any properties.
- *
- * @author Sergey A. Malenkov
- */
+
 static final class java_awt_Insets_PersistenceDelegate extends PersistenceDelegate {
     protected boolean mutatesTo(Object oldInstance, Object newInstance) {
         return oldInstance.equals(newInstance);
@@ -732,13 +651,7 @@ static final class java_awt_Insets_PersistenceDelegate extends PersistenceDelega
     }
 }
 
-/**
- * The persistence delegate for {@link Font}.
- * It is impossible to use {@link DefaultPersistenceDelegate}
- * because size of the font can be float value.
- *
- * @author Sergey A. Malenkov
- */
+
 static final class java_awt_Font_PersistenceDelegate extends PersistenceDelegate {
     protected boolean mutatesTo(Object oldInstance, Object newInstance) {
         return oldInstance.equals(newInstance);
@@ -801,13 +714,7 @@ static final class java_awt_Font_PersistenceDelegate extends PersistenceDelegate
     }
 }
 
-/**
- * The persistence delegate for {@link AWTKeyStroke}.
- * It is impossible to use {@link DefaultPersistenceDelegate}
- * because this class have no public constructor.
- *
- * @author Sergey A. Malenkov
- */
+
 static final class java_awt_AWTKeyStroke_PersistenceDelegate extends PersistenceDelegate {
     protected boolean mutatesTo(Object oldInstance, Object newInstance) {
         return oldInstance.equals(newInstance);
@@ -1223,13 +1130,7 @@ static final class javax_swing_JMenu_PersistenceDelegate extends DefaultPersiste
     }
 }
 
-/**
- * The persistence delegate for {@link MatteBorder}.
- * It is impossible to use {@link DefaultPersistenceDelegate}
- * because this class does not have writable properties.
- *
- * @author Sergey A. Malenkov
- */
+
 static final class javax_swing_border_MatteBorder_PersistenceDelegate extends PersistenceDelegate {
     protected Expression instantiate(Object oldInstance, Encoder out) {
         MatteBorder border = (MatteBorder) oldInstance;
@@ -1249,29 +1150,9 @@ static final class javax_swing_border_MatteBorder_PersistenceDelegate extends Pe
     }
 }
 
-/* XXX - doens't seem to work. Debug later.
-static final class javax_swing_JMenu_PersistenceDelegate extends DefaultPersistenceDelegate {
-    protected void initialize(Class<?> type, Object oldInstance, Object newInstance, Encoder out) {
-        super.initialize(type, oldInstance, newInstance, out);
-        javax.swing.JMenu m = (javax.swing.JMenu)oldInstance;
-        javax.swing.JMenu n = (javax.swing.JMenu)newInstance;
-        for (int i = n.getItemCount(); i < m.getItemCount(); i++) {
-            invokeStatement(oldInstance, "add", new Object[]{m.getItem(i)}, out);
-        }
-    }
-}
-*/
 
-/**
- * The persistence delegate for {@link PrintColorUIResource}.
- * It is impossible to use {@link DefaultPersistenceDelegate}
- * because this class has special rule for serialization:
- * it should be converted to {@link ColorUIResource}.
- *
- * @see PrintColorUIResource#writeReplace
- *
- * @author Sergey A. Malenkov
- */
+
+
 static final class sun_swing_PrintColorUIResource_PersistenceDelegate extends PersistenceDelegate {
     protected boolean mutatesTo(Object oldInstance, Object newInstance) {
         return oldInstance.equals(newInstance);

@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.lang.invoke;
 
@@ -42,34 +19,8 @@ import static java.lang.invoke.MethodHandleNatives.Constants.*;
 import static java.lang.invoke.MethodHandleStatics.*;
 import java.util.Objects;
 
-/**
- * A {@code MemberName} is a compact symbolic datum which fully characterizes
- * a method or field reference.
- * A member name refers to a field, method, constructor, or member type.
- * Every member name has a simple name (a string) and a type (either a Class or MethodType).
- * A member name may also have a non-null declaring class, or it may be simply
- * a naked name/type pair.
- * A member name may also have non-zero modifier flags.
- * Finally, a member name may be either resolved or unresolved.
- * If it is resolved, the existence of the named
- * <p>
- * Whether resolved or not, a member name provides no access rights or
- * invocation capability to its possessor.  It is merely a compact
- * representation of all symbolic information necessary to link to
- * and properly use the named member.
- * <p>
- * When resolved, a member name's internal implementation may include references to JVM metadata.
- * This representation is stateless and only decriptive.
- * It provides no private information and no capability to use the member.
- * <p>
- * By contrast, a {@linkplain java.lang.reflect.Method} contains fuller information
- * about the internals of a method (except its bytecodes) and also
- * allows invocation.  A MemberName is much lighter than a Method,
- * since it contains about 7 fields to the 16 of Method (plus its sub-arrays),
- * and those seven fields omit much of the information in Method.
- * @author jrose
- */
-/*non-public*/ final class MemberName implements Member, Cloneable {
+
+ final class MemberName implements Member, Cloneable {
     private Class<?> clazz;       // class in which the method is defined
     private String   name;        // may be null if not yet materialized
     private Object   type;        // may be null if not yet materialized
@@ -78,23 +29,17 @@ import java.util.Objects;
     //@Injected int         vmindex;
     private Object   resolution;  // if null, this guy is resolved
 
-    /** Return the declaring class of this member.
-     *  In the case of a bare name and type, the declaring class will be null.
-     */
+
     public Class<?> getDeclaringClass() {
         return clazz;
     }
 
-    /** Utility method producing the class loader of the declaring class. */
+
     public ClassLoader getClassLoader() {
         return clazz.getClassLoader();
     }
 
-    /** Return the simple name of this member.
-     *  For a type, it is the same as {@link Class#getSimpleName}.
-     *  For a method or field, it is the simple name of the member.
-     *  For a constructor, it is always {@code "<init>"}.
-     */
+
     public String getName() {
         if (name == null) {
             expandFromVM();
@@ -115,9 +60,7 @@ import java.util.Objects;
         throw new InternalError("not a method or field: "+this);
     }
 
-    /** Return the declared type of this member, which
-     *  must be a method or constructor.
-     */
+
     public MethodType getMethodType() {
         if (type == null) {
             expandFromVM();
@@ -156,10 +99,7 @@ import java.util.Objects;
         return (MethodType) type;
     }
 
-    /** Return the actual type under which this method or constructor must be invoked.
-     *  For non-static methods or constructors, this is the type with a leading parameter,
-     *  a reference to declaring class.  For static methods, it is the same as the declared type.
-     */
+
     public MethodType getInvocationType() {
         MethodType itype = getMethodOrFieldType();
         if (isConstructor() && getReferenceKind() == REF_newInvokeSpecial)
@@ -169,20 +109,17 @@ import java.util.Objects;
         return itype;
     }
 
-    /** Utility method producing the parameter types of the method type. */
+
     public Class<?>[] getParameterTypes() {
         return getMethodType().parameterArray();
     }
 
-    /** Utility method producing the return type of the method type. */
+
     public Class<?> getReturnType() {
         return getMethodType().returnType();
     }
 
-    /** Return the declared type of this member, which
-     *  must be a field or type.
-     *  If it is a type member, that type itself is returned.
-     */
+
     public Class<?> getFieldType() {
         if (type == null) {
             expandFromVM();
@@ -216,14 +153,12 @@ import java.util.Objects;
         return (Class<?>) type;
     }
 
-    /** Utility method to produce either the method type or field type of this member. */
+
     public Object getType() {
         return (isInvocable() ? getMethodType() : getFieldType());
     }
 
-    /** Utility method to produce the signature of this member,
-     *  used within the class file format to describe its type.
-     */
+
     public String getSignature() {
         if (type == null) {
             expandFromVM();
@@ -237,15 +172,12 @@ import java.util.Objects;
             return BytecodeDescriptor.unparse(getFieldType());
     }
 
-    /** Return the modifier flags of this member.
-     *  @see java.lang.reflect.Modifier
-     */
+
     public int getModifiers() {
         return (flags & RECOGNIZED_MODIFIERS);
     }
 
-    /** Return the reference kind of this member, or zero if none.
-     */
+
     public byte getReferenceKind() {
         return (byte) ((flags >>> MN_REFERENCE_KIND_SHIFT) & MN_REFERENCE_KIND_MASK);
     }
@@ -281,7 +213,7 @@ import java.util.Objects;
             return true;
         return false;
     }
-    /*non-public*/ boolean referenceKindIsConsistentWith(int originalRefKind) {
+     boolean referenceKindIsConsistentWith(int originalRefKind) {
         int refKind = getReferenceKind();
         if (refKind == originalRefKind)  return true;
         switch (originalRefKind) {
@@ -340,8 +272,7 @@ import java.util.Objects;
         return !testFlags(mask, 0);
     }
 
-    /** Utility method to query if this member is a method handle invocation (invoke or invokeExact).
-     */
+
     public boolean isMethodHandleInvoke() {
         final int bits = MH_INVOKE_MODS &~ Modifier.PUBLIC;
         final int negs = Modifier.STATIC;
@@ -362,39 +293,39 @@ import java.util.Objects;
     }
     private static final int MH_INVOKE_MODS = Modifier.NATIVE | Modifier.FINAL | Modifier.PUBLIC;
 
-    /** Utility method to query the modifier flags of this member. */
+
     public boolean isStatic() {
         return Modifier.isStatic(flags);
     }
-    /** Utility method to query the modifier flags of this member. */
+
     public boolean isPublic() {
         return Modifier.isPublic(flags);
     }
-    /** Utility method to query the modifier flags of this member. */
+
     public boolean isPrivate() {
         return Modifier.isPrivate(flags);
     }
-    /** Utility method to query the modifier flags of this member. */
+
     public boolean isProtected() {
         return Modifier.isProtected(flags);
     }
-    /** Utility method to query the modifier flags of this member. */
+
     public boolean isFinal() {
         return Modifier.isFinal(flags);
     }
-    /** Utility method to query whether this member or its defining class is final. */
+
     public boolean canBeStaticallyBound() {
         return Modifier.isFinal(flags | clazz.getModifiers());
     }
-    /** Utility method to query the modifier flags of this member. */
+
     public boolean isVolatile() {
         return Modifier.isVolatile(flags);
     }
-    /** Utility method to query the modifier flags of this member. */
+
     public boolean isAbstract() {
         return Modifier.isAbstract(flags);
     }
-    /** Utility method to query the modifier flags of this member. */
+
     public boolean isNative() {
         return Modifier.isNative(flags);
     }
@@ -406,15 +337,15 @@ import java.util.Objects;
     static final int SYNTHETIC = 0x00001000;
     static final int ANNOTATION= 0x00002000;
     static final int ENUM      = 0x00004000;
-    /** Utility method to query the modifier flags of this member; returns false if the member is not a method. */
+
     public boolean isBridge() {
         return testAllFlags(IS_METHOD | BRIDGE);
     }
-    /** Utility method to query the modifier flags of this member; returns false if the member is not a method. */
+
     public boolean isVarargs() {
         return testAllFlags(VARARGS) && isInvocable();
     }
-    /** Utility method to query the modifier flags of this member; returns false if the member is not a method. */
+
     public boolean isSynthetic() {
         return testAllFlags(SYNTHETIC);
     }
@@ -438,46 +369,46 @@ import java.util.Objects;
     static final int IS_FIELD_OR_METHOD = IS_METHOD | IS_FIELD;
     static final int SEARCH_ALL_SUPERS = MN_SEARCH_SUPERCLASSES | MN_SEARCH_INTERFACES;
 
-    /** Utility method to query whether this member is a method or constructor. */
+
     public boolean isInvocable() {
         return testAnyFlags(IS_INVOCABLE);
     }
-    /** Utility method to query whether this member is a method, constructor, or field. */
+
     public boolean isFieldOrMethod() {
         return testAnyFlags(IS_FIELD_OR_METHOD);
     }
-    /** Query whether this member is a method. */
+
     public boolean isMethod() {
         return testAllFlags(IS_METHOD);
     }
-    /** Query whether this member is a constructor. */
+
     public boolean isConstructor() {
         return testAllFlags(IS_CONSTRUCTOR);
     }
-    /** Query whether this member is a field. */
+
     public boolean isField() {
         return testAllFlags(IS_FIELD);
     }
-    /** Query whether this member is a type. */
+
     public boolean isType() {
         return testAllFlags(IS_TYPE);
     }
-    /** Utility method to query whether this member is neither public, private, nor protected. */
+
     public boolean isPackage() {
         return !testAnyFlags(ALL_ACCESS);
     }
-    /** Query whether this member has a CallerSensitive annotation. */
+
     public boolean isCallerSensitive() {
         return testAllFlags(CALLER_SENSITIVE);
     }
 
-    /** Utility method to query whether this member is accessible from a given lookup class. */
+
     public boolean isAccessibleFrom(Class<?> lookupClass) {
         return VerifyAccess.isMemberAccessible(this.getDeclaringClass(), this.getDeclaringClass(), flags,
                                                lookupClass, ALL_ACCESS|MethodHandles.Lookup.PACKAGE);
     }
 
-    /** Initialize a query.   It is not resolved. */
+
     private void init(Class<?> defClass, String name, Object type, int flags) {
         // defining class is allowed to be null (for a naked name/type pair)
         //name.toString();  // null check
@@ -492,10 +423,7 @@ import java.util.Objects;
         //assert(referenceKindIsConsistent());  // do this after resolution
     }
 
-    /**
-     * Calls down to the VM to fill in the fields.  This method is
-     * synchronized to avoid racing calls.
-     */
+
     private void expandFromVM() {
         if (type != null) {
             return;
@@ -513,7 +441,7 @@ import java.util.Objects;
         assert((refKind & ~MN_REFERENCE_KIND_MASK) == 0);
         return flags | mods | (refKind << MN_REFERENCE_KIND_SHIFT);
     }
-    /** Create a name for the given reflected method.  The resulting name will be in a resolved state. */
+
     public MemberName(Method m) {
         this(m, false);
     }
@@ -559,9 +487,7 @@ import java.util.Objects;
         }
         throw new IllegalArgumentException(this.toString());
     }
-    /** If this MN is not REF_newInvokeSpecial, return a clone with that ref. kind.
-     *  In that case it must already be REF_invokeSpecial.
-     */
+
     public MemberName asConstructor() {
         switch (getReferenceKind()) {
         case REF_invokeSpecial:     return clone().changeReferenceKind(REF_newInvokeSpecial, REF_invokeSpecial);
@@ -569,14 +495,7 @@ import java.util.Objects;
         }
         throw new IllegalArgumentException(this.toString());
     }
-    /** If this MN is a REF_invokeSpecial, return a clone with the "normal" kind
-     *  REF_invokeVirtual; also switch either to REF_invokeInterface if clazz.isInterface.
-     *  The end result is to get a fully virtualized version of the MN.
-     *  (Note that resolving in the JVM will sometimes devirtualize, changing
-     *  REF_invokeVirtual of a final to REF_invokeSpecial, and REF_invokeInterface
-     *  in some corner cases to either of the previous two; this transform
-     *  undoes that change under the assumption that it occurred.)
-     */
+
     public MemberName asNormalOriginal() {
         byte normalVirtual = clazz.isInterface() ? REF_invokeInterface : REF_invokeVirtual;
         byte refKind = getReferenceKind();
@@ -595,7 +514,7 @@ import java.util.Objects;
         assert(this.referenceKindIsConsistentWith(result.getReferenceKind()));
         return result;
     }
-    /** Create a name for the given reflected constructor.  The resulting name will be in a resolved state. */
+
     @SuppressWarnings("LeakingThisInConstructor")
     public MemberName(Constructor<?> ctor) {
         ctor.getClass();  // NPE check
@@ -606,8 +525,7 @@ import java.util.Objects;
         if (this.type == null)
             this.type = new Object[] { void.class, ctor.getParameterTypes() };
     }
-    /** Create a name for the given reflected field.  The resulting name will be in a resolved state.
-     */
+
     public MemberName(Field fld) {
         this(fld, false);
     }
@@ -639,19 +557,14 @@ import java.util.Objects;
         byte setterRefKind = (byte)(refKind + (REF_putField - REF_getField));
         return clone().changeReferenceKind(setterRefKind, refKind);
     }
-    /** Create a name for the given class.  The resulting name will be in a resolved state. */
+
     public MemberName(Class<?> type) {
         init(type.getDeclaringClass(), type.getSimpleName(), type,
                 flagsMods(IS_TYPE, type.getModifiers(), REF_NONE));
         initResolved(true);
     }
 
-    /**
-     * Create a name for a signature-polymorphic invoker.
-     * This is a placeholder for a signature-polymorphic instance
-     * (of MH.invokeExact, etc.) that the JVM does not reify.
-     * See comments on {@link MethodHandleNatives#linkMethod}.
-     */
+
     static MemberName makeMethodHandleInvoke(String name, MethodType type) {
         return makeMethodHandleInvoke(name, type, MH_INVOKE_MODS | SYNTHETIC);
     }
@@ -674,9 +587,7 @@ import java.util.Objects;
         }
      }
 
-    /** Get the definition of this member name.
-     *  This may be in a super-class of the declaring class of this member.
-     */
+
     public MemberName getDefinition() {
         if (!isResolved())  throw new IllegalStateException("must be resolved: "+this);
         if (isType())  return this;
@@ -699,11 +610,7 @@ import java.util.Objects;
         return (that instanceof MemberName && this.equals((MemberName)that));
     }
 
-    /** Decide if two member names have exactly the same symbolic content.
-     *  Does not take into account any actual class members, so even if
-     *  two member names resolve to the same actual member, they may
-     *  be distinct references.
-     */
+
     public boolean equals(MemberName that) {
         if (this == that)  return true;
         if (that == null)  return false;
@@ -714,30 +621,18 @@ import java.util.Objects;
     }
 
     // Construction from symbolic parts, for queries:
-    /** Create a field or type name from the given components:
-     *  Declaring class, name, type, reference kind.
-     *  The declaring class may be supplied as null if this is to be a bare name and type.
-     *  The resulting name will in an unresolved state.
-     */
+
     public MemberName(Class<?> defClass, String name, Class<?> type, byte refKind) {
         init(defClass, name, type, flagsMods(IS_FIELD, 0, refKind));
         initResolved(false);
     }
-    /** Create a method or constructor name from the given components:
-     *  Declaring class, name, type, reference kind.
-     *  It will be a constructor if and only if the name is {@code "<init>"}.
-     *  The declaring class may be supplied as null if this is to be a bare name and type.
-     *  The last argument is optional, a boolean which requests REF_invokeSpecial.
-     *  The resulting name will in an unresolved state.
-     */
+
     public MemberName(Class<?> defClass, String name, MethodType type, byte refKind) {
         int initFlags = (name != null && name.equals(CONSTRUCTOR_NAME) ? IS_CONSTRUCTOR : IS_METHOD);
         init(defClass, name, type, flagsMods(initFlags, 0, refKind));
         initResolved(false);
     }
-    /** Create a method, constructor, or field name from the given components:
-     *  Reference kind, declaring class, name, type.
-     */
+
     public MemberName(byte refKind, Class<?> defClass, String name, Object type) {
         int kindFlags;
         if (MethodHandleNatives.refKindIsField(refKind)) {
@@ -759,17 +654,12 @@ import java.util.Objects;
         init(defClass, name, type, flagsMods(kindFlags, 0, refKind));
         initResolved(false);
     }
-    /** Query whether this member name is resolved to a non-static, non-final method.
-     */
+
     public boolean hasReceiverTypeDispatch() {
         return MethodHandleNatives.refKindDoesDispatch(getReferenceKind());
     }
 
-    /** Query whether this member name is resolved.
-     *  A resolved member name is one for which the JVM has found
-     *  a method, constructor, field, or type binding corresponding exactly to the name.
-     *  (Document?)
-     */
+
     public boolean isResolved() {
         return resolution == null;
     }
@@ -803,13 +693,7 @@ import java.util.Objects;
     }
 
 
-    /** Produce a string form of this member name.
-     *  For types, it is simply the type's own string (as reported by {@code toString}).
-     *  For fields, it is {@code "DeclaringClass.name/type"}.
-     *  For methods and constructors, it is {@code "DeclaringClass.name(ptype...)rtype"}.
-     *  If the declaring class is null, the prefix {@code "DeclaringClass."} is omitted.
-     *  If the member is unresolved, a prefix {@code "*."} is prepended.
-     */
+
     @SuppressWarnings("LocalVariableHidesMemberVariable")
     @Override
     public String toString() {
@@ -876,14 +760,12 @@ import java.util.Objects;
         return ex;
     }
 
-    /** Actually making a query requires an access check. */
-    /*non-public*/ static Factory getFactory() {
+
+     static Factory getFactory() {
         return Factory.INSTANCE;
     }
-    /** A factory type for resolving member names with the help of the VM.
-     *  TBD: Define access-safe public constructors for this factory.
-     */
-    /*non-public*/ static class Factory {
+
+     static class Factory {
         private Factory() { } // singleton pattern
         static Factory INSTANCE = new Factory();
 
@@ -947,12 +829,7 @@ import java.util.Objects;
             }
             return result;
         }
-        /** Produce a resolved version of the given member.
-         *  Super types are searched (for inherited members) if {@code searchSupers} is true.
-         *  Access checking is performed on behalf of the given {@code lookupClass}.
-         *  If lookup fails or access is not permitted, null is returned.
-         *  Otherwise a fresh copy of the given member is returned, with modifier bits filled in.
-         */
+
         private MemberName resolve(byte refKind, MemberName ref, Class<?> lookupClass) {
             MemberName m = ref.clone();  // JVM will side-effect the ref
             assert(refKind == m.getReferenceKind());
@@ -986,12 +863,7 @@ import java.util.Objects;
             assert(m.vminfoIsConsistent());
             return m;
         }
-        /** Produce a resolved version of the given member.
-         *  Super types are searched (for inherited members) if {@code searchSupers} is true.
-         *  Access checking is performed on behalf of the given {@code lookupClass}.
-         *  If lookup fails or access is not permitted, a {@linkplain ReflectiveOperationException} is thrown.
-         *  Otherwise a fresh copy of the given member is returned, with modifier bits filled in.
-         */
+
         public
         <NoSuchMemberException extends ReflectiveOperationException>
         MemberName resolveOrFail(byte refKind, MemberName m, Class<?> lookupClass,
@@ -1004,12 +876,7 @@ import java.util.Objects;
             if (ex instanceof IllegalAccessException)  throw (IllegalAccessException) ex;
             throw nsmClass.cast(ex);
         }
-        /** Produce a resolved version of the given member.
-         *  Super types are searched (for inherited members) if {@code searchSupers} is true.
-         *  Access checking is performed on behalf of the given {@code lookupClass}.
-         *  If lookup fails or access is not permitted, return null.
-         *  Otherwise a fresh copy of the given member is returned, with modifier bits filled in.
-         */
+
         public
         MemberName resolveOrNull(byte refKind, MemberName m, Class<?> lookupClass) {
             MemberName result = resolve(refKind, m, lookupClass);
@@ -1017,58 +884,33 @@ import java.util.Objects;
                 return result;
             return null;
         }
-        /** Return a list of all methods defined by the given class.
-         *  Super types are searched (for inherited members) if {@code searchSupers} is true.
-         *  Access checking is performed on behalf of the given {@code lookupClass}.
-         *  Inaccessible members are not added to the last.
-         */
+
         public List<MemberName> getMethods(Class<?> defc, boolean searchSupers,
                 Class<?> lookupClass) {
             return getMethods(defc, searchSupers, null, null, lookupClass);
         }
-        /** Return a list of matching methods defined by the given class.
-         *  Super types are searched (for inherited members) if {@code searchSupers} is true.
-         *  Returned methods will match the name (if not null) and the type (if not null).
-         *  Access checking is performed on behalf of the given {@code lookupClass}.
-         *  Inaccessible members are not added to the last.
-         */
+
         public List<MemberName> getMethods(Class<?> defc, boolean searchSupers,
                 String name, MethodType type, Class<?> lookupClass) {
             int matchFlags = IS_METHOD | (searchSupers ? SEARCH_ALL_SUPERS : 0);
             return getMembers(defc, name, type, matchFlags, lookupClass);
         }
-        /** Return a list of all constructors defined by the given class.
-         *  Access checking is performed on behalf of the given {@code lookupClass}.
-         *  Inaccessible members are not added to the last.
-         */
+
         public List<MemberName> getConstructors(Class<?> defc, Class<?> lookupClass) {
             return getMembers(defc, null, null, IS_CONSTRUCTOR, lookupClass);
         }
-        /** Return a list of all fields defined by the given class.
-         *  Super types are searched (for inherited members) if {@code searchSupers} is true.
-         *  Access checking is performed on behalf of the given {@code lookupClass}.
-         *  Inaccessible members are not added to the last.
-         */
+
         public List<MemberName> getFields(Class<?> defc, boolean searchSupers,
                 Class<?> lookupClass) {
             return getFields(defc, searchSupers, null, null, lookupClass);
         }
-        /** Return a list of all fields defined by the given class.
-         *  Super types are searched (for inherited members) if {@code searchSupers} is true.
-         *  Returned fields will match the name (if not null) and the type (if not null).
-         *  Access checking is performed on behalf of the given {@code lookupClass}.
-         *  Inaccessible members are not added to the last.
-         */
+
         public List<MemberName> getFields(Class<?> defc, boolean searchSupers,
                 String name, Class<?> type, Class<?> lookupClass) {
             int matchFlags = IS_FIELD | (searchSupers ? SEARCH_ALL_SUPERS : 0);
             return getMembers(defc, name, type, matchFlags, lookupClass);
         }
-        /** Return a list of all nested types defined by the given class.
-         *  Super types are searched (for inherited members) if {@code searchSupers} is true.
-         *  Access checking is performed on behalf of the given {@code lookupClass}.
-         *  Inaccessible members are not added to the last.
-         */
+
         public List<MemberName> getNestedTypes(Class<?> defc, boolean searchSupers,
                 Class<?> lookupClass) {
             int matchFlags = IS_TYPE | (searchSupers ? SEARCH_ALL_SUPERS : 0);

@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2013, 2014, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 package java.util.stream;
 
 import java.util.DoubleSummaryStatistics;
@@ -43,57 +20,29 @@ import java.util.function.IntFunction;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.Supplier;
 
-/**
- * Abstract base class for an intermediate pipeline stage or pipeline source
- * stage implementing whose elements are of type {@code double}.
- *
- * @param <E_IN> type of elements in the upstream source
- *
- * @since 1.8
- */
+
 abstract class DoublePipeline<E_IN>
         extends AbstractPipeline<E_IN, Double, DoubleStream>
         implements DoubleStream {
 
-    /**
-     * Constructor for the head of a stream pipeline.
-     *
-     * @param source {@code Supplier<Spliterator>} describing the stream source
-     * @param sourceFlags the source flags for the stream source, described in
-     * {@link StreamOpFlag}
-     */
+
     DoublePipeline(Supplier<? extends Spliterator<Double>> source,
                    int sourceFlags, boolean parallel) {
         super(source, sourceFlags, parallel);
     }
 
-    /**
-     * Constructor for the head of a stream pipeline.
-     *
-     * @param source {@code Spliterator} describing the stream source
-     * @param sourceFlags the source flags for the stream source, described in
-     * {@link StreamOpFlag}
-     */
+
     DoublePipeline(Spliterator<Double> source,
                    int sourceFlags, boolean parallel) {
         super(source, sourceFlags, parallel);
     }
 
-    /**
-     * Constructor for appending an intermediate operation onto an existing
-     * pipeline.
-     *
-     * @param upstream the upstream element source.
-     * @param opFlags the operation flags
-     */
+
     DoublePipeline(AbstractPipeline<?, E_IN, ?> upstream, int opFlags) {
         super(upstream, opFlags);
     }
 
-    /**
-     * Adapt a {@code Sink<Double> to a {@code DoubleConsumer}, ideally simply
-     * by casting.
-     */
+
     private static DoubleConsumer adapt(Sink<Double> sink) {
         if (sink instanceof DoubleConsumer) {
             return (DoubleConsumer) sink;
@@ -105,13 +54,7 @@ abstract class DoublePipeline<E_IN>
         }
     }
 
-    /**
-     * Adapt a {@code Spliterator<Double>} to a {@code Spliterator.OfDouble}.
-     *
-     * @implNote
-     * The implementation attempts to cast to a Spliterator.OfDouble, and throws
-     * an exception if this cast is not possible.
-     */
+
     private static Spliterator.OfDouble adapt(Spliterator<Double> s) {
         if (s instanceof Spliterator.OfDouble) {
             return (Spliterator.OfDouble) s;
@@ -377,14 +320,7 @@ abstract class DoublePipeline<E_IN>
 
     @Override
     public final double sum() {
-        /*
-         * In the arrays allocated for the collect operation, index 0
-         * holds the high-order bits of the running sum, index 1 holds
-         * the low-order bits of the sum computed via compensated
-         * summation, and index 2 holds the simple sum used to compute
-         * the proper result if the stream contains infinite values of
-         * the same sign.
-         */
+
         double[] summation = collect(() -> new double[3],
                                (ll, d) -> {
                                    Collectors.sumWithCompensation(ll, d);
@@ -409,24 +345,10 @@ abstract class DoublePipeline<E_IN>
         return reduce(Math::max);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @implNote The {@code double} format can represent all
-     * consecutive integers in the range -2<sup>53</sup> to
-     * 2<sup>53</sup>. If the pipeline has more than 2<sup>53</sup>
-     * values, the divisor in the average computation will saturate at
-     * 2<sup>53</sup>, leading to additional numerical errors.
-     */
+
     @Override
     public final OptionalDouble average() {
-        /*
-         * In the arrays allocated for the collect operation, index 0
-         * holds the high-order bits of the running sum, index 1 holds
-         * the low-order bits of the sum computed via compensated
-         * summation, index 2 holds the number of values seen, index 3
-         * holds the simple sum.
-         */
+
         double[] avg = collect(() -> new double[4],
                                (ll, d) -> {
                                    ll[2]++;
@@ -509,34 +431,15 @@ abstract class DoublePipeline<E_IN>
 
     //
 
-    /**
-     * Source stage of a DoubleStream
-     *
-     * @param <E_IN> type of elements in the upstream source
-     */
+
     static class Head<E_IN> extends DoublePipeline<E_IN> {
-        /**
-         * Constructor for the source stage of a DoubleStream.
-         *
-         * @param source {@code Supplier<Spliterator>} describing the stream
-         *               source
-         * @param sourceFlags the source flags for the stream source, described
-         *                    in {@link StreamOpFlag}
-         * @param parallel {@code true} if the pipeline is parallel
-         */
+
         Head(Supplier<? extends Spliterator<Double>> source,
              int sourceFlags, boolean parallel) {
             super(source, sourceFlags, parallel);
         }
 
-        /**
-         * Constructor for the source stage of a DoubleStream.
-         *
-         * @param source {@code Spliterator} describing the stream source
-         * @param sourceFlags the source flags for the stream source, described
-         *                    in {@link StreamOpFlag}
-         * @param parallel {@code true} if the pipeline is parallel
-         */
+
         Head(Spliterator<Double> source,
              int sourceFlags, boolean parallel) {
             super(source, sourceFlags, parallel);
@@ -576,21 +479,9 @@ abstract class DoublePipeline<E_IN>
 
     }
 
-    /**
-     * Base class for a stateless intermediate stage of a DoubleStream.
-     *
-     * @param <E_IN> type of elements in the upstream source
-     * @since 1.8
-     */
+
     abstract static class StatelessOp<E_IN> extends DoublePipeline<E_IN> {
-        /**
-         * Construct a new DoubleStream by appending a stateless intermediate
-         * operation to an existing stream.
-         *
-         * @param upstream the upstream pipeline stage
-         * @param inputShape the stream shape for the upstream pipeline stage
-         * @param opFlags operation flags for the new stage
-         */
+
         StatelessOp(AbstractPipeline<?, E_IN, ?> upstream,
                     StreamShape inputShape,
                     int opFlags) {
@@ -604,21 +495,9 @@ abstract class DoublePipeline<E_IN>
         }
     }
 
-    /**
-     * Base class for a stateful intermediate stage of a DoubleStream.
-     *
-     * @param <E_IN> type of elements in the upstream source
-     * @since 1.8
-     */
+
     abstract static class StatefulOp<E_IN> extends DoublePipeline<E_IN> {
-        /**
-         * Construct a new DoubleStream by appending a stateful intermediate
-         * operation to an existing stream.
-         *
-         * @param upstream the upstream pipeline stage
-         * @param inputShape the stream shape for the upstream pipeline stage
-         * @param opFlags operation flags for the new stage
-         */
+
         StatefulOp(AbstractPipeline<?, E_IN, ?> upstream,
                    StreamShape inputShape,
                    int opFlags) {

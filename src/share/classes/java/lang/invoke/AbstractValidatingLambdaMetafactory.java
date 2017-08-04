@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 package java.lang.invoke;
 
 import sun.invoke.util.Wrapper;
@@ -30,26 +7,10 @@ import static sun.invoke.util.Wrapper.forPrimitiveType;
 import static sun.invoke.util.Wrapper.forWrapperType;
 import static sun.invoke.util.Wrapper.isWrapperType;
 
-/**
- * Abstract implementation of a lambda metafactory which provides parameter
- * unrolling and input validation.
- *
- * @see LambdaMetafactory
- */
-/* package */ abstract class AbstractValidatingLambdaMetafactory {
 
-    /*
-     * For context, the comments for the following fields are marked in quotes
-     * with their values, given this program:
-     * interface II<T> {  Object foo(T x); }
-     * interface JJ<R extends Number> extends II<R> { }
-     * class CC {  String impl(int i) { return "impl:"+i; }}
-     * class X {
-     *     public static void main(String[] args) {
-     *         JJ<Integer> iii = (new CC())::impl;
-     *         System.out.printf(">>> %s\n", iii.foo(44));
-     * }}
-     */
+ abstract class AbstractValidatingLambdaMetafactory {
+
+
     final Class<?> targetClass;               // The class calling the meta-factory via invokedynamic "class X"
     final MethodType invokedType;             // The type of the invoked method "(CC)II"
     final Class<?> samBase;                   // The type of the returned instance "interface JJ"
@@ -67,43 +28,7 @@ import static sun.invoke.util.Wrapper.isWrapperType;
     final MethodType[] additionalBridges;     // Signatures of additional methods to bridge
 
 
-    /**
-     * Meta-factory constructor.
-     *
-     * @param caller Stacked automatically by VM; represents a lookup context
-     *               with the accessibility privileges of the caller.
-     * @param invokedType Stacked automatically by VM; the signature of the
-     *                    invoked method, which includes the expected static
-     *                    type of the returned lambda object, and the static
-     *                    types of the captured arguments for the lambda.  In
-     *                    the event that the implementation method is an
-     *                    instance method, the first argument in the invocation
-     *                    signature will correspond to the receiver.
-     * @param samMethodName Name of the method in the functional interface to
-     *                      which the lambda or method reference is being
-     *                      converted, represented as a String.
-     * @param samMethodType Type of the method in the functional interface to
-     *                      which the lambda or method reference is being
-     *                      converted, represented as a MethodType.
-     * @param implMethod The implementation method which should be called
-     *                   (with suitable adaptation of argument types, return
-     *                   types, and adjustment for captured arguments) when
-     *                   methods of the resulting functional interface instance
-     *                   are invoked.
-     * @param instantiatedMethodType The signature of the primary functional
-     *                               interface method after type variables are
-     *                               substituted with their instantiation from
-     *                               the capture site
-     * @param isSerializable Should the lambda be made serializable?  If set,
-     *                       either the target type or one of the additional SAM
-     *                       types must extend {@code Serializable}.
-     * @param markerInterfaces Additional interfaces which the lambda object
-     *                       should implement.
-     * @param additionalBridges Method types for additional signatures to be
-     *                          bridged to the implementation method
-     * @throws LambdaConversionException If any of the meta-factory protocol
-     * invariants are violated
-     */
+
     AbstractValidatingLambdaMetafactory(MethodHandles.Lookup caller,
                                        MethodType invokedType,
                                        String samMethodName,
@@ -156,20 +81,11 @@ import static sun.invoke.util.Wrapper.isWrapperType;
         }
     }
 
-    /**
-     * Build the CallSite.
-     *
-     * @return a CallSite, which, when invoked, will return an instance of the
-     * functional interface
-     * @throws ReflectiveOperationException
-     */
+
     abstract CallSite buildCallSite()
             throws LambdaConversionException;
 
-    /**
-     * Check the meta-factory arguments for errors
-     * @throws LambdaConversionException if there are improper conversions
-     */
+
     void validateMetafactoryArgs() throws LambdaConversionException {
         switch (implKind) {
             case MethodHandleInfo.REF_invokeInterface:
@@ -295,13 +211,7 @@ import static sun.invoke.util.Wrapper.isWrapperType;
         }
      }
 
-    /**
-     * Check type adaptability for parameter types.
-     * @param fromType Type to convert from
-     * @param toType Type to convert to
-     * @param strict If true, do strict checks, else allow that fromType may be parameterized
-     * @return True if 'fromType' can be passed to an argument of 'toType'
-     */
+
     private boolean isAdaptableTo(Class<?> fromType, Class<?> toType, boolean strict) {
         if (fromType.equals(toType)) {
             return true;
@@ -335,11 +245,7 @@ import static sun.invoke.util.Wrapper.isWrapperType;
         }
     }
 
-    /**
-     * Check type adaptability for return types --
-     * special handling of void type) and parameterized fromType
-     * @return True if 'fromType' can be converted to 'toType'
-     */
+
     private boolean isAdaptableToAsReturn(Class<?> fromType, Class<?> toType) {
         return toType.equals(void.class)
                || !fromType.equals(void.class) && isAdaptableTo(fromType, toType, false);
@@ -350,26 +256,6 @@ import static sun.invoke.util.Wrapper.isWrapperType;
     }
 
 
-    /*********** Logging support -- for debugging only, uncomment as needed
-    static final Executor logPool = Executors.newSingleThreadExecutor();
-    protected static void log(final String s) {
-        MethodHandleProxyLambdaMetafactory.logPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println(s);
-            }
-        });
-    }
 
-    protected static void log(final String s, final Throwable e) {
-        MethodHandleProxyLambdaMetafactory.logPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println(s);
-                e.printStackTrace(System.out);
-            }
-        });
-    }
-    ***********************/
 
 }

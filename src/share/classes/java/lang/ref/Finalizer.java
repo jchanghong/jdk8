@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.lang.ref;
 
@@ -31,9 +8,7 @@ import sun.misc.JavaLangAccess;
 import sun.misc.SharedSecrets;
 import sun.misc.VM;
 
-final class Finalizer extends FinalReference<Object> { /* Package-private; must be in
-                                                          same package as the Reference
-                                                          class */
+final class Finalizer extends FinalReference<Object> {
 
     private static ReferenceQueue<Object> queue = new ReferenceQueue<>();
     private static Finalizer unfinalized = null;
@@ -72,7 +47,7 @@ final class Finalizer extends FinalReference<Object> { /* Package-private; must 
             if (this.prev != null) {
                 this.prev.next = this.next;
             }
-            this.next = this;   /* Indicates that this has been finalized */
+            this.next = this;
             this.prev = this;
         }
     }
@@ -82,7 +57,7 @@ final class Finalizer extends FinalReference<Object> { /* Package-private; must 
         add();
     }
 
-    /* Invoked by VM */
+
     static void register(Object finalizee) {
         new Finalizer(finalizee);
     }
@@ -97,27 +72,14 @@ final class Finalizer extends FinalReference<Object> { /* Package-private; must 
             if (finalizee != null && !(finalizee instanceof java.lang.Enum)) {
                 jla.invokeFinalize(finalizee);
 
-                /* Clear stack slot containing this variable, to decrease
-                   the chances of false retention with a conservative GC */
+
                 finalizee = null;
             }
         } catch (Throwable x) { }
         super.clear();
     }
 
-    /* Create a privileged secondary finalizer thread in the system thread
-       group for the given Runnable, and wait for it to complete.
 
-       This method is used by both runFinalization and runFinalizersOnExit.
-       The former method invokes all pending finalizers, while the latter
-       invokes all uninvoked finalizers if on-exit finalization has been
-       enabled.
-
-       These two methods could have been implemented by offloading their work
-       to the regular finalizer thread and waiting for that thread to finish.
-       The advantage of creating a fresh thread, however, is that it insulates
-       invokers of these methods from a stalled or deadlocked finalizer thread.
-     */
     private static void forkSecondaryFinalizer(final Runnable proc) {
         AccessController.doPrivileged(
             new PrivilegedAction<Void>() {
@@ -131,13 +93,13 @@ final class Finalizer extends FinalReference<Object> { /* Package-private; must 
                 try {
                     sft.join();
                 } catch (InterruptedException x) {
-                    /* Ignore */
+
                 }
                 return null;
                 }});
     }
 
-    /* Called by Runtime.runFinalization() */
+
     static void runFinalization() {
         if (!VM.isBooted()) {
             return;
@@ -159,7 +121,7 @@ final class Finalizer extends FinalReference<Object> { /* Package-private; must 
         });
     }
 
-    /* Invoked by java.lang.Shutdown */
+
     static void runAllFinalizers() {
         if (!VM.isBooted()) {
             return;

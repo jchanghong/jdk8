@@ -1,77 +1,29 @@
-/*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 package java.util.stream;
 
 import java.util.Spliterator;
 import java.util.concurrent.CountedCompleter;
 import java.util.function.IntFunction;
 
-/**
- * Factory for instances of a short-circuiting stateful intermediate operations
- * that produce subsequences of their input stream.
- *
- * @since 1.8
- */
+
 final class SliceOps {
 
     // No instances
     private SliceOps() { }
 
-    /**
-     * Calculates the sliced size given the current size, number of elements
-     * skip, and the number of elements to limit.
-     *
-     * @param size the current size
-     * @param skip the number of elements to skip, assumed to be >= 0
-     * @param limit the number of elements to limit, assumed to be >= 0, with
-     *        a value of {@code Long.MAX_VALUE} if there is no limit
-     * @return the sliced size
-     */
+
     private static long calcSize(long size, long skip, long limit) {
         return size >= 0 ? Math.max(-1, Math.min(size - skip, limit)) : -1;
     }
 
-    /**
-     * Calculates the slice fence, which is one past the index of the slice
-     * range
-     * @param skip the number of elements to skip, assumed to be >= 0
-     * @param limit the number of elements to limit, assumed to be >= 0, with
-     *        a value of {@code Long.MAX_VALUE} if there is no limit
-     * @return the slice fence.
-     */
+
     private static long calcSliceFence(long skip, long limit) {
         long sliceFence = limit >= 0 ? skip + limit : Long.MAX_VALUE;
         // Check for overflow
         return (sliceFence >= 0) ? sliceFence : Long.MAX_VALUE;
     }
 
-    /**
-     * Creates a slice spliterator given a stream shape governing the
-     * spliterator type.  Requires that the underlying Spliterator
-     * be SUBSIZED.
-     */
+
     @SuppressWarnings("unchecked")
     private static <P_IN> Spliterator<P_IN> sliceSpliterator(StreamShape shape,
                                                              Spliterator<P_IN> s,
@@ -101,16 +53,7 @@ final class SliceOps {
         return size -> (T[]) new Object[size];
     }
 
-    /**
-     * Appends a "slice" operation to the provided stream.  The slice operation
-     * may be may be skip-only, limit-only, or skip-and-limit.
-     *
-     * @param <T> the type of both input and output elements
-     * @param upstream a reference stream with element type T
-     * @param skip the number of elements to skip.  Must be >= 0.
-     * @param limit the maximum size of the resulting stream, or -1 if no limit
-     *        is to be imposed
-     */
+
     public static <T> Stream<T> makeRef(AbstractPipeline<?, T, ?> upstream,
                                         long skip, long limit) {
         if (skip < 0)
@@ -218,15 +161,7 @@ final class SliceOps {
         };
     }
 
-    /**
-     * Appends a "slice" operation to the provided IntStream.  The slice
-     * operation may be may be skip-only, limit-only, or skip-and-limit.
-     *
-     * @param upstream An IntStream
-     * @param skip The number of elements to skip.  Must be >= 0.
-     * @param limit The maximum size of the resulting stream, or -1 if no limit
-     *        is to be imposed
-     */
+
     public static IntStream makeInt(AbstractPipeline<?, Integer, ?> upstream,
                                     long skip, long limit) {
         if (skip < 0)
@@ -327,15 +262,7 @@ final class SliceOps {
         };
     }
 
-    /**
-     * Appends a "slice" operation to the provided LongStream.  The slice
-     * operation may be may be skip-only, limit-only, or skip-and-limit.
-     *
-     * @param upstream A LongStream
-     * @param skip The number of elements to skip.  Must be >= 0.
-     * @param limit The maximum size of the resulting stream, or -1 if no limit
-     *        is to be imposed
-     */
+
     public static LongStream makeLong(AbstractPipeline<?, Long, ?> upstream,
                                       long skip, long limit) {
         if (skip < 0)
@@ -436,15 +363,7 @@ final class SliceOps {
         };
     }
 
-    /**
-     * Appends a "slice" operation to the provided DoubleStream.  The slice
-     * operation may be may be skip-only, limit-only, or skip-and-limit.
-     *
-     * @param upstream A DoubleStream
-     * @param skip The number of elements to skip.  Must be >= 0.
-     * @param limit The maximum size of the resulting stream, or -1 if no limit
-     *        is to be imposed
-     */
+
     public static DoubleStream makeDouble(AbstractPipeline<?, Double, ?> upstream,
                                           long skip, long limit) {
         if (skip < 0)
@@ -549,12 +468,7 @@ final class SliceOps {
         return StreamOpFlag.NOT_SIZED | ((limit != -1) ? StreamOpFlag.IS_SHORT_CIRCUIT : 0);
     }
 
-    /**
-     * {@code ForkJoinTask} implementing slice computation.
-     *
-     * @param <P_IN> Input element type to the stream pipeline
-     * @param <P_OUT> Output element type from the stream pipeline
-     */
+
     @SuppressWarnings("serial")
     private static final class SliceTask<P_IN, P_OUT>
             extends AbstractShortCircuitTask<P_IN, P_OUT, Node<P_OUT>, SliceTask<P_IN, P_OUT>> {
@@ -658,14 +572,7 @@ final class SliceOps {
             return input.truncate(targetOffset, to, generator);
         }
 
-        /**
-         * Determine if the number of completed elements in this node and nodes
-         * to the left of this node is greater than or equal to the target size.
-         *
-         * @param target the target size
-         * @return true if the number of elements is greater than or equal to
-         *         the target size, otherwise false.
-         */
+
         private boolean isLeftCompleted(long target) {
             long size = completed ? thisNodeSize : completedSize(target);
             if (size >= target)
@@ -685,16 +592,7 @@ final class SliceOps {
             return size >= target;
         }
 
-        /**
-         * Compute the number of completed elements in this node.
-         * <p>
-         * Computation terminates if all nodes have been processed or the
-         * number of completed elements is greater than or equal to the target
-         * size.
-         *
-         * @param target the target size
-         * @return return the number of completed elements
-         */
+
         private long completedSize(long target) {
             if (completed)
                 return thisNodeSize;

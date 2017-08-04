@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.lang.invoke;
 
@@ -93,11 +70,7 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
         }
     }
 
-    /**
-     * Class name to Wrapper hash, derived from Wrapper.hashWrap()
-     * @param xn
-     * @return The hash code 0-15
-     */
+
     private static int hashWrapperName(String xn) {
         if (xn.length() < 3) {
             return 0;
@@ -161,11 +134,7 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
                 boxingDescriptor(w), false);
     }
 
-    /**
-     * Convert types by unboxing. The source type is known to be a primitive wrapper.
-     * @param sname A primitive wrapper corresponding to wrapped reference source type
-     * @param wt A primitive wrapper being converted to
-     */
+
     void unbox(String sname, Wrapper wt) {
         visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 sname,
@@ -204,13 +173,7 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
         return Wrapper.forBasicType(first);
     }
 
-    /**
-     * Convert an argument of type 'arg' to be passed to 'target' assuring that it is 'functional'.
-     * Insert the needed conversion instructions in the method code.
-     * @param arg
-     * @param target
-     * @param functional
-     */
+
     void convertType(Class<?> arg, Class<?> target, Class<?> functional) {
         if (arg.equals(target) && arg.equals(functional)) {
             return;
@@ -282,12 +245,7 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
         }
     }
 
-    /**
-     * The following method is copied from
-     * org.objectweb.asm.commons.InstructionAdapter. Part of ASM: a very small
-     * and fast Java bytecode manipulation framework.
-     * Copyright (c) 2000-2005 INRIA, France Telecom All rights reserved.
-     */
+
     void iconst(final int cst) {
         if (cst >= -1 && cst <= 5) {
             mv.visitInsn(Opcodes.ICONST_0 + cst);

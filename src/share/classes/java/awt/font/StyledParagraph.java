@@ -1,32 +1,6 @@
-/*
- * Copyright (c) 1999, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- *
- */
 
-/*
- * (C) Copyright IBM Corp. 1999,  All rights reserved.
- */
+
+
 package java.awt.font;
 
 import java.awt.Font;
@@ -42,13 +16,7 @@ import sun.font.Decoration;
 import sun.font.FontResolver;
 import sun.text.CodePointIterator;
 
-/**
- * This class stores Font, GraphicAttribute, and Decoration intervals
- * on a paragraph of styled text.
- * <p>
- * Currently, this class is optimized for a small number of intervals
- * (preferrably 1).
- */
+
 final class StyledParagraph {
 
     // the length of the paragraph
@@ -86,11 +54,7 @@ final class StyledParagraph {
 
     private static int INITIAL_SIZE = 8;
 
-    /**
-     * Create a new StyledParagraph over the given styled text.
-     * @param aci an iterator over the text
-     * @param chars the characters extracted from aci
-     */
+
     public StyledParagraph(AttributedCharacterIterator aci,
                            char[] chars) {
 
@@ -134,10 +98,7 @@ final class StyledParagraph {
         }
     }
 
-    /**
-     * Adjust indices in starts to reflect an insertion after pos.
-     * Any index in starts greater than pos will be increased by 1.
-     */
+
     private static void insertInto(int pos, int[] starts, int numStarts) {
 
         while (starts[--numStarts] > pos) {
@@ -145,18 +106,7 @@ final class StyledParagraph {
         }
     }
 
-    /**
-     * Return a StyledParagraph reflecting the insertion of a single character
-     * into the text.  This method will attempt to reuse the given paragraph,
-     * but may create a new paragraph.
-     * @param aci an iterator over the text.  The text should be the same as the
-     *     text used to create (or most recently update) oldParagraph, with
-     *     the exception of inserting a single character at insertPos.
-     * @param chars the characters in aci
-     * @param insertPos the index of the new character in aci
-     * @param oldParagraph a StyledParagraph for the text in aci before the
-     *     insertion
-     */
+
     public static StyledParagraph insertChar(AttributedCharacterIterator aci,
                                              char[] chars,
                                              int insertPos,
@@ -200,12 +150,7 @@ final class StyledParagraph {
         return oldParagraph;
     }
 
-    /**
-     * Adjust indices in starts to reflect a deletion after deleteAt.
-     * Any index in starts greater than deleteAt will be increased by 1.
-     * It is the caller's responsibility to make sure that no 0-length
-     * runs result.
-     */
+
     private static void deleteFrom(int deleteAt, int[] starts, int numStarts) {
 
         while (starts[--numStarts] > deleteAt) {
@@ -213,18 +158,7 @@ final class StyledParagraph {
         }
     }
 
-    /**
-     * Return a StyledParagraph reflecting the insertion of a single character
-     * into the text.  This method will attempt to reuse the given paragraph,
-     * but may create a new paragraph.
-     * @param aci an iterator over the text.  The text should be the same as the
-     *     text used to create (or most recently update) oldParagraph, with
-     *     the exception of deleting a single character at deletePos.
-     * @param chars the characters in aci
-     * @param deletePos the index where a character was removed
-     * @param oldParagraph a StyledParagraph for the text in aci before the
-     *     insertion
-     */
+
     public static StyledParagraph deleteChar(AttributedCharacterIterator aci,
                                              char[] chars,
                                              int deletePos,
@@ -260,13 +194,7 @@ final class StyledParagraph {
         return oldParagraph;
     }
 
-    /**
-     * Return the index at which there is a different Font, GraphicAttribute, or
-     * Dcoration than at the given index.
-     * @param index a valid index in the paragraph
-     * @return the first index where there is a change in attributes from
-     *      those at index
-     */
+
     public int getRunLimit(int index) {
 
         if (index < 0 || index >= length) {
@@ -285,11 +213,7 @@ final class StyledParagraph {
         return Math.min(limit1, limit2);
     }
 
-    /**
-     * Return the Decoration in effect at the given index.
-     * @param index a valid index in the paragraph
-     * @return the Decoration at index.
-     */
+
     public Decoration getDecorationAt(int index) {
 
         if (index < 0 || index >= length) {
@@ -302,13 +226,7 @@ final class StyledParagraph {
         return decorations.elementAt(run);
     }
 
-    /**
-     * Return the Font or GraphicAttribute in effect at the given index.
-     * The client must test the type of the return value to determine what
-     * it is.
-     * @param index a valid index in the paragraph
-     * @return the Font or GraphicAttribute at index.
-     */
+
     public Object getFontOrGraphicAt(int index) {
 
         if (index < 0 || index >= length) {
@@ -321,11 +239,7 @@ final class StyledParagraph {
         return fonts.elementAt(run);
     }
 
-    /**
-     * Return i such that starts[i] &lt;= index &lt; starts[i+1].  starts
-     * must be in increasing order, with at least one element greater
-     * than index.
-     */
+
     private static int findRunContaining(int index, int[] starts) {
 
         for (int i=1; true; i++) {
@@ -335,12 +249,7 @@ final class StyledParagraph {
         }
     }
 
-    /**
-     * Append the given Object to the given Vector.  Add
-     * the given index to the given starts array.  If the
-     * starts array does not have room for the index, a
-     * new array is created and returned.
-     */
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     private static int[] addToVector(Object obj,
                                      int index,
@@ -360,10 +269,7 @@ final class StyledParagraph {
         return starts;
     }
 
-    /**
-     * Add a new Decoration run with the given Decoration at the
-     * given index.
-     */
+
     private void addDecoration(Decoration d, int index) {
 
         if (decorations != null) {
@@ -387,10 +293,7 @@ final class StyledParagraph {
         }
     }
 
-    /**
-     * Add a new Font/GraphicAttribute run with the given object at the
-     * given index.
-     */
+
     private void addFont(Object f, int index) {
 
         if (fonts != null) {
@@ -411,10 +314,7 @@ final class StyledParagraph {
         }
     }
 
-    /**
-     * Resolve the given chars into Fonts using FontResolver, then add
-     * font runs for each.
-     */
+
     private void addFonts(char[] chars, Map<? extends Attribute, ?> attributes,
                           int start, int limit) {
 
@@ -426,10 +326,7 @@ final class StyledParagraph {
         }
     }
 
-    /**
-     * Return a Map with entries from oldStyles, as well as input
-     * method entries, if any.
-     */
+
     static Map<? extends Attribute, ?>
            addInputMethodAttrs(Map<? extends Attribute, ?> oldStyles) {
 
@@ -472,11 +369,7 @@ final class StyledParagraph {
         return oldStyles;
     }
 
-    /**
-     * Extract a GraphicAttribute or Font from the given attributes.
-     * If attributes does not contain a GraphicAttribute, Font, or
-     * Font family entry this method returns null.
-     */
+
     private static Object getGraphicOrFont(
             Map<? extends Attribute, ?> attributes) {
 

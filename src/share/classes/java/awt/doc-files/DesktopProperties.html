@@ -147,13 +147,7 @@ Graphics only temporarily, restoring the previous values after they
 have been applied to text rendering operations.
 The following sample code shows one way to do this.
 <pre><code>
-/**
-  * Get rendering hints from a Graphics instance.
-  * "hintsToSave" is a Map of RenderingHint key-values.
-  * For each hint key present in that map, the value of that
-  * hint is obtained from the Graphics and stored as the value
-  * for the key in savedHints.
-  */
+
 RenderingHints getRenderingHints(Graphics2D g2d,
                                   RenderingHints hintsToSave,
                                   RenderingHints savedHints) {
@@ -165,7 +159,7 @@ RenderingHints getRenderingHints(Graphics2D g2d,
      if (hintsToSave.size() == 0) {
          return savedHints;
      }
-     /* RenderingHints.keySet() returns Set&lt;Object&gt; */
+
      for (Object o : hintsToSave.keySet()) {
          RenderingHints.Key key = (RenderingHints.Key)o;
          Object value = g2d.getRenderingHint(key);

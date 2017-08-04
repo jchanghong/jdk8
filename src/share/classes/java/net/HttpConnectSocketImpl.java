@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2010, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.net;
 
@@ -32,16 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Basic SocketImpl that relies on the internal HTTP protocol handler
- * implementation to perform the HTTP tunneling and authentication. The
- * sockets impl is swapped out and replaced with the socket from the HTTP
- * handler after the tunnel is successfully setup.
- *
- * @since 1.8
- */
 
-/*package*/ class HttpConnectSocketImpl extends PlainSocketImpl {
+
+ class HttpConnectSocketImpl extends PlainSocketImpl {
 
     private static final String httpURLClazzStr =
                                   "sun.net.www.protocol.http.HttpURLConnection";
@@ -126,7 +96,7 @@ import java.util.Set;
             for(Map.Entry<Integer,Object> entry : options) {
                 psi.setOption(entry.getKey(), entry.getValue());
             }
-        } catch (IOException x) {  /* gulp! */  }
+        } catch (IOException x) {    }
     }
 
     @Override

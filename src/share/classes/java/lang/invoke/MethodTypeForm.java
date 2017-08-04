@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2008, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.lang.invoke;
 
@@ -29,19 +6,7 @@ import sun.invoke.util.Wrapper;
 import java.lang.ref.SoftReference;
 import static java.lang.invoke.MethodHandleStatics.*;
 
-/**
- * Shared information for a group of method types, which differ
- * only by reference types, and therefore share a common erasure
- * and wrapping.
- * <p>
- * For an empirical discussion of the structure of method types,
- * see <a href="http://groups.google.com/group/jvm-languages/browse_thread/thread/ac9308ae74da9b7e/">
- * the thread "Avoiding Boxing" on jvm-languages</a>.
- * There are approximately 2000 distinct erased method types in the JDK.
- * There are a little over 10 times that number of unerased types.
- * No more than half of these are likely to be loaded at once.
- * @author John Rose
- */
+
 final class MethodTypeForm {
     final int[] argToSlotTable, slotToArgTable;
     final long argCounts;               // packed slot & value counts
@@ -82,18 +47,12 @@ final class MethodTypeForm {
             LF_GWT                     = 17,  // guardWithTest
             LF_LIMIT                   = 18;
 
-    /** Return the type corresponding uniquely (1-1) to this MT-form.
-     *  It might have any primitive returns or arguments, but will have no references except Object.
-     */
+
     public MethodType erasedType() {
         return erasedType;
     }
 
-    /** Return the basic type derived from the erased type of this MT-form.
-     *  A basic type is erased (all references Object) and also has all primitive
-     *  types (except int, long, float, double, void) normalized to int.
-     *  Such basic types correspond to low-level JVM calling sequences.
-     */
+
     public MethodType basicType() {
         return basicType;
     }
@@ -143,11 +102,7 @@ final class MethodTypeForm {
         return form;
     }
 
-    /**
-     * Build an MTF for a given type, which must have all references erased to Object.
-     * This MTF will stand for that type and all un-erased variations.
-     * Eagerly compute some basic properties of the type, common to all variations.
-     */
+
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected MethodTypeForm(MethodType erasedType) {
         this.erasedType = erasedType;
@@ -318,22 +273,10 @@ final class MethodTypeForm {
         }
     }
 
-    /** Codes for {@link #canonicalize(java.lang.Class, int)}.
-     * ERASE means change every reference to {@code Object}.
-     * WRAP means convert primitives (including {@code void} to their
-     * corresponding wrapper types.  UNWRAP means the reverse of WRAP.
-     * INTS means convert all non-void primitive types to int or long,
-     * according to size.  LONGS means convert all non-void primitives
-     * to long, regardless of size.  RAW_RETURN means convert a type
-     * (assumed to be a return type) to int if it is smaller than an int,
-     * or if it is void.
-     */
+
     public static final int NO_CHANGE = 0, ERASE = 1, WRAP = 2, UNWRAP = 3, INTS = 4, LONGS = 5, RAW_RETURN = 6;
 
-    /** Canonicalize the types in the given method type.
-     * If any types change, intern the new type, and return it.
-     * Otherwise return null.
-     */
+
     public static MethodType canonicalize(MethodType mt, int howRet, int howArgs) {
         Class<?>[] ptypes = mt.ptypes();
         Class<?>[] ptc = MethodTypeForm.canonicalizeAll(ptypes, howArgs);
@@ -349,9 +292,7 @@ final class MethodTypeForm {
         return MethodType.makeImpl(rtc, ptc, true);
     }
 
-    /** Canonicalize the given return or param type.
-     *  Return null if the type is already canonicalized.
-     */
+
     static Class<?> canonicalize(Class<?> t, int how) {
         Class<?> ct;
         if (t == Object.class) {
@@ -401,9 +342,7 @@ final class MethodTypeForm {
         return null;
     }
 
-    /** Canonicalize each param type in the given array.
-     *  Return null if all types are already canonicalized.
-     */
+
     static Class<?>[] canonicalizeAll(Class<?>[] ts, int how) {
         Class<?>[] cs = null;
         for (int imax = ts.length, i = 0; i < imax; i++) {

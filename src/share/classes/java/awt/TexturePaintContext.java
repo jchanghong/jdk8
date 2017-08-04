@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.awt;
 
@@ -191,26 +168,17 @@ abstract class TexturePaintContext implements PaintContext {
         return num;
     }
 
-    /**
-     * Release the resources allocated for the operation.
-     */
+
     public void dispose() {
         dropRaster(colorModel, outRas);
     }
 
-    /**
-     * Return the ColorModel of the output.
-     */
+
     public ColorModel getColorModel() {
         return colorModel;
     }
 
-    /**
-     * Return a Raster containing the colors generated for the graphics
-     * operation.
-     * @param x,y,w,h The area in device space for which colors are
-     * generated.
-     */
+
     public Raster getRaster(int x, int y, int w, int h) {
         if (outRas == null ||
             outRas.getWidth() < w ||
@@ -318,23 +286,7 @@ abstract class TexturePaintContext implements PaintContext {
                                    int rowincx, int rowincxerr,
                                    int rowincy, int rowincyerr);
 
-    /*
-     * Blends the four ARGB values in the rgbs array using the factors
-     * described by xmul and ymul in the following ratio:
-     *
-     *     rgbs[0] * (1-xmul) * (1-ymul) +
-     *     rgbs[1] * (  xmul) * (1-ymul) +
-     *     rgbs[2] * (1-xmul) * (  ymul) +
-     *     rgbs[3] * (  xmul) * (  ymul)
-     *
-     * xmul and ymul are integer values in the half-open range [0, 2^31)
-     * where 0 == 0.0 and 2^31 == 1.0.
-     *
-     * Note that since the range is half-open, the values are always
-     * logically less than 1.0.  This makes sense because while choosing
-     * pixels to blend, when the error values reach 1.0 we move to the
-     * next pixel and reset them to 0.0.
-     */
+
     public static int blend(int rgbs[], int xmul, int ymul) {
         // xmul/ymul are 31 bits wide, (0 => 2^31-1)
         // shift them to 12 bits wide, (0 => 2^12-1)

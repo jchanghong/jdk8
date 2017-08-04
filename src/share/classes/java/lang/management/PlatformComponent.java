@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2008, 2012, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.lang.management;
 
@@ -41,28 +18,10 @@ import com.sun.management.UnixOperatingSystemMXBean;
 import sun.management.ManagementFactoryHelper;
 import sun.management.Util;
 
-/**
- * This enum class defines the list of platform components
- * that provides monitoring and management support.
- * Each enum represents one MXBean interface. A MXBean
- * instance could implement one or more MXBean interfaces.
- *
- * For example, com.sun.management.GarbageCollectorMXBean
- * extends java.lang.management.GarbageCollectorMXBean
- * and there is one set of garbage collection MXBean instances,
- * each of which implements both c.s.m. and j.l.m. interfaces.
- * There are two separate enums GARBAGE_COLLECTOR
- * and SUN_GARBAGE_COLLECTOR so that ManagementFactory.getPlatformMXBeans(Class)
- * will return the list of MXBeans of the specified type.
- *
- * To add a new MXBean interface for the Java platform,
- * add a new enum constant and implement the MXBeanFetcher.
- */
+
 enum PlatformComponent {
 
-    /**
-     * Class loading system of the Java virtual machine.
-     */
+
     CLASS_LOADING(
         "java.lang.management.ClassLoadingMXBean",
         "java.lang", "ClassLoading", defaultKeyProperties(),
@@ -73,9 +32,7 @@ enum PlatformComponent {
             }
         }),
 
-    /**
-     * Compilation system of the Java virtual machine.
-     */
+
     COMPILATION(
         "java.lang.management.CompilationMXBean",
         "java.lang", "Compilation", defaultKeyProperties(),
@@ -91,9 +48,7 @@ enum PlatformComponent {
             }
         }),
 
-    /**
-     * Memory system of the Java virtual machine.
-     */
+
     MEMORY(
         "java.lang.management.MemoryMXBean",
         "java.lang", "Memory", defaultKeyProperties(),
@@ -104,9 +59,7 @@ enum PlatformComponent {
             }
         }),
 
-    /**
-     * Garbage Collector in the Java virtual machine.
-     */
+
     GARBAGE_COLLECTOR(
         "java.lang.management.GarbageCollectorMXBean",
         "java.lang", "GarbageCollector", keyProperties("name"),
@@ -118,9 +71,7 @@ enum PlatformComponent {
             }
         }),
 
-    /**
-     * Memory manager in the Java virtual machine.
-     */
+
     MEMORY_MANAGER(
         "java.lang.management.MemoryManagerMXBean",
         "java.lang", "MemoryManager", keyProperties("name"),
@@ -132,9 +83,7 @@ enum PlatformComponent {
         },
         GARBAGE_COLLECTOR),
 
-    /**
-     * Memory pool in the Java virtual machine.
-     */
+
     MEMORY_POOL(
         "java.lang.management.MemoryPoolMXBean",
         "java.lang", "MemoryPool", keyProperties("name"),
@@ -145,9 +94,7 @@ enum PlatformComponent {
             }
         }),
 
-    /**
-     * Operating system on which the Java virtual machine is running
-     */
+
     OPERATING_SYSTEM(
         "java.lang.management.OperatingSystemMXBean",
         "java.lang", "OperatingSystem", defaultKeyProperties(),
@@ -158,9 +105,7 @@ enum PlatformComponent {
             }
         }),
 
-    /**
-     * Runtime system of the Java virtual machine.
-     */
+
     RUNTIME(
         "java.lang.management.RuntimeMXBean",
         "java.lang", "Runtime", defaultKeyProperties(),
@@ -171,9 +116,7 @@ enum PlatformComponent {
             }
         }),
 
-    /**
-     * Threading system of the Java virtual machine.
-     */
+
     THREADING(
         "java.lang.management.ThreadMXBean",
         "java.lang", "Threading", defaultKeyProperties(),
@@ -185,9 +128,7 @@ enum PlatformComponent {
         }),
 
 
-    /**
-     * Logging facility.
-     */
+
     LOGGING(
         "java.lang.management.PlatformLoggingMXBean",
         "java.util.logging", "Logging", defaultKeyProperties(),
@@ -203,9 +144,7 @@ enum PlatformComponent {
             }
         }),
 
-    /**
-     * Buffer pools.
-     */
+
     BUFFER_POOL(
         "java.lang.management.BufferPoolMXBean",
         "java.nio", "BufferPool", keyProperties("name"),
@@ -219,9 +158,7 @@ enum PlatformComponent {
 
     // Sun Platform Extension
 
-    /**
-     * Sun extension garbage collector that performs collections in cycles.
-     */
+
     SUN_GARBAGE_COLLECTOR(
         "com.sun.management.GarbageCollectorMXBean",
         "java.lang", "GarbageCollector", keyProperties("name"),
@@ -232,10 +169,7 @@ enum PlatformComponent {
             }
         }),
 
-    /**
-     * Sun extension operating system on which the Java virtual machine
-     * is running.
-     */
+
     SUN_OPERATING_SYSTEM(
         "com.sun.management.OperatingSystemMXBean",
         "java.lang", "OperatingSystem", defaultKeyProperties(),
@@ -246,9 +180,7 @@ enum PlatformComponent {
             }
         }),
 
-    /**
-     * Unix operating system.
-     */
+
     SUN_UNIX_OPERATING_SYSTEM(
         "com.sun.management.UnixOperatingSystemMXBean",
         "java.lang", "OperatingSystem", defaultKeyProperties(),
@@ -259,9 +191,7 @@ enum PlatformComponent {
             }
         }),
 
-    /**
-     * Diagnostic support for the HotSpot Virtual Machine.
-     */
+
     HOTSPOT_DIAGNOSTIC(
         "com.sun.management.HotSpotDiagnosticMXBean",
         "com.sun.management", "HotSpotDiagnostic", defaultKeyProperties(),
@@ -273,16 +203,12 @@ enum PlatformComponent {
         });
 
 
-    /**
-     * A task that returns the MXBeans for a component.
-     */
+
     interface MXBeanFetcher<T extends PlatformManagedObject> {
         public List<T> getMXBeans();
     }
 
-    /*
-     * Returns a list of the GC MXBeans of the given type.
-     */
+
     private static <T extends GarbageCollectorMXBean>
             List<T> getGcMXBeanList(Class<T> gcMXBeanIntf) {
         List<GarbageCollectorMXBean> list =
@@ -296,9 +222,7 @@ enum PlatformComponent {
         return result;
     }
 
-    /*
-     * Returns the OS mxbean instance of the given type.
-     */
+
     private static <T extends OperatingSystemMXBean>
             List<T> getOSMXBeanList(Class<T> osMXBeanIntf) {
         OperatingSystemMXBean m =

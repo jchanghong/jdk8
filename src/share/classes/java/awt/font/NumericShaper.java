@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.awt.font;
 
@@ -32,283 +9,88 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Set;
 
-/**
- * The <code>NumericShaper</code> class is used to convert Latin-1 (European)
- * digits to other Unicode decimal digits.  Users of this class will
- * primarily be people who wish to present data using
- * national digit shapes, but find it more convenient to represent the
- * data internally using Latin-1 (European) digits.  This does not
- * interpret the deprecated numeric shape selector character (U+206E).
- * <p>
- * Instances of <code>NumericShaper</code> are typically applied
- * as attributes to text with the
- * {@link TextAttribute#NUMERIC_SHAPING NUMERIC_SHAPING} attribute
- * of the <code>TextAttribute</code> class.
- * For example, this code snippet causes a <code>TextLayout</code> to
- * shape European digits to Arabic in an Arabic context:<br>
- * <blockquote><pre>
- * Map map = new HashMap();
- * map.put(TextAttribute.NUMERIC_SHAPING,
- *     NumericShaper.getContextualShaper(NumericShaper.ARABIC));
- * FontRenderContext frc = ...;
- * TextLayout layout = new TextLayout(text, map, frc);
- * layout.draw(g2d, x, y);
- * </pre></blockquote>
- * <br>
- * It is also possible to perform numeric shaping explicitly using instances
- * of <code>NumericShaper</code>, as this code snippet demonstrates:<br>
- * <blockquote><pre>
- * char[] text = ...;
- * // shape all EUROPEAN digits (except zero) to ARABIC digits
- * NumericShaper shaper = NumericShaper.getShaper(NumericShaper.ARABIC);
- * shaper.shape(text, start, count);
- *
- * // shape European digits to ARABIC digits if preceding text is Arabic, or
- * // shape European digits to TAMIL digits if preceding text is Tamil, or
- * // leave European digits alone if there is no preceding text, or
- * // preceding text is neither Arabic nor Tamil
- * NumericShaper shaper =
- *     NumericShaper.getContextualShaper(NumericShaper.ARABIC |
- *                                         NumericShaper.TAMIL,
- *                                       NumericShaper.EUROPEAN);
- * shaper.shape(text, start, count);
- * </pre></blockquote>
- *
- * <p><b>Bit mask- and enum-based Unicode ranges</b></p>
- *
- * <p>This class supports two different programming interfaces to
- * represent Unicode ranges for script-specific digits: bit
- * mask-based ones, such as {@link #ARABIC NumericShaper.ARABIC}, and
- * enum-based ones, such as {@link NumericShaper.Range#ARABIC}.
- * Multiple ranges can be specified by ORing bit mask-based constants,
- * such as:
- * <blockquote><pre>
- * NumericShaper.ARABIC | NumericShaper.TAMIL
- * </pre></blockquote>
- * or creating a {@code Set} with the {@link NumericShaper.Range}
- * constants, such as:
- * <blockquote><pre>
- * EnumSet.of(NumericShaper.Scirpt.ARABIC, NumericShaper.Range.TAMIL)
- * </pre></blockquote>
- * The enum-based ranges are a super set of the bit mask-based ones.
- *
- * <p>If the two interfaces are mixed (including serialization),
- * Unicode range values are mapped to their counterparts where such
- * mapping is possible, such as {@code NumericShaper.Range.ARABIC}
- * from/to {@code NumericShaper.ARABIC}.  If any unmappable range
- * values are specified, such as {@code NumericShaper.Range.BALINESE},
- * those ranges are ignored.
- *
- * <p><b>Decimal Digits Precedence</b></p>
- *
- * <p>A Unicode range may have more than one set of decimal digits. If
- * multiple decimal digits sets are specified for the same Unicode
- * range, one of the sets will take precedence as follows.
- *
- * <table border=1 cellspacing=3 cellpadding=0 summary="NumericShaper constants precedence.">
- *    <tr>
- *       <th class="TableHeadingColor">Unicode Range</th>
- *       <th class="TableHeadingColor"><code>NumericShaper</code> Constants</th>
- *       <th class="TableHeadingColor">Precedence</th>
- *    </tr>
- *    <tr>
- *       <td rowspan="2">Arabic</td>
- *       <td>{@link NumericShaper#ARABIC NumericShaper.ARABIC}<br>
- *           {@link NumericShaper#EASTERN_ARABIC NumericShaper.EASTERN_ARABIC}</td>
- *       <td>{@link NumericShaper#EASTERN_ARABIC NumericShaper.EASTERN_ARABIC}</td>
- *    </tr>
- *    <tr>
- *       <td>{@link NumericShaper.Range#ARABIC}<br>
- *           {@link NumericShaper.Range#EASTERN_ARABIC}</td>
- *       <td>{@link NumericShaper.Range#EASTERN_ARABIC}</td>
- *    </tr>
- *    <tr>
- *       <td>Tai Tham</td>
- *       <td>{@link NumericShaper.Range#TAI_THAM_HORA}<br>
- *           {@link NumericShaper.Range#TAI_THAM_THAM}</td>
- *       <td>{@link NumericShaper.Range#TAI_THAM_THAM}</td>
- *    </tr>
- * </table>
- *
- * @since 1.4
- */
+
 
 public final class NumericShaper implements java.io.Serializable {
-    /**
-     * A {@code NumericShaper.Range} represents a Unicode range of a
-     * script having its own decimal digits. For example, the {@link
-     * NumericShaper.Range#THAI} range has the Thai digits, THAI DIGIT
-     * ZERO (U+0E50) to THAI DIGIT NINE (U+0E59).
-     *
-     * <p>The <code>Range</code> enum replaces the traditional bit
-     * mask-based values (e.g., {@link NumericShaper#ARABIC}), and
-     * supports more Unicode ranges than the bit mask-based ones. For
-     * example, the following code using the bit mask:
-     * <blockquote><pre>
-     * NumericShaper.getContextualShaper(NumericShaper.ARABIC |
-     *                                     NumericShaper.TAMIL,
-     *                                   NumericShaper.EUROPEAN);
-     * </pre></blockquote>
-     * can be written using this enum as:
-     * <blockquote><pre>
-     * NumericShaper.getContextualShaper(EnumSet.of(
-     *                                     NumericShaper.Range.ARABIC,
-     *                                     NumericShaper.Range.TAMIL),
-     *                                   NumericShaper.Range.EUROPEAN);
-     * </pre></blockquote>
-     *
-     * @since 1.7
-     */
+
     public static enum Range {
         // The order of EUROPEAN to MOGOLIAN must be consistent
         // with the bitmask-based constants.
-        /**
-         * The Latin (European) range with the Latin (ASCII) digits.
-         */
+
         EUROPEAN        ('\u0030', '\u0000', '\u0300'),
-        /**
-         * The Arabic range with the Arabic-Indic digits.
-         */
+
         ARABIC          ('\u0660', '\u0600', '\u0780'),
-        /**
-         * The Arabic range with the Eastern Arabic-Indic digits.
-         */
+
         EASTERN_ARABIC  ('\u06f0', '\u0600', '\u0780'),
-        /**
-         * The Devanagari range with the Devanagari digits.
-         */
+
         DEVANAGARI      ('\u0966', '\u0900', '\u0980'),
-        /**
-         * The Bengali range with the Bengali digits.
-         */
+
         BENGALI         ('\u09e6', '\u0980', '\u0a00'),
-        /**
-         * The Gurmukhi range with the Gurmukhi digits.
-         */
+
         GURMUKHI        ('\u0a66', '\u0a00', '\u0a80'),
-        /**
-         * The Gujarati range with the Gujarati digits.
-         */
+
         GUJARATI        ('\u0ae6', '\u0b00', '\u0b80'),
-        /**
-         * The Oriya range with the Oriya digits.
-         */
+
         ORIYA           ('\u0b66', '\u0b00', '\u0b80'),
-        /**
-         * The Tamil range with the Tamil digits.
-         */
+
         TAMIL           ('\u0be6', '\u0b80', '\u0c00'),
-        /**
-         * The Telugu range with the Telugu digits.
-         */
+
         TELUGU          ('\u0c66', '\u0c00', '\u0c80'),
-        /**
-         * The Kannada range with the Kannada digits.
-         */
+
         KANNADA         ('\u0ce6', '\u0c80', '\u0d00'),
-        /**
-         * The Malayalam range with the Malayalam digits.
-         */
+
         MALAYALAM       ('\u0d66', '\u0d00', '\u0d80'),
-        /**
-         * The Thai range with the Thai digits.
-         */
+
         THAI            ('\u0e50', '\u0e00', '\u0e80'),
-        /**
-         * The Lao range with the Lao digits.
-         */
+
         LAO             ('\u0ed0', '\u0e80', '\u0f00'),
-        /**
-         * The Tibetan range with the Tibetan digits.
-         */
+
         TIBETAN         ('\u0f20', '\u0f00', '\u1000'),
-        /**
-         * The Myanmar range with the Myanmar digits.
-         */
+
         MYANMAR         ('\u1040', '\u1000', '\u1080'),
-        /**
-         * The Ethiopic range with the Ethiopic digits. Ethiopic
-         * does not have a decimal digit 0 so Latin (European) 0 is
-         * used.
-         */
+
         ETHIOPIC        ('\u1369', '\u1200', '\u1380') {
             @Override
             char getNumericBase() { return 1; }
         },
-        /**
-         * The Khmer range with the Khmer digits.
-         */
+
         KHMER           ('\u17e0', '\u1780', '\u1800'),
-        /**
-         * The Mongolian range with the Mongolian digits.
-         */
+
         MONGOLIAN       ('\u1810', '\u1800', '\u1900'),
         // The order of EUROPEAN to MOGOLIAN must be consistent
         // with the bitmask-based constants.
 
-        /**
-         * The N'Ko range with the N'Ko digits.
-         */
+
         NKO             ('\u07c0', '\u07c0', '\u0800'),
-        /**
-         * The Myanmar range with the Myanmar Shan digits.
-         */
+
         MYANMAR_SHAN    ('\u1090', '\u1000', '\u10a0'),
-        /**
-         * The Limbu range with the Limbu digits.
-         */
+
         LIMBU           ('\u1946', '\u1900', '\u1950'),
-        /**
-         * The New Tai Lue range with the New Tai Lue digits.
-         */
+
         NEW_TAI_LUE     ('\u19d0', '\u1980', '\u19e0'),
-        /**
-         * The Balinese range with the Balinese digits.
-         */
+
         BALINESE        ('\u1b50', '\u1b00', '\u1b80'),
-        /**
-         * The Sundanese range with the Sundanese digits.
-         */
+
         SUNDANESE       ('\u1bb0', '\u1b80', '\u1bc0'),
-        /**
-         * The Lepcha range with the Lepcha digits.
-         */
+
         LEPCHA          ('\u1c40', '\u1c00', '\u1c50'),
-        /**
-         * The Ol Chiki range with the Ol Chiki digits.
-         */
+
         OL_CHIKI        ('\u1c50', '\u1c50', '\u1c80'),
-        /**
-         * The Vai range with the Vai digits.
-         */
+
         VAI             ('\ua620', '\ua500', '\ua640'),
-        /**
-         * The Saurashtra range with the Saurashtra digits.
-         */
+
         SAURASHTRA      ('\ua8d0', '\ua880', '\ua8e0'),
-        /**
-         * The Kayah Li range with the Kayah Li digits.
-         */
+
         KAYAH_LI        ('\ua900', '\ua900', '\ua930'),
-        /**
-         * The Cham range with the Cham digits.
-         */
+
         CHAM            ('\uaa50', '\uaa00', '\uaa60'),
-        /**
-         * The Tai Tham Hora range with the Tai Tham Hora digits.
-         */
+
         TAI_THAM_HORA   ('\u1a80', '\u1a20', '\u1ab0'),
-        /**
-         * The Tai Tham Tham range with the Tai Tham Tham digits.
-         */
+
         TAI_THAM_THAM   ('\u1a90', '\u1a20', '\u1ab0'),
-        /**
-         * The Javanese range with the Javanese digits.
-         */
+
         JAVANESE        ('\ua9d0', '\ua980', '\ua9e0'),
-        /**
-         * The Meetei Mayek range with the Meetei Mayek digits.
-         */
+
         MEETEI_MAYEK    ('\uabf0', '\uabc0', '\uac00');
 
         private static int toRangeIndex(Range script) {
@@ -367,108 +149,85 @@ public final class NumericShaper implements java.io.Serializable {
         }
     }
 
-    /** index of context for contextual shaping - values range from 0 to 18 */
+
     private int key;
 
-    /** flag indicating whether to shape contextually (high bit) and which
-     *  digit ranges to shape (bits 0-18)
-     */
+
     private int mask;
 
-    /**
-     * The context {@code Range} for contextual shaping or the {@code
-     * Range} for non-contextual shaping. {@code null} for the bit
-     * mask-based API.
-     *
-     * @since 1.7
-     */
+
     private Range shapingRange;
 
-    /**
-     * {@code Set<Range>} indicating which Unicode ranges to
-     * shape. {@code null} for the bit mask-based API.
-     */
+
     private transient Set<Range> rangeSet;
 
-    /**
-     * rangeSet.toArray() value. Sorted by Range.base when the number
-     * of elements is greater then BSEARCH_THRESHOLD.
-     */
+
     private transient Range[] rangeArray;
 
-    /**
-     * If more than BSEARCH_THRESHOLD ranges are specified, binary search is used.
-     */
+
     private static final int BSEARCH_THRESHOLD = 3;
 
     private static final long serialVersionUID = -8022764705923730308L;
 
-    /** Identifies the Latin-1 (European) and extended range, and
-     *  Latin-1 (European) decimal base.
-     */
+
     public static final int EUROPEAN = 1<<0;
 
-    /** Identifies the ARABIC range and decimal base. */
+
     public static final int ARABIC = 1<<1;
 
-    /** Identifies the ARABIC range and ARABIC_EXTENDED decimal base. */
+
     public static final int EASTERN_ARABIC = 1<<2;
 
-    /** Identifies the DEVANAGARI range and decimal base. */
+
     public static final int DEVANAGARI = 1<<3;
 
-    /** Identifies the BENGALI range and decimal base. */
+
     public static final int BENGALI = 1<<4;
 
-    /** Identifies the GURMUKHI range and decimal base. */
+
     public static final int GURMUKHI = 1<<5;
 
-    /** Identifies the GUJARATI range and decimal base. */
+
     public static final int GUJARATI = 1<<6;
 
-    /** Identifies the ORIYA range and decimal base. */
+
     public static final int ORIYA = 1<<7;
 
-    /** Identifies the TAMIL range and decimal base. */
+
     // TAMIL DIGIT ZERO was added in Unicode 4.1
     public static final int TAMIL = 1<<8;
 
-    /** Identifies the TELUGU range and decimal base. */
+
     public static final int TELUGU = 1<<9;
 
-    /** Identifies the KANNADA range and decimal base. */
+
     public static final int KANNADA = 1<<10;
 
-    /** Identifies the MALAYALAM range and decimal base. */
+
     public static final int MALAYALAM = 1<<11;
 
-    /** Identifies the THAI range and decimal base. */
+
     public static final int THAI = 1<<12;
 
-    /** Identifies the LAO range and decimal base. */
+
     public static final int LAO = 1<<13;
 
-    /** Identifies the TIBETAN range and decimal base. */
+
     public static final int TIBETAN = 1<<14;
 
-    /** Identifies the MYANMAR range and decimal base. */
+
     public static final int MYANMAR = 1<<15;
 
-    /** Identifies the ETHIOPIC range and decimal base. */
+
     public static final int ETHIOPIC = 1<<16;
 
-    /** Identifies the KHMER range and decimal base. */
+
     public static final int KHMER = 1<<17;
 
-    /** Identifies the MONGOLIAN range and decimal base. */
+
     public static final int MONGOLIAN = 1<<18;
 
-    /** Identifies all ranges, for full contextual shaping.
-     *
-     * <p>This constant specifies all of the bit mask-based
-     * ranges. Use {@code EmunSet.allOf(NumericShaper.Range.class)} to
-     * specify all of the enum-based ranges.
-     */
+
     public static final int ALL_RANGES = 0x0007ffff;
 
     private static final int EUROPEAN_KEY = 0;
@@ -594,12 +353,7 @@ public final class NumericShaper implements java.io.Serializable {
         return Range.EUROPEAN;
     }
 
-    /*
-     * A range table of strong directional characters (types L, R, AL).
-     * Even (left) indexes are starts of ranges of non-strong-directional (or undefined)
-     * characters, odd (right) indexes are starts of ranges of strong directional
-     * characters.
-     */
+
     private static int[] strongTable = {
         0x0000, 0x0041,
         0x005b, 0x0061,
@@ -932,111 +686,38 @@ public final class NumericShaper implements java.io.Serializable {
         return key;
     }
 
-    /**
-     * Returns a shaper for the provided unicode range.  All
-     * Latin-1 (EUROPEAN) digits are converted
-     * to the corresponding decimal unicode digits.
-     * @param singleRange the specified Unicode range
-     * @return a non-contextual numeric shaper
-     * @throws IllegalArgumentException if the range is not a single range
-     */
+
     public static NumericShaper getShaper(int singleRange) {
         int key = getKeyFromMask(singleRange);
         return new NumericShaper(key, singleRange);
     }
 
-    /**
-     * Returns a shaper for the provided Unicode
-     * range. All Latin-1 (EUROPEAN) digits are converted to the
-     * corresponding decimal digits of the specified Unicode range.
-     *
-     * @param singleRange the Unicode range given by a {@link
-     *                    NumericShaper.Range} constant.
-     * @return a non-contextual {@code NumericShaper}.
-     * @throws NullPointerException if {@code singleRange} is {@code null}
-     * @since 1.7
-     */
+
     public static NumericShaper getShaper(Range singleRange) {
         return new NumericShaper(singleRange, EnumSet.of(singleRange));
     }
 
-    /**
-     * Returns a contextual shaper for the provided unicode range(s).
-     * Latin-1 (EUROPEAN) digits are converted to the decimal digits
-     * corresponding to the range of the preceding text, if the
-     * range is one of the provided ranges.  Multiple ranges are
-     * represented by or-ing the values together, such as,
-     * <code>NumericShaper.ARABIC | NumericShaper.THAI</code>.  The
-     * shaper assumes EUROPEAN as the starting context, that is, if
-     * EUROPEAN digits are encountered before any strong directional
-     * text in the string, the context is presumed to be EUROPEAN, and
-     * so the digits will not shape.
-     * @param ranges the specified Unicode ranges
-     * @return a shaper for the specified ranges
-     */
+
     public static NumericShaper getContextualShaper(int ranges) {
         ranges |= CONTEXTUAL_MASK;
         return new NumericShaper(EUROPEAN_KEY, ranges);
     }
 
-    /**
-     * Returns a contextual shaper for the provided Unicode
-     * range(s). The Latin-1 (EUROPEAN) digits are converted to the
-     * decimal digits corresponding to the range of the preceding
-     * text, if the range is one of the provided ranges.
-     *
-     * <p>The shaper assumes EUROPEAN as the starting context, that
-     * is, if EUROPEAN digits are encountered before any strong
-     * directional text in the string, the context is presumed to be
-     * EUROPEAN, and so the digits will not shape.
-     *
-     * @param ranges the specified Unicode ranges
-     * @return a contextual shaper for the specified ranges
-     * @throws NullPointerException if {@code ranges} is {@code null}.
-     * @since 1.7
-     */
+
     public static NumericShaper getContextualShaper(Set<Range> ranges) {
         NumericShaper shaper = new NumericShaper(Range.EUROPEAN, ranges);
         shaper.mask = CONTEXTUAL_MASK;
         return shaper;
     }
 
-    /**
-     * Returns a contextual shaper for the provided unicode range(s).
-     * Latin-1 (EUROPEAN) digits will be converted to the decimal digits
-     * corresponding to the range of the preceding text, if the
-     * range is one of the provided ranges.  Multiple ranges are
-     * represented by or-ing the values together, for example,
-     * <code>NumericShaper.ARABIC | NumericShaper.THAI</code>.  The
-     * shaper uses defaultContext as the starting context.
-     * @param ranges the specified Unicode ranges
-     * @param defaultContext the starting context, such as
-     * <code>NumericShaper.EUROPEAN</code>
-     * @return a shaper for the specified Unicode ranges.
-     * @throws IllegalArgumentException if the specified
-     * <code>defaultContext</code> is not a single valid range.
-     */
+
     public static NumericShaper getContextualShaper(int ranges, int defaultContext) {
         int key = getKeyFromMask(defaultContext);
         ranges |= CONTEXTUAL_MASK;
         return new NumericShaper(key, ranges);
     }
 
-    /**
-     * Returns a contextual shaper for the provided Unicode range(s).
-     * The Latin-1 (EUROPEAN) digits will be converted to the decimal
-     * digits corresponding to the range of the preceding text, if the
-     * range is one of the provided ranges. The shaper uses {@code
-     * defaultContext} as the starting context.
-     *
-     * @param ranges the specified Unicode ranges
-     * @param defaultContext the starting context, such as
-     *                       {@code NumericShaper.Range.EUROPEAN}
-     * @return a contextual shaper for the specified Unicode ranges.
-     * @throws NullPointerException
-     *         if {@code ranges} or {@code defaultContext} is {@code null}
-     * @since 1.7
-     */
+
     public static NumericShaper getContextualShaper(Set<Range> ranges,
                                                     Range defaultContext) {
         if (defaultContext == null) {
@@ -1047,9 +728,7 @@ public final class NumericShaper implements java.io.Serializable {
         return shaper;
     }
 
-    /**
-     * Private constructor.
-     */
+
     private NumericShaper(int key, int mask) {
         this.key = key;
         this.mask = mask;
@@ -1085,18 +764,7 @@ public final class NumericShaper implements java.io.Serializable {
         }
     }
 
-    /**
-     * Converts the digits in the text that occur between start and
-     * start + count.
-     * @param text an array of characters to convert
-     * @param start the index into <code>text</code> to start
-     *        converting
-     * @param count the number of characters in <code>text</code>
-     *        to convert
-     * @throws IndexOutOfBoundsException if start or start + count is
-     *        out of bounds
-     * @throws NullPointerException if text is null
-     */
+
     public void shape(char[] text, int start, int count) {
         checkParams(text, start, count);
         if (isContextual()) {
@@ -1110,24 +778,7 @@ public final class NumericShaper implements java.io.Serializable {
         }
     }
 
-    /**
-     * Converts the digits in the text that occur between start and
-     * start + count, using the provided context.
-     * Context is ignored if the shaper is not a contextual shaper.
-     * @param text an array of characters
-     * @param start the index into <code>text</code> to start
-     *        converting
-     * @param count the number of characters in <code>text</code>
-     *        to convert
-     * @param context the context to which to convert the
-     *        characters, such as <code>NumericShaper.EUROPEAN</code>
-     * @throws IndexOutOfBoundsException if start or start + count is
-     *        out of bounds
-     * @throws NullPointerException if text is null
-     * @throws IllegalArgumentException if this is a contextual shaper
-     * and the specified <code>context</code> is not a single valid
-     * range.
-     */
+
     public void shape(char[] text, int start, int count, int context) {
         checkParams(text, start, count);
         if (isContextual()) {
@@ -1142,24 +793,7 @@ public final class NumericShaper implements java.io.Serializable {
         }
     }
 
-    /**
-     * Converts the digits in the text that occur between {@code
-     * start} and {@code start + count}, using the provided {@code
-     * context}. {@code Context} is ignored if the shaper is not a
-     * contextual shaper.
-     *
-     * @param text  a {@code char} array
-     * @param start the index into {@code text} to start converting
-     * @param count the number of {@code char}s in {@code text}
-     *              to convert
-     * @param context the context to which to convert the characters,
-     *                such as {@code NumericShaper.Range.EUROPEAN}
-     * @throws IndexOutOfBoundsException
-     *         if {@code start} or {@code start + count} is out of bounds
-     * @throws NullPointerException
-     *         if {@code text} or {@code context} is null
-     * @since 1.7
-     */
+
     public void shape(char[] text, int start, int count, Range context) {
         checkParams(text, start, count);
         if (context == null) {
@@ -1195,42 +829,17 @@ public final class NumericShaper implements java.io.Serializable {
         }
     }
 
-    /**
-     * Returns a <code>boolean</code> indicating whether or not
-     * this shaper shapes contextually.
-     * @return <code>true</code> if this shaper is contextual;
-     *         <code>false</code> otherwise.
-     */
+
     public boolean isContextual() {
         return (mask & CONTEXTUAL_MASK) != 0;
     }
 
-    /**
-     * Returns an <code>int</code> that ORs together the values for
-     * all the ranges that will be shaped.
-     * <p>
-     * For example, to check if a shaper shapes to Arabic, you would use the
-     * following:
-     * <blockquote>
-     *   {@code if ((shaper.getRanges() & shaper.ARABIC) != 0) &#123; ... }
-     * </blockquote>
-     *
-     * <p>Note that this method supports only the bit mask-based
-     * ranges. Call {@link #getRangeSet()} for the enum-based ranges.
-     *
-     * @return the values for all the ranges to be shaped.
-     */
+
     public int getRanges() {
         return mask & ~CONTEXTUAL_MASK;
     }
 
-    /**
-     * Returns a {@code Set} representing all the Unicode ranges in
-     * this {@code NumericShaper} that will be shaped.
-     *
-     * @return all the Unicode ranges to be shaped.
-     * @since 1.7
-     */
+
     public Set<Range> getRangeSet() {
         if (rangeSet != null) {
             return EnumSet.copyOf(rangeSet);
@@ -1238,9 +847,7 @@ public final class NumericShaper implements java.io.Serializable {
         return Range.maskToRangeSet(mask);
     }
 
-    /**
-     * Perform non-contextual shaping.
-     */
+
     private void shapeNonContextually(char[] text, int start, int count) {
         int base;
         char minDigit = '0';
@@ -1261,10 +868,7 @@ public final class NumericShaper implements java.io.Serializable {
         }
     }
 
-    /**
-     * Perform contextual shaping.
-     * Synchronized to protect caches used in getContextKey.
-     */
+
     private synchronized void shapeContextually(char[] text, int start, int count, int ctxKey) {
 
         // if we don't support this context, then don't shape
@@ -1337,11 +941,7 @@ public final class NumericShaper implements java.io.Serializable {
         }
     }
 
-    /**
-     * Returns a hash code for this shaper.
-     * @return this shaper's hash code.
-     * @see java.lang.Object#hashCode
-     */
+
     public int hashCode() {
         int hash = mask;
         if (rangeSet != null) {
@@ -1354,24 +954,7 @@ public final class NumericShaper implements java.io.Serializable {
         return hash;
     }
 
-    /**
-     * Returns {@code true} if the specified object is an instance of
-     * <code>NumericShaper</code> and shapes identically to this one,
-     * regardless of the range representations, the bit mask or the
-     * enum. For example, the following code produces {@code "true"}.
-     * <blockquote><pre>
-     * NumericShaper ns1 = NumericShaper.getShaper(NumericShaper.ARABIC);
-     * NumericShaper ns2 = NumericShaper.getShaper(NumericShaper.Range.ARABIC);
-     * System.out.println(ns1.equals(ns2));
-     * </pre></blockquote>
-     *
-     * @param o the specified object to compare to this
-     *          <code>NumericShaper</code>
-     * @return <code>true</code> if <code>o</code> is an instance
-     *         of <code>NumericShaper</code> and shapes in the same way;
-     *         <code>false</code> otherwise.
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
+
     public boolean equals(Object o) {
         if (o != null) {
             try {
@@ -1400,11 +983,7 @@ public final class NumericShaper implements java.io.Serializable {
         return false;
     }
 
-    /**
-     * Returns a <code>String</code> that describes this shaper. This method
-     * is used for debugging purposes only.
-     * @return a <code>String</code> describing this shaper.
-     */
+
     public String toString() {
         StringBuilder buf = new StringBuilder(super.toString());
 
@@ -1437,10 +1016,7 @@ public final class NumericShaper implements java.io.Serializable {
         return buf.toString();
     }
 
-    /**
-     * Returns the index of the high bit in value (assuming le, actually
-     * power of 2 >= value). value must be positive.
-     */
+
     private static int getHighBit(int value) {
         if (value <= 0) {
             return -32;
@@ -1475,9 +1051,7 @@ public final class NumericShaper implements java.io.Serializable {
         return bit;
     }
 
-    /**
-     * fast binary search over subrange of array.
-     */
+
     private static int search(int value, int[] array, int start, int length)
     {
         int power = 1 << getHighBit(length);
@@ -1500,16 +1074,7 @@ public final class NumericShaper implements java.io.Serializable {
         return index;
     }
 
-    /**
-     * Converts the {@code NumericShaper.Range} enum-based parameters,
-     * if any, to the bit mask-based counterparts and writes this
-     * object to the {@code stream}. Any enum constants that have no
-     * bit mask-based counterparts are ignored in the conversion.
-     *
-     * @param stream the output stream to write to
-     * @throws IOException if an I/O error occurs while writing to {@code stream}
-     * @since 1.7
-     */
+
     private void writeObject(ObjectOutputStream stream) throws IOException {
         if (shapingRange != null) {
             int index = Range.toRangeIndex(shapingRange);

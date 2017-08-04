@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 1995, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.net;
 
@@ -34,16 +11,10 @@ import sun.net.ConnectionResetException;
 import sun.net.NetHooks;
 import sun.net.ResourceManager;
 
-/**
- * Default Socket Implementation. This implementation does
- * not implement any security checks.
- * Note this class should <b>NOT</b> be public.
- *
- * @author  Steven B. Byrne
- */
+
 abstract class AbstractPlainSocketImpl extends SocketImpl
 {
-    /* instance variable for SO_TIMEOUT */
+
     int timeout;   // timeout in millisec
     // traffic class
     private int trafficClass;
@@ -54,29 +25,26 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
     private SocketInputStream socketInputStream = null;
     private SocketOutputStream socketOutputStream = null;
 
-    /* number of threads using the FileDescriptor */
+
     protected int fdUseCount = 0;
 
-    /* lock when increment/decrementing fdUseCount */
+
     protected final Object fdLock = new Object();
 
-    /* indicates a close is pending on the file descriptor */
+
     protected boolean closePending = false;
 
-    /* indicates connection reset state */
+
     private int CONNECTION_NOT_RESET = 0;
     private int CONNECTION_RESET_PENDING = 1;
     private int CONNECTION_RESET = 2;
     private int resetState;
     private final Object resetLock = new Object();
 
-   /* whether this Socket is a stream (TCP) socket or not (UDP)
-    */
+
     protected boolean stream;
 
-    /**
-     * Load net library into runtime.
-     */
+
     static {
         java.security.AccessController.doPrivileged(
             new java.security.PrivilegedAction<Void>() {
@@ -87,10 +55,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             });
     }
 
-    /**
-     * Creates a socket with a boolean that specifies whether this
-     * is a stream socket (true) or an unconnected UDP socket (false).
-     */
+
     protected synchronized void create(boolean stream) throws IOException {
         this.stream = stream;
         if (!stream) {
@@ -114,12 +79,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             serverSocket.setCreated();
     }
 
-    /**
-     * Creates a socket and connects it to the specified port on
-     * the specified host.
-     * @param host the specified host
-     * @param port the specified port
-     */
+
     protected void connect(String host, int port)
         throws UnknownHostException, IOException
     {
@@ -136,19 +96,13 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                 try {
                     close();
                 } catch (IOException ioe) {
-                    /* Do nothing. If connect threw an exception then
-                       it will be passed up the call stack */
+
                 }
             }
         }
     }
 
-    /**
-     * Creates a socket and connects it to the specified address on
-     * the specified port.
-     * @param address the address
-     * @param port the specified port
-     */
+
     protected void connect(InetAddress address, int port) throws IOException {
         this.port = port;
         this.address = address;
@@ -163,16 +117,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         }
     }
 
-    /**
-     * Creates a socket and connects it to the specified address on
-     * the specified port.
-     * @param address the address
-     * @param timeout the timeout value in milliseconds, or zero for no timeout.
-     * @throws IOException if connection fails
-     * @throws  IllegalArgumentException if address is null or is a
-     *          SocketAddress subclass not supported by this socket
-     * @since 1.4
-     */
+
     protected void connect(SocketAddress address, int timeout)
             throws IOException {
         boolean connected = false;
@@ -192,8 +137,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                 try {
                     close();
                 } catch (IOException ioe) {
-                    /* Do nothing. If connect threw an exception then
-                       it will be passed up the call stack */
+
                 }
             }
         }
@@ -213,15 +157,12 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         }
         boolean on = true;
         switch (opt) {
-            /* check type safety b4 going native.  These should never
-             * fail, since only java.Socket* has access to
-             * PlainSocketImpl.setOption().
-             */
+
         case SO_LINGER:
             if (val == null || (!(val instanceof Integer) && !(val instanceof Boolean)))
                 throw new SocketException("Bad parameter for option");
             if (val instanceof Boolean) {
-                /* true only if disabling - enabling should be Integer */
+
                 on = false;
             }
             break;
@@ -282,13 +223,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             return new Integer(timeout);
         }
         int ret = 0;
-        /*
-         * The native socketGetOption() knows about 3 options.
-         * The 32 bit value it returns will be interpreted according
-         * to what we're asking.  A return of -1 means it understands
-         * the option but its turned off.  It will raise a SocketException
-         * if "opt" isn't one it understands.
-         */
+
 
         switch (opt) {
         case TCP_NODELAY:
@@ -332,11 +267,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         }
     }
 
-    /**
-     * The workhorse of the connection operation.  Tries several times to
-     * establish a connection to the given <host, port>.  If unsuccessful,
-     * throws an IOException indicating what went wrong.
-     */
+
 
     synchronized void doConnect(InetAddress address, int port, int timeout) throws IOException {
         synchronized (fdLock) {
@@ -348,7 +279,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             acquireFD();
             try {
                 socketConnect(address, port, timeout);
-                /* socket may have been closed during poll/select */
+
                 synchronized (fdLock) {
                     if (closePending) {
                         throw new SocketException ("Socket closed");
@@ -371,11 +302,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         }
     }
 
-    /**
-     * Binds the socket to the specified address of the specified local port.
-     * @param address the address
-     * @param lport the port
-     */
+
     protected synchronized void bind(InetAddress address, int lport)
         throws IOException
     {
@@ -391,18 +318,12 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             serverSocket.setBound();
     }
 
-    /**
-     * Listens, for a specified amount of time, for connections.
-     * @param count the amount of time to listen for connections
-     */
+
     protected synchronized void listen(int count) throws IOException {
         socketListen(count);
     }
 
-    /**
-     * Accepts connections.
-     * @param s the connection
-     */
+
     protected void accept(SocketImpl s) throws IOException {
         acquireFD();
         try {
@@ -412,9 +333,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         }
     }
 
-    /**
-     * Gets an InputStream for this socket.
-     */
+
     protected synchronized InputStream getInputStream() throws IOException {
         synchronized (fdLock) {
             if (isClosedOrPending())
@@ -431,9 +350,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         socketInputStream = in;
     }
 
-    /**
-     * Gets an OutputStream for this socket.
-     */
+
     protected synchronized OutputStream getOutputStream() throws IOException {
         synchronized (fdLock) {
             if (isClosedOrPending())
@@ -462,29 +379,18 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         this.localport = localport;
     }
 
-    /**
-     * Returns the number of bytes that can be read without blocking.
-     */
+
     protected synchronized int available() throws IOException {
         if (isClosedOrPending()) {
             throw new IOException("Stream closed.");
         }
 
-        /*
-         * If connection has been reset or shut down for input, then return 0
-         * to indicate there are no buffered bytes.
-         */
+
         if (isConnectionReset() || shut_rd) {
             return 0;
         }
 
-        /*
-         * If no bytes available and we were previously notified
-         * of a connection reset then we move to the reset state.
-         *
-         * If are notified of a connection reset then check
-         * again if there are bytes buffered on the socket.
-         */
+
         int n = 0;
         try {
             n = socketAvailable();
@@ -504,9 +410,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         return n;
     }
 
-    /**
-     * Closes the socket.
-     */
+
     protected void close() throws IOException {
         synchronized(fdLock) {
             if (fd != null) {
@@ -518,14 +422,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                         return;
                     }
                     closePending = true;
-                    /*
-                     * We close the FileDescriptor in two-steps - first the
-                     * "pre-close" which closes the socket but doesn't
-                     * release the underlying file descriptor. This operation
-                     * may be lengthy due to untransmitted data and a long
-                     * linger interval. Once the pre-close is done we do the
-                     * actual socket to release the fd.
-                     */
+
                     try {
                         socketPreClose();
                     } finally {
@@ -534,12 +431,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                     fd = null;
                     return;
                 } else {
-                    /*
-                     * If a thread has acquired the fd and a close
-                     * isn't pending then use a deferred close.
-                     * Also decrement fdUseCount to signal the last
-                     * thread that releases the fd to close it.
-                     */
+
                     if (!closePending) {
                         closePending = true;
                         fdUseCount--;
@@ -559,9 +451,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
     }
 
 
-    /**
-     * Shutdown read-half of the socket connection;
-     */
+
     protected void shutdownInput() throws IOException {
       if (fd != null) {
           socketShutdown(SHUT_RD);
@@ -572,9 +462,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
       }
     }
 
-    /**
-     * Shutdown write-half of the socket connection;
-     */
+
     protected void shutdownOutput() throws IOException {
       if (fd != null) {
           socketShutdown(SHUT_WR);
@@ -593,19 +481,12 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         socketSendUrgentData (data);
     }
 
-    /**
-     * Cleans up if the user forgets to close it.
-     */
+
     protected void finalize() throws IOException {
         close();
     }
 
-    /*
-     * "Acquires" and returns the FileDescriptor for this impl
-     *
-     * A corresponding releaseFD is required to "release" the
-     * FileDescriptor.
-     */
+
     FileDescriptor acquireFD() {
         synchronized (fdLock) {
             fdUseCount++;
@@ -613,11 +494,7 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         }
     }
 
-    /*
-     * "Release" the FileDescriptor for this impl.
-     *
-     * If the use count goes to -1 then the socket is closed.
-     */
+
     void releaseFD() {
         synchronized (fdLock) {
             fdUseCount--;
@@ -661,14 +538,9 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
 
     }
 
-    /*
-     * Return true if already closed or close is pending
-     */
+
     public boolean isClosedOrPending() {
-        /*
-         * Lock on fdLock to ensure that we wait if a
-         * close is in progress.
-         */
+
         synchronized (fdLock) {
             if (closePending || (fd == null)) {
                 return true;
@@ -678,24 +550,17 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         }
     }
 
-    /*
-     * Return the current value of SO_TIMEOUT
-     */
+
     public int getTimeout() {
         return timeout;
     }
 
-    /*
-     * "Pre-close" a socket by dup'ing the file descriptor - this enables
-     * the socket to be closed without releasing the file descriptor.
-     */
+
     private void socketPreClose() throws IOException {
         socketClose0(true);
     }
 
-    /*
-     * Close the socket (and release the file descriptor).
-     */
+
     protected void socketClose() throws IOException {
         socketClose0(false);
     }

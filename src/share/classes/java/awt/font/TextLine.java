@@ -1,32 +1,6 @@
-/*
- * Copyright (c) 1998, 2011, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
 
-/*
- * (C) Copyright IBM Corp. 1998-2003, All Rights Reserved
- *
- */
+
+
 
 package java.awt.font;
 
@@ -707,9 +681,7 @@ final class TextLine {
         throw new IllegalArgumentException("logicalIndex too large.");
     }
 
-    /**
-     * map a component visual index to the logical index.
-     */
+
     private int getComponentLogicalIndex(int vi) {
         if (fComponentVisualOrder == null) {
             return vi;
@@ -717,9 +689,7 @@ final class TextLine {
         return fComponentVisualOrder[vi];
     }
 
-    /**
-     * map a component logical index to the visual index.
-     */
+
     private int getComponentVisualIndex(int li) {
         if (fComponentVisualOrder == null) {
                 return li;
@@ -797,11 +767,7 @@ final class TextLine {
         }
     }
 
-    /**
-     * Return the union of the visual bounds of all the components.
-     * This incorporates the path.  It does not include logical
-     * bounds (used by carets).
-     */
+
     public Rectangle2D getVisualBounds() {
         Rectangle2D result = null;
 
@@ -895,12 +861,7 @@ final class TextLine {
         return buf.toString();
     }
 
-    /**
-     * Create a TextLine from the text.  The Font must be able to
-     * display all of the text.
-     * attributes==null is equivalent to using an empty Map for
-     * attributes
-     */
+
     public static TextLine fastCreateTextLine(FontRenderContext frc,
                                               char[] chars,
                                               Font font,
@@ -992,10 +953,7 @@ final class TextLine {
         return newComponents;
     }
 
-    /**
-     * Returns an array in logical order of the TextLineComponents on
-     * the text in the given range, with the given attributes.
-     */
+
     public static TextLineComponent[] createComponentsOnRun(int runStart,
                                                             int runLimit,
                                                             char[] chars,
@@ -1044,10 +1002,7 @@ final class TextLine {
         return components;
     }
 
-    /**
-     * Returns an array (in logical order) of the TextLineComponents representing
-     * the text.  The components are both logically and visually contiguous.
-     */
+
     public static TextLineComponent[] getComponents(StyledParagraph styledParagraph,
                                                     char[] chars,
                                                     int textStart,
@@ -1125,11 +1080,7 @@ final class TextLine {
         return components;
     }
 
-    /**
-     * Create a TextLine from the Font and character data over the
-     * range.  The range is relative to both the StyledParagraph and the
-     * character array.
-     */
+
     public static TextLine createLineFromText(char[] chars,
                                               StyledParagraph styledParagraph,
                                               TextLabelFactory factory,
@@ -1155,22 +1106,11 @@ final class TextLine {
                             chars, 0, chars.length, charsLtoV, levels, isDirectionLTR);
     }
 
-    /**
-     * Compute the components order from the given components array and
-     * logical-to-visual character mapping.  May return null if canonical.
-     */
+
     private static int[] computeComponentOrder(TextLineComponent[] components,
                                                int[] charsLtoV) {
 
-        /*
-         * Create a visual ordering for the glyph sets.  The important thing
-         * here is that the values have the proper rank with respect to
-         * each other, not the exact values.  For example, the first glyph
-         * set that appears visually should have the lowest value.  The last
-         * should have the highest value.  The values are then normalized
-         * to map 1-1 with positions in glyphs.
-         *
-         */
+
         int[] componentOrder = null;
         if (charsLtoV != null && components.length > 1) {
             componentOrder = new int[components.length];
@@ -1187,9 +1127,7 @@ final class TextLine {
     }
 
 
-    /**
-     * Create a TextLine from the text.  chars is just the text in the iterator.
-     */
+
     public static TextLine standardCreateTextLine(FontRenderContext frc,
                                                   AttributedCharacterIterator text,
                                                   char[] chars,
@@ -1212,44 +1150,9 @@ final class TextLine {
 
 
 
-    /*
-     * A utility to get a range of text that is both logically and visually
-     * contiguous.
-     * If the entire range is ok, return limit, otherwise return the first
-     * directional change after start.  We could do better than this, but
-     * it doesn't seem worth it at the moment.
-    private static int firstVisualChunk(int order[], byte direction[],
-                                        int start, int limit)
-    {
-        if (order != null) {
-            int min = order[start];
-            int max = order[start];
-            int count = limit - start;
-            for (int i = start + 1; i < limit; i++) {
-                min = Math.min(min, order[i]);
-                max = Math.max(max, order[i]);
-                if (max - min >= count) {
-                    if (direction != null) {
-                        byte baseLevel = direction[start];
-                        for (int j = start + 1; j < i; j++) {
-                            if (direction[j] != baseLevel) {
-                                return j;
-                            }
-                        }
-                    }
-                    return i;
-                }
-            }
-        }
-        return limit;
-    }
-     */
 
-    /**
-     * When this returns, the ACI's current position will be at the start of the
-     * first run which does NOT contain a GraphicAttribute.  If no such run exists
-     * the ACI's position will be at the end, and this method will return false.
-     */
+
+
     static boolean advanceToFirstFont(AttributedCharacterIterator aci) {
 
         for (char ch = aci.first();
@@ -1295,9 +1198,7 @@ final class TextLine {
         return null;
     }
 
-  /*
-   * The new version requires that chunks be at the same level.
-   */
+
     private static int firstVisualChunk(int order[], byte direction[],
                                         int start, int limit)
     {
@@ -1309,10 +1210,7 @@ final class TextLine {
         return limit;
     }
 
-  /*
-   * create a new line with characters between charStart and charLimit
-   * justified using the provided width and ratio.
-   */
+
     public TextLine getJustifiedLine(float justificationWidth, float justifyRatio, int justStart, int justLimit) {
 
         TextLineComponent[] newComponents = new TextLineComponent[fComponents.length];

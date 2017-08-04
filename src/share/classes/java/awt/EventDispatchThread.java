@@ -1,27 +1,4 @@
-/*
- * Copyright (c) 1996, 2013, Oracle and/or its affiliates. All rights reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Oracle designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Oracle in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
- * or visit www.oracle.com if you need additional information or have any
- * questions.
- */
+
 
 package java.awt;
 
@@ -35,25 +12,7 @@ import sun.util.logging.PlatformLogger;
 import sun.awt.dnd.SunDragSourceContextPeer;
 import sun.awt.EventQueueDelegate;
 
-/**
- * EventDispatchThread is a package-private AWT class which takes
- * events off the EventQueue and dispatches them to the appropriate
- * AWT components.
- *
- * The Thread starts a "permanent" event pump with a call to
- * pumpEvents(Conditional) in its run() method. Event handlers can choose to
- * block this event pump at any time, but should start a new pump (<b>not</b>
- * a new EventDispatchThread) by again calling pumpEvents(Conditional). This
- * secondary event pump will exit automatically as soon as the Condtional
- * evaluate()s to false and an additional Event is pumped and dispatched.
- *
- * @author Tom Ball
- * @author Amy Fowler
- * @author Fred Ecks
- * @author David Mendenhall
- *
- * @since 1.1
- */
+
 class EventDispatchThread extends Thread {
 
     private static final PlatformLogger eventLog = PlatformLogger.getLogger("java.awt.event.EventDispatchThread");
@@ -70,9 +29,7 @@ class EventDispatchThread extends Thread {
         setEventQueue(queue);
     }
 
-    /*
-     * Must be called on EDT only, that's why no synchronization
-     */
+
     public void stopDispatching() {
         doDispatch = false;
     }
@@ -243,19 +200,9 @@ class EventDispatchThread extends Thread {
                 boolean actionEvent = (eventID >= ActionEvent.ACTION_FIRST) &&
                                       (eventID <= ActionEvent.ACTION_LAST);
                 boolean windowClosingEvent = (eventID == WindowEvent.WINDOW_CLOSING);
-                /*
-                 * filter out MouseEvent and ActionEvent that's outside
-                 * the modalComponent hierarchy.
-                 * KeyEvent is handled by using enqueueKeyEvent
-                 * in Dialog.show
-                 */
+
                 if (Component.isInstanceOf(modalComponent, "javax.swing.JInternalFrame")) {
-                    /*
-                     * Modal internal frames are handled separately. If event is
-                     * for some component from another heavyweight than modalComp,
-                     * it is accepted. If heavyweight is the same - we still accept
-                     * event and perform further filtering in LightweightDispatcher
-                     */
+
                     return windowClosingEvent ? FilterAction.REJECT : FilterAction.ACCEPT;
                 }
                 if (mouseEvent || actionEvent || windowClosingEvent) {
