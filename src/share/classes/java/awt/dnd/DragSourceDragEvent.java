@@ -1,21 +1,10 @@
-
-
 package java.awt.dnd;
-
 import java.awt.event.InputEvent;
-
-
-
 public class DragSourceDragEvent extends DragSourceEvent {
-
     private static final long serialVersionUID = 481346297933902471L;
-
-
-
     public DragSourceDragEvent(DragSourceContext dsc, int dropAction,
                                int action, int modifiers) {
         super(dsc);
-
         targetActions    = action;
         gestureModifiers = modifiers;
         this.dropAction  = dropAction;
@@ -29,12 +18,9 @@ public class DragSourceDragEvent extends DragSourceEvent {
             invalidModifiers = true;
         }
     }
-
-
     public DragSourceDragEvent(DragSourceContext dsc, int dropAction,
                                int action, int modifiers, int x, int y) {
         super(dsc, x, y);
-
         targetActions    = action;
         gestureModifiers = modifiers;
         this.dropAction  = dropAction;
@@ -48,52 +34,26 @@ public class DragSourceDragEvent extends DragSourceEvent {
             invalidModifiers = true;
         }
     }
-
-
     public int getTargetActions() {
         return targetActions;
     }
-
-
     private static final int JDK_1_3_MODIFIERS = InputEvent.SHIFT_DOWN_MASK - 1;
     private static final int JDK_1_4_MODIFIERS =
             ((InputEvent.ALT_GRAPH_DOWN_MASK << 1) - 1) & ~JDK_1_3_MODIFIERS;
-
-
-
     public int getGestureModifiers() {
         return invalidModifiers ? gestureModifiers : gestureModifiers & JDK_1_3_MODIFIERS;
     }
-
-
-
     public int getGestureModifiersEx() {
         return invalidModifiers ? gestureModifiers : gestureModifiers & JDK_1_4_MODIFIERS;
     }
-
-
     public int getUserAction() { return dropAction; }
-
-
     public int getDropAction() {
         return targetActions & getDragSourceContext().getSourceActions();
     }
-
-
-
-
     private int     targetActions    = DnDConstants.ACTION_NONE;
-
-
     private int     dropAction       = DnDConstants.ACTION_NONE;
-
-
     private int     gestureModifiers = 0;
-
-
     private boolean invalidModifiers;
-
-
     private void setNewModifiers() {
         if ((gestureModifiers & InputEvent.BUTTON1_MASK) != 0) {
             gestureModifiers |= InputEvent.BUTTON1_DOWN_MASK;
@@ -114,8 +74,6 @@ public class DragSourceDragEvent extends DragSourceEvent {
             gestureModifiers |= InputEvent.ALT_GRAPH_DOWN_MASK;
         }
     }
-
-
     private void setOldModifiers() {
         if ((gestureModifiers & InputEvent.BUTTON1_DOWN_MASK) != 0) {
             gestureModifiers |= InputEvent.BUTTON1_MASK;

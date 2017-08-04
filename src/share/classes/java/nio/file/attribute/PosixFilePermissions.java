@@ -1,15 +1,8 @@
-
-
 package java.nio.file.attribute;
-
 import static java.nio.file.attribute.PosixFilePermission.*;
 import java.util.*;
-
-
-
 public final class PosixFilePermissions {
     private PosixFilePermissions() { }
-
     // Write string representation of permission bits to {@code sb}.
     private static void writeBits(StringBuilder sb, boolean r, boolean w, boolean x) {
         if (r) {
@@ -28,8 +21,6 @@ public final class PosixFilePermissions {
             sb.append('-');
         }
     }
-
-
     public static String toString(Set<PosixFilePermission> perms) {
         StringBuilder sb = new StringBuilder(9);
         writeBits(sb, perms.contains(OWNER_READ), perms.contains(OWNER_WRITE),
@@ -40,7 +31,6 @@ public final class PosixFilePermissions {
           perms.contains(OTHERS_EXECUTE));
         return sb.toString();
     }
-
     private static boolean isSet(char c, char setValue) {
         if (c == setValue)
             return true;
@@ -51,8 +41,6 @@ public final class PosixFilePermissions {
     private static boolean isR(char c) { return isSet(c, 'r'); }
     private static boolean isW(char c) { return isSet(c, 'w'); }
     private static boolean isX(char c) { return isSet(c, 'x'); }
-
-
     public static Set<PosixFilePermission> fromString(String perms) {
         if (perms.length() != 9)
             throw new IllegalArgumentException("Invalid mode");
@@ -68,8 +56,6 @@ public final class PosixFilePermissions {
         if (isX(perms.charAt(8))) result.add(OTHERS_EXECUTE);
         return result;
     }
-
-
     public static FileAttribute<Set<PosixFilePermission>>
         asFileAttribute(Set<PosixFilePermission> perms)
     {

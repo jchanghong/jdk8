@@ -1,43 +1,30 @@
-
-
 package java.awt.image;
-
 import java.util.Hashtable;
 import java.awt.image.ImageProducer;
 import java.awt.image.ImageConsumer;
 import java.awt.image.ColorModel;
 import java.awt.Image;
-
-
 public class PixelGrabber implements ImageConsumer {
     ImageProducer producer;
-
     int dstX;
     int dstY;
     int dstW;
     int dstH;
-
     ColorModel imageModel;
     byte[] bytePixels;
     int[] intPixels;
     int dstOff;
     int dstScan;
-
     private boolean grabbing;
     private int flags;
-
     private static final int GRABBEDBITS = (ImageObserver.FRAMEBITS
                                             | ImageObserver.ALLBITS);
     private static final int DONEBITS = (GRABBEDBITS
                                          | ImageObserver.ERROR);
-
-
     public PixelGrabber(Image img, int x, int y, int w, int h,
                         int[] pix, int off, int scansize) {
         this(img.getSource(), x, y, w, h, pix, off, scansize);
     }
-
-
     public PixelGrabber(ImageProducer ip, int x, int y, int w, int h,
                         int[] pix, int off, int scansize) {
         producer = ip;
@@ -50,8 +37,6 @@ public class PixelGrabber implements ImageConsumer {
         intPixels = pix;
         imageModel = ColorModel.getRGBdefault();
     }
-
-
     public PixelGrabber(Image img, int x, int y, int w, int h,
                         boolean forceRGB)
     {
@@ -64,8 +49,6 @@ public class PixelGrabber implements ImageConsumer {
             imageModel = ColorModel.getRGBdefault();
         }
     }
-
-
     public synchronized void startGrabbing() {
         if ((flags & DONEBITS) != 0) {
             return;
@@ -76,18 +59,12 @@ public class PixelGrabber implements ImageConsumer {
             producer.startProduction(this);
         }
     }
-
-
     public synchronized void abortGrabbing() {
         imageComplete(IMAGEABORTED);
     }
-
-
     public boolean grabPixels() throws InterruptedException {
         return grabPixels(0);
     }
-
-
     public synchronized boolean grabPixels(long ms)
         throws InterruptedException
     {
@@ -114,35 +91,23 @@ public class PixelGrabber implements ImageConsumer {
         }
         return (flags & GRABBEDBITS) != 0;
     }
-
-
     public synchronized int getStatus() {
         return flags;
     }
-
-
     public synchronized int getWidth() {
         return (dstW < 0) ? -1 : dstW;
     }
-
-
     public synchronized int getHeight() {
         return (dstH < 0) ? -1 : dstH;
     }
-
-
     public synchronized Object getPixels() {
         return (bytePixels == null)
             ? ((Object) intPixels)
             : ((Object) bytePixels);
     }
-
-
     public synchronized ColorModel getColorModel() {
         return imageModel;
     }
-
-
     public void setDimensions(int width, int height) {
         if (dstW < 0) {
             dstW = width - dstX;
@@ -160,22 +125,15 @@ public class PixelGrabber implements ImageConsumer {
         }
         flags |= (ImageObserver.WIDTH | ImageObserver.HEIGHT);
     }
-
-
     public void setHints(int hints) {
         return;
     }
-
-
     public void setProperties(Hashtable<?,?> props) {
         return;
     }
-
-
     public void setColorModel(ColorModel model) {
         return;
     }
-
     private void convertToRGB() {
         int size = dstW * dstH;
         int newpixels[] = new int[size];
@@ -194,8 +152,6 @@ public class PixelGrabber implements ImageConsumer {
         dstOff = 0;
         imageModel = ColorModel.getRGBdefault();
     }
-
-
     public void setPixels(int srcX, int srcY, int srcW, int srcH,
                           ColorModel model,
                           byte pixels[], int srcOff, int srcScan) {
@@ -260,8 +216,6 @@ public class PixelGrabber implements ImageConsumer {
         }
         flags |= ImageObserver.SOMEBITS;
     }
-
-
     public void setPixels(int srcX, int srcY, int srcW, int srcH,
                           ColorModel model,
                           int pixels[], int srcOff, int srcScan) {
@@ -328,8 +282,6 @@ public class PixelGrabber implements ImageConsumer {
         }
         flags |= ImageObserver.SOMEBITS;
     }
-
-
     public synchronized void imageComplete(int status) {
         grabbing = false;
         switch (status) {
@@ -350,8 +302,6 @@ public class PixelGrabber implements ImageConsumer {
         producer.removeConsumer(this);
         notifyAll();
     }
-
-
     public synchronized int status() {
         return flags;
     }

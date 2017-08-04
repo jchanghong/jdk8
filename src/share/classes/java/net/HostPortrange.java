@@ -1,25 +1,17 @@
-
-
 package java.net;
-
 import java.net.*;
 import java.util.Formatter;
 import java.util.Locale;
 import sun.net.util.IPAddressUtil;
-
-
 class HostPortrange {
-
     String hostname;
     String scheme;
     int[] portrange;
-
     boolean wildcard;
     boolean literal;
     boolean ipv6, ipv4;
     static final int PORT_MIN = 0;
     static final int PORT_MAX = (1 << 16) -1;
-
     boolean equals(HostPortrange that) {
         return this.hostname.equals(that.hostname)
             && this.portrange[0] == that.portrange[0]
@@ -27,25 +19,20 @@ class HostPortrange {
             && this.wildcard == that.wildcard
             && this.literal == that.literal;
     }
-
     public int hashCode() {
         return hostname.hashCode() + portrange[0] + portrange[1];
     }
-
     HostPortrange(String scheme, String str) {
         // Parse the host name.  A name has up to three components, the
         // hostname, a port number, or two numbers representing a port
         // range.   "www.sun.com:8080-9090" is a valid host name.
-
         // With IPv6 an address can be 2010:836B:4179::836B:4179
         // An IPv6 address needs to be enclose in []
         // For ex: [2010:836B:4179::836B:4179]:8080-9090
         // Refer to RFC 2732 for more information.
-
         // first separate string into two fields: hoststr, portstr
         String hoststr, portstr = null;
         this.scheme = scheme;
-
         // check for IPv6 address
         if (str.charAt(0) == '[') {
             ipv6 = literal = true;
@@ -73,7 +60,6 @@ class HostPortrange {
             hostname = sb.toString();
         } else {
             // not IPv6 therefore ':' is the port separator
-
             int sep = str.indexOf(':');
             if (sep != -1 && str.length() > sep) {
                 hoststr = str.substring(0, sep);
@@ -102,7 +88,6 @@ class HostPortrange {
                 int lastdot = hoststr.lastIndexOf('.');
                 if (lastdot != -1 && (hoststr.length() > 1)) {
                     boolean ipv4 = true;
-
                     for (int i = lastdot + 1, len = hoststr.length(); i < len; i++) {
                         char c = hoststr.charAt(i);
                         if (c < '0' || c > '9') {
@@ -128,21 +113,16 @@ class HostPortrange {
             }
             hostname = hoststr;
         }
-
         try {
             portrange = parsePort(portstr);
         } catch (Exception e) {
             throw new IllegalArgumentException("invalid port range: " + portstr);
         }
     }
-
     static final int CASE_DIFF = 'A' - 'a';
-
-
     static String toLowerCase(String s) {
         int len = s.length();
         StringBuilder sb = null;
-
         for (int i=0; i<len; i++) {
             char c = s.charAt(i);
             if ((c >= 'a' && c <= 'z') || (c == '.')) {
@@ -163,38 +143,28 @@ class HostPortrange {
         }
         return sb == null ? s : sb.toString();
     }
-
-
     public boolean literal() {
         return literal;
     }
-
     public boolean ipv4Literal() {
         return ipv4;
     }
-
     public boolean ipv6Literal() {
         return ipv6;
     }
-
     public String hostname() {
         return hostname;
     }
-
     public int[] portrange() {
         return portrange;
     }
-
-
     public boolean wildcard() {
         return wildcard;
     }
-
     // these shouldn't leak outside the implementation
     final static int[] HTTP_PORT = {80, 80};
     final static int[] HTTPS_PORT = {443, 443};
     final static int[] NO_PORT = {-1, -1};
-
     int[] defaultPort() {
         if (scheme.equals("http")) {
             return HTTP_PORT;
@@ -203,21 +173,16 @@ class HostPortrange {
         }
         return NO_PORT;
     }
-
     int[] parsePort(String port)
     {
-
         if (port == null || port.equals("")) {
             return defaultPort();
         }
-
         if (port.equals("*")) {
             return new int[] {PORT_MIN, PORT_MAX};
         }
-
         try {
             int dash = port.indexOf('-');
-
             if (dash == -1) {
                 int p = Integer.parseInt(port);
                 return new int[] {p, p};
@@ -225,13 +190,11 @@ class HostPortrange {
                 String low = port.substring(0, dash);
                 String high = port.substring(dash+1);
                 int l,h;
-
                 if (low.equals("")) {
                     l = PORT_MIN;
                 } else {
                     l = Integer.parseInt(low);
                 }
-
                 if (high.equals("")) {
                     h = PORT_MAX;
                 } else {

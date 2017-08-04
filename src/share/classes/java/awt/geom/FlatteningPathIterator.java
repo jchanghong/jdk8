@@ -1,20 +1,11 @@
-
-
 package java.awt.geom;
-
 import java.util.*;
-
-
 public class FlatteningPathIterator implements PathIterator {
     static final int GROW_SIZE = 24;    // Multiple of cubic & quad curve size
-
     PathIterator src;                   // The source iterator
-
     double squareflat;                  // Square of the flatness parameter
                                         // for testing against squared lengths
-
     int limit;                          // Maximum number of recursion levels
-
     double hold[] = new double[14];     // The cache of interpolated coords
                                         // Note that this must be long enough
                                         // to store a full cubic segment and
@@ -24,39 +15,27 @@ public class FlatteningPathIterator implements PathIterator {
                                         // This is also serendipitously equal
                                         // to the size of a full quad segment
                                         // and 2 relative quad segments.
-
     double curx, cury;                  // The ending x,y of the last segment
-
     double movx, movy;                  // The x,y of the last move segment
-
     int holdType;                       // The type of the curve being held
                                         // for interpolation
-
     int holdEnd;                        // The index of the last curve segment
                                         // being held for interpolation
-
     int holdIndex;                      // The index of the curve segment
                                         // that was last interpolated.  This
                                         // is the curve segment ready to be
                                         // returned in the next call to
                                         // currentSegment().
-
     int levels[];                       // The recursion level at which
                                         // each curve being held in storage
                                         // was generated.
-
     int levelIndex;                     // The index of the entry in the
                                         // levels array of the curve segment
                                         // at the holdIndex
-
     boolean done;                       // True when iteration is done
-
-
     public FlatteningPathIterator(PathIterator src, double flatness) {
         this(src, flatness, 10);
     }
-
-
     public FlatteningPathIterator(PathIterator src, double flatness,
                                   int limit) {
         if (flatness < 0.0) {
@@ -72,28 +51,18 @@ public class FlatteningPathIterator implements PathIterator {
         // prime the first path segment
         next(false);
     }
-
-
     public double getFlatness() {
         return Math.sqrt(squareflat);
     }
-
-
     public int getRecursionLimit() {
         return limit;
     }
-
-
     public int getWindingRule() {
         return src.getWindingRule();
     }
-
-
     public boolean isDone() {
         return done;
     }
-
-
     void ensureHoldCapacity(int want) {
         if (holdIndex - want < 0) {
             int have = hold.length - holdIndex;
@@ -107,15 +76,11 @@ public class FlatteningPathIterator implements PathIterator {
             holdEnd += GROW_SIZE;
         }
     }
-
-
     public void next() {
         next(true);
     }
-
     private void next(boolean doNext) {
         int level;
-
         if (holdIndex >= holdEnd) {
             if (doNext) {
                 src.next();
@@ -128,7 +93,6 @@ public class FlatteningPathIterator implements PathIterator {
             levelIndex = 0;
             levels[0] = 0;
         }
-
         switch (holdType) {
         case SEG_MOVETO:
         case SEG_LINETO:
@@ -159,19 +123,16 @@ public class FlatteningPathIterator implements PathIterator {
                 hold[holdIndex + 4] = curx = hold[2];
                 hold[holdIndex + 5] = cury = hold[3];
             }
-
             level = levels[levelIndex];
             while (level < limit) {
                 if (QuadCurve2D.getFlatnessSq(hold, holdIndex) < squareflat) {
                     break;
                 }
-
                 ensureHoldCapacity(4);
                 QuadCurve2D.subdivide(hold, holdIndex,
                                       hold, holdIndex - 4,
                                       hold, holdIndex);
                 holdIndex -= 4;
-
                 // Now that we have subdivided, we have constructed
                 // two curves of one depth lower than the original
                 // curve.  One of those curves is in the place of
@@ -183,7 +144,6 @@ public class FlatteningPathIterator implements PathIterator {
                 levelIndex++;
                 levels[levelIndex] = level;
             }
-
             // This curve segment is flat enough, or it is too deep
             // in recursion levels to try to flatten any more.  The
             // two coordinates at holdIndex+4 and holdIndex+5 now
@@ -206,19 +166,16 @@ public class FlatteningPathIterator implements PathIterator {
                 hold[holdIndex + 6] = curx = hold[4];
                 hold[holdIndex + 7] = cury = hold[5];
             }
-
             level = levels[levelIndex];
             while (level < limit) {
                 if (CubicCurve2D.getFlatnessSq(hold, holdIndex) < squareflat) {
                     break;
                 }
-
                 ensureHoldCapacity(6);
                 CubicCurve2D.subdivide(hold, holdIndex,
                                        hold, holdIndex - 6,
                                        hold, holdIndex);
                 holdIndex -= 6;
-
                 // Now that we have subdivided, we have constructed
                 // two curves of one depth lower than the original
                 // curve.  One of those curves is in the place of
@@ -230,7 +187,6 @@ public class FlatteningPathIterator implements PathIterator {
                 levelIndex++;
                 levels[levelIndex] = level;
             }
-
             // This curve segment is flat enough, or it is too deep
             // in recursion levels to try to flatten any more.  The
             // two coordinates at holdIndex+6 and holdIndex+7 now
@@ -241,8 +197,6 @@ public class FlatteningPathIterator implements PathIterator {
             break;
         }
     }
-
-
     public int currentSegment(float[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("flattening iterator out of bounds");
@@ -257,8 +211,6 @@ public class FlatteningPathIterator implements PathIterator {
         }
         return type;
     }
-
-
     public int currentSegment(double[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("flattening iterator out of bounds");

@@ -1,53 +1,37 @@
-
-
 #warn This file is preprocessed before being compiled
-
 package java.nio;
-
-
-
-
 class Heap$Type$Buffer$RW$
     extends {#if[ro]?Heap}$Type$Buffer
 {
-
     // For speed these fields are actually declared in X-Buffer;
     // these declarations are here as documentation
-
-
     Heap$Type$Buffer$RW$(int cap, int lim) {            // package-private
 #if[rw]
         super(-1, 0, lim, cap, new $type$[cap], 0);
-
 #else[rw]
         super(cap, lim);
         this.isReadOnly = true;
 #end[rw]
     }
-
     Heap$Type$Buffer$RW$($type$[] buf, int off, int len) { // package-private
 #if[rw]
         super(-1, off, off + len, buf.length, buf, 0);
-
 #else[rw]
         super(buf, off, len);
         this.isReadOnly = true;
 #end[rw]
     }
-
     protected Heap$Type$Buffer$RW$($type$[] buf,
                                    int mark, int pos, int lim, int cap,
                                    int off)
     {
 #if[rw]
         super(mark, pos, lim, cap, buf, off);
-
 #else[rw]
         super(buf, mark, pos, lim, cap, off);
         this.isReadOnly = true;
 #end[rw]
     }
-
     public $Type$Buffer slice() {
         return new Heap$Type$Buffer$RW$(hb,
                                         -1,
@@ -56,7 +40,6 @@ class Heap$Type$Buffer$RW$
                                         this.remaining(),
                                         this.position() + offset);
     }
-
     public $Type$Buffer duplicate() {
         return new Heap$Type$Buffer$RW$(hb,
                                         this.markValue(),
@@ -65,7 +48,6 @@ class Heap$Type$Buffer$RW$
                                         this.capacity(),
                                         offset);
     }
-
     public $Type$Buffer asReadOnlyBuffer() {
 #if[rw]
         return new Heap$Type$BufferR(hb,
@@ -78,27 +60,21 @@ class Heap$Type$Buffer$RW$
         return duplicate();
 #end[rw]
     }
-
 #if[rw]
-
     protected int ix(int i) {
         return i + offset;
     }
-
     public $type$ get() {
         return hb[ix(nextGetIndex())];
     }
-
     public $type$ get(int i) {
         return hb[ix(checkIndex(i))];
     }
-
 #if[streamableType]
     $type$ getUnchecked(int i) {
 	return hb[ix(i)];
     }
 #end[streamableType]
-
     public $Type$Buffer get($type$[] dst, int offset, int length) {
         checkBounds(offset, length, dst.length);
         if (length > remaining())
@@ -107,17 +83,13 @@ class Heap$Type$Buffer$RW$
         position(position() + length);
         return this;
     }
-
     public boolean isDirect() {
         return false;
     }
-
 #end[rw]
-
     public boolean isReadOnly() {
         return {#if[rw]?false:true};
     }
-
     public $Type$Buffer put($type$ x) {
 #if[rw]
         hb[ix(nextPutIndex())] = x;
@@ -126,7 +98,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer put(int i, $type$ x) {
 #if[rw]
         hb[ix(checkIndex(i))] = x;
@@ -135,7 +106,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer put($type$[] src, int offset, int length) {
 #if[rw]
         checkBounds(offset, length, src.length);
@@ -148,7 +118,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer put($Type$Buffer src) {
 #if[rw]
         if (src instanceof Heap$Type$Buffer) {
@@ -176,7 +145,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer compact() {
 #if[rw]
         System.arraycopy(hb, ix(position()), hb, ix(0), remaining());
@@ -188,15 +156,10 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
-
-
 #if[byte]
-
     byte _get(int i) {                          // package-private
         return hb[i];
     }
-
     void _put(int i, byte b) {                  // package-private
 #if[rw]
         hb[i] = b;
@@ -204,21 +167,15 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     // char
-
 #if[rw]
-
     public char getChar() {
         return Bits.getChar(this, ix(nextGetIndex(2)), bigEndian);
     }
-
     public char getChar(int i) {
         return Bits.getChar(this, ix(checkIndex(i, 2)), bigEndian);
     }
-
 #end[rw]
-
     public $Type$Buffer putChar(char x) {
 #if[rw]
         Bits.putChar(this, ix(nextPutIndex(2)), x, bigEndian);
@@ -227,7 +184,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer putChar(int i, char x) {
 #if[rw]
         Bits.putChar(this, ix(checkIndex(i, 2)), x, bigEndian);
@@ -236,7 +192,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public CharBuffer asCharBuffer() {
         int size = this.remaining() >> 1;
         int off = offset + position();
@@ -254,22 +209,15 @@ class Heap$Type$Buffer$RW$
                                                                size,
                                                                off)));
     }
-
-
     // short
-
 #if[rw]
-
     public short getShort() {
         return Bits.getShort(this, ix(nextGetIndex(2)), bigEndian);
     }
-
     public short getShort(int i) {
         return Bits.getShort(this, ix(checkIndex(i, 2)), bigEndian);
     }
-
 #end[rw]
-
     public $Type$Buffer putShort(short x) {
 #if[rw]
         Bits.putShort(this, ix(nextPutIndex(2)), x, bigEndian);
@@ -278,7 +226,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer putShort(int i, short x) {
 #if[rw]
         Bits.putShort(this, ix(checkIndex(i, 2)), x, bigEndian);
@@ -287,7 +234,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public ShortBuffer asShortBuffer() {
         int size = this.remaining() >> 1;
         int off = offset + position();
@@ -305,22 +251,15 @@ class Heap$Type$Buffer$RW$
                                                                  size,
                                                                  off)));
     }
-
-
     // int
-
 #if[rw]
-
     public int getInt() {
         return Bits.getInt(this, ix(nextGetIndex(4)), bigEndian);
     }
-
     public int getInt(int i) {
         return Bits.getInt(this, ix(checkIndex(i, 4)), bigEndian);
     }
-
 #end[rw]
-
     public $Type$Buffer putInt(int x) {
 #if[rw]
         Bits.putInt(this, ix(nextPutIndex(4)), x, bigEndian);
@@ -329,7 +268,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer putInt(int i, int x) {
 #if[rw]
         Bits.putInt(this, ix(checkIndex(i, 4)), x, bigEndian);
@@ -338,7 +276,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public IntBuffer asIntBuffer() {
         int size = this.remaining() >> 2;
         int off = offset + position();
@@ -356,22 +293,15 @@ class Heap$Type$Buffer$RW$
                                                              size,
                                                              off)));
     }
-
-
     // long
-
 #if[rw]
-
     public long getLong() {
         return Bits.getLong(this, ix(nextGetIndex(8)), bigEndian);
     }
-
     public long getLong(int i) {
         return Bits.getLong(this, ix(checkIndex(i, 8)), bigEndian);
     }
-
 #end[rw]
-
     public $Type$Buffer putLong(long x) {
 #if[rw]
         Bits.putLong(this, ix(nextPutIndex(8)), x, bigEndian);
@@ -380,7 +310,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer putLong(int i, long x) {
 #if[rw]
         Bits.putLong(this, ix(checkIndex(i, 8)), x, bigEndian);
@@ -389,7 +318,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public LongBuffer asLongBuffer() {
         int size = this.remaining() >> 3;
         int off = offset + position();
@@ -407,22 +335,15 @@ class Heap$Type$Buffer$RW$
                                                                size,
                                                                off)));
     }
-
-
     // float
-
 #if[rw]
-
     public float getFloat() {
         return Bits.getFloat(this, ix(nextGetIndex(4)), bigEndian);
     }
-
     public float getFloat(int i) {
         return Bits.getFloat(this, ix(checkIndex(i, 4)), bigEndian);
     }
-
 #end[rw]
-
     public $Type$Buffer putFloat(float x) {
 #if[rw]
         Bits.putFloat(this, ix(nextPutIndex(4)), x, bigEndian);
@@ -431,7 +352,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer putFloat(int i, float x) {
 #if[rw]
         Bits.putFloat(this, ix(checkIndex(i, 4)), x, bigEndian);
@@ -440,7 +360,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public FloatBuffer asFloatBuffer() {
         int size = this.remaining() >> 2;
         int off = offset + position();
@@ -458,22 +377,15 @@ class Heap$Type$Buffer$RW$
                                                                  size,
                                                                  off)));
     }
-
-
     // double
-
 #if[rw]
-
     public double getDouble() {
         return Bits.getDouble(this, ix(nextGetIndex(8)), bigEndian);
     }
-
     public double getDouble(int i) {
         return Bits.getDouble(this, ix(checkIndex(i, 8)), bigEndian);
     }
-
 #end[rw]
-
     public $Type$Buffer putDouble(double x) {
 #if[rw]
         Bits.putDouble(this, ix(nextPutIndex(8)), x, bigEndian);
@@ -482,7 +394,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer putDouble(int i, double x) {
 #if[rw]
         Bits.putDouble(this, ix(checkIndex(i, 8)), x, bigEndian);
@@ -491,7 +402,6 @@ class Heap$Type$Buffer$RW$
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public DoubleBuffer asDoubleBuffer() {
         int size = this.remaining() >> 3;
         int off = offset + position();
@@ -509,13 +419,8 @@ class Heap$Type$Buffer$RW$
                                                                    size,
                                                                    off)));
     }
-
-
 #end[byte]
-
-
 #if[char]
-
     String toString(int start, int end) {               // package-private
         try {
             return new String(hb, start + offset, end - start);
@@ -523,10 +428,7 @@ class Heap$Type$Buffer$RW$
             throw new IndexOutOfBoundsException();
         }
     }
-
-
     // --- Methods to support CharSequence ---
-
     public CharBuffer subSequence(int start, int end) {
         if ((start < 0)
             || (end > length())
@@ -540,16 +442,10 @@ class Heap$Type$Buffer$RW$
                                       capacity(),
                                       offset);
     }
-
 #end[char]
-
-
 #if[!byte]
-
     public ByteOrder order() {
         return ByteOrder.nativeOrder();
     }
-
 #end[!byte]
-
 }

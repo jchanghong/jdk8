@@ -1,75 +1,37 @@
-
 package java.awt;
-
 import java.io.ObjectInputStream;
 import java.io.IOException;
-
-
 public class FlowLayout implements LayoutManager, java.io.Serializable {
-
-
     public static final int LEFT        = 0;
-
-
     public static final int CENTER      = 1;
-
-
     public static final int RIGHT       = 2;
-
-
     public static final int LEADING     = 3;
-
-
     public static final int TRAILING = 4;
-
-
     int align;          // This is for 1.1 serialization compatibility
-
-
     int newAlign;       // This is the one we actually use
-
-
     int hgap;
-
-
     int vgap;
-
-
     private boolean alignOnBaseline;
-
-
      private static final long serialVersionUID = -7262534875583282631L;
-
-
     public FlowLayout() {
         this(CENTER, 5, 5);
     }
-
-
     public FlowLayout(int align) {
         this(align, 5, 5);
     }
-
-
     public FlowLayout(int align, int hgap, int vgap) {
         this.hgap = hgap;
         this.vgap = vgap;
         setAlignment(align);
     }
-
-
     public int getAlignment() {
         return newAlign;
     }
-
-
     public void setAlignment(int align) {
         this.newAlign = align;
-
         // this.align is used only for serialization compatibility,
         // so set it to a value compatible with the 1.1 version
         // of the class
-
         switch (align) {
         case LEADING:
             this.align = LEFT;
@@ -82,46 +44,28 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
             break;
         }
     }
-
-
     public int getHgap() {
         return hgap;
     }
-
-
     public void setHgap(int hgap) {
         this.hgap = hgap;
     }
-
-
     public int getVgap() {
         return vgap;
     }
-
-
     public void setVgap(int vgap) {
         this.vgap = vgap;
     }
-
-
     public void setAlignOnBaseline(boolean alignOnBaseline) {
         this.alignOnBaseline = alignOnBaseline;
     }
-
-
     public boolean getAlignOnBaseline() {
         return alignOnBaseline;
     }
-
-
     public void addLayoutComponent(String name, Component comp) {
     }
-
-
     public void removeLayoutComponent(Component comp) {
     }
-
-
     public Dimension preferredLayoutSize(Container target) {
       synchronized (target.getTreeLock()) {
         Dimension dim = new Dimension(0, 0);
@@ -130,7 +74,6 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
         boolean useBaseline = getAlignOnBaseline();
         int maxAscent = 0;
         int maxDescent = 0;
-
         for (int i = 0 ; i < nmembers ; i++) {
             Component m = target.getComponent(i);
             if (m.isVisible()) {
@@ -160,8 +103,6 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
         return dim;
       }
     }
-
-
     public Dimension minimumLayoutSize(Container target) {
       synchronized (target.getTreeLock()) {
         boolean useBaseline = getAlignOnBaseline();
@@ -170,7 +111,6 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
         int maxAscent = 0;
         int maxDescent = 0;
         boolean firstVisibleComponent = true;
-
         for (int i = 0 ; i < nmembers ; i++) {
             Component m = target.getComponent(i);
             if (m.visible) {
@@ -192,24 +132,15 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
                 }
 }
 }
-
         if (useBaseline) {
             dim.height = Math.max(maxAscent + maxDescent, dim.height);
         }
-
         Insets insets = target.getInsets();
         dim.width += insets.left + insets.right + hgap*2;
         dim.height += insets.top + insets.bottom + vgap*2;
         return dim;
-
-
-
-
-
       }
     }
-
-
     private int moveComponents(Container target, int x, int y, int width, int height,
                                 int rowStart, int rowEnd, boolean ltr,
                                 boolean useBaseline, int[] ascent,
@@ -271,8 +202,6 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
         }
         return height;
     }
-
-
     public void layoutContainer(Container target) {
       synchronized (target.getTreeLock()) {
         Insets insets = target.getInsets();
@@ -280,24 +209,19 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
         int nmembers = target.getComponentCount();
         int x = 0, y = insets.top + vgap;
         int rowh = 0, start = 0;
-
         boolean ltr = target.getComponentOrientation().isLeftToRight();
-
         boolean useBaseline = getAlignOnBaseline();
         int[] ascent = null;
         int[] descent = null;
-
         if (useBaseline) {
             ascent = new int[nmembers];
             descent = new int[nmembers];
         }
-
         for (int i = 0 ; i < nmembers ; i++) {
             Component m = target.getComponent(i);
             if (m.isVisible()) {
                 Dimension d = m.getPreferredSize();
                 m.setSize(d.width, d.height);
-
                 if (useBaseline) {
                     int baseline = m.getBaseline(d.width, d.height);
                     if (baseline >= 0) {
@@ -329,30 +253,23 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
                        start, nmembers, ltr, useBaseline, ascent, descent);
       }
     }
-
     //
     // the internal serial version which says which version was written
     // - 0 (default) for versions before the Java 2 platform, v1.2
     // - 1 for version >= Java 2 platform v1.2, which includes "newAlign" field
     //
     private static final int currentSerialVersion = 1;
-
     private int serialVersionOnStream = currentSerialVersion;
-
-
     private void readObject(ObjectInputStream stream)
          throws IOException, ClassNotFoundException
     {
         stream.defaultReadObject();
-
         if (serialVersionOnStream < 1) {
             // "newAlign" field wasn't present, so use the old "align" field.
             setAlignment(this.align);
         }
         serialVersionOnStream = currentSerialVersion;
     }
-
-
     public String toString() {
         String str = "";
         switch (align) {
@@ -364,6 +281,4 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
         }
         return getClass().getName() + "[hgap=" + hgap + ",vgap=" + vgap + str + "]";
     }
-
-
 }

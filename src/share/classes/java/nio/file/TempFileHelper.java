@@ -1,7 +1,4 @@
-
-
 package java.nio.file;
-
 import java.util.Set;
 import java.util.EnumSet;
 import java.security.SecureRandom;
@@ -12,20 +9,13 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import static java.nio.file.attribute.PosixFilePermission.*;
 import sun.security.action.GetPropertyAction;
-
-
-
-
 class TempFileHelper {
     private TempFileHelper() { }
-
     // temporary directory location
     private static final Path tmpdir =
         Paths.get(doPrivileged(new GetPropertyAction("java.io.tmpdir")));
-
     private static final boolean isPosix =
         FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
-
     // file name generation, same as java.io.File for now
     private static final SecureRandom random = new SecureRandom();
     private static Path generatePath(String prefix, String suffix, Path dir) {
@@ -37,7 +27,6 @@ class TempFileHelper {
             throw new IllegalArgumentException("Invalid prefix or suffix");
         return dir.resolve(name);
     }
-
     // default file and directory permissions (lazily initialized)
     private static class PosixPermissions {
         static final FileAttribute<Set<PosixFilePermission>> filePermissions =
@@ -46,8 +35,6 @@ class TempFileHelper {
             PosixFilePermissions.asFileAttribute(EnumSet
                 .of(OWNER_READ, OWNER_WRITE, OWNER_EXECUTE));
     }
-
-
     private static Path create(Path dir,
                                String prefix,
                                String suffix,
@@ -61,7 +48,6 @@ class TempFileHelper {
             suffix = (createDirectory) ? "" : ".tmp";
         if (dir == null)
             dir = tmpdir;
-
         // in POSIX environments use default file and directory permissions
         // if initial permissions not given by caller.
         if (isPosix && (dir.getFileSystem() == FileSystems.getDefault())) {
@@ -89,7 +75,6 @@ class TempFileHelper {
                 }
             }
         }
-
         // loop generating random names until file or directory can be created
         SecurityManager sm = System.getSecurityManager();
         for (;;) {
@@ -118,8 +103,6 @@ class TempFileHelper {
             }
         }
     }
-
-
     static Path createTempFile(Path dir,
                                String prefix,
                                String suffix,
@@ -128,8 +111,6 @@ class TempFileHelper {
     {
         return create(dir, prefix, suffix, false, attrs);
     }
-
-
     static Path createTempDirectory(Path dir,
                                     String prefix,
                                     FileAttribute<?>[] attrs)

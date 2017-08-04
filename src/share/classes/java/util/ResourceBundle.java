@@ -1,9 +1,4 @@
-
-
-
-
 package java.util;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.ReferenceQueue;
@@ -20,59 +15,30 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.jar.JarEntry;
 import java.util.spi.ResourceBundleControlProvider;
-
 import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
 import sun.util.locale.BaseLocale;
 import sun.util.locale.LocaleObjectCache;
-
-
-
 public abstract class ResourceBundle {
-
-
     private static final int INITIAL_CACHE_SIZE = 32;
-
-
     private static final ResourceBundle NONEXISTENT_BUNDLE = new ResourceBundle() {
             public Enumeration<String> getKeys() { return null; }
             protected Object handleGetObject(String key) { return null; }
             public String toString() { return "NONEXISTENT_BUNDLE"; }
         };
-
-
-
     private static final ConcurrentMap<CacheKey, BundleReference> cacheList
         = new ConcurrentHashMap<>(INITIAL_CACHE_SIZE);
-
-
     private static final ReferenceQueue<Object> referenceQueue = new ReferenceQueue<>();
-
-
     public String getBaseBundleName() {
         return name;
     }
-
-
     protected ResourceBundle parent = null;
-
-
     private Locale locale = null;
-
-
     private String name;
-
-
     private volatile boolean expired;
-
-
     private volatile CacheKey cacheKey;
-
-
     private volatile Set<String> keySet;
-
     private static final List<ResourceBundleControlProvider> providers;
-
     static {
         List<ResourceBundleControlProvider> list = null;
         ServiceLoader<ResourceBundleControlProvider> serviceLoaders
@@ -85,22 +51,14 @@ public abstract class ResourceBundle {
         }
         providers = list;
     }
-
-
     public ResourceBundle() {
     }
-
-
     public final String getString(String key) {
         return (String) getObject(key);
     }
-
-
     public final String[] getStringArray(String key) {
         return (String[]) getObject(key);
     }
-
-
     public final Object getObject(String key) {
         Object obj = handleGetObject(key);
         if (obj == null) {
@@ -117,13 +75,9 @@ public abstract class ResourceBundle {
         }
         return obj;
     }
-
-
     public Locale getLocale() {
         return locale;
     }
-
-
     private static ClassLoader getLoader(Class<?> caller) {
         ClassLoader cl = caller == null ? null : caller.getClassLoader();
         if (cl == null) {
@@ -138,8 +92,6 @@ public abstract class ResourceBundle {
         }
         return cl;
     }
-
-
     private static class RBClassLoader extends ClassLoader {
         private static final RBClassLoader INSTANCE = AccessController.doPrivileged(
                     new PrivilegedAction<RBClassLoader>() {
@@ -148,7 +100,6 @@ public abstract class ResourceBundle {
                         }
                     });
         private static final ClassLoader loader = ClassLoader.getSystemClassLoader();
-
         private RBClassLoader() {
         }
         public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -170,41 +121,30 @@ public abstract class ResourceBundle {
             return ClassLoader.getSystemResourceAsStream(name);
         }
     }
-
-
     protected void setParent(ResourceBundle parent) {
         assert parent != NONEXISTENT_BUNDLE;
         this.parent = parent;
     }
-
-
     private static class CacheKey implements Cloneable {
         // These three are the actual keys for lookup in Map.
         private String name;
         private Locale locale;
         private LoaderReference loaderRef;
-
         // bundle format which is necessary for calling
         // Control.needsReload().
         private String format;
-
         // These time values are in CacheKey so that NONEXISTENT_BUNDLE
         // doesn't need to be cloned for caching.
-
         // The time when the bundle has been loaded
         private volatile long loadTime;
-
         // The time when the bundle expires in the cache, or either
         // Control.TTL_DONT_CACHE or Control.TTL_NO_EXPIRATION_CONTROL.
         private volatile long expirationTime;
-
         // Placeholder for an error report by a Throwable
         private Throwable cause;
-
         // Hash code value cache to avoid recalculating the hash code
         // of this instance.
         private int hashCodeCache;
-
         CacheKey(String baseName, Locale locale, ClassLoader loader) {
             this.name = baseName;
             this.locale = locale;
@@ -215,11 +155,9 @@ public abstract class ResourceBundle {
             }
             calculateHashCode();
         }
-
         String getName() {
             return name;
         }
-
         CacheKey setName(String baseName) {
             if (!this.name.equals(baseName)) {
                 this.name = baseName;
@@ -227,11 +165,9 @@ public abstract class ResourceBundle {
             }
             return this;
         }
-
         Locale getLocale() {
             return locale;
         }
-
         CacheKey setLocale(Locale locale) {
             if (!this.locale.equals(locale)) {
                 this.locale = locale;
@@ -239,11 +175,9 @@ public abstract class ResourceBundle {
             }
             return this;
         }
-
         ClassLoader getLoader() {
             return (loaderRef != null) ? loaderRef.get() : null;
         }
-
         public boolean equals(Object other) {
             if (this == other) {
                 return true;
@@ -277,11 +211,9 @@ public abstract class ResourceBundle {
             }
             return false;
         }
-
         public int hashCode() {
             return hashCodeCache;
         }
-
         private void calculateHashCode() {
             hashCodeCache = name.hashCode() << 3;
             hashCodeCache ^= locale.hashCode();
@@ -290,7 +222,6 @@ public abstract class ResourceBundle {
                 hashCodeCache ^= loader.hashCode();
             }
         }
-
         public Object clone() {
             try {
                 CacheKey clone = (CacheKey) super.clone();
@@ -306,15 +237,12 @@ public abstract class ResourceBundle {
                 throw new InternalError(e);
             }
         }
-
         String getFormat() {
             return format;
         }
-
         void setFormat(String format) {
             this.format = format;
         }
-
         private void setCause(Throwable cause) {
             if (this.cause == null) {
                 this.cause = cause;
@@ -326,11 +254,9 @@ public abstract class ResourceBundle {
                 }
             }
         }
-
         private Throwable getCause() {
             return cause;
         }
-
         public String toString() {
             String l = locale.toString();
             if (l.length() == 0) {
@@ -344,43 +270,31 @@ public abstract class ResourceBundle {
                 + "(format=" + format + ")]";
         }
     }
-
-
     private static interface CacheKeyReference {
         public CacheKey getCacheKey();
     }
-
-
     private static class LoaderReference extends WeakReference<ClassLoader>
                                          implements CacheKeyReference {
         private CacheKey cacheKey;
-
         LoaderReference(ClassLoader referent, ReferenceQueue<Object> q, CacheKey key) {
             super(referent, q);
             cacheKey = key;
         }
-
         public CacheKey getCacheKey() {
             return cacheKey;
         }
     }
-
-
     private static class BundleReference extends SoftReference<ResourceBundle>
                                          implements CacheKeyReference {
         private CacheKey cacheKey;
-
         BundleReference(ResourceBundle referent, ReferenceQueue<Object> q, CacheKey key) {
             super(referent, q);
             cacheKey = key;
         }
-
         public CacheKey getCacheKey() {
             return cacheKey;
         }
     }
-
-
     @CallerSensitive
     public static final ResourceBundle getBundle(String baseName)
     {
@@ -388,8 +302,6 @@ public abstract class ResourceBundle {
                              getLoader(Reflection.getCallerClass()),
                              getDefaultControl(baseName));
     }
-
-
     @CallerSensitive
     public static final ResourceBundle getBundle(String baseName,
                                                  Control control) {
@@ -397,8 +309,6 @@ public abstract class ResourceBundle {
                              getLoader(Reflection.getCallerClass()),
                              control);
     }
-
-
     @CallerSensitive
     public static final ResourceBundle getBundle(String baseName,
                                                  Locale locale)
@@ -407,8 +317,6 @@ public abstract class ResourceBundle {
                              getLoader(Reflection.getCallerClass()),
                              getDefaultControl(baseName));
     }
-
-
     @CallerSensitive
     public static final ResourceBundle getBundle(String baseName, Locale targetLocale,
                                                  Control control) {
@@ -416,8 +324,6 @@ public abstract class ResourceBundle {
                              getLoader(Reflection.getCallerClass()),
                              control);
     }
-
-
     public static ResourceBundle getBundle(String baseName, Locale locale,
                                            ClassLoader loader)
     {
@@ -426,8 +332,6 @@ public abstract class ResourceBundle {
         }
         return getBundleImpl(baseName, locale, loader, getDefaultControl(baseName));
     }
-
-
     public static ResourceBundle getBundle(String baseName, Locale targetLocale,
                                            ClassLoader loader, Control control) {
         if (loader == null || control == null) {
@@ -435,7 +339,6 @@ public abstract class ResourceBundle {
         }
         return getBundleImpl(baseName, targetLocale, loader, control);
     }
-
     private static Control getDefaultControl(String baseName) {
         if (providers != null) {
             for (ResourceBundleControlProvider provider : providers) {
@@ -447,27 +350,23 @@ public abstract class ResourceBundle {
         }
         return Control.INSTANCE;
     }
-
     private static ResourceBundle getBundleImpl(String baseName, Locale locale,
                                                 ClassLoader loader, Control control) {
         if (locale == null || control == null) {
             throw new NullPointerException();
         }
-
         // We create a CacheKey here for use by this call. The base
         // name and loader will never change during the bundle loading
         // process. We have to make sure that the locale is set before
         // using it as a cache key.
         CacheKey cacheKey = new CacheKey(baseName, locale, loader);
         ResourceBundle bundle = null;
-
         // Quick lookup of the cache.
         BundleReference bundleRef = cacheList.get(cacheKey);
         if (bundleRef != null) {
             bundle = bundleRef.get();
             bundleRef = null;
         }
-
         // If this bundle and all of its parents are valid (not expired),
         // then return this bundle. If any of the bundles is expired, we
         // don't call control.needsReload here but instead drop into the
@@ -475,17 +374,14 @@ public abstract class ResourceBundle {
         if (isValidBundle(bundle) && hasValidParentChain(bundle)) {
             return bundle;
         }
-
         // No valid bundle was found in the cache, so we need to load the
         // resource bundle and its parents.
-
         boolean isKnownControl = (control == Control.INSTANCE) ||
                                    (control instanceof SingleFormatControl);
         List<String> formats = control.getFormats(baseName);
         if (!isKnownControl && !checkList(formats)) {
             throw new IllegalArgumentException("Invalid Control: getFormats");
         }
-
         ResourceBundle baseBundle = null;
         for (Locale targetLocale = locale;
              targetLocale != null;
@@ -494,9 +390,7 @@ public abstract class ResourceBundle {
             if (!isKnownControl && !checkList(candidateLocales)) {
                 throw new IllegalArgumentException("Invalid Control: getCandidateLocales");
             }
-
             bundle = findBundle(cacheKey, candidateLocales, formats, 0, control, baseBundle);
-
             // If the loaded bundle is the base bundle and exactly for the
             // requested locale or the only candidate locale, then take the
             // bundle as the resulting one. If the loaded bundle is the base
@@ -509,7 +403,6 @@ public abstract class ResourceBundle {
                         && bundle.locale.equals(candidateLocales.get(0)))) {
                     break;
                 }
-
                 // If the base bundle has been loaded, keep the reference in
                 // baseBundle so that we can avoid any redundant loading in case
                 // the control specify not to cache bundles.
@@ -518,18 +411,14 @@ public abstract class ResourceBundle {
                 }
             }
         }
-
         if (bundle == null) {
             if (baseBundle == null) {
                 throwMissingResourceException(baseName, locale, cacheKey.getCause());
             }
             bundle = baseBundle;
         }
-
         return bundle;
     }
-
-
     private static boolean checkList(List<?> a) {
         boolean valid = (a != null && !a.isEmpty());
         if (valid) {
@@ -540,7 +429,6 @@ public abstract class ResourceBundle {
         }
         return valid;
     }
-
     private static ResourceBundle findBundle(CacheKey cacheKey,
                                              List<Locale> candidateLocales,
                                              List<String> formats,
@@ -555,7 +443,6 @@ public abstract class ResourceBundle {
         } else if (baseBundle != null && Locale.ROOT.equals(targetLocale)) {
             return baseBundle;
         }
-
         // Before we do the real loading work, see whether we need to
         // do some housekeeping: If references to class loaders or
         // resource bundles have been nulled out, remove all related
@@ -564,10 +451,8 @@ public abstract class ResourceBundle {
         while ((ref = referenceQueue.poll()) != null) {
             cacheList.remove(((CacheKeyReference)ref).getCacheKey());
         }
-
         // flag indicating the resource bundle has expired in the cache
         boolean expiredBundle = false;
-
         // First, look up the cache to see if it's in the cache, without
         // attempting to load bundle.
         cacheKey.setLocale(targetLocale);
@@ -591,10 +476,8 @@ public abstract class ResourceBundle {
                 }
             }
         }
-
         if (bundle != NONEXISTENT_BUNDLE) {
             CacheKey constKey = (CacheKey) cacheKey.clone();
-
             try {
                 bundle = loadBundle(cacheKey, formats, control, expiredBundle);
                 if (bundle != null) {
@@ -605,7 +488,6 @@ public abstract class ResourceBundle {
                     bundle = putBundleInCache(cacheKey, bundle, control);
                     return bundle;
                 }
-
                 // Put NONEXISTENT_BUNDLE in the cache as a mark that there's no bundle
                 // instance for the locale.
                 putBundleInCache(cacheKey, NONEXISTENT_BUNDLE, control);
@@ -617,16 +499,13 @@ public abstract class ResourceBundle {
         }
         return parent;
     }
-
     private static ResourceBundle loadBundle(CacheKey cacheKey,
                                              List<String> formats,
                                              Control control,
                                              boolean reload) {
-
         // Here we actually load the bundle in the order of formats
         // specified by the getFormats() value.
         Locale targetLocale = cacheKey.getLocale();
-
         ResourceBundle bundle = null;
         int size = formats.size();
         for (int i = 0; i < size; i++) {
@@ -654,15 +533,11 @@ public abstract class ResourceBundle {
                 break;
             }
         }
-
         return bundle;
     }
-
     private static boolean isValidBundle(ResourceBundle bundle) {
         return bundle != null && bundle != NONEXISTENT_BUNDLE;
     }
-
-
     private static boolean hasValidParentChain(ResourceBundle bundle) {
         long now = System.currentTimeMillis();
         while (bundle != null) {
@@ -680,8 +555,6 @@ public abstract class ResourceBundle {
         }
         return true;
     }
-
-
     private static void throwMissingResourceException(String baseName,
                                                       Locale locale,
                                                       Throwable cause) {
@@ -696,8 +569,6 @@ public abstract class ResourceBundle {
                                            "",                      // key
                                            cause);
     }
-
-
     private static ResourceBundle findBundleInCache(CacheKey cacheKey,
                                                     Control control) {
         BundleReference bundleRef = cacheList.get(cacheKey);
@@ -795,8 +666,6 @@ public abstract class ResourceBundle {
         }
         return bundle;
     }
-
-
     private static ResourceBundle putBundleInCache(CacheKey cacheKey,
                                                    ResourceBundle bundle,
                                                    Control control) {
@@ -805,10 +674,8 @@ public abstract class ResourceBundle {
             CacheKey key = (CacheKey) cacheKey.clone();
             BundleReference bundleRef = new BundleReference(bundle, referenceQueue, key);
             bundle.cacheKey = key;
-
             // Put the bundle in the cache if it's not been in the cache.
             BundleReference result = cacheList.putIfAbsent(key, bundleRef);
-
             // If someone else has put the same bundle in the cache before
             // us and it has not expired, we should use the one in the cache.
             if (result != null) {
@@ -829,7 +696,6 @@ public abstract class ResourceBundle {
         }
         return bundle;
     }
-
     private static void setExpirationTime(CacheKey cacheKey, Control control) {
         long ttl = control.getTimeToLive(cacheKey.getName(),
                                          cacheKey.getLocale());
@@ -845,14 +711,10 @@ public abstract class ResourceBundle {
             throw new IllegalArgumentException("Invalid Control: TTL=" + ttl);
         }
     }
-
-
     @CallerSensitive
     public static final void clearCache() {
         clearCache(getLoader(Reflection.getCallerClass()));
     }
-
-
     public static final void clearCache(ClassLoader loader) {
         if (loader == null) {
             throw new NullPointerException();
@@ -864,14 +726,8 @@ public abstract class ResourceBundle {
             }
         }
     }
-
-
     protected abstract Object handleGetObject(String key);
-
-
     public abstract Enumeration<String> getKeys();
-
-
     public boolean containsKey(String key) {
         if (key == null) {
             throw new NullPointerException();
@@ -883,8 +739,6 @@ public abstract class ResourceBundle {
         }
         return false;
     }
-
-
     public Set<String> keySet() {
         Set<String> keys = new HashSet<>();
         for (ResourceBundle rb = this; rb != null; rb = rb.parent) {
@@ -892,8 +746,6 @@ public abstract class ResourceBundle {
         }
         return keys;
     }
-
-
     protected Set<String> handleKeySet() {
         if (keySet == null) {
             synchronized (this) {
@@ -912,37 +764,19 @@ public abstract class ResourceBundle {
         }
         return keySet;
     }
-
-
-
-
     public static class Control {
-
         public static final List<String> FORMAT_DEFAULT
             = Collections.unmodifiableList(Arrays.asList("java.class",
                                                          "java.properties"));
-
-
         public static final List<String> FORMAT_CLASS
             = Collections.unmodifiableList(Arrays.asList("java.class"));
-
-
         public static final List<String> FORMAT_PROPERTIES
             = Collections.unmodifiableList(Arrays.asList("java.properties"));
-
-
         public static final long TTL_DONT_CACHE = -1;
-
-
         public static final long TTL_NO_EXPIRATION_CONTROL = -2;
-
         private static final Control INSTANCE = new Control();
-
-
         protected Control() {
         }
-
-
         public static final Control getControl(List<String> formats) {
             if (formats.equals(Control.FORMAT_PROPERTIES)) {
                 return SingleFormatControl.PROPERTIES_ONLY;
@@ -955,8 +789,6 @@ public abstract class ResourceBundle {
             }
             throw new IllegalArgumentException();
         }
-
-
         public static final Control getNoFallbackControl(List<String> formats) {
             if (formats.equals(Control.FORMAT_DEFAULT)) {
                 return NoFallbackControl.NO_FALLBACK;
@@ -969,32 +801,25 @@ public abstract class ResourceBundle {
             }
             throw new IllegalArgumentException();
         }
-
-
         public List<String> getFormats(String baseName) {
             if (baseName == null) {
                 throw new NullPointerException();
             }
             return FORMAT_DEFAULT;
         }
-
-
         public List<Locale> getCandidateLocales(String baseName, Locale locale) {
             if (baseName == null) {
                 throw new NullPointerException();
             }
             return new ArrayList<>(CANDIDATES_CACHE.get(locale.getBaseLocale()));
         }
-
         private static final CandidateListCache CANDIDATES_CACHE = new CandidateListCache();
-
         private static class CandidateListCache extends LocaleObjectCache<BaseLocale, List<Locale>> {
             protected List<Locale> createObject(BaseLocale base) {
                 String language = base.getLanguage();
                 String script = base.getScript();
                 String region = base.getRegion();
                 String variant = base.getVariant();
-
                 // Special handling for Norwegian
                 boolean isNorwegianBokmal = false;
                 boolean isNorwegianNynorsk = false;
@@ -1057,13 +882,10 @@ public abstract class ResourceBundle {
                         }
                     }
                 }
-
                 return getDefaultList(language, script, region, variant);
             }
-
             private static List<Locale> getDefaultList(String language, String script, String region, String variant) {
                 List<String> variants = null;
-
                 if (variant.length() > 0) {
                     variants = new LinkedList<>();
                     int idx = variant.length();
@@ -1072,9 +894,7 @@ public abstract class ResourceBundle {
                         idx = variant.lastIndexOf('_', --idx);
                     }
                 }
-
                 List<Locale> list = new LinkedList<>();
-
                 if (variants != null) {
                     for (String v : variants) {
                         list.add(Locale.getInstance(language, script, region, v, null));
@@ -1085,7 +905,6 @@ public abstract class ResourceBundle {
                 }
                 if (script.length() > 0) {
                     list.add(Locale.getInstance(language, script, "", "", null));
-
                     // With script, after truncating variant, region and script,
                     // start over without script.
                     if (variants != null) {
@@ -1102,12 +921,9 @@ public abstract class ResourceBundle {
                 }
                 // Add root locale at the end
                 list.add(Locale.ROOT);
-
                 return list;
             }
         }
-
-
         public Locale getFallbackLocale(String baseName, Locale locale) {
             if (baseName == null) {
                 throw new NullPointerException();
@@ -1115,8 +931,6 @@ public abstract class ResourceBundle {
             Locale defaultLocale = Locale.getDefault();
             return locale.equals(defaultLocale) ? null : defaultLocale;
         }
-
-
         public ResourceBundle newBundle(String baseName, Locale locale, String format,
                                         ClassLoader loader, boolean reload)
                     throws IllegalAccessException, InstantiationException, IOException {
@@ -1127,7 +941,6 @@ public abstract class ResourceBundle {
                     @SuppressWarnings("unchecked")
                     Class<? extends ResourceBundle> bundleClass
                         = (Class<? extends ResourceBundle>)loader.loadClass(bundleName);
-
                     // If the class isn't a ResourceBundle subclass, throw a
                     // ClassCastException.
                     if (ResourceBundle.class.isAssignableFrom(bundleClass)) {
@@ -1183,16 +996,12 @@ public abstract class ResourceBundle {
             }
             return bundle;
         }
-
-
         public long getTimeToLive(String baseName, Locale locale) {
             if (baseName == null || locale == null) {
                 throw new NullPointerException();
             }
             return TTL_NO_EXPIRATION_CONTROL;
         }
-
-
         public boolean needsReload(String baseName, Locale locale,
                                    String format, ClassLoader loader,
                                    ResourceBundle bundle, long loadTime) {
@@ -1236,22 +1045,17 @@ public abstract class ResourceBundle {
             }
             return result;
         }
-
-
         public String toBundleName(String baseName, Locale locale) {
             if (locale == Locale.ROOT) {
                 return baseName;
             }
-
             String language = locale.getLanguage();
             String script = locale.getScript();
             String country = locale.getCountry();
             String variant = locale.getVariant();
-
             if (language == "" && country == "" && variant == "") {
                 return baseName;
             }
-
             StringBuilder sb = new StringBuilder(baseName);
             sb.append('_');
             if (script != "") {
@@ -1272,16 +1076,12 @@ public abstract class ResourceBundle {
                 }
             }
             return sb.toString();
-
         }
-
-
         public final String toResourceName(String bundleName, String suffix) {
             StringBuilder sb = new StringBuilder(bundleName.length() + 1 + suffix.length());
             sb.append(bundleName.replace('.', '/')).append('.').append(suffix);
             return sb.toString();
         }
-
         private String toResourceName0(String bundleName, String suffix) {
             // application protocol check
             if (bundleName.contains("://")) {
@@ -1291,20 +1091,15 @@ public abstract class ResourceBundle {
             }
         }
     }
-
     private static class SingleFormatControl extends Control {
         private static final Control PROPERTIES_ONLY
             = new SingleFormatControl(FORMAT_PROPERTIES);
-
         private static final Control CLASS_ONLY
             = new SingleFormatControl(FORMAT_CLASS);
-
         private final List<String> formats;
-
         protected SingleFormatControl(List<String> formats) {
             this.formats = formats;
         }
-
         public List<String> getFormats(String baseName) {
             if (baseName == null) {
                 throw new NullPointerException();
@@ -1312,21 +1107,16 @@ public abstract class ResourceBundle {
             return formats;
         }
     }
-
     private static final class NoFallbackControl extends SingleFormatControl {
         private static final Control NO_FALLBACK
             = new NoFallbackControl(FORMAT_DEFAULT);
-
         private static final Control PROPERTIES_ONLY_NO_FALLBACK
             = new NoFallbackControl(FORMAT_PROPERTIES);
-
         private static final Control CLASS_ONLY_NO_FALLBACK
             = new NoFallbackControl(FORMAT_CLASS);
-
         protected NoFallbackControl(List<String> formats) {
             super(formats);
         }
-
         public Locale getFallbackLocale(String baseName, Locale locale) {
             if (baseName == null || locale == null) {
                 throw new NullPointerException();

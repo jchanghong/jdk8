@@ -1,7 +1,4 @@
-
-
 package java.awt;
-
 import java.awt.image.Raster;
 import sun.awt.image.IntegerComponentRaster;
 import java.awt.image.ColorModel;
@@ -10,16 +7,13 @@ import java.awt.geom.Point2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.lang.ref.WeakReference;
-
 class GradientPaintContext implements PaintContext {
     static ColorModel xrgbmodel =
         new DirectColorModel(24, 0x00ff0000, 0x0000ff00, 0x000000ff);
     static ColorModel xbgrmodel =
         new DirectColorModel(24, 0x000000ff, 0x0000ff00, 0x00ff0000);
-
     static ColorModel cachedModel;
     static WeakReference<Raster> cached;
-
     static synchronized Raster getCachedRaster(ColorModel cm, int w, int h) {
         if (cm == cachedModel) {
             if (cached != null) {
@@ -35,7 +29,6 @@ class GradientPaintContext implements PaintContext {
         }
         return cm.createCompatibleWritableRaster(w, h);
     }
-
     static synchronized void putCachedRaster(ColorModel cm, Raster ras) {
         if (cached != null) {
             Raster cras = (Raster) cached.get();
@@ -55,7 +48,6 @@ class GradientPaintContext implements PaintContext {
         cachedModel = cm;
         cached = new WeakReference<>(ras);
     }
-
     double x1;
     double y1;
     double dx;
@@ -64,7 +56,6 @@ class GradientPaintContext implements PaintContext {
     int interp[];
     Raster saved;
     ColorModel model;
-
     public GradientPaintContext(ColorModel cm,
                                 Point2D p1, Point2D p2, AffineTransform xform,
                                 Color c1, Color c2, boolean cyclic) {
@@ -80,14 +71,12 @@ class GradientPaintContext implements PaintContext {
             xvec.setLocation(0, 0);
             yvec.setLocation(0, 0);
         }
-
         // Now calculate the (square of the) user space distance
         // between the anchor points. This value equals:
         //     (UserVec . UserVec)
         double udx = p2.getX() - p1.getX();
         double udy = p2.getY() - p1.getY();
         double ulenSq = udx * udx + udy * udy;
-
         if (ulenSq <= Double.MIN_VALUE) {
             dx = 0;
             dy = 0;
@@ -109,7 +98,6 @@ class GradientPaintContext implements PaintContext {
             //     (DevAxisVec . UserVec) / LenSquared(UserVec)
             dx = (xvec.getX() * udx + xvec.getY() * udy) / ulenSq;
             dy = (yvec.getX() * udx + yvec.getY() * udy) / ulenSq;
-
             if (cyclic) {
                 dx = dx % 1.0;
                 dy = dy % 1.0;
@@ -128,11 +116,9 @@ class GradientPaintContext implements PaintContext {
                 }
             }
         }
-
         Point2D dp1 = xform.transform(p1, null);
         this.x1 = dp1.getX();
         this.y1 = dp1.getY();
-
         this.cyclic = cyclic;
         int rgb1 = c1.getRGB();
         int rgb2 = c2.getRGB();
@@ -176,24 +162,17 @@ class GradientPaintContext implements PaintContext {
             }
         }
     }
-
-
     public void dispose() {
         if (saved != null) {
             putCachedRaster(model, saved);
             saved = null;
         }
     }
-
-
     public ColorModel getColorModel() {
         return model;
     }
-
-
     public Raster getRaster(int x, int y, int w, int h) {
         double rowrel = (x - x1) * dx + (y - y1) * dy;
-
         Raster rast = saved;
         if (rast == null || rast.getWidth() < w || rast.getHeight() < h) {
             rast = getCachedRaster(model, w, h);
@@ -203,18 +182,14 @@ class GradientPaintContext implements PaintContext {
         int off = irast.getDataOffset(0);
         int adjust = irast.getScanlineStride() - w;
         int[] pixels = irast.getDataStorage();
-
         if (cyclic) {
             cycleFillRaster(pixels, off, adjust, w, h, rowrel, dx, dy);
         } else {
             clipFillRaster(pixels, off, adjust, w, h, rowrel, dx, dy);
         }
-
         irast.markDirty();
-
         return rast;
     }
-
     void cycleFillRaster(int[] pixels, int off, int adjust, int w, int h,
                          double rowrel, double dx, double dy) {
         rowrel = rowrel % 2.0;
@@ -227,12 +202,10 @@ class GradientPaintContext implements PaintContext {
                 pixels[off++] = interp[icolrel >>> 23];
                 icolrel += idx;
             }
-
             off += adjust;
             irowrel += idy;
         }
     }
-
     void clipFillRaster(int[] pixels, int off, int adjust, int w, int h,
                         double rowrel, double dx, double dy) {
         while (--h >= 0) {
@@ -255,7 +228,6 @@ class GradientPaintContext implements PaintContext {
                     pixels[off++] = rgb;
                 } while (--j > 0);
             }
-
             off += adjust;
             rowrel += dy;
         }

@@ -1,35 +1,19 @@
-
-
 package java.rmi;
-
-
 public class RemoteException extends java.io.IOException {
-
-
     private static final long serialVersionUID = -5148567311918794206L;
-
-
     public Throwable detail;
-
-
     public RemoteException() {
         initCause(null);  // Disallow subsequent initCause
     }
-
-
     public RemoteException(String s) {
         super(s);
         initCause(null);  // Disallow subsequent initCause
     }
-
-
     public RemoteException(String s, Throwable cause) {
         super(s);
         initCause(null);  // Disallow subsequent initCause
         detail = cause;
     }
-
-
     public String getMessage() {
         if (detail == null) {
             return super.getMessage();
@@ -38,8 +22,6 @@ public class RemoteException extends java.io.IOException {
                 detail.toString();
         }
     }
-
-
     public Throwable getCause() {
         return detail;
     }

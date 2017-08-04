@@ -1,37 +1,21 @@
-
-
 package java.util.zip;
-
 import java.io.FilterInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.EOFException;
-
-
 public
 class InflaterInputStream extends FilterInputStream {
-
     protected Inflater inf;
-
-
     protected byte[] buf;
-
-
     protected int len;
-
     private boolean closed = false;
     // this flag is set to true after EOF has reached
     private boolean reachEOF = false;
-
-
     private void ensureOpen() throws IOException {
         if (closed) {
             throw new IOException("Stream closed");
         }
     }
-
-
-
     public InflaterInputStream(InputStream in, Inflater inf, int size) {
         super(in);
         if (in == null || inf == null) {
@@ -42,29 +26,19 @@ class InflaterInputStream extends FilterInputStream {
         this.inf = inf;
         buf = new byte[size];
     }
-
-
     public InflaterInputStream(InputStream in, Inflater inf) {
         this(in, inf, 512);
     }
-
     boolean usesDefaultInflater = false;
-
-
     public InflaterInputStream(InputStream in) {
         this(in, new Inflater());
         usesDefaultInflater = true;
     }
-
     private byte[] singleByteBuf = new byte[1];
-
-
     public int read() throws IOException {
         ensureOpen();
         return read(singleByteBuf, 0, 1) == -1 ? -1 : Byte.toUnsignedInt(singleByteBuf[0]);
     }
-
-
     public int read(byte[] b, int off, int len) throws IOException {
         ensureOpen();
         if (b == null) {
@@ -91,8 +65,6 @@ class InflaterInputStream extends FilterInputStream {
             throw new ZipException(s != null ? s : "Invalid ZLIB data format");
         }
     }
-
-
     public int available() throws IOException {
         ensureOpen();
         if (reachEOF) {
@@ -101,10 +73,7 @@ class InflaterInputStream extends FilterInputStream {
             return 1;
         }
     }
-
     private byte[] b = new byte[512];
-
-
     public long skip(long n) throws IOException {
         if (n < 0) {
             throw new IllegalArgumentException("negative skip length");
@@ -126,8 +95,6 @@ class InflaterInputStream extends FilterInputStream {
         }
         return total;
     }
-
-
     public void close() throws IOException {
         if (!closed) {
             if (usesDefaultInflater)
@@ -136,8 +103,6 @@ class InflaterInputStream extends FilterInputStream {
             closed = true;
         }
     }
-
-
     protected void fill() throws IOException {
         ensureOpen();
         len = in.read(buf, 0, buf.length);
@@ -146,17 +111,11 @@ class InflaterInputStream extends FilterInputStream {
         }
         inf.setInput(buf, 0, len);
     }
-
-
     public boolean markSupported() {
         return false;
     }
-
-
     public synchronized void mark(int readlimit) {
     }
-
-
     public synchronized void reset() throws IOException {
         throw new IOException("mark/reset not supported");
     }

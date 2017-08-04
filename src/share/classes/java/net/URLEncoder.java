@@ -1,7 +1,4 @@
-
-
 package java.net;
-
 import java.io.ByteArrayOutputStream;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
@@ -16,17 +13,11 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import sun.security.action.GetBooleanAction;
 import sun.security.action.GetPropertyAction;
-
-
 public class URLEncoder {
     static BitSet dontNeedEncoding;
     static final int caseDiff = ('a' - 'A');
     static String dfltEncName = null;
-
     static {
-
-
-
         dontNeedEncoding = new BitSet(256);
         int i;
         for (i = 'a'; i <= 'z'; i++) {
@@ -43,42 +34,29 @@ public class URLEncoder {
         dontNeedEncoding.set('_');
         dontNeedEncoding.set('.');
         dontNeedEncoding.set('*');
-
         dfltEncName = AccessController.doPrivileged(
             new GetPropertyAction("file.encoding")
         );
     }
-
-
     private URLEncoder() { }
-
-
     @Deprecated
     public static String encode(String s) {
-
         String str = null;
-
         try {
             str = encode(s, dfltEncName);
         } catch (UnsupportedEncodingException e) {
             // The system should always have the platform default
         }
-
         return str;
     }
-
-
     public static String encode(String s, String enc)
         throws UnsupportedEncodingException {
-
         boolean needToChange = false;
         StringBuffer out = new StringBuffer(s.length());
         Charset charset;
         CharArrayWriter charArrayWriter = new CharArrayWriter();
-
         if (enc == null)
             throw new NullPointerException("charsetName");
-
         try {
             charset = Charset.forName(enc);
         } catch (IllegalCharsetNameException e) {
@@ -86,7 +64,6 @@ public class URLEncoder {
         } catch (UnsupportedCharsetException e) {
             throw new UnsupportedEncodingException(enc);
         }
-
         for (int i = 0; i < s.length();) {
             int c = (int) s.charAt(i);
             //System.out.println("Examining character: " + c);
@@ -102,14 +79,10 @@ public class URLEncoder {
                 // convert to external encoding before hex conversion
                 do {
                     charArrayWriter.write(c);
-
                     if (c >= 0xD800 && c <= 0xDBFF) {
-
                         if ( (i+1) < s.length()) {
                             int d = (int) s.charAt(i+1);
-
                             if (d >= 0xDC00 && d <= 0xDFFF) {
-
                                 charArrayWriter.write(d);
                                 i++;
                             }
@@ -117,7 +90,6 @@ public class URLEncoder {
                     }
                     i++;
                 } while (i < s.length() && !dontNeedEncoding.get((c = (int) s.charAt(i))));
-
                 charArrayWriter.flush();
                 String str = new String(charArrayWriter.toCharArray());
                 byte[] ba = str.getBytes(charset);
@@ -140,7 +112,6 @@ public class URLEncoder {
                 needToChange = true;
             }
         }
-
         return (needToChange? out.toString() : s);
     }
 }

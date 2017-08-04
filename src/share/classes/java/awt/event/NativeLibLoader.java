@@ -1,10 +1,5 @@
-
-
 package java.awt.event;
-
 class NativeLibLoader {
-
-
     static void loadLibraries() {
         java.security.AccessController.doPrivileged(
             new java.security.PrivilegedAction<Void>() {

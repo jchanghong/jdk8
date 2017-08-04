@@ -1,60 +1,41 @@
-
-
 package java.awt;
-
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import java.security.PrivilegedAction;
 import java.security.AccessController;
-
 import sun.awt.PeerEvent;
-
 import sun.util.logging.PlatformLogger;
-
-
 class WaitDispatchSupport implements SecondaryLoop {
-
     private final static PlatformLogger log =
         PlatformLogger.getLogger("java.awt.event.WaitDispatchSupport");
-
     private EventDispatchThread dispatchThread;
     private EventFilter filter;
-
     private volatile Conditional extCondition;
     private volatile Conditional condition;
-
     private long interval;
     // Use a shared daemon timer to serve all the WaitDispatchSupports
     private static Timer timer;
     // When this WDS expires, we cancel the timer task leaving the
     // shared timer up and running
     private TimerTask timerTask;
-
     private AtomicBoolean keepBlockingEDT = new AtomicBoolean(false);
     private AtomicBoolean keepBlockingCT = new AtomicBoolean(false);
     private AtomicBoolean afterExit = new AtomicBoolean(false);
-
     private static synchronized void initializeTimer() {
         if (timer == null) {
             timer = new Timer("AWT-WaitDispatchSupport-Timer", true);
         }
     }
-
-
     public WaitDispatchSupport(EventDispatchThread dispatchThread) {
         this(dispatchThread, null);
     }
-
-
     public WaitDispatchSupport(EventDispatchThread dispatchThread,
                                Conditional extCond)
     {
         if (dispatchThread == null) {
             throw new IllegalArgumentException("The dispatchThread can not be null");
         }
-
         this.dispatchThread = dispatchThread;
         this.extCondition = extCond;
         this.condition = new Conditional() {
@@ -77,8 +58,6 @@ class WaitDispatchSupport implements SecondaryLoop {
             }
         };
     }
-
-
     public WaitDispatchSupport(EventDispatchThread dispatchThread,
                                Conditional extCondition,
                                EventFilter filter, long interval)
@@ -93,15 +72,12 @@ class WaitDispatchSupport implements SecondaryLoop {
             initializeTimer();
         }
     }
-
-
     @Override
     public boolean enter() {
         if (log.isLoggable(PlatformLogger.Level.FINE)) {
             log.fine("enter(): blockingEDT=" + keepBlockingEDT.get() +
                      ", blockingCT=" + keepBlockingCT.get());
         }
-
         if (!keepBlockingEDT.compareAndSet(false, true)) {
             log.fine("The secondary loop is already running, aborting");
             return false;
@@ -111,7 +87,6 @@ class WaitDispatchSupport implements SecondaryLoop {
                 log.fine("Exit was called already, aborting");
                 return false;
             }
-
             final Runnable run = new Runnable() {
                 public void run() {
                     log.fine("Starting a new event pump");
@@ -122,11 +97,9 @@ class WaitDispatchSupport implements SecondaryLoop {
                     }
                 }
             };
-
             // We have two mechanisms for blocking: if we're on the
             // dispatch thread, start a new event pump; if we're
             // on any other thread, call wait() on the treelock
-
             Thread currentThread = Thread.currentThread();
             if (currentThread == dispatchThread) {
                 if (log.isLoggable(PlatformLogger.Level.FINEST)) {
@@ -217,8 +190,6 @@ class WaitDispatchSupport implements SecondaryLoop {
             afterExit.set(false);
         }
     }
-
-
     public boolean exit() {
         if (log.isLoggable(PlatformLogger.Level.FINE)) {
             log.fine("exit(): blockingEDT=" + keepBlockingEDT.get() +
@@ -231,11 +202,9 @@ class WaitDispatchSupport implements SecondaryLoop {
         }
         return false;
     }
-
     private final static Object getTreeLock() {
         return Component.LOCK;
     }
-
     private final Runnable wakingRunnable = new Runnable() {
         public void run() {
             log.fine("Wake up EDT");
@@ -246,7 +215,6 @@ class WaitDispatchSupport implements SecondaryLoop {
             log.fine("Wake up EDT done");
         }
     };
-
     private void wakeupEDT() {
         if (log.isLoggable(PlatformLogger.Level.FINEST)) {
             log.finest("wakeupEDT(): EDT == " + dispatchThread);

@@ -1,31 +1,25 @@
 <?xml version="1.0"?>
-
 <!--
  Copyright (c) 2003, Oracle and/or its affiliates. All rights reserved.
  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-
  This code is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License version 2 only, as
  published by the Free Software Foundation.  Oracle designates this
  particular file as subject to the "Classpath" exception as provided
  by Oracle in the LICENSE file that accompanied this code.
-
  This code is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  version 2 for more details (a copy is included in the LICENSE file that
  accompanied this code).
-
  You should have received a copy of the GNU General Public License version
  2 along with this work; if not, write to the Free Software Foundation,
  Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-
  Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  or visit www.oracle.com if you need additional information or have any
  questions.
 -->
-
-<xsd:schema 
+<xsd:schema
       xmlns:xsd="http://www.w3.org/2001/XMLSchema"
       targetNamespace="http://standards.iso.org/iso/9075/2002/12/sqlxml"
       xmlns:sqlxml="http://standards.iso.org/iso/9075/2002/12/sqlxml">
@@ -36,7 +30,6 @@
       annotations as specified in ISO/IEC 9075-14:2003.
     </xsd:documentation>
   </xsd:annotation>
-
   <xsd:simpleType name="kindKeyword">
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="PREDEFINED"/>
@@ -47,7 +40,6 @@
       <xsd:enumeration value="MULTISET"/>
     </xsd:restriction>
   </xsd:simpleType>
-
   <xsd:simpleType name="typeKeyword">
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="CHAR"/>
@@ -83,12 +75,10 @@
       <xsd:enumeration value="INTERVAL SECOND"/>
     </xsd:restriction>
   </xsd:simpleType>
-
   <xsd:complexType name="fieldType">
     <xsd:attribute name="name" type="xsd:string"/>
     <xsd:attribute name="mappedType" type="xsd:string"/>
   </xsd:complexType>
-
   <xsd:element name="sqltype">
     <xsd:complexType>
       <xsd:sequence>
@@ -137,7 +127,6 @@
                         use="optional"/>
     </xsd:complexType>
   </xsd:element>
-
   <xsd:simpleType name="objectType">
      <xsd:restriction base="xsd:string">
         <xsd:enumeration value="CATALOG" />
@@ -148,7 +137,6 @@
         <xsd:enumeration value="COLLATION" />
      </xsd:restriction>
   </xsd:simpleType>
-
   <xsd:element name="sqlname">
      <xsd:complexType>
         <xsd:attribute name="type" type="sqlxml:objectType"
@@ -158,5 +146,4 @@
         <xsd:attribute name="localName" type="xsd:string" />
      </xsd:complexType>
   </xsd:element>
-
 </xsd:schema>

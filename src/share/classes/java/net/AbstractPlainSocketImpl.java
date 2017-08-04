@@ -1,50 +1,29 @@
-
-
 package java.net;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.FileDescriptor;
-
 import sun.net.ConnectionResetException;
 import sun.net.NetHooks;
 import sun.net.ResourceManager;
-
-
 abstract class AbstractPlainSocketImpl extends SocketImpl
 {
-
     int timeout;   // timeout in millisec
     // traffic class
     private int trafficClass;
-
     private boolean shut_rd = false;
     private boolean shut_wr = false;
-
     private SocketInputStream socketInputStream = null;
     private SocketOutputStream socketOutputStream = null;
-
-
     protected int fdUseCount = 0;
-
-
     protected final Object fdLock = new Object();
-
-
     protected boolean closePending = false;
-
-
     private int CONNECTION_NOT_RESET = 0;
     private int CONNECTION_RESET_PENDING = 1;
     private int CONNECTION_RESET = 2;
     private int resetState;
     private final Object resetLock = new Object();
-
-
     protected boolean stream;
-
-
     static {
         java.security.AccessController.doPrivileged(
             new java.security.PrivilegedAction<Void>() {
@@ -54,8 +33,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                 }
             });
     }
-
-
     protected synchronized void create(boolean stream) throws IOException {
         this.stream = stream;
         if (!stream) {
@@ -78,8 +55,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         if (serverSocket != null)
             serverSocket.setCreated();
     }
-
-
     protected void connect(String host, int port)
         throws UnknownHostException, IOException
     {
@@ -88,7 +63,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             InetAddress address = InetAddress.getByName(host);
             this.port = port;
             this.address = address;
-
             connectToAddress(address, port, timeout);
             connected = true;
         } finally {
@@ -96,17 +70,13 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                 try {
                     close();
                 } catch (IOException ioe) {
-
                 }
             }
         }
     }
-
-
     protected void connect(InetAddress address, int port) throws IOException {
         this.port = port;
         this.address = address;
-
         try {
             connectToAddress(address, port, timeout);
             return;
@@ -116,8 +86,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             throw e;
         }
     }
-
-
     protected void connect(SocketAddress address, int timeout)
             throws IOException {
         boolean connected = false;
@@ -129,7 +97,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                 throw new UnknownHostException(addr.getHostName());
             this.port = addr.getPort();
             this.address = addr.getAddress();
-
             connectToAddress(this.address, port, timeout);
             connected = true;
         } finally {
@@ -137,12 +104,10 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                 try {
                     close();
                 } catch (IOException ioe) {
-
                 }
             }
         }
     }
-
     private void connectToAddress(InetAddress address, int port, int timeout) throws IOException {
         if (address.isAnyLocalAddress()) {
             doConnect(InetAddress.getLocalHost(), port, timeout);
@@ -150,19 +115,16 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             doConnect(address, port, timeout);
         }
     }
-
     public void setOption(int opt, Object val) throws SocketException {
         if (isClosedOrPending()) {
             throw new SocketException("Socket Closed");
         }
         boolean on = true;
         switch (opt) {
-
         case SO_LINGER:
             if (val == null || (!(val instanceof Integer) && !(val instanceof Boolean)))
                 throw new SocketException("Bad parameter for option");
             if (val instanceof Boolean) {
-
                 on = false;
             }
             break;
@@ -223,8 +185,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             return new Integer(timeout);
         }
         int ret = 0;
-
-
         switch (opt) {
         case TCP_NODELAY:
             ret = socketGetOption(opt, null);
@@ -266,9 +226,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             return null;
         }
     }
-
-
-
     synchronized void doConnect(InetAddress address, int port, int timeout) throws IOException {
         synchronized (fdLock) {
             if (!closePending && (socket == null || !socket.isBound())) {
@@ -279,7 +236,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             acquireFD();
             try {
                 socketConnect(address, port, timeout);
-
                 synchronized (fdLock) {
                     if (closePending) {
                         throw new SocketException ("Socket closed");
@@ -301,8 +257,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             throw e;
         }
     }
-
-
     protected synchronized void bind(InetAddress address, int lport)
         throws IOException
     {
@@ -317,13 +271,9 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         if (serverSocket != null)
             serverSocket.setBound();
     }
-
-
     protected synchronized void listen(int count) throws IOException {
         socketListen(count);
     }
-
-
     protected void accept(SocketImpl s) throws IOException {
         acquireFD();
         try {
@@ -332,8 +282,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             releaseFD();
         }
     }
-
-
     protected synchronized InputStream getInputStream() throws IOException {
         synchronized (fdLock) {
             if (isClosedOrPending())
@@ -345,12 +293,9 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         }
         return socketInputStream;
     }
-
     void setInputStream(SocketInputStream in) {
         socketInputStream = in;
     }
-
-
     protected synchronized OutputStream getOutputStream() throws IOException {
         synchronized (fdLock) {
             if (isClosedOrPending())
@@ -362,35 +307,25 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         }
         return socketOutputStream;
     }
-
     void setFileDescriptor(FileDescriptor fd) {
         this.fd = fd;
     }
-
     void setAddress(InetAddress address) {
         this.address = address;
     }
-
     void setPort(int port) {
         this.port = port;
     }
-
     void setLocalPort(int localport) {
         this.localport = localport;
     }
-
-
     protected synchronized int available() throws IOException {
         if (isClosedOrPending()) {
             throw new IOException("Stream closed.");
         }
-
-
         if (isConnectionReset() || shut_rd) {
             return 0;
         }
-
-
         int n = 0;
         try {
             n = socketAvailable();
@@ -409,8 +344,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         }
         return n;
     }
-
-
     protected void close() throws IOException {
         synchronized(fdLock) {
             if (fd != null) {
@@ -422,7 +355,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                         return;
                     }
                     closePending = true;
-
                     try {
                         socketPreClose();
                     } finally {
@@ -431,7 +363,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
                     fd = null;
                     return;
                 } else {
-
                     if (!closePending) {
                         closePending = true;
                         fdUseCount--;
@@ -441,7 +372,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             }
         }
     }
-
     void reset() throws IOException {
         if (fd != null) {
             socketClose();
@@ -449,9 +379,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
         fd = null;
         super.reset();
     }
-
-
-
     protected void shutdownInput() throws IOException {
       if (fd != null) {
           socketShutdown(SHUT_RD);
@@ -461,40 +388,30 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
           shut_rd = true;
       }
     }
-
-
     protected void shutdownOutput() throws IOException {
       if (fd != null) {
           socketShutdown(SHUT_WR);
           shut_wr = true;
       }
     }
-
     protected boolean supportsUrgentData () {
         return true;
     }
-
     protected void sendUrgentData (int data) throws IOException {
         if (fd == null) {
             throw new IOException("Socket Closed");
         }
         socketSendUrgentData (data);
     }
-
-
     protected void finalize() throws IOException {
         close();
     }
-
-
     FileDescriptor acquireFD() {
         synchronized (fdLock) {
             fdUseCount++;
             return fd;
         }
     }
-
-
     void releaseFD() {
         synchronized (fdLock) {
             fdUseCount--;
@@ -510,37 +427,29 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             }
         }
     }
-
     public boolean isConnectionReset() {
         synchronized (resetLock) {
             return (resetState == CONNECTION_RESET);
         }
     }
-
     public boolean isConnectionResetPending() {
         synchronized (resetLock) {
             return (resetState == CONNECTION_RESET_PENDING);
         }
     }
-
     public void setConnectionReset() {
         synchronized (resetLock) {
             resetState = CONNECTION_RESET;
         }
     }
-
     public void setConnectionResetPending() {
         synchronized (resetLock) {
             if (resetState == CONNECTION_NOT_RESET) {
                 resetState = CONNECTION_RESET_PENDING;
             }
         }
-
     }
-
-
     public boolean isClosedOrPending() {
-
         synchronized (fdLock) {
             if (closePending || (fd == null)) {
                 return true;
@@ -549,22 +458,15 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
             }
         }
     }
-
-
     public int getTimeout() {
         return timeout;
     }
-
-
     private void socketPreClose() throws IOException {
         socketClose0(true);
     }
-
-
     protected void socketClose() throws IOException {
         socketClose0(false);
     }
-
     abstract void socketCreate(boolean isServer) throws IOException;
     abstract void socketConnect(InetAddress address, int port, int timeout)
         throws IOException;
@@ -585,7 +487,6 @@ abstract class AbstractPlainSocketImpl extends SocketImpl
     abstract int socketGetOption(int opt, Object iaContainerObj) throws SocketException;
     abstract void socketSendUrgentData(int data)
         throws IOException;
-
     public final static int SHUT_RD = 0;
     public final static int SHUT_WR = 1;
 }

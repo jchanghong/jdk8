@@ -1,41 +1,33 @@
 <!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
 <html>
 <head>
-                    
   <meta http-equiv="Content-Type"
  content="text/html; charset=iso-8859-1">
-                    
   <meta name="GENERATOR"
  content="Mozilla/4.79 [en] (Windows NT 5.0; U) [Netscape]">
 <!--
 Copyright (c) 2003, 2010, Oracle and/or its affiliates. All rights reserved.
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-
 This code is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License version 2 only, as
 published by the Free Software Foundation.  Oracle designates this
 particular file as subject to the "Classpath" exception as provided
 by Oracle in the LICENSE file that accompanied this code.
-
 This code is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 version 2 for more details (a copy is included in the LICENSE file that
 accompanied this code).
-
 You should have received a copy of the GNU General Public License version
 2 along with this work; if not, write to the Free Software Foundation,
 Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-
 Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
 or visit www.oracle.com if you need additional information or have any
 questions.
 -->
   <title>javax.sql.rowset.spi</title>
-   
 </head>
   <body bgcolor="#ffffff">
-
 The standard classes and interfaces that a third party vendor has to
 use in its implementation of a synchronization provider. These classes and 
 interfaces are referred to as the Service Provider Interface (SPI). A vendor may 
@@ -56,7 +48,6 @@ the naming convention to be used.)
 <li><a href="#relspec">5.0 Related Specifications</a>
 <li><a href="#reldocs">6.0 Related Documentation</a>
 </ul>
-
 <h3><a name="pkgspec">1.0 Package Specification</h3>
 <P>
 The following classes and interfaces make up the <code>javax.sql.rowset.spi</code>
@@ -167,7 +158,6 @@ The reference implementation (RI) provides two synchronization providers.
             <code>WebRowSet</code> objects use this provider when they are 
             dealing with XML data.
 	</UL>
-
 These <code>SyncProvider</code> implementations
 are bundled with the reference implementation, which makes them always available to
 <code>RowSet</code> implementations. 
@@ -185,7 +175,6 @@ to be thrown.  If no provider is specified,
 the <code>SyncFactory</code> singleton will create an instance of the default
 provider implementation, <code>RIOptimisticProvider</code>,
 and pass it to the requesting <code>RowSet</code> object.
-
 <P>
 If a <code>WebRowSet</code> object does not specify a provider in its constructor, the
 <code>SyncFactory</code> will give it an instance of <code>RIOptimisticProvider</code>.
@@ -202,7 +191,6 @@ synchronization mechanisms.  A vendor can make its implementation available by
 registering the fully qualified class name with Oracle Corporation at
 <code>jdbc@sun.com</code>. This process is discussed in further detail below. 
 <P>
-
 <a name="arch"><h3>2.0 Service Provider Interface Architecture</h3>
 <ul>
 <b>2.1 Overview</b>
@@ -269,7 +257,6 @@ implementation provider <code>RIOptimisticProvider</code> is supplied.
 These policies are explored in more detail in the <a href="SyncFactory.html">
 <code>SyncFactory</code></a> class.
 </ul>
-
 <li><a name="impl"><h3>3.0 SyncProvider Implementer's Guide</h3>
 <ul>
 <b>3.1 Requirements</b>
@@ -381,7 +368,6 @@ used to populate  a <code>RowSet</code> object is derived.
 In the example below, the reference <tt>CachedRowSetImpl</tt> implementation
 reconfigures its current <tt>SyncProvider</tt> object by calling the 
 <tt>setSyncProvider</tt> method.<br>
-       
 <PRE>
     CachedRowSetImpl crs = new CachedRowSetImpl();
     crs.setSyncProvider("com.foo.bar.HASyncProvider");
@@ -394,7 +380,6 @@ the degree of locking to be used, which can increase the possibilities for succe
 synchronization.  These operation are shown in the following code fragment.
 <PRE>
     SyncProvider sync = crs.getSyncProvider();
-
     switch (sync.getProviderGrade()) {
     case: SyncProvider.GRADE_CHECK_ALL_AT_COMMIT
          //A high grade of optimistic synchronization
@@ -412,42 +397,33 @@ synchronization.  These operation are shown in the following code fragment.
       // No synchronization with the originating data source provided
     break;
     }
-	  
     switch (sync.getDataSourcLock() {
       case: SyncProvider.DATASOURCE_DB_LOCK
        // A lock is placed on the entire datasource that is used by the
        // <code>RowSet</code> object 
        break;
-
       case: SyncProvider.DATASOURCE_NO_LOCK
        // No locks remain on the  originating data source.
       break;
-
       case: SyncProvider.DATASOURCE_ROW_LOCK
        // A lock is placed on the rows that are  touched by the original 
        // SQL statement used to populate
        // the RowSet object that is using the SyncProvider
        break;
-
       case: DATASOURCE_TABLE_LOCK
        // A lock is placed on  all tables that are touched by the original 
        // SQL statement used to populated
        // the RowSet object that is using the SyncProvider
        break;
-
 </PRE>
     It is also possible using the static utility method in the
 <code>SyncFactory</code> class to determine the list of <code>SyncProvider</code>
 implementations currently registered with the <code>SyncFactory</code>.
-       
 <pre>
 	Enumeration e = SyncFactory.getRegisteredProviders();
 </pre>    
-
 </ul>
-
 <h3><a name="resolving">4.0 Resolving Synchronization Conflicts</h3>
-
 The interface <code>SyncResolver</code> provides a way for an application to
 decide manually what to do when a conflict occurs. When the <code>CachedRowSet</code>
 method <code>acceptChanges</code> finishes and has detected one or more conflicts,
@@ -490,7 +466,6 @@ decides that a value in the <code>RowSet</code> object should be the one to
 persist, the application or user can overwrite the data source value with it.  
 <P>
 The comment for the <code>SyncResolver</code> interface has more detail.
-
 <a name="relspec"><h3>5.0 Related Specifications</h3>
 <ul>
 <li><a href="http://java.sun.com/products/jndi">JNDI 1.3</a>
@@ -505,6 +480,5 @@ properties</a>
 <li><a href="http://java.sun.com/tutorial/jdbc">DataSource for JDBC
 Connections</a>
 </ul>
-
 </body>
 </html>

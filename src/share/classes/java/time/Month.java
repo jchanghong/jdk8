@@ -1,11 +1,6 @@
-
-
-
 package java.time;
-
 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import static java.time.temporal.ChronoUnit.MONTHS;
-
 import java.time.chrono.Chronology;
 import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatterBuilder;
@@ -20,48 +15,28 @@ import java.time.temporal.TemporalQuery;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.time.temporal.ValueRange;
 import java.util.Locale;
-
-
 public enum Month implements TemporalAccessor, TemporalAdjuster {
-
-
     JANUARY,
-
     FEBRUARY,
-
     MARCH,
-
     APRIL,
-
     MAY,
-
     JUNE,
-
     JULY,
-
     AUGUST,
-
     SEPTEMBER,
-
     OCTOBER,
-
     NOVEMBER,
-
     DECEMBER;
-
     private static final Month[] ENUMS = Month.values();
-
     //-----------------------------------------------------------------------
-
     public static Month of(int month) {
         if (month < 1 || month > 12) {
             throw new DateTimeException("Invalid value for MonthOfYear: " + month);
         }
         return ENUMS[month - 1];
     }
-
     //-----------------------------------------------------------------------
-
     public static Month from(TemporalAccessor temporal) {
         if (temporal instanceof Month) {
             return (Month) temporal;
@@ -76,21 +51,15 @@ public enum Month implements TemporalAccessor, TemporalAdjuster {
                     temporal + " of type " + temporal.getClass().getName(), ex);
         }
     }
-
     //-----------------------------------------------------------------------
-
     public int getValue() {
         return ordinal() + 1;
     }
-
     //-----------------------------------------------------------------------
-
     public String getDisplayName(TextStyle style, Locale locale) {
         return new DateTimeFormatterBuilder().appendText(MONTH_OF_YEAR, style).toFormatter(locale).format(this);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean isSupported(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -98,8 +67,6 @@ public enum Month implements TemporalAccessor, TemporalAdjuster {
         }
         return field != null && field.isSupportedBy(this);
     }
-
-
     @Override
     public ValueRange range(TemporalField field) {
         if (field == MONTH_OF_YEAR) {
@@ -107,8 +74,6 @@ public enum Month implements TemporalAccessor, TemporalAdjuster {
         }
         return TemporalAccessor.super.range(field);
     }
-
-
     @Override
     public int get(TemporalField field) {
         if (field == MONTH_OF_YEAR) {
@@ -116,8 +81,6 @@ public enum Month implements TemporalAccessor, TemporalAdjuster {
         }
         return TemporalAccessor.super.get(field);
     }
-
-
     @Override
     public long getLong(TemporalField field) {
         if (field == MONTH_OF_YEAR) {
@@ -127,21 +90,15 @@ public enum Month implements TemporalAccessor, TemporalAdjuster {
         }
         return field.getFrom(this);
     }
-
     //-----------------------------------------------------------------------
-
     public Month plus(long months) {
         int amount = (int) (months % 12);
         return ENUMS[(ordinal() + (amount + 12)) % 12];
     }
-
-
     public Month minus(long months) {
         return plus(-(months % 12));
     }
-
     //-----------------------------------------------------------------------
-
     public int length(boolean leapYear) {
         switch (this) {
             case FEBRUARY:
@@ -155,8 +112,6 @@ public enum Month implements TemporalAccessor, TemporalAdjuster {
                 return 31;
         }
     }
-
-
     public int minLength() {
         switch (this) {
             case FEBRUARY:
@@ -170,8 +125,6 @@ public enum Month implements TemporalAccessor, TemporalAdjuster {
                 return 31;
         }
     }
-
-
     public int maxLength() {
         switch (this) {
             case FEBRUARY:
@@ -185,9 +138,7 @@ public enum Month implements TemporalAccessor, TemporalAdjuster {
                 return 31;
         }
     }
-
     //-----------------------------------------------------------------------
-
     public int firstDayOfYear(boolean leapYear) {
         int leap = leapYear ? 1 : 0;
         switch (this) {
@@ -218,14 +169,10 @@ public enum Month implements TemporalAccessor, TemporalAdjuster {
                 return 335 + leap;
         }
     }
-
-
     public Month firstMonthOfQuarter() {
         return ENUMS[(ordinal() / 3) * 3];
     }
-
     //-----------------------------------------------------------------------
-
     @SuppressWarnings("unchecked")
     @Override
     public <R> R query(TemporalQuery<R> query) {
@@ -236,8 +183,6 @@ public enum Month implements TemporalAccessor, TemporalAdjuster {
         }
         return TemporalAccessor.super.query(query);
     }
-
-
     @Override
     public Temporal adjustInto(Temporal temporal) {
         if (Chronology.from(temporal).equals(IsoChronology.INSTANCE) == false) {
@@ -245,5 +190,4 @@ public enum Month implements TemporalAccessor, TemporalAdjuster {
         }
         return temporal.with(MONTH_OF_YEAR, getValue());
     }
-
 }

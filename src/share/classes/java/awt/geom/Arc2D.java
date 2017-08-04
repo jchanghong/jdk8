@@ -1,52 +1,22 @@
-
-
 package java.awt.geom;
-
 import java.io.Serializable;
-
-
 public abstract class Arc2D extends RectangularShape {
-
-
     public final static int OPEN = 0;
-
-
     public final static int CHORD = 1;
-
-
     public final static int PIE = 2;
-
-
     public static class Float extends Arc2D implements Serializable {
-
         public float x;
-
-
         public float y;
-
-
         public float width;
-
-
         public float height;
-
-
         public float start;
-
-
         public float extent;
-
-
         public Float() {
             super(OPEN);
         }
-
-
         public Float(int type) {
             super(type);
         }
-
-
         public Float(float x, float y, float w, float h,
                      float start, float extent, int type) {
             super(type);
@@ -57,8 +27,6 @@ public abstract class Arc2D extends RectangularShape {
             this.start = start;
             this.extent = extent;
         }
-
-
         public Float(Rectangle2D ellipseBounds,
                      float start, float extent, int type) {
             super(type);
@@ -69,43 +37,27 @@ public abstract class Arc2D extends RectangularShape {
             this.start = start;
             this.extent = extent;
         }
-
-
         public double getX() {
             return (double) x;
         }
-
-
         public double getY() {
             return (double) y;
         }
-
-
         public double getWidth() {
             return (double) width;
         }
-
-
         public double getHeight() {
             return (double) height;
         }
-
-
         public double getAngleStart() {
             return (double) start;
         }
-
-
         public double getAngleExtent() {
             return (double) extent;
         }
-
-
         public boolean isEmpty() {
             return (width <= 0.0 || height <= 0.0);
         }
-
-
         public void setArc(double x, double y, double w, double h,
                            double angSt, double angExt, int closure) {
             this.setArcType(closure);
@@ -116,42 +68,28 @@ public abstract class Arc2D extends RectangularShape {
             this.start = (float) angSt;
             this.extent = (float) angExt;
         }
-
-
         public void setAngleStart(double angSt) {
             this.start = (float) angSt;
         }
-
-
         public void setAngleExtent(double angExt) {
             this.extent = (float) angExt;
         }
-
-
         protected Rectangle2D makeBounds(double x, double y,
                                          double w, double h) {
             return new Rectangle2D.Float((float) x, (float) y,
                                          (float) w, (float) h);
         }
-
-
         private static final long serialVersionUID = 9130893014586380278L;
-
-
         private void writeObject(java.io.ObjectOutputStream s)
             throws java.io.IOException
         {
             s.defaultWriteObject();
-
             s.writeByte(getArcType());
         }
-
-
         private void readObject(java.io.ObjectInputStream s)
             throws java.lang.ClassNotFoundException, java.io.IOException
         {
             s.defaultReadObject();
-
             try {
                 setArcType(s.readByte());
             } catch (IllegalArgumentException iae) {
@@ -159,38 +97,19 @@ public abstract class Arc2D extends RectangularShape {
             }
         }
     }
-
-
     public static class Double extends Arc2D implements Serializable {
-
         public double x;
-
-
         public double y;
-
-
         public double width;
-
-
         public double height;
-
-
         public double start;
-
-
         public double extent;
-
-
         public Double() {
             super(OPEN);
         }
-
-
         public Double(int type) {
             super(type);
         }
-
-
         public Double(double x, double y, double w, double h,
                       double start, double extent, int type) {
             super(type);
@@ -201,8 +120,6 @@ public abstract class Arc2D extends RectangularShape {
             this.start = start;
             this.extent = extent;
         }
-
-
         public Double(Rectangle2D ellipseBounds,
                       double start, double extent, int type) {
             super(type);
@@ -213,43 +130,27 @@ public abstract class Arc2D extends RectangularShape {
             this.start = start;
             this.extent = extent;
         }
-
-
         public double getX() {
             return x;
         }
-
-
         public double getY() {
             return y;
         }
-
-
         public double getWidth() {
             return width;
         }
-
-
         public double getHeight() {
             return height;
         }
-
-
         public double getAngleStart() {
             return start;
         }
-
-
         public double getAngleExtent() {
             return extent;
         }
-
-
         public boolean isEmpty() {
             return (width <= 0.0 || height <= 0.0);
         }
-
-
         public void setArc(double x, double y, double w, double h,
                            double angSt, double angExt, int closure) {
             this.setArcType(closure);
@@ -260,41 +161,27 @@ public abstract class Arc2D extends RectangularShape {
             this.start = angSt;
             this.extent = angExt;
         }
-
-
         public void setAngleStart(double angSt) {
             this.start = angSt;
         }
-
-
         public void setAngleExtent(double angExt) {
             this.extent = angExt;
         }
-
-
         protected Rectangle2D makeBounds(double x, double y,
                                          double w, double h) {
             return new Rectangle2D.Double(x, y, w, h);
         }
-
-
         private static final long serialVersionUID = 728264085846882001L;
-
-
         private void writeObject(java.io.ObjectOutputStream s)
             throws java.io.IOException
         {
             s.defaultWriteObject();
-
             s.writeByte(getArcType());
         }
-
-
         private void readObject(java.io.ObjectInputStream s)
             throws java.lang.ClassNotFoundException, java.io.IOException
         {
             s.defaultReadObject();
-
             try {
                 setArcType(s.readByte());
             } catch (IllegalArgumentException iae) {
@@ -302,78 +189,51 @@ public abstract class Arc2D extends RectangularShape {
             }
         }
     }
-
     private int type;
-
-
     protected Arc2D() {
         this(OPEN);
     }
-
-
     protected Arc2D(int type) {
         setArcType(type);
     }
-
-
     public abstract double getAngleStart();
-
-
     public abstract double getAngleExtent();
-
-
     public int getArcType() {
         return type;
     }
-
-
     public Point2D getStartPoint() {
         double angle = Math.toRadians(-getAngleStart());
         double x = getX() + (Math.cos(angle) * 0.5 + 0.5) * getWidth();
         double y = getY() + (Math.sin(angle) * 0.5 + 0.5) * getHeight();
         return new Point2D.Double(x, y);
     }
-
-
     public Point2D getEndPoint() {
         double angle = Math.toRadians(-getAngleStart() - getAngleExtent());
         double x = getX() + (Math.cos(angle) * 0.5 + 0.5) * getWidth();
         double y = getY() + (Math.sin(angle) * 0.5 + 0.5) * getHeight();
         return new Point2D.Double(x, y);
     }
-
-
     public abstract void setArc(double x, double y, double w, double h,
                                 double angSt, double angExt, int closure);
-
-
     public void setArc(Point2D loc, Dimension2D size,
                        double angSt, double angExt, int closure) {
         setArc(loc.getX(), loc.getY(), size.getWidth(), size.getHeight(),
                angSt, angExt, closure);
     }
-
-
     public void setArc(Rectangle2D rect, double angSt, double angExt,
                        int closure) {
         setArc(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(),
                angSt, angExt, closure);
     }
-
-
     public void setArc(Arc2D a) {
         setArc(a.getX(), a.getY(), a.getWidth(), a.getHeight(),
                a.getAngleStart(), a.getAngleExtent(), a.type);
     }
-
-
     public void setArcByCenter(double x, double y, double radius,
                                double angSt, double angExt, int closure) {
         setArc(x - radius, y - radius, radius * 2.0, radius * 2.0,
                angSt, angExt, closure);
     }
-
-
     public void setArcByTangent(Point2D p1, Point2D p2, Point2D p3,
                                 double radius) {
         double ang1 = Math.atan2(p1.getY() - p2.getY(),
@@ -409,22 +269,14 @@ public abstract class Arc2D extends RectangularShape {
         }
         setArcByCenter(x, y, radius, ang1, diff, type);
     }
-
-
     public abstract void setAngleStart(double angSt);
-
-
     public abstract void setAngleExtent(double angExt);
-
-
     public void setAngleStart(Point2D p) {
         // Bias the dx and dy by the height and width of the oval.
         double dx = getHeight() * (p.getX() - getCenterX());
         double dy = getWidth() * (p.getY() - getCenterY());
         setAngleStart(-Math.toDegrees(Math.atan2(dy, dx)));
     }
-
-
     public void setAngles(double x1, double y1, double x2, double y2) {
         double x = getCenterX();
         double y = getCenterY();
@@ -442,26 +294,18 @@ public abstract class Arc2D extends RectangularShape {
         setAngleStart(Math.toDegrees(ang1));
         setAngleExtent(Math.toDegrees(ang2));
     }
-
-
     public void setAngles(Point2D p1, Point2D p2) {
         setAngles(p1.getX(), p1.getY(), p2.getX(), p2.getY());
     }
-
-
     public void setArcType(int type) {
         if (type < OPEN || type > PIE) {
             throw new IllegalArgumentException("invalid type for Arc: "+type);
         }
         this.type = type;
     }
-
-
     public void setFrame(double x, double y, double w, double h) {
         setArc(x, y, w, h, getAngleStart(), getAngleExtent(), type);
     }
-
-
     public Rectangle2D getBounds2D() {
         if (isEmpty()) {
             return makeBounds(getX(), getY(), getWidth(), getHeight());
@@ -504,12 +348,8 @@ public abstract class Arc2D extends RectangularShape {
         y1 = getY() + (y1 * 0.5 + 0.5) * h;
         return makeBounds(x1, y1, x2, y2);
     }
-
-
     protected abstract Rectangle2D makeBounds(double x, double y,
                                               double w, double h);
-
-
     static double normalizeDegrees(double angle) {
         if (angle > 180.0) {
             if (angle <= (180.0 + 360.0)) {
@@ -534,8 +374,6 @@ public abstract class Arc2D extends RectangularShape {
         }
         return angle;
     }
-
-
     public boolean containsAngle(double angle) {
         double angExt = getAngleExtent();
         boolean backwards = (angExt < 0.0);
@@ -552,12 +390,8 @@ public abstract class Arc2D extends RectangularShape {
         if (angle < 0.0) {
             angle += 360.0;
         }
-
-
         return (angle >= 0.0) && (angle < angExt);
     }
-
-
     public boolean contains(double x, double y) {
         // Normalize the coordinates compared to the ellipse
         // having a center at 0,0 and a radius of 0.5.
@@ -608,13 +442,9 @@ public abstract class Arc2D extends RectangularShape {
                           Line2D.relativeCCW(x1, y1, x2, y2, 0, 0) >= 0);
         return inarc ? !inside : inside;
     }
-
-
     public boolean intersects(double x, double y, double w, double h) {
-
         double aw = getWidth();
         double ah = getHeight();
-
         if ( w <= 0 || h <= 0 || aw <= 0 || ah <= 0 ) {
             return false;
         }
@@ -622,19 +452,16 @@ public abstract class Arc2D extends RectangularShape {
         if (ext == 0) {
             return false;
         }
-
         double ax  = getX();
         double ay  = getY();
         double axw = ax + aw;
         double ayh = ay + ah;
         double xw  = x + w;
         double yh  = y + h;
-
         // check bbox
         if (x >= axw || y >= ayh || xw <= ax || yh <= ay) {
             return false;
         }
-
         // extract necessary data
         double axc = getCenterX();
         double ayc = getCenterY();
@@ -644,8 +471,6 @@ public abstract class Arc2D extends RectangularShape {
         double sy = sp.getY();
         double ex = ep.getX();
         double ey = ep.getY();
-
-
         if (ayc >= y && ayc <= yh) { // 0 and 180
             if ((sx < xw && ex < xw && axc < xw &&
                  axw > x && containsAngle(0)) ||
@@ -662,8 +487,6 @@ public abstract class Arc2D extends RectangularShape {
                 return true;
             }
         }
-
-
         Rectangle2D rect = new Rectangle2D.Double(x, y, w, h);
         if (type == PIE || Math.abs(ext) > 180) {
             // for PIE: try to find intersections with pie slices
@@ -677,26 +500,19 @@ public abstract class Arc2D extends RectangularShape {
                 return true;
             }
         }
-
         // finally check the rectangle corners inside the arc
         if (contains(x, y) || contains(x + w, y) ||
             contains(x, y + h) || contains(x + w, y + h)) {
             return true;
         }
-
         return false;
     }
-
-
     public boolean contains(double x, double y, double w, double h) {
         return contains(x, y, w, h, null);
     }
-
-
     public boolean contains(Rectangle2D r) {
         return contains(r.getX(), r.getY(), r.getWidth(), r.getHeight(), r);
     }
-
     private boolean contains(double x, double y, double w, double h,
                              Rectangle2D origrect) {
         if (!(contains(x, y) &&
@@ -735,13 +551,9 @@ public abstract class Arc2D extends RectangularShape {
         ye = yc + halfH * Math.sin(angle);
         return !origrect.intersectsLine(xc, yc, xe, ye);
     }
-
-
     public PathIterator getPathIterator(AffineTransform at) {
         return new ArcIterator(this, at);
     }
-
-
     public int hashCode() {
         long bits = java.lang.Double.doubleToLongBits(getX());
         bits += java.lang.Double.doubleToLongBits(getY()) * 37;
@@ -752,8 +564,6 @@ public abstract class Arc2D extends RectangularShape {
         bits += getArcType() * 61;
         return (((int) bits) ^ ((int) (bits >> 32)));
     }
-
-
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;

@@ -1,28 +1,14 @@
-
-
 package java.util.zip;
-
 import java.io.FilterOutputStream;
 import java.io.OutputStream;
 import java.io.InputStream;
 import java.io.IOException;
-
-
 public
 class DeflaterOutputStream extends FilterOutputStream {
-
     protected Deflater def;
-
-
     protected byte[] buf;
-
-
-
     private boolean closed = false;
-
     private final boolean syncFlush;
-
-
     public DeflaterOutputStream(OutputStream out,
                                 Deflater def,
                                 int size,
@@ -37,49 +23,31 @@ class DeflaterOutputStream extends FilterOutputStream {
         this.buf = new byte[size];
         this.syncFlush = syncFlush;
     }
-
-
-
     public DeflaterOutputStream(OutputStream out, Deflater def, int size) {
         this(out, def, size, false);
     }
-
-
     public DeflaterOutputStream(OutputStream out,
                                 Deflater def,
                                 boolean syncFlush) {
         this(out, def, 512, syncFlush);
     }
-
-
-
     public DeflaterOutputStream(OutputStream out, Deflater def) {
         this(out, def, 512, false);
     }
-
     boolean usesDefaultDeflater = false;
-
-
-
     public DeflaterOutputStream(OutputStream out, boolean syncFlush) {
         this(out, new Deflater(), 512, syncFlush);
         usesDefaultDeflater = true;
     }
-
-
     public DeflaterOutputStream(OutputStream out) {
         this(out, false);
         usesDefaultDeflater = true;
     }
-
-
     public void write(int b) throws IOException {
         byte[] buf = new byte[1];
         buf[0] = (byte)(b & 0xff);
         write(buf, 0, 1);
     }
-
-
     public void write(byte[] b, int off, int len) throws IOException {
         if (def.finished()) {
             throw new IOException("write beyond end of stream");
@@ -96,8 +64,6 @@ class DeflaterOutputStream extends FilterOutputStream {
             }
         }
     }
-
-
     public void finish() throws IOException {
         if (!def.finished()) {
             def.finish();
@@ -106,8 +72,6 @@ class DeflaterOutputStream extends FilterOutputStream {
             }
         }
     }
-
-
     public void close() throws IOException {
         if (!closed) {
             finish();
@@ -117,16 +81,12 @@ class DeflaterOutputStream extends FilterOutputStream {
             closed = true;
         }
     }
-
-
     protected void deflate() throws IOException {
         int len = def.deflate(buf, 0, buf.length);
         if (len > 0) {
             out.write(buf, 0, len);
         }
     }
-
-
     public void flush() throws IOException {
         if (syncFlush && !def.finished()) {
             int len = 0;

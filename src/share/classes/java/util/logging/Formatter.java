@@ -1,32 +1,14 @@
-
-
-
 package java.util.logging;
-
-
-
 public abstract class Formatter {
-
-
     protected Formatter() {
     }
-
-
     public abstract String format(LogRecord record);
-
-
-
     public String getHead(Handler h) {
         return "";
     }
-
-
     public String getTail(Handler h) {
         return "";
     }
-
-
-
     public synchronized String formatMessage(LogRecord record) {
         String format = record.getMessage();
         java.util.ResourceBundle catalog = record.getResourceBundle();
@@ -55,7 +37,6 @@ public abstract class Formatter {
                 return java.text.MessageFormat.format(format, parameters);
             }
             return format;
-
         } catch (Exception ex) {
             // Formatting failed: use localized format string.
             return format;

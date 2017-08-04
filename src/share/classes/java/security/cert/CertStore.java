@@ -1,7 +1,4 @@
-
-
 package java.security.cert;
-
 import java.security.AccessController;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -10,20 +7,14 @@ import java.security.PrivilegedAction;
 import java.security.Provider;
 import java.security.Security;
 import java.util.Collection;
-
 import sun.security.jca.*;
 import sun.security.jca.GetInstance.Instance;
-
-
 public class CertStore {
-
     private static final String CERTSTORE_TYPE = "certstore.type";
     private CertStoreSpi storeSpi;
     private Provider provider;
     private String type;
     private CertStoreParameters params;
-
-
     protected CertStore(CertStoreSpi storeSpi, Provider provider,
                         String type, CertStoreParameters params) {
         this.storeSpi = storeSpi;
@@ -32,20 +23,14 @@ public class CertStore {
         if (params != null)
             this.params = (CertStoreParameters) params.clone();
     }
-
-
     public final Collection<? extends Certificate> getCertificates
             (CertSelector selector) throws CertStoreException {
         return storeSpi.engineGetCertificates(selector);
     }
-
-
     public final Collection<? extends CRL> getCRLs(CRLSelector selector)
             throws CertStoreException {
         return storeSpi.engineGetCRLs(selector);
     }
-
-
     public static CertStore getInstance(String type, CertStoreParameters params)
             throws InvalidAlgorithmParameterException,
             NoSuchAlgorithmException {
@@ -58,7 +43,6 @@ public class CertStore {
             return handleException(e);
         }
     }
-
     private static CertStore handleException(NoSuchAlgorithmException e)
             throws NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         Throwable cause = e.getCause();
@@ -67,8 +51,6 @@ public class CertStore {
         }
         throw e;
     }
-
-
     public static CertStore getInstance(String type,
             CertStoreParameters params, String provider)
             throws InvalidAlgorithmParameterException,
@@ -82,8 +64,6 @@ public class CertStore {
             return handleException(e);
         }
     }
-
-
     public static CertStore getInstance(String type, CertStoreParameters params,
             Provider provider) throws NoSuchAlgorithmException,
             InvalidAlgorithmParameterException {
@@ -96,23 +76,15 @@ public class CertStore {
             return handleException(e);
         }
     }
-
-
     public final CertStoreParameters getCertStoreParameters() {
         return (params == null ? null : (CertStoreParameters) params.clone());
     }
-
-
     public final String getType() {
         return this.type;
     }
-
-
     public final Provider getProvider() {
         return this.provider;
     }
-
-
     public final static String getDefaultType() {
         String cstype;
         cstype = AccessController.doPrivileged(new PrivilegedAction<String>() {

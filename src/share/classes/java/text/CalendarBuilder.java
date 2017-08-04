@@ -1,33 +1,22 @@
-
-
 package java.text;
-
 import java.util.Calendar;
 import static java.util.GregorianCalendar.*;
-
-
 class CalendarBuilder {
-
     private static final int UNSET = 0;
     private static final int COMPUTED = 1;
     private static final int MINIMUM_USER_STAMP = 2;
-
     private static final int MAX_FIELD = FIELD_COUNT + 1;
-
     public static final int WEEK_YEAR = FIELD_COUNT;
     public static final int ISO_DAY_OF_WEEK = 1000; // pseudo field index
-
     // stamp[] (lower half) and field[] (upper half) combined
     private final int[] field;
     private int nextStamp;
     private int maxFieldIndex;
-
     CalendarBuilder() {
         field = new int[MAX_FIELD * 2];
         nextStamp = MINIMUM_USER_STAMP;
         maxFieldIndex = -1;
     }
-
     CalendarBuilder set(int index, int value) {
         if (index == ISO_DAY_OF_WEEK) {
             index = DAY_OF_WEEK;
@@ -40,20 +29,17 @@ class CalendarBuilder {
         }
         return this;
     }
-
     CalendarBuilder addYear(int value) {
         field[MAX_FIELD + YEAR] += value;
         field[MAX_FIELD + WEEK_YEAR] += value;
         return this;
     }
-
     boolean isSet(int index) {
         if (index == ISO_DAY_OF_WEEK) {
             index = DAY_OF_WEEK;
         }
         return field[index] > UNSET;
     }
-
     CalendarBuilder clear(int index) {
         if (index == ISO_DAY_OF_WEEK) {
             index = DAY_OF_WEEK;
@@ -62,7 +48,6 @@ class CalendarBuilder {
         field[MAX_FIELD + index] = 0;
         return this;
     }
-
     Calendar establish(Calendar cal) {
         boolean weekDate = isSet(WEEK_YEAR)
                             && field[WEEK_YEAR] > field[YEAR];
@@ -73,7 +58,6 @@ class CalendarBuilder {
             }
             weekDate = false;
         }
-
         cal.clear();
         // Set the fields from the min stamp to the max stamp so that
         // the field resolution works in the Calendar.
@@ -85,7 +69,6 @@ class CalendarBuilder {
                 }
             }
         }
-
         if (weekDate) {
             int weekOfYear = isSet(WEEK_OF_YEAR) ? field[MAX_FIELD + WEEK_OF_YEAR] : 1;
             int dayOfWeek = isSet(DAY_OF_WEEK) ?
@@ -107,7 +90,6 @@ class CalendarBuilder {
         }
         return cal;
     }
-
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("CalendarBuilder:[");
@@ -123,11 +105,9 @@ class CalendarBuilder {
         sb.append(']');
         return sb.toString();
     }
-
     static int toISODayOfWeek(int calendarDayOfWeek) {
         return calendarDayOfWeek == SUNDAY ? 7 : calendarDayOfWeek - 1;
     }
-
     static int toCalendarDayOfWeek(int isoDayOfWeek) {
         if (!isValidDayOfWeek(isoDayOfWeek)) {
             // adjust later for lenient mode
@@ -135,7 +115,6 @@ class CalendarBuilder {
         }
         return isoDayOfWeek == 7 ? SUNDAY : isoDayOfWeek + 1;
     }
-
     static boolean isValidDayOfWeek(int dayOfWeek) {
         return dayOfWeek > 0 && dayOfWeek <= 7;
     }

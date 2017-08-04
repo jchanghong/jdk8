@@ -1,11 +1,7 @@
-
-
 package java.lang;
-
 import java.lang.reflect.AnnotatedElement;
 import java.io.InputStream;
 import java.util.Enumeration;
-
 import java.util.StringTokenizer;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,7 +11,6 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.jar.Attributes;
@@ -24,69 +19,44 @@ import java.util.jar.JarException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
-
 import sun.net.www.ParseUtil;
 import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
-
 import java.lang.annotation.Annotation;
-
-
 public class Package implements java.lang.reflect.AnnotatedElement {
-
     public String getName() {
         return pkgName;
     }
-
-
-
     public String getSpecificationTitle() {
         return specTitle;
     }
-
-
     public String getSpecificationVersion() {
         return specVersion;
     }
-
-
     public String getSpecificationVendor() {
         return specVendor;
     }
-
-
     public String getImplementationTitle() {
         return implTitle;
     }
-
-
     public String getImplementationVersion() {
         return implVersion;
     }
-
-
     public String getImplementationVendor() {
         return implVendor;
     }
-
-
     public boolean isSealed() {
         return sealBase != null;
     }
-
-
     public boolean isSealed(URL url) {
         return url.equals(sealBase);
     }
-
-
     public boolean isCompatibleWith(String desired)
         throws NumberFormatException
     {
         if (specVersion == null || specVersion.length() < 1) {
             throw new NumberFormatException("Empty version string");
         }
-
         String [] sa = specVersion.split("\\.", -1);
         int [] si = new int[sa.length];
         for (int i = 0; i < sa.length; i++) {
@@ -94,7 +64,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
             if (si[i] < 0)
                 throw NumberFormatException.forInputString("" + si[i]);
         }
-
         String [] da = desired.split("\\.", -1);
         int [] di = new int[da.length];
         for (int i = 0; i < da.length; i++) {
@@ -102,7 +71,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
             if (di[i] < 0)
                 throw NumberFormatException.forInputString("" + di[i]);
         }
-
         int len = Math.max(di.length, si.length);
         for (int i = 0; i < len; i++) {
             int d = (i < di.length ? di[i] : 0);
@@ -114,8 +82,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
         }
         return true;
     }
-
-
     @CallerSensitive
     public static Package getPackage(String name) {
         ClassLoader l = ClassLoader.getClassLoader(Reflection.getCallerClass());
@@ -125,8 +91,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
             return getSystemPackage(name);
         }
     }
-
-
     @CallerSensitive
     public static Package[] getPackages() {
         ClassLoader l = ClassLoader.getClassLoader(Reflection.getCallerClass());
@@ -136,8 +100,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
             return getSystemPackages();
         }
     }
-
-
     static Package getPackage(Class<?> c) {
         String name = c.getName();
         int i = name.lastIndexOf('.');
@@ -153,13 +115,9 @@ public class Package implements java.lang.reflect.AnnotatedElement {
             return null;
         }
     }
-
-
     public int hashCode(){
         return pkgName.hashCode();
     }
-
-
     public String toString() {
         String spec = specTitle;
         String ver =  specVersion;
@@ -173,7 +131,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
             ver = "";
         return "package " + pkgName + spec + ver;
     }
-
     private Class<?> getPackageInfo() {
         if (packageInfo == null) {
             try {
@@ -186,47 +143,31 @@ public class Package implements java.lang.reflect.AnnotatedElement {
         }
         return packageInfo;
     }
-
-
     public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
         return getPackageInfo().getAnnotation(annotationClass);
     }
-
-
     @Override
     public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
         return AnnotatedElement.super.isAnnotationPresent(annotationClass);
     }
-
-
     @Override
     public  <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationClass) {
         return getPackageInfo().getAnnotationsByType(annotationClass);
     }
-
-
     public Annotation[] getAnnotations() {
         return getPackageInfo().getAnnotations();
     }
-
-
     @Override
     public <A extends Annotation> A getDeclaredAnnotation(Class<A> annotationClass) {
         return getPackageInfo().getDeclaredAnnotation(annotationClass);
     }
-
-
     @Override
     public <A extends Annotation> A[] getDeclaredAnnotationsByType(Class<A> annotationClass) {
         return getPackageInfo().getDeclaredAnnotationsByType(annotationClass);
     }
-
-
     public Annotation[] getDeclaredAnnotations()  {
         return getPackageInfo().getDeclaredAnnotations();
     }
-
-
     Package(String name,
             String spectitle, String specversion, String specvendor,
             String impltitle, String implversion, String implvendor,
@@ -242,8 +183,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
         sealBase = sealbase;
         this.loader = loader;
     }
-
-
     private Package(String name, Manifest man, URL url, ClassLoader loader) {
         String path = name.replace('.', '/').concat("/");
         String sealed = null;
@@ -301,8 +240,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
         this.sealBase = sealBase;
         this.loader = loader;
     }
-
-
     static Package getSystemPackage(String name) {
         synchronized (pkgs) {
             Package pkg = pkgs.get(name);
@@ -316,8 +253,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
             return pkg;
         }
     }
-
-
     static Package[] getSystemPackages() {
         // First, update the system package map with new package names
         String[] names = getSystemPackages0();
@@ -328,7 +263,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
             return pkgs.values().toArray(new Package[pkgs.size()]);
         }
     }
-
     private static Package defineSystemPackage(final String iname,
                                                final String fn)
     {
@@ -367,8 +301,6 @@ public class Package implements java.lang.reflect.AnnotatedElement {
             }
         });
     }
-
-
     private static Manifest loadManifest(String fn) {
         try (FileInputStream fis = new FileInputStream(fn);
              JarInputStream jis = new JarInputStream(fis, false))
@@ -378,20 +310,14 @@ public class Package implements java.lang.reflect.AnnotatedElement {
             return null;
         }
     }
-
     // The map of loaded system packages
     private static Map<String, Package> pkgs = new HashMap<>(31);
-
     // Maps each directory or zip file name to its corresponding url
     private static Map<String, URL> urls = new HashMap<>(10);
-
     // Maps each code source url for a jar file to its manifest
     private static Map<String, Manifest> mans = new HashMap<>(10);
-
     private static native String getSystemPackage0(String name);
     private static native String[] getSystemPackages0();
-
-
     private final String pkgName;
     private final String specTitle;
     private final String specVersion;

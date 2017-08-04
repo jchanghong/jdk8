@@ -1,7 +1,4 @@
-
-
 package java.util.zip;
-
 import java.io.OutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -10,18 +7,13 @@ import java.util.Vector;
 import java.util.HashSet;
 import static java.util.zip.ZipConstants64.*;
 import static java.util.zip.ZipUtils.*;
-
-
 public
 class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
-
-
     private static final boolean inhibitZip64 =
         Boolean.parseBoolean(
             java.security.AccessController.doPrivileged(
                 new sun.security.action.GetPropertyAction(
                     "jdk.util.zip.inhibitZip64", "false")));
-
     private static class XEntry {
         final ZipEntry entry;
         final long offset;
@@ -30,7 +22,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
             this.offset = offset;
         }
     }
-
     private XEntry current;
     private Vector<XEntry> xentries = new Vector<>();
     private HashSet<String> names = new HashSet<>();
@@ -40,11 +31,8 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
     private byte[] comment;
     private int method = DEFLATED;
     private boolean finished;
-
     private boolean closed = false;
-
     private final ZipCoder zc;
-
     private static int version(ZipEntry e) throws ZipException {
         switch (e.method) {
         case DEFLATED: return 20;
@@ -52,25 +40,16 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         default: throw new ZipException("unsupported compression method");
         }
     }
-
-
     private void ensureOpen() throws IOException {
         if (closed) {
             throw new IOException("Stream closed");
         }
     }
-
     public static final int STORED = ZipEntry.STORED;
-
-
     public static final int DEFLATED = ZipEntry.DEFLATED;
-
-
     public ZipOutputStream(OutputStream out) {
         this(out, StandardCharsets.UTF_8);
     }
-
-
     public ZipOutputStream(OutputStream out, Charset charset) {
         super(out, new Deflater(Deflater.DEFAULT_COMPRESSION, true));
         if (charset == null)
@@ -78,8 +57,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         this.zc = ZipCoder.get(charset);
         usesDefaultDeflater = true;
     }
-
-
     public void setComment(String comment) {
         if (comment != null) {
             this.comment = zc.getBytes(comment);
@@ -87,21 +64,15 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
                 throw new IllegalArgumentException("ZIP file comment too long.");
         }
     }
-
-
     public void setMethod(int method) {
         if (method != DEFLATED && method != STORED) {
             throw new IllegalArgumentException("invalid compression method");
         }
         this.method = method;
     }
-
-
     public void setLevel(int level) {
         def.setLevel(level);
     }
-
-
     public void putNextEntry(ZipEntry e) throws IOException {
         ensureOpen();
         if (current != null) {
@@ -123,7 +94,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
             // immediately following the compressed entry data
             if (e.size  == -1 || e.csize == -1 || e.crc   == -1)
                 e.flag = 8;
-
             break;
         case STORED:
             // compressed size, uncompressed size, and crc-32 must all be
@@ -153,8 +123,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         xentries.add(current);
         writeLOC(current);
     }
-
-
     public void closeEntry() throws IOException {
         ensureOpen();
         if (current != null) {
@@ -213,8 +181,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
             current = null;
         }
     }
-
-
     public synchronized void write(byte[] b, int off, int len)
         throws IOException
     {
@@ -224,7 +190,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         } else if (len == 0) {
             return;
         }
-
         if (current == null) {
             throw new ZipException("no current ZIP entry");
         }
@@ -246,8 +211,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         }
         crc.update(b, off, len);
     }
-
-
     public void finish() throws IOException {
         ensureOpen();
         if (finished) {
@@ -263,22 +226,17 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         writeEND(off, written - off);
         finished = true;
     }
-
-
     public void close() throws IOException {
         if (!closed) {
             super.close();
             closed = true;
         }
     }
-
-
     private void writeLOC(XEntry xentry) throws IOException {
         ZipEntry e = xentry.entry;
         int flag = e.flag;
         boolean hasZip64 = false;
         int elen = getExtraLen(e.extra);
-
         writeInt(LOCSIG);               // LOC header signature
         if ((flag & 8) == 8) {
             writeShort(version(e));     // version needed to extract
@@ -312,7 +270,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         }
         byte[] nameBytes = zc.getBytes(e.name);
         writeShort(nameBytes.length);
-
         int elenEXTT = 0;               // info-zip extended timestamp
         int flagEXTT = 0;
         if (e.mtime != null) {
@@ -351,8 +308,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         writeExtra(e.extra);
         locoff = written;
     }
-
-
     private void writeEXT(ZipEntry e) throws IOException {
         writeInt(EXTSIG);           // EXT header signature
         writeInt(e.crc);            // crc-32
@@ -364,8 +319,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
             writeInt(e.size);           // uncompressed size
         }
     }
-
-
     private void writeCEN(XEntry xentry) throws IOException {
         ZipEntry e  = xentry.entry;
         int flag = e.flag;
@@ -375,7 +328,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         long offset = xentry.offset;
         int elenZIP64 = 0;
         boolean hasZip64 = false;
-
         if (e.csize >= ZIP64_MAGICVAL) {
             csize = ZIP64_MAGICVAL;
             elenZIP64 += 8;              // csize(8)
@@ -407,7 +359,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         writeInt(size);             // uncompressed size
         byte[] nameBytes = zc.getBytes(e.name);
         writeShort(nameBytes.length);
-
         int elen = getExtraLen(e.extra);
         if (hasZip64) {
             elen += (elenZIP64 + 4);// + headid(2) + datasize(2)
@@ -442,7 +393,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         writeInt(0);                // external file attributes (unused)
         writeInt(offset);           // relative offset of local header
         writeBytes(nameBytes, 0, nameBytes.length);
-
         // take care of EXTID_ZIP64 and EXTID_EXTT
         if (hasZip64) {
             writeShort(ZIP64_EXTID);// Zip64 extra
@@ -470,8 +420,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
             writeBytes(commentBytes, 0, Math.min(commentBytes.length, 0xffff));
         }
     }
-
-
     private void writeEND(long off, long len) throws IOException {
         boolean hasZip64 = false;
         long xlen = len;
@@ -504,7 +452,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
             writeLong(xentries.size());    // number of directory entires
             writeLong(len);                // length of central directory
             writeLong(off);                // offset of central directory
-
             //zip64 end of central directory locator
             writeInt(ZIP64_LOCSIG);        // zip64 END locator signature
             writeInt(0);                   // zip64 END start disk
@@ -525,8 +472,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
             writeShort(0);
         }
     }
-
-
     private int getExtraLen(byte[] extra) {
         if (extra == null)
             return 0;
@@ -546,8 +491,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         }
         return len - skipped;
     }
-
-
     private void writeExtra(byte[] extra) throws IOException {
         if (extra != null) {
             int len = extra.length;
@@ -569,23 +512,17 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
             }
         }
     }
-
-
     private void writeByte(int v) throws IOException {
         OutputStream out = this.out;
         out.write(v & 0xff);
         written += 1;
     }
-
-
     private void writeShort(int v) throws IOException {
         OutputStream out = this.out;
         out.write((v >>> 0) & 0xff);
         out.write((v >>> 8) & 0xff);
         written += 2;
     }
-
-
     private void writeInt(long v) throws IOException {
         OutputStream out = this.out;
         out.write((int)((v >>>  0) & 0xff));
@@ -594,8 +531,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         out.write((int)((v >>> 24) & 0xff));
         written += 4;
     }
-
-
     private void writeLong(long v) throws IOException {
         OutputStream out = this.out;
         out.write((int)((v >>>  0) & 0xff));
@@ -608,8 +543,6 @@ class ZipOutputStream extends DeflaterOutputStream implements ZipConstants {
         out.write((int)((v >>> 56) & 0xff));
         written += 8;
     }
-
-
     private void writeBytes(byte[] b, int off, int len) throws IOException {
         super.out.write(b, off, len);
         written += len;

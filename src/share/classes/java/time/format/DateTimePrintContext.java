@@ -1,12 +1,7 @@
-
-
-
 package java.time.format;
-
 import static java.time.temporal.ChronoField.EPOCH_DAY;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import static java.time.temporal.ChronoField.OFFSET_SECONDS;
-
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -22,24 +17,15 @@ import java.time.temporal.TemporalQuery;
 import java.time.temporal.ValueRange;
 import java.util.Locale;
 import java.util.Objects;
-
-
 final class DateTimePrintContext {
-
-
     private TemporalAccessor temporal;
-
     private DateTimeFormatter formatter;
-
     private int optional;
-
-
     DateTimePrintContext(TemporalAccessor temporal, DateTimeFormatter formatter) {
         super();
         this.temporal = adjust(temporal, formatter);
         this.formatter = formatter;
     }
-
     private static TemporalAccessor adjust(final TemporalAccessor temporal, DateTimeFormatter formatter) {
         // normal case first (early return is an optimization)
         Chronology overrideChrono = formatter.getChronology();
@@ -47,7 +33,6 @@ final class DateTimePrintContext {
         if (overrideChrono == null && overrideZone == null) {
             return temporal;
         }
-
         // ensure minimal change (early return is an optimization)
         Chronology temporalChrono = temporal.query(TemporalQueries.chronology());
         ZoneId temporalZone = temporal.query(TemporalQueries.zoneId());
@@ -60,7 +45,6 @@ final class DateTimePrintContext {
         if (overrideChrono == null && overrideZone == null) {
             return temporal;
         }
-
         // make adjustment
         final Chronology effectiveChrono = (overrideChrono != null ? overrideChrono : temporalChrono);
         if (overrideZone != null) {
@@ -98,7 +82,6 @@ final class DateTimePrintContext {
         } else {
             effectiveDate = null;
         }
-
         // combine available data
         // this is a non-standard temporal that is almost a pure delegate
         // this better handles map-like underlying temporal instances
@@ -140,35 +123,23 @@ final class DateTimePrintContext {
             }
         };
     }
-
     //-----------------------------------------------------------------------
-
     TemporalAccessor getTemporal() {
         return temporal;
     }
-
-
     Locale getLocale() {
         return formatter.getLocale();
     }
-
-
     DecimalStyle getDecimalStyle() {
         return formatter.getDecimalStyle();
     }
-
     //-----------------------------------------------------------------------
-
     void startOptional() {
         this.optional++;
     }
-
-
     void endOptional() {
         this.optional--;
     }
-
-
     <R> R getValue(TemporalQuery<R> query) {
         R result = temporal.query(query);
         if (result == null && optional == 0) {
@@ -176,8 +147,6 @@ final class DateTimePrintContext {
         }
         return result;
     }
-
-
     Long getValue(TemporalField field) {
         try {
             return temporal.getLong(field);
@@ -188,12 +157,9 @@ final class DateTimePrintContext {
             throw ex;
         }
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public String toString() {
         return temporal.toString();
     }
-
 }

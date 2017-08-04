@@ -1,6 +1,4 @@
-
 package java.awt;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Vector;
@@ -9,17 +7,12 @@ import java.awt.peer.MenuPeer;
 import java.awt.event.KeyEvent;
 import javax.accessibility.*;
 import sun.awt.AWTAccessor;
-
-
 public class Menu extends MenuItem implements MenuContainer, Accessible {
-
     static {
-
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
             initIDs();
         }
-
         AWTAccessor.setMenuAccessor(
             new AWTAccessor.MenuAccessor() {
                 public Vector<MenuComponent> getItems(Menu menu) {
@@ -27,46 +20,27 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
                 }
             });
     }
-
-
     Vector<MenuComponent> items = new Vector<>();
-
-
     boolean             tearOff;
-
-
     boolean             isHelpMenu;
-
     private static final String base = "menu";
     private static int nameCounter = 0;
-
-
      private static final long serialVersionUID = -8809584163345499784L;
-
-
     public Menu() throws HeadlessException {
         this("", false);
     }
-
-
     public Menu(String label) throws HeadlessException {
         this(label, false);
     }
-
-
     public Menu(String label, boolean tearOff) throws HeadlessException {
         super(label);
         this.tearOff = tearOff;
     }
-
-
     String constructComponentName() {
         synchronized (Menu.class) {
             return base + nameCounter++;
         }
     }
-
-
     public void addNotify() {
         synchronized (getTreeLock()) {
             if (peer == null)
@@ -79,8 +53,6 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
             }
         }
     }
-
-
     public void removeNotify() {
         synchronized (getTreeLock()) {
             int nitems = getItemCount();
@@ -90,39 +62,25 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
             super.removeNotify();
         }
     }
-
-
     public boolean isTearOff() {
         return tearOff;
     }
-
-
     public int getItemCount() {
         return countItems();
     }
-
-
     @Deprecated
     public int countItems() {
         return countItemsImpl();
     }
-
-
     final int countItemsImpl() {
         return items.size();
     }
-
-
     public MenuItem getItem(int index) {
         return getItemImpl(index);
     }
-
-
     final MenuItem getItemImpl(int index) {
         return (MenuItem)items.elementAt(index);
     }
-
-
     public MenuItem add(MenuItem mi) {
         synchronized (getTreeLock()) {
             if (mi.parent != null) {
@@ -138,76 +96,49 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
             return mi;
         }
     }
-
-
     public void add(String label) {
         add(new MenuItem(label));
     }
-
-
-
     public void insert(MenuItem menuitem, int index) {
         synchronized (getTreeLock()) {
             if (index < 0) {
                 throw new IllegalArgumentException("index less than zero.");
             }
-
             int nitems = getItemCount();
             Vector<MenuItem> tempItems = new Vector<>();
-
-
             for (int i = index ; i < nitems; i++) {
                 tempItems.addElement(getItem(index));
                 remove(index);
             }
-
             add(menuitem);
-
-
             for (int i = 0; i < tempItems.size()  ; i++) {
                 add(tempItems.elementAt(i));
             }
         }
     }
-
-
-
     public void insert(String label, int index) {
         insert(new MenuItem(label), index);
     }
-
-
     public void addSeparator() {
         add("-");
     }
-
-
-
     public void insertSeparator(int index) {
         synchronized (getTreeLock()) {
             if (index < 0) {
                 throw new IllegalArgumentException("index less than zero.");
             }
-
             int nitems = getItemCount();
             Vector<MenuItem> tempItems = new Vector<>();
-
-
             for (int i = index ; i < nitems; i++) {
                 tempItems.addElement(getItem(index));
                 remove(index);
             }
-
             addSeparator();
-
-
             for (int i = 0; i < tempItems.size()  ; i++) {
                 add(tempItems.elementAt(i));
             }
         }
     }
-
-
     public void remove(int index) {
         synchronized (getTreeLock()) {
             MenuItem mi = getItem(index);
@@ -220,8 +151,6 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
             }
         }
     }
-
-
     public void remove(MenuComponent item) {
         synchronized (getTreeLock()) {
             int index = items.indexOf(item);
@@ -230,8 +159,6 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
             }
         }
     }
-
-
     public void removeAll() {
         synchronized (getTreeLock()) {
             int nitems = getItemCount();
@@ -240,8 +167,6 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
             }
         }
     }
-
-
     boolean handleShortcut(KeyEvent e) {
         int nitems = getItemCount();
         for (int i = 0 ; i < nitems ; i++) {
@@ -252,7 +177,6 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
         }
         return false;
     }
-
     MenuItem getShortcutMenuItem(MenuShortcut s) {
         int nitems = getItemCount();
         for (int i = 0 ; i < nitems ; i++) {
@@ -263,7 +187,6 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
         }
         return null;
     }
-
     synchronized Enumeration<MenuShortcut> shortcuts() {
         Vector<MenuShortcut> shortcuts = new Vector<>();
         int nitems = getItemCount();
@@ -283,28 +206,18 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
         }
         return shortcuts.elements();
     }
-
     void deleteShortcut(MenuShortcut s) {
         int nitems = getItemCount();
         for (int i = 0 ; i < nitems ; i++) {
             getItem(i).deleteShortcut(s);
         }
     }
-
-
-
-
-
     private int menuSerializedDataVersion = 1;
-
-
     private void writeObject(java.io.ObjectOutputStream s)
       throws java.io.IOException
     {
       s.defaultWriteObject();
     }
-
-
     private void readObject(ObjectInputStream s)
       throws IOException, ClassNotFoundException, HeadlessException
     {
@@ -315,45 +228,28 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
         item.parent = this;
       }
     }
-
-
     public String paramString() {
         String str = ",tearOff=" + tearOff+",isHelpMenu=" + isHelpMenu;
         return super.paramString() + str;
     }
-
-
     private static native void initIDs();
-
-
 /////////////////
 // Accessibility support
 ////////////////
-
-
     public AccessibleContext getAccessibleContext() {
         if (accessibleContext == null) {
             accessibleContext = new AccessibleAWTMenu();
         }
         return accessibleContext;
     }
-
-
     int getAccessibleChildIndex(MenuComponent child) {
         return items.indexOf(child);
     }
-
-
     protected class AccessibleAWTMenu extends AccessibleAWTMenuItem
     {
-
         private static final long serialVersionUID = 5228160894980069094L;
-
-
         public AccessibleRole getAccessibleRole() {
             return AccessibleRole.MENU;
         }
-
     } // class AccessibleAWTMenu
-
 }

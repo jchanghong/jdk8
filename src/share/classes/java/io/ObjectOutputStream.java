@@ -1,7 +1,4 @@
-
-
 package java.io;
-
 import java.io.ObjectStreamClass.WeakClassKey;
 import java.lang.ref.ReferenceQueue;
 import java.security.AccessController;
@@ -14,57 +11,31 @@ import java.util.concurrent.ConcurrentMap;
 import static java.io.ObjectStreamClass.processQueue;
 import java.io.SerialCallbackContext;
 import sun.reflect.misc.ReflectUtil;
-
-
 public class ObjectOutputStream
     extends OutputStream implements ObjectOutput, ObjectStreamConstants
 {
-
     private static class Caches {
-
         static final ConcurrentMap<WeakClassKey,Boolean> subclassAudits =
             new ConcurrentHashMap<>();
-
-
         static final ReferenceQueue<Class<?>> subclassAuditsQueue =
             new ReferenceQueue<>();
     }
-
-
     private final BlockDataOutputStream bout;
-
     private final HandleTable handles;
-
     private final ReplaceTable subs;
-
     private int protocol = PROTOCOL_VERSION_2;
-
     private int depth;
-
-
     private byte[] primVals;
-
-
     private final boolean enableOverride;
-
     private boolean enableReplace;
-
     // values below valid only during upcalls to writeObject()/writeExternal()
-
     private SerialCallbackContext curContext;
-
     private PutFieldImpl curPut;
-
-
     private final DebugTraceInfoStack debugInfoStack;
-
-
     private static final boolean extendedDebugInfo =
         java.security.AccessController.doPrivileged(
             new sun.security.action.GetBooleanAction(
                 "sun.io.serialization.extendedDebugInfo")).booleanValue();
-
-
     public ObjectOutputStream(OutputStream out) throws IOException {
         verifySubclass();
         bout = new BlockDataOutputStream(out);
@@ -79,8 +50,6 @@ public class ObjectOutputStream
             debugInfoStack = null;
         }
     }
-
-
     protected ObjectOutputStream() throws IOException, SecurityException {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -92,8 +61,6 @@ public class ObjectOutputStream
         enableOverride = true;
         debugInfoStack = null;
     }
-
-
     public void useProtocolVersion(int version) throws IOException {
         if (handles.size() != 0) {
             // REMIND: implement better check for pristine stream?
@@ -104,14 +71,11 @@ public class ObjectOutputStream
             case PROTOCOL_VERSION_2:
                 protocol = version;
                 break;
-
             default:
                 throw new IllegalArgumentException(
                     "unknown version: " + version);
         }
     }
-
-
     public final void writeObject(Object obj) throws IOException {
         if (enableOverride) {
             writeObjectOverride(obj);
@@ -126,12 +90,8 @@ public class ObjectOutputStream
             throw ex;
         }
     }
-
-
     protected void writeObjectOverride(Object obj) throws IOException {
     }
-
-
     public void writeUnshared(Object obj) throws IOException {
         try {
             writeObject0(obj, true);
@@ -142,8 +102,6 @@ public class ObjectOutputStream
             throw ex;
         }
     }
-
-
     public void defaultWriteObject() throws IOException {
         SerialCallbackContext ctx = curContext;
         if (ctx == null) {
@@ -155,8 +113,6 @@ public class ObjectOutputStream
         defaultWriteFields(curObj, curDesc);
         bout.setBlockDataMode(true);
     }
-
-
     public ObjectOutputStream.PutField putFields() throws IOException {
         if (curPut == null) {
             SerialCallbackContext ctx = curContext;
@@ -169,8 +125,6 @@ public class ObjectOutputStream
         }
         return curPut;
     }
-
-
     public void writeFields() throws IOException {
         if (curPut == null) {
             throw new NotActiveException("no current PutField object");
@@ -179,8 +133,6 @@ public class ObjectOutputStream
         curPut.writeFields();
         bout.setBlockDataMode(true);
     }
-
-
     public void reset() throws IOException {
         if (depth != 0) {
             throw new IOException("stream active");
@@ -190,21 +142,13 @@ public class ObjectOutputStream
         clear();
         bout.setBlockDataMode(true);
     }
-
-
     protected void annotateClass(Class<?> cl) throws IOException {
     }
-
-
     protected void annotateProxyClass(Class<?> cl) throws IOException {
     }
-
-
     protected Object replaceObject(Object obj) throws IOException {
         return obj;
     }
-
-
     protected boolean enableReplaceObject(boolean enable)
         throws SecurityException
     {
@@ -220,31 +164,21 @@ public class ObjectOutputStream
         enableReplace = enable;
         return !enableReplace;
     }
-
-
     protected void writeStreamHeader() throws IOException {
         bout.writeShort(STREAM_MAGIC);
         bout.writeShort(STREAM_VERSION);
     }
-
-
     protected void writeClassDescriptor(ObjectStreamClass desc)
         throws IOException
     {
         desc.writeNonProxy(this);
     }
-
-
     public void write(int val) throws IOException {
         bout.write(val);
     }
-
-
     public void write(byte[] buf) throws IOException {
         bout.write(buf, 0, buf.length, false);
     }
-
-
     public void write(byte[] buf, int off, int len) throws IOException {
         if (buf == null) {
             throw new NullPointerException();
@@ -255,121 +189,66 @@ public class ObjectOutputStream
         }
         bout.write(buf, off, len, false);
     }
-
-
     public void flush() throws IOException {
         bout.flush();
     }
-
-
     protected void drain() throws IOException {
         bout.drain();
     }
-
-
     public void close() throws IOException {
         flush();
         clear();
         bout.close();
     }
-
-
     public void writeBoolean(boolean val) throws IOException {
         bout.writeBoolean(val);
     }
-
-
     public void writeByte(int val) throws IOException  {
         bout.writeByte(val);
     }
-
-
     public void writeShort(int val)  throws IOException {
         bout.writeShort(val);
     }
-
-
     public void writeChar(int val)  throws IOException {
         bout.writeChar(val);
     }
-
-
     public void writeInt(int val)  throws IOException {
         bout.writeInt(val);
     }
-
-
     public void writeLong(long val)  throws IOException {
         bout.writeLong(val);
     }
-
-
     public void writeFloat(float val) throws IOException {
         bout.writeFloat(val);
     }
-
-
     public void writeDouble(double val) throws IOException {
         bout.writeDouble(val);
     }
-
-
     public void writeBytes(String str) throws IOException {
         bout.writeBytes(str);
     }
-
-
     public void writeChars(String str) throws IOException {
         bout.writeChars(str);
     }
-
-
     public void writeUTF(String str) throws IOException {
         bout.writeUTF(str);
     }
-
-
     public static abstract class PutField {
-
-
         public abstract void put(String name, boolean val);
-
-
         public abstract void put(String name, byte val);
-
-
         public abstract void put(String name, char val);
-
-
         public abstract void put(String name, short val);
-
-
         public abstract void put(String name, int val);
-
-
         public abstract void put(String name, long val);
-
-
         public abstract void put(String name, float val);
-
-
         public abstract void put(String name, double val);
-
-
         public abstract void put(String name, Object val);
-
-
         @Deprecated
         public abstract void write(ObjectOutput out) throws IOException;
     }
-
-
-
     int getProtocolVersion() {
         return protocol;
     }
-
-
     void writeTypeString(String str) throws IOException {
         int handle;
         if (str == null) {
@@ -380,8 +259,6 @@ public class ObjectOutputStream
             writeString(str, false);
         }
     }
-
-
     private void verifySubclass() {
         Class<?> cl = getClass();
         if (cl == ObjectOutputStream.class) {
@@ -403,8 +280,6 @@ public class ObjectOutputStream
         }
         sm.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
     }
-
-
     private static boolean auditSubclass(final Class<?> subcl) {
         Boolean result = AccessController.doPrivileged(
             new PrivilegedAction<Boolean>() {
@@ -431,14 +306,10 @@ public class ObjectOutputStream
         );
         return result.booleanValue();
     }
-
-
     private void clear() {
         subs.clear();
         handles.clear();
     }
-
-
     private void writeObject0(Object obj, boolean unshared)
         throws IOException
     {
@@ -460,7 +331,6 @@ public class ObjectOutputStream
                 writeClassDesc((ObjectStreamClass) obj, unshared);
                 return;
             }
-
             // check for replacement object
             Object orig = obj;
             Class<?> cl = obj.getClass();
@@ -485,7 +355,6 @@ public class ObjectOutputStream
                 }
                 obj = rep;
             }
-
             // if object replaced, run through original checks a second time
             if (obj != orig) {
                 subs.assign(orig, obj);
@@ -503,7 +372,6 @@ public class ObjectOutputStream
                     return;
                 }
             }
-
             // remaining cases
             if (obj instanceof String) {
                 writeString((String) obj, unshared);
@@ -526,26 +394,18 @@ public class ObjectOutputStream
             bout.setBlockDataMode(oldMode);
         }
     }
-
-
     private void writeNull() throws IOException {
         bout.writeByte(TC_NULL);
     }
-
-
     private void writeHandle(int handle) throws IOException {
         bout.writeByte(TC_REFERENCE);
         bout.writeInt(baseWireHandle + handle);
     }
-
-
     private void writeClass(Class<?> cl, boolean unshared) throws IOException {
         bout.writeByte(TC_CLASS);
         writeClassDesc(ObjectStreamClass.lookup(cl, true), false);
         handles.assign(unshared ? null : cl);
     }
-
-
     private void writeClassDesc(ObjectStreamClass desc, boolean unshared)
         throws IOException
     {
@@ -560,27 +420,22 @@ public class ObjectOutputStream
             writeNonProxyDesc(desc, unshared);
         }
     }
-
     private boolean isCustomSubclass() {
         // Return true if this class is a custom subclass of ObjectOutputStream
         return getClass().getClassLoader()
                    != ObjectOutputStream.class.getClassLoader();
     }
-
-
     private void writeProxyDesc(ObjectStreamClass desc, boolean unshared)
         throws IOException
     {
         bout.writeByte(TC_PROXYCLASSDESC);
         handles.assign(unshared ? null : desc);
-
         Class<?> cl = desc.forClass();
         Class<?>[] ifaces = cl.getInterfaces();
         bout.writeInt(ifaces.length);
         for (int i = 0; i < ifaces.length; i++) {
             bout.writeUTF(ifaces[i].getName());
         }
-
         bout.setBlockDataMode(true);
         if (cl != null && isCustomSubclass()) {
             ReflectUtil.checkPackageAccess(cl);
@@ -588,24 +443,19 @@ public class ObjectOutputStream
         annotateProxyClass(cl);
         bout.setBlockDataMode(false);
         bout.writeByte(TC_ENDBLOCKDATA);
-
         writeClassDesc(desc.getSuperDesc(), false);
     }
-
-
     private void writeNonProxyDesc(ObjectStreamClass desc, boolean unshared)
         throws IOException
     {
         bout.writeByte(TC_CLASSDESC);
         handles.assign(unshared ? null : desc);
-
         if (protocol == PROTOCOL_VERSION_1) {
             // do not invoke class descriptor write hook with old protocol
             desc.writeNonProxy(this);
         } else {
             writeClassDescriptor(desc);
         }
-
         Class<?> cl = desc.forClass();
         bout.setBlockDataMode(true);
         if (cl != null && isCustomSubclass()) {
@@ -614,11 +464,8 @@ public class ObjectOutputStream
         annotateClass(cl);
         bout.setBlockDataMode(false);
         bout.writeByte(TC_ENDBLOCKDATA);
-
         writeClassDesc(desc.getSuperDesc(), false);
     }
-
-
     private void writeString(String str, boolean unshared) throws IOException {
         handles.assign(unshared ? null : str);
         long utflen = bout.getUTFLength(str);
@@ -630,8 +477,6 @@ public class ObjectOutputStream
             bout.writeLongUTF(str, utflen);
         }
     }
-
-
     private void writeArray(Object array,
                             ObjectStreamClass desc,
                             boolean unshared)
@@ -640,7 +485,6 @@ public class ObjectOutputStream
         bout.writeByte(TC_ARRAY);
         writeClassDesc(desc, false);
         handles.assign(unshared ? null : array);
-
         Class<?> ccl = desc.forClass().getComponentType();
         if (ccl.isPrimitive()) {
             if (ccl == Integer.TYPE) {
@@ -708,8 +552,6 @@ public class ObjectOutputStream
             }
         }
     }
-
-
     private void writeEnum(Enum<?> en,
                            ObjectStreamClass desc,
                            boolean unshared)
@@ -721,8 +563,6 @@ public class ObjectOutputStream
         handles.assign(unshared ? null : en);
         writeString(en.name(), false);
     }
-
-
     private void writeOrdinaryObject(Object obj,
                                      ObjectStreamClass desc,
                                      boolean unshared)
@@ -735,7 +575,6 @@ public class ObjectOutputStream
         }
         try {
             desc.checkSerialize();
-
             bout.writeByte(TC_OBJECT);
             writeClassDesc(desc, false);
             handles.assign(unshared ? null : obj);
@@ -750,12 +589,9 @@ public class ObjectOutputStream
             }
         }
     }
-
-
     private void writeExternalData(Externalizable obj) throws IOException {
         PutFieldImpl oldPut = curPut;
         curPut = null;
-
         if (extendedDebugInfo) {
             debugInfoStack.push("writeExternal data");
         }
@@ -776,11 +612,8 @@ public class ObjectOutputStream
                 debugInfoStack.pop();
             }
         }
-
         curPut = oldPut;
     }
-
-
     private void writeSerialData(Object obj, ObjectStreamClass desc)
         throws IOException
     {
@@ -791,7 +624,6 @@ public class ObjectOutputStream
                 PutFieldImpl oldPut = curPut;
                 curPut = null;
                 SerialCallbackContext oldContext = curContext;
-
                 if (extendedDebugInfo) {
                     debugInfoStack.push(
                         "custom writeObject data (class \"" +
@@ -810,15 +642,12 @@ public class ObjectOutputStream
                         debugInfoStack.pop();
                     }
                 }
-
                 curPut = oldPut;
             } else {
                 defaultWriteFields(obj, slotDesc);
             }
         }
     }
-
-
     private void defaultWriteFields(Object obj, ObjectStreamClass desc)
         throws IOException
     {
@@ -826,16 +655,13 @@ public class ObjectOutputStream
         if (cl != null && obj != null && !cl.isInstance(obj)) {
             throw new ClassCastException();
         }
-
         desc.checkDefaultSerialize();
-
         int primDataSize = desc.getPrimDataSize();
         if (primVals == null || primVals.length < primDataSize) {
             primVals = new byte[primDataSize];
         }
         desc.getPrimFieldValues(obj, primVals);
         bout.write(primVals, 0, primDataSize, false);
-
         ObjectStreamField[] fields = desc.getFields(false);
         Object[] objVals = new Object[desc.getNumObjFields()];
         int numPrimFields = fields.length - objVals.length;
@@ -857,10 +683,7 @@ public class ObjectOutputStream
             }
         }
     }
-
-
     private void writeFatalException(IOException ex) throws IOException {
-
         clear();
         boolean oldMode = bout.setBlockDataMode(false);
         try {
@@ -871,80 +694,56 @@ public class ObjectOutputStream
             bout.setBlockDataMode(oldMode);
         }
     }
-
-
     // REMIND: remove once hotspot inlines Float.floatToIntBits
     private static native void floatsToBytes(float[] src, int srcpos,
                                              byte[] dst, int dstpos,
                                              int nfloats);
-
-
     // REMIND: remove once hotspot inlines Double.doubleToLongBits
     private static native void doublesToBytes(double[] src, int srcpos,
                                               byte[] dst, int dstpos,
                                               int ndoubles);
-
-
     private class PutFieldImpl extends PutField {
-
-
         private final ObjectStreamClass desc;
-
         private final byte[] primVals;
-
         private final Object[] objVals;
-
-
         PutFieldImpl(ObjectStreamClass desc) {
             this.desc = desc;
             primVals = new byte[desc.getPrimDataSize()];
             objVals = new Object[desc.getNumObjFields()];
         }
-
         public void put(String name, boolean val) {
             Bits.putBoolean(primVals, getFieldOffset(name, Boolean.TYPE), val);
         }
-
         public void put(String name, byte val) {
             primVals[getFieldOffset(name, Byte.TYPE)] = val;
         }
-
         public void put(String name, char val) {
             Bits.putChar(primVals, getFieldOffset(name, Character.TYPE), val);
         }
-
         public void put(String name, short val) {
             Bits.putShort(primVals, getFieldOffset(name, Short.TYPE), val);
         }
-
         public void put(String name, int val) {
             Bits.putInt(primVals, getFieldOffset(name, Integer.TYPE), val);
         }
-
         public void put(String name, float val) {
             Bits.putFloat(primVals, getFieldOffset(name, Float.TYPE), val);
         }
-
         public void put(String name, long val) {
             Bits.putLong(primVals, getFieldOffset(name, Long.TYPE), val);
         }
-
         public void put(String name, double val) {
             Bits.putDouble(primVals, getFieldOffset(name, Double.TYPE), val);
         }
-
         public void put(String name, Object val) {
             objVals[getFieldOffset(name, Object.class)] = val;
         }
-
         // deprecated in ObjectOutputStream.PutField
         public void write(ObjectOutput out) throws IOException {
-
             if (ObjectOutputStream.this != out) {
                 throw new IllegalArgumentException("wrong stream");
             }
             out.write(primVals, 0, primVals.length);
-
             ObjectStreamField[] fields = desc.getFields(false);
             int numPrimFields = fields.length - objVals.length;
             // REMIND: warn if numPrimFields > 0?
@@ -955,11 +754,8 @@ public class ObjectOutputStream
                 out.writeObject(objVals[i]);
             }
         }
-
-
         void writeFields() throws IOException {
             bout.write(primVals, 0, primVals.length, false);
-
             ObjectStreamField[] fields = desc.getFields(false);
             int numPrimFields = fields.length - objVals.length;
             for (int i = 0; i < objVals.length; i++) {
@@ -979,8 +775,6 @@ public class ObjectOutputStream
                 }
             }
         }
-
-
         private int getFieldOffset(String name, Class<?> type) {
             ObjectStreamField field = desc.getField(name, type);
             if (field == null) {
@@ -990,42 +784,23 @@ public class ObjectOutputStream
             return field.getOffset();
         }
     }
-
-
     private static class BlockDataOutputStream
         extends OutputStream implements DataOutput
     {
-
         private static final int MAX_BLOCK_SIZE = 1024;
-
         private static final int MAX_HEADER_SIZE = 5;
-
         private static final int CHAR_BUF_SIZE = 256;
-
-
         private final byte[] buf = new byte[MAX_BLOCK_SIZE];
-
         private final byte[] hbuf = new byte[MAX_HEADER_SIZE];
-
         private final char[] cbuf = new char[CHAR_BUF_SIZE];
-
-
         private boolean blkmode = false;
-
         private int pos = 0;
-
-
         private final OutputStream out;
-
         private final DataOutputStream dout;
-
-
         BlockDataOutputStream(OutputStream out) {
             this.out = out;
             dout = new DataOutputStream(this);
         }
-
-
         boolean setBlockDataMode(boolean mode) throws IOException {
             if (blkmode == mode) {
                 return blkmode;
@@ -1034,41 +809,29 @@ public class ObjectOutputStream
             blkmode = mode;
             return !blkmode;
         }
-
-
         boolean getBlockDataMode() {
             return blkmode;
         }
-
-
-
-
         public void write(int b) throws IOException {
             if (pos >= MAX_BLOCK_SIZE) {
                 drain();
             }
             buf[pos++] = (byte) b;
         }
-
         public void write(byte[] b) throws IOException {
             write(b, 0, b.length, false);
         }
-
         public void write(byte[] b, int off, int len) throws IOException {
             write(b, off, len, false);
         }
-
         public void flush() throws IOException {
             drain();
             out.flush();
         }
-
         public void close() throws IOException {
             flush();
             out.close();
         }
-
-
         void write(byte[] b, int off, int len, boolean copy)
             throws IOException
         {
@@ -1077,7 +840,6 @@ public class ObjectOutputStream
                 out.write(b, off, len);
                 return;
             }
-
             while (len > 0) {
                 if (pos >= MAX_BLOCK_SIZE) {
                     drain();
@@ -1097,8 +859,6 @@ public class ObjectOutputStream
                 }
             }
         }
-
-
         void drain() throws IOException {
             if (pos == 0) {
                 return;
@@ -1109,8 +869,6 @@ public class ObjectOutputStream
             out.write(buf, 0, pos);
             pos = 0;
         }
-
-
         private void writeBlockHeader(int len) throws IOException {
             if (len <= 0xFF) {
                 hbuf[0] = TC_BLOCKDATA;
@@ -1122,25 +880,18 @@ public class ObjectOutputStream
                 out.write(hbuf, 0, 5);
             }
         }
-
-
-
-
-
         public void writeBoolean(boolean v) throws IOException {
             if (pos >= MAX_BLOCK_SIZE) {
                 drain();
             }
             Bits.putBoolean(buf, pos++, v);
         }
-
         public void writeByte(int v) throws IOException {
             if (pos >= MAX_BLOCK_SIZE) {
                 drain();
             }
             buf[pos++] = (byte) v;
         }
-
         public void writeChar(int v) throws IOException {
             if (pos + 2 <= MAX_BLOCK_SIZE) {
                 Bits.putChar(buf, pos, (char) v);
@@ -1149,7 +900,6 @@ public class ObjectOutputStream
                 dout.writeChar(v);
             }
         }
-
         public void writeShort(int v) throws IOException {
             if (pos + 2 <= MAX_BLOCK_SIZE) {
                 Bits.putShort(buf, pos, (short) v);
@@ -1158,7 +908,6 @@ public class ObjectOutputStream
                 dout.writeShort(v);
             }
         }
-
         public void writeInt(int v) throws IOException {
             if (pos + 4 <= MAX_BLOCK_SIZE) {
                 Bits.putInt(buf, pos, v);
@@ -1167,7 +916,6 @@ public class ObjectOutputStream
                 dout.writeInt(v);
             }
         }
-
         public void writeFloat(float v) throws IOException {
             if (pos + 4 <= MAX_BLOCK_SIZE) {
                 Bits.putFloat(buf, pos, v);
@@ -1176,7 +924,6 @@ public class ObjectOutputStream
                 dout.writeFloat(v);
             }
         }
-
         public void writeLong(long v) throws IOException {
             if (pos + 8 <= MAX_BLOCK_SIZE) {
                 Bits.putLong(buf, pos, v);
@@ -1185,7 +932,6 @@ public class ObjectOutputStream
                 dout.writeLong(v);
             }
         }
-
         public void writeDouble(double v) throws IOException {
             if (pos + 8 <= MAX_BLOCK_SIZE) {
                 Bits.putDouble(buf, pos, v);
@@ -1194,7 +940,6 @@ public class ObjectOutputStream
                 dout.writeDouble(v);
             }
         }
-
         public void writeBytes(String s) throws IOException {
             int endoff = s.length();
             int cpos = 0;
@@ -1216,7 +961,6 @@ public class ObjectOutputStream
                 off += n;
             }
         }
-
         public void writeChars(String s) throws IOException {
             int endoff = s.length();
             for (int off = 0; off < endoff; ) {
@@ -1226,15 +970,9 @@ public class ObjectOutputStream
                 off += csize;
             }
         }
-
         public void writeUTF(String s) throws IOException {
             writeUTF(s, getUTFLength(s));
         }
-
-
-
-
-
         void writeBooleans(boolean[] v, int off, int len) throws IOException {
             int endoff = off + len;
             while (off < endoff) {
@@ -1247,7 +985,6 @@ public class ObjectOutputStream
                 }
             }
         }
-
         void writeChars(char[] v, int off, int len) throws IOException {
             int limit = MAX_BLOCK_SIZE - 2;
             int endoff = off + len;
@@ -1264,7 +1001,6 @@ public class ObjectOutputStream
                 }
             }
         }
-
         void writeShorts(short[] v, int off, int len) throws IOException {
             int limit = MAX_BLOCK_SIZE - 2;
             int endoff = off + len;
@@ -1281,7 +1017,6 @@ public class ObjectOutputStream
                 }
             }
         }
-
         void writeInts(int[] v, int off, int len) throws IOException {
             int limit = MAX_BLOCK_SIZE - 4;
             int endoff = off + len;
@@ -1298,7 +1033,6 @@ public class ObjectOutputStream
                 }
             }
         }
-
         void writeFloats(float[] v, int off, int len) throws IOException {
             int limit = MAX_BLOCK_SIZE - 4;
             int endoff = off + len;
@@ -1314,7 +1048,6 @@ public class ObjectOutputStream
                 }
             }
         }
-
         void writeLongs(long[] v, int off, int len) throws IOException {
             int limit = MAX_BLOCK_SIZE - 8;
             int endoff = off + len;
@@ -1331,7 +1064,6 @@ public class ObjectOutputStream
                 }
             }
         }
-
         void writeDoubles(double[] v, int off, int len) throws IOException {
             int limit = MAX_BLOCK_SIZE - 8;
             int endoff = off + len;
@@ -1347,8 +1079,6 @@ public class ObjectOutputStream
                 }
             }
         }
-
-
         long getUTFLength(String s) {
             int len = s.length();
             long utflen = 0;
@@ -1369,8 +1099,6 @@ public class ObjectOutputStream
             }
             return utflen;
         }
-
-
         void writeUTF(String s, long utflen) throws IOException {
             if (utflen > 0xFFFFL) {
                 throw new UTFDataFormatException();
@@ -1382,13 +1110,9 @@ public class ObjectOutputStream
                 writeUTFBody(s);
             }
         }
-
-
         void writeLongUTF(String s) throws IOException {
             writeLongUTF(s, getUTFLength(s));
         }
-
-
         void writeLongUTF(String s, long utflen) throws IOException {
             writeLong(utflen);
             if (utflen == (long) s.length()) {
@@ -1397,8 +1121,6 @@ public class ObjectOutputStream
                 writeUTFBody(s);
             }
         }
-
-
         private void writeUTFBody(String s) throws IOException {
             int limit = MAX_BLOCK_SIZE - 3;
             int len = s.length();
@@ -1437,24 +1159,13 @@ public class ObjectOutputStream
             }
         }
     }
-
-
     private static class HandleTable {
-
-
         private int size;
-
         private int threshold;
-
         private final float loadFactor;
-
         private int[] spine;
-
         private int[] next;
-
         private Object[] objs;
-
-
         HandleTable(int initialCapacity, float loadFactor) {
             this.loadFactor = loadFactor;
             spine = new int[initialCapacity];
@@ -1463,8 +1174,6 @@ public class ObjectOutputStream
             threshold = (int) (initialCapacity * loadFactor);
             clear();
         }
-
-
         int assign(Object obj) {
             if (size >= next.length) {
                 growEntries();
@@ -1475,8 +1184,6 @@ public class ObjectOutputStream
             insert(obj, size);
             return size++;
         }
-
-
         int lookup(Object obj) {
             if (size == 0) {
                 return -1;
@@ -1489,28 +1196,20 @@ public class ObjectOutputStream
             }
             return -1;
         }
-
-
         void clear() {
             Arrays.fill(spine, -1);
             Arrays.fill(objs, 0, size, null);
             size = 0;
         }
-
-
         int size() {
             return size;
         }
-
-
         private void insert(Object obj, int handle) {
             int index = hash(obj) % spine.length;
             objs[handle] = obj;
             next[handle] = spine[index];
             spine[index] = handle;
         }
-
-
         private void growSpine() {
             spine = new int[(spine.length << 1) + 1];
             threshold = (int) (spine.length * loadFactor);
@@ -1519,40 +1218,26 @@ public class ObjectOutputStream
                 insert(objs[i], i);
             }
         }
-
-
         private void growEntries() {
             int newLength = (next.length << 1) + 1;
             int[] newNext = new int[newLength];
             System.arraycopy(next, 0, newNext, 0, size);
             next = newNext;
-
             Object[] newObjs = new Object[newLength];
             System.arraycopy(objs, 0, newObjs, 0, size);
             objs = newObjs;
         }
-
-
         private int hash(Object obj) {
             return System.identityHashCode(obj) & 0x7FFFFFFF;
         }
     }
-
-
     private static class ReplaceTable {
-
-
         private final HandleTable htab;
-
         private Object[] reps;
-
-
         ReplaceTable(int initialCapacity, float loadFactor) {
             htab = new HandleTable(initialCapacity, loadFactor);
             reps = new Object[initialCapacity];
         }
-
-
         void assign(Object obj, Object rep) {
             int index = htab.assign(obj);
             while (index >= reps.length) {
@@ -1560,56 +1245,37 @@ public class ObjectOutputStream
             }
             reps[index] = rep;
         }
-
-
         Object lookup(Object obj) {
             int index = htab.lookup(obj);
             return (index >= 0) ? reps[index] : obj;
         }
-
-
         void clear() {
             Arrays.fill(reps, 0, htab.size(), null);
             htab.clear();
         }
-
-
         int size() {
             return htab.size();
         }
-
-
         private void grow() {
             Object[] newReps = new Object[(reps.length << 1) + 1];
             System.arraycopy(reps, 0, newReps, 0, reps.length);
             reps = newReps;
         }
     }
-
-
     private static class DebugTraceInfoStack {
         private final List<String> stack;
-
         DebugTraceInfoStack() {
             stack = new ArrayList<>();
         }
-
-
         void clear() {
             stack.clear();
         }
-
-
         void pop() {
             stack.remove(stack.size()-1);
         }
-
-
         void push(String entry) {
             stack.add("\t- " + entry);
         }
-
-
         public String toString() {
             StringBuilder buffer = new StringBuilder();
             if (!stack.isEmpty()) {
@@ -1620,5 +1286,4 @@ public class ObjectOutputStream
             return buffer.toString();
         }
     }
-
 }

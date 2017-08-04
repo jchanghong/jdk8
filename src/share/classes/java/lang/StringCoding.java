@@ -1,7 +1,4 @@
-
-
 package java.lang;
-
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
@@ -19,32 +16,22 @@ import sun.misc.MessageUtils;
 import sun.nio.cs.HistoricallyNamedCharset;
 import sun.nio.cs.ArrayDecoder;
 import sun.nio.cs.ArrayEncoder;
-
-
-
 class StringCoding {
-
     private StringCoding() { }
-
-
     private final static ThreadLocal<SoftReference<StringDecoder>> decoder =
         new ThreadLocal<>();
     private final static ThreadLocal<SoftReference<StringEncoder>> encoder =
         new ThreadLocal<>();
-
     private static boolean warnUnsupportedCharset = true;
-
     private static <T> T deref(ThreadLocal<SoftReference<T>> tl) {
         SoftReference<T> sr = tl.get();
         if (sr == null)
             return null;
         return sr.get();
     }
-
     private static <T> void set(ThreadLocal<SoftReference<T>> tl, T ob) {
         tl.set(new SoftReference<T>(ob));
     }
-
     // Trim the given byte array to the given length
     //
     private static byte[] safeTrim(byte[] ba, int len, Charset cs, boolean isTrusted) {
@@ -53,7 +40,6 @@ class StringCoding {
         else
             return Arrays.copyOf(ba, len);
     }
-
     // Trim the given char array to the given length
     //
     private static char[] safeTrim(char[] ca, int len,
@@ -63,13 +49,11 @@ class StringCoding {
         else
             return Arrays.copyOf(ca, len);
     }
-
     private static int scale(int len, float expansionFactor) {
         // We need to perform double, not float, arithmetic; otherwise
         // we lose low order bits when len is larger than 2**24.
         return (int)(len * (double)expansionFactor);
     }
-
     private static Charset lookupCharset(String csn) {
         if (Charset.isSupported(csn)) {
             try {
@@ -80,7 +64,6 @@ class StringCoding {
         }
         return null;
     }
-
     private static void warnUnsupportedCharset(String csn) {
         if (warnUnsupportedCharset) {
             // Use sun.misc.MessageUtils rather than the Logging API or
@@ -91,15 +74,12 @@ class StringCoding {
             warnUnsupportedCharset = false;
         }
     }
-
-
     // -- Decoding --
     private static class StringDecoder {
         private final String requestedCharsetName;
         private final Charset cs;
         private final CharsetDecoder cd;
         private final boolean isTrusted;
-
         private StringDecoder(Charset cs, String rcn) {
             this.requestedCharsetName = rcn;
             this.cs = cs;
@@ -108,17 +88,14 @@ class StringCoding {
                 .onUnmappableCharacter(CodingErrorAction.REPLACE);
             this.isTrusted = (cs.getClass().getClassLoader0() == null);
         }
-
         String charsetName() {
             if (cs instanceof HistoricallyNamedCharset)
                 return ((HistoricallyNamedCharset)cs).historicalName();
             return cs.name();
         }
-
         final String requestedCharsetName() {
             return requestedCharsetName;
         }
-
         char[] decode(byte[] ba, int off, int len) {
             int en = scale(len, cd.maxCharsPerByte());
             char[] ca = new char[en];
@@ -147,7 +124,6 @@ class StringCoding {
             }
         }
     }
-
     static char[] decode(String charsetName, byte[] ba, int off, int len)
         throws UnsupportedEncodingException
     {
@@ -167,7 +143,6 @@ class StringCoding {
         }
         return sd.decode(ba, off, len);
     }
-
     static char[] decode(Charset cs, byte[] ba, int off, int len) {
         // (1)We never cache the "external" cs, the only benefit of creating
         // an additional StringDe/Encoder object to wrap it is to share the
@@ -221,7 +196,6 @@ class StringCoding {
             return safeTrim(ca, cb.position(), cs, isTrusted);
         }
     }
-
     static char[] decode(byte[] ba, int off, int len) {
         String csn = Charset.defaultCharset().name();
         try {
@@ -243,14 +217,12 @@ class StringCoding {
             return null;
         }
     }
-
     // -- Encoding --
     private static class StringEncoder {
         private Charset cs;
         private CharsetEncoder ce;
         private final String requestedCharsetName;
         private final boolean isTrusted;
-
         private StringEncoder(Charset cs, String rcn) {
             this.requestedCharsetName = rcn;
             this.cs = cs;
@@ -259,17 +231,14 @@ class StringCoding {
                 .onUnmappableCharacter(CodingErrorAction.REPLACE);
             this.isTrusted = (cs.getClass().getClassLoader0() == null);
         }
-
         String charsetName() {
             if (cs instanceof HistoricallyNamedCharset)
                 return ((HistoricallyNamedCharset)cs).historicalName();
             return cs.name();
         }
-
         final String requestedCharsetName() {
             return requestedCharsetName;
         }
-
         byte[] encode(char[] ca, int off, int len) {
             int en = scale(len, ce.maxBytesPerChar());
             byte[] ba = new byte[en];
@@ -298,7 +267,6 @@ class StringCoding {
             }
         }
     }
-
     static byte[] encode(String charsetName, char[] ca, int off, int len)
         throws UnsupportedEncodingException
     {
@@ -318,7 +286,6 @@ class StringCoding {
         }
         return se.encode(ca, off, len);
     }
-
     static byte[] encode(Charset cs, char[] ca, int off, int len) {
         CharsetEncoder ce = cs.newEncoder();
         int en = scale(len, ce.maxBytesPerChar());
@@ -354,7 +321,6 @@ class StringCoding {
             return safeTrim(ba, bb.position(), cs, isTrusted);
         }
     }
-
     static byte[] encode(char[] ca, int off, int len) {
         String csn = Charset.defaultCharset().name();
         try {

@@ -1,14 +1,8 @@
-
-
-
-
 package java.io;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Set;
-
 class ExpiringCache {
     private long millisUntilExpiration;
     private Map<String,Entry> map;
@@ -16,27 +10,21 @@ class ExpiringCache {
     private int queryCount;
     private int queryOverflow = 300;
     private int MAX_ENTRIES = 200;
-
     static class Entry {
         private long   timestamp;
         private String val;
-
         Entry(long timestamp, String val) {
             this.timestamp = timestamp;
             this.val = val;
         }
-
         long   timestamp()                  { return timestamp;           }
         void   setTimestamp(long timestamp) { this.timestamp = timestamp; }
-
         String val()                        { return val;                 }
         void   setVal(String val)           { this.val = val;             }
     }
-
     ExpiringCache() {
         this(30000);
     }
-
     @SuppressWarnings("serial")
     ExpiringCache(long millisUntilExpiration) {
         this.millisUntilExpiration = millisUntilExpiration;
@@ -46,7 +34,6 @@ class ExpiringCache {
             }
           };
     }
-
     synchronized String get(String key) {
         if (++queryCount >= queryOverflow) {
             cleanup();
@@ -57,7 +44,6 @@ class ExpiringCache {
         }
         return null;
     }
-
     synchronized void put(String key, String val) {
         if (++queryCount >= queryOverflow) {
             cleanup();
@@ -70,11 +56,9 @@ class ExpiringCache {
             map.put(key, new Entry(System.currentTimeMillis(), val));
         }
     }
-
     synchronized void clear() {
         map.clear();
     }
-
     private Entry entryFor(String key) {
         Entry entry = map.get(key);
         if (entry != null) {
@@ -86,7 +70,6 @@ class ExpiringCache {
         }
         return entry;
     }
-
     private void cleanup() {
         Set<String> keySet = map.keySet();
         // Avoid ConcurrentModificationExceptions

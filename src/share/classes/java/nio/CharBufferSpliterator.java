@@ -1,28 +1,20 @@
-
-
 package java.nio;
-
 import java.util.Comparator;
 import java.util.Spliterator;
 import java.util.function.IntConsumer;
-
-
 class CharBufferSpliterator implements Spliterator.OfInt {
     private final CharBuffer buffer;
     private int index;   // current index, modified on advance/split
     private final int limit;
-
     CharBufferSpliterator(CharBuffer buffer) {
         this(buffer, buffer.position(), buffer.limit());
     }
-
     CharBufferSpliterator(CharBuffer buffer, int origin, int limit) {
         assert origin <= limit;
         this.buffer = buffer;
         this.index = (origin <= limit) ? origin : limit;
         this.limit = limit;
     }
-
     @Override
     public OfInt trySplit() {
         int lo = index, mid = (lo + limit) >>> 1;
@@ -30,7 +22,6 @@ class CharBufferSpliterator implements Spliterator.OfInt {
                ? null
                : new CharBufferSpliterator(buffer, lo, index = mid);
     }
-
     @Override
     public void forEachRemaining(IntConsumer action) {
         if (action == null)
@@ -43,7 +34,6 @@ class CharBufferSpliterator implements Spliterator.OfInt {
             action.accept(cb.getUnchecked(i++));
         }
     }
-
     @Override
     public boolean tryAdvance(IntConsumer action) {
         if (action == null)
@@ -54,12 +44,10 @@ class CharBufferSpliterator implements Spliterator.OfInt {
         }
         return false;
     }
-
     @Override
     public long estimateSize() {
         return (long)(limit - index);
     }
-
     @Override
     public int characteristics() {
         return Buffer.SPLITERATOR_CHARACTERISTICS;

@@ -1,26 +1,16 @@
-
-
 package java.security.cert;
-
 import java.io.IOException;
 import java.security.PublicKey;
-
 import javax.security.auth.x500.X500Principal;
-
 import sun.security.x509.NameConstraintsExtension;
 import sun.security.x509.X500Name;
-
-
 public class TrustAnchor {
-
     private final PublicKey pubKey;
     private final String caName;
     private final X500Principal caPrincipal;
     private final X509Certificate trustedCert;
     private byte[] ncBytes;
     private NameConstraintsExtension nc;
-
-
     public TrustAnchor(X509Certificate trustedCert, byte[] nameConstraints)
     {
         if (trustedCert == null)
@@ -32,8 +22,6 @@ public class TrustAnchor {
         this.caPrincipal = null;
         setNameConstraints(nameConstraints);
     }
-
-
     public TrustAnchor(X500Principal caPrincipal, PublicKey pubKey,
             byte[] nameConstraints) {
         if ((caPrincipal == null) || (pubKey == null)) {
@@ -45,8 +33,6 @@ public class TrustAnchor {
         this.pubKey = pubKey;
         setNameConstraints(nameConstraints);
     }
-
-
     public TrustAnchor(String caName, PublicKey pubKey, byte[] nameConstraints)
     {
         if (pubKey == null)
@@ -65,28 +51,18 @@ public class TrustAnchor {
         this.trustedCert = null;
         setNameConstraints(nameConstraints);
     }
-
-
     public final X509Certificate getTrustedCert() {
         return this.trustedCert;
     }
-
-
     public final X500Principal getCA() {
         return this.caPrincipal;
     }
-
-
     public final String getCAName() {
         return this.caName;
     }
-
-
     public final PublicKey getCAPublicKey() {
         return this.pubKey;
     }
-
-
     private void setNameConstraints(byte[] bytes) {
         if (bytes == null) {
             ncBytes = null;
@@ -104,13 +80,9 @@ public class TrustAnchor {
             }
         }
     }
-
-
     public final byte [] getNameConstraints() {
         return ncBytes == null ? null : ncBytes.clone();
     }
-
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("[\n");

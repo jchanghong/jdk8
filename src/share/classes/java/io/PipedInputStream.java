@@ -1,69 +1,41 @@
-
-
 package java.io;
-
-
 public class PipedInputStream extends InputStream {
     boolean closedByWriter = false;
     volatile boolean closedByReader = false;
     boolean connected = false;
-
-
     Thread readSide;
     Thread writeSide;
-
     private static final int DEFAULT_PIPE_SIZE = 1024;
-
-
     // This used to be a constant before the pipe size was allowed
     // to change. This field will continue to be maintained
     // for backward compatibility.
     protected static final int PIPE_SIZE = DEFAULT_PIPE_SIZE;
-
-
     protected byte buffer[];
-
-
     protected int in = -1;
-
-
     protected int out = 0;
-
-
     public PipedInputStream(PipedOutputStream src) throws IOException {
         this(src, DEFAULT_PIPE_SIZE);
     }
-
-
     public PipedInputStream(PipedOutputStream src, int pipeSize)
             throws IOException {
          initPipe(pipeSize);
          connect(src);
     }
-
-
     public PipedInputStream() {
         initPipe(DEFAULT_PIPE_SIZE);
     }
-
-
     public PipedInputStream(int pipeSize) {
         initPipe(pipeSize);
     }
-
     private void initPipe(int pipeSize) {
          if (pipeSize <= 0) {
             throw new IllegalArgumentException("Pipe Size <= 0");
          }
          buffer = new byte[pipeSize];
     }
-
-
     public void connect(PipedOutputStream src) throws IOException {
         src.connect(this);
     }
-
-
     protected synchronized void receive(int b) throws IOException {
         checkStateForReceive();
         writeSide = Thread.currentThread();
@@ -78,8 +50,6 @@ public class PipedInputStream extends InputStream {
             in = 0;
         }
     }
-
-
     synchronized void receive(byte b[], int off, int len)  throws IOException {
         checkStateForReceive();
         writeSide = Thread.currentThread();
@@ -110,7 +80,6 @@ public class PipedInputStream extends InputStream {
             }
         }
     }
-
     private void checkStateForReceive() throws IOException {
         if (!connected) {
             throw new IOException("Pipe not connected");
@@ -120,12 +89,9 @@ public class PipedInputStream extends InputStream {
             throw new IOException("Read end dead");
         }
     }
-
     private void awaitSpace() throws IOException {
         while (in == out) {
             checkStateForReceive();
-
-
             notifyAll();
             try {
                 wait(1000);
@@ -134,14 +100,10 @@ public class PipedInputStream extends InputStream {
             }
         }
     }
-
-
     synchronized void receivedLast() {
         closedByWriter = true;
         notifyAll();
     }
-
-
     public synchronized int read()  throws IOException {
         if (!connected) {
             throw new IOException("Pipe not connected");
@@ -151,18 +113,15 @@ public class PipedInputStream extends InputStream {
                    && !closedByWriter && (in < 0)) {
             throw new IOException("Write end dead");
         }
-
         readSide = Thread.currentThread();
         int trials = 2;
         while (in < 0) {
             if (closedByWriter) {
-
                 return -1;
             }
             if ((writeSide != null) && (!writeSide.isAlive()) && (--trials < 0)) {
                 throw new IOException("Pipe broken");
             }
-
             notifyAll();
             try {
                 wait(1000);
@@ -175,14 +134,10 @@ public class PipedInputStream extends InputStream {
             out = 0;
         }
         if (in == out) {
-
             in = -1;
         }
-
         return ret;
     }
-
-
     public synchronized int read(byte b[], int off, int len)  throws IOException {
         if (b == null) {
             throw new NullPointerException();
@@ -191,8 +146,6 @@ public class PipedInputStream extends InputStream {
         } else if (len == 0) {
             return 0;
         }
-
-
         int c = read();
         if (c < 0) {
             return -1;
@@ -200,15 +153,12 @@ public class PipedInputStream extends InputStream {
         b[off] = (byte) c;
         int rlen = 1;
         while ((in >= 0) && (len > 1)) {
-
             int available;
-
             if (in > out) {
                 available = Math.min((buffer.length - out), (in - out));
             } else {
                 available = buffer.length - out;
             }
-
             // A byte is read beforehand outside the loop
             if (available > (len - 1)) {
                 available = len - 1;
@@ -217,19 +167,15 @@ public class PipedInputStream extends InputStream {
             out += available;
             rlen += available;
             len -= available;
-
             if (out >= buffer.length) {
                 out = 0;
             }
             if (in == out) {
-
                 in = -1;
             }
         }
         return rlen;
     }
-
-
     public synchronized int available() throws IOException {
         if(in < 0)
             return 0;
@@ -240,8 +186,6 @@ public class PipedInputStream extends InputStream {
         else
             return in + buffer.length - out;
     }
-
-
     public void close()  throws IOException {
         closedByReader = true;
         synchronized (this) {

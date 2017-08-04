@@ -1,41 +1,23 @@
-
-
 package java.util;
-
 import java.util.function.Consumer;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.io.IOException;
-
-
 public class LinkedHashMap<K,V>
     extends HashMap<K,V>
     implements Map<K,V>
 {
-
-
-
-
     static class Entry<K,V> extends HashMap.Node<K,V> {
         Entry<K,V> before, after;
         Entry(int hash, K key, V value, Node<K,V> next) {
             super(hash, key, value, next);
         }
     }
-
     private static final long serialVersionUID = 3801124242820219131L;
-
-
     transient LinkedHashMap.Entry<K,V> head;
-
-
     transient LinkedHashMap.Entry<K,V> tail;
-
-
     final boolean accessOrder;
-
     // internal utilities
-
     // link at the end of list
     private void linkNodeLast(LinkedHashMap.Entry<K,V> p) {
         LinkedHashMap.Entry<K,V> last = tail;
@@ -47,7 +29,6 @@ public class LinkedHashMap<K,V>
             last.after = p;
         }
     }
-
     // apply src's links to dst
     private void transferLinks(LinkedHashMap.Entry<K,V> src,
                                LinkedHashMap.Entry<K,V> dst) {
@@ -62,21 +43,17 @@ public class LinkedHashMap<K,V>
         else
             a.before = dst;
     }
-
     // overrides of HashMap hook methods
-
     void reinitialize() {
         super.reinitialize();
         head = tail = null;
     }
-
     Node<K,V> newNode(int hash, K key, V value, Node<K,V> e) {
         LinkedHashMap.Entry<K,V> p =
             new LinkedHashMap.Entry<K,V>(hash, key, value, e);
         linkNodeLast(p);
         return p;
     }
-
     Node<K,V> replacementNode(Node<K,V> p, Node<K,V> next) {
         LinkedHashMap.Entry<K,V> q = (LinkedHashMap.Entry<K,V>)p;
         LinkedHashMap.Entry<K,V> t =
@@ -84,20 +61,17 @@ public class LinkedHashMap<K,V>
         transferLinks(q, t);
         return t;
     }
-
     TreeNode<K,V> newTreeNode(int hash, K key, V value, Node<K,V> next) {
         TreeNode<K,V> p = new TreeNode<K,V>(hash, key, value, next);
         linkNodeLast(p);
         return p;
     }
-
     TreeNode<K,V> replacementTreeNode(Node<K,V> p, Node<K,V> next) {
         LinkedHashMap.Entry<K,V> q = (LinkedHashMap.Entry<K,V>)p;
         TreeNode<K,V> t = new TreeNode<K,V>(q.hash, q.key, q.value, next);
         transferLinks(q, t);
         return t;
     }
-
     void afterNodeRemoval(Node<K,V> e) { // unlink
         LinkedHashMap.Entry<K,V> p =
             (LinkedHashMap.Entry<K,V>)e, b = p.before, a = p.after;
@@ -111,7 +85,6 @@ public class LinkedHashMap<K,V>
         else
             a.before = b;
     }
-
     void afterNodeInsertion(boolean evict) { // possibly remove eldest
         LinkedHashMap.Entry<K,V> first;
         if (evict && (first = head) != null && removeEldestEntry(first)) {
@@ -119,7 +92,6 @@ public class LinkedHashMap<K,V>
             removeNode(hash(key), key, null, false, true);
         }
     }
-
     void afterNodeAccess(Node<K,V> e) { // move node to last
         LinkedHashMap.Entry<K,V> last;
         if (accessOrder && (last = tail) != e) {
@@ -144,49 +116,35 @@ public class LinkedHashMap<K,V>
             ++modCount;
         }
     }
-
     void internalWriteEntries(java.io.ObjectOutputStream s) throws IOException {
         for (LinkedHashMap.Entry<K,V> e = head; e != null; e = e.after) {
             s.writeObject(e.key);
             s.writeObject(e.value);
         }
     }
-
-
     public LinkedHashMap(int initialCapacity, float loadFactor) {
         super(initialCapacity, loadFactor);
         accessOrder = false;
     }
-
-
     public LinkedHashMap(int initialCapacity) {
         super(initialCapacity);
         accessOrder = false;
     }
-
-
     public LinkedHashMap() {
         super();
         accessOrder = false;
     }
-
-
     public LinkedHashMap(Map<? extends K, ? extends V> m) {
         super();
         accessOrder = false;
         putMapEntries(m, false);
     }
-
-
     public LinkedHashMap(int initialCapacity,
                          float loadFactor,
                          boolean accessOrder) {
         super(initialCapacity, loadFactor);
         this.accessOrder = accessOrder;
     }
-
-
-
     public boolean containsValue(Object value) {
         for (LinkedHashMap.Entry<K,V> e = head; e != null; e = e.after) {
             V v = e.value;
@@ -195,8 +153,6 @@ public class LinkedHashMap<K,V>
         }
         return false;
     }
-
-
     public V get(Object key) {
         Node<K,V> e;
         if ((e = getNode(hash(key), key)) == null)
@@ -205,8 +161,6 @@ public class LinkedHashMap<K,V>
             afterNodeAccess(e);
         return e.value;
     }
-
-
     public V getOrDefault(Object key, V defaultValue) {
        Node<K,V> e;
        if ((e = getNode(hash(key), key)) == null)
@@ -215,19 +169,13 @@ public class LinkedHashMap<K,V>
            afterNodeAccess(e);
        return e.value;
    }
-
-
     public void clear() {
         super.clear();
         head = tail = null;
     }
-
-
     protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
         return false;
     }
-
-
     public Set<K> keySet() {
         Set<K> ks = keySet;
         if (ks == null) {
@@ -236,7 +184,6 @@ public class LinkedHashMap<K,V>
         }
         return ks;
     }
-
     final class LinkedKeySet extends AbstractSet<K> {
         public final int size()                 { return size; }
         public final void clear()               { LinkedHashMap.this.clear(); }
@@ -262,8 +209,6 @@ public class LinkedHashMap<K,V>
                 throw new ConcurrentModificationException();
         }
     }
-
-
     public Collection<V> values() {
         Collection<V> vs = values;
         if (vs == null) {
@@ -272,7 +217,6 @@ public class LinkedHashMap<K,V>
         }
         return vs;
     }
-
     final class LinkedValues extends AbstractCollection<V> {
         public final int size()                 { return size; }
         public final void clear()               { LinkedHashMap.this.clear(); }
@@ -294,13 +238,10 @@ public class LinkedHashMap<K,V>
                 throw new ConcurrentModificationException();
         }
     }
-
-
     public Set<Map.Entry<K,V>> entrySet() {
         Set<Map.Entry<K,V>> es;
         return (es = entrySet) == null ? (entrySet = new LinkedEntrySet()) : es;
     }
-
     final class LinkedEntrySet extends AbstractSet<Map.Entry<K,V>> {
         public final int size()                 { return size; }
         public final void clear()               { LinkedHashMap.this.clear(); }
@@ -339,9 +280,7 @@ public class LinkedHashMap<K,V>
                 throw new ConcurrentModificationException();
         }
     }
-
     // Map overrides
-
     public void forEach(BiConsumer<? super K, ? super V> action) {
         if (action == null)
             throw new NullPointerException();
@@ -351,7 +290,6 @@ public class LinkedHashMap<K,V>
         if (modCount != mc)
             throw new ConcurrentModificationException();
     }
-
     public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
         if (function == null)
             throw new NullPointerException();
@@ -361,24 +299,19 @@ public class LinkedHashMap<K,V>
         if (modCount != mc)
             throw new ConcurrentModificationException();
     }
-
     // Iterators
-
     abstract class LinkedHashIterator {
         LinkedHashMap.Entry<K,V> next;
         LinkedHashMap.Entry<K,V> current;
         int expectedModCount;
-
         LinkedHashIterator() {
             next = head;
             expectedModCount = modCount;
             current = null;
         }
-
         public final boolean hasNext() {
             return next != null;
         }
-
         final LinkedHashMap.Entry<K,V> nextNode() {
             LinkedHashMap.Entry<K,V> e = next;
             if (modCount != expectedModCount)
@@ -389,7 +322,6 @@ public class LinkedHashMap<K,V>
             next = e.after;
             return e;
         }
-
         public final void remove() {
             Node<K,V> p = current;
             if (p == null)
@@ -402,21 +334,16 @@ public class LinkedHashMap<K,V>
             expectedModCount = modCount;
         }
     }
-
     final class LinkedKeyIterator extends LinkedHashIterator
         implements Iterator<K> {
         public final K next() { return nextNode().getKey(); }
     }
-
     final class LinkedValueIterator extends LinkedHashIterator
         implements Iterator<V> {
         public final V next() { return nextNode().value; }
     }
-
     final class LinkedEntryIterator extends LinkedHashIterator
         implements Iterator<Map.Entry<K,V>> {
         public final Map.Entry<K,V> next() { return nextNode(); }
     }
-
-
 }

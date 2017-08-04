@@ -1,24 +1,11 @@
-
-
 package java.rmi.dgc;
-
 import java.rmi.server.UID;
 import java.security.SecureRandom;
-
-
 public final class VMID implements java.io.Serializable {
-
     private static final byte[] randomBytes;
-
-
     private byte[] addr;
-
-
     private UID uid;
-
-
     private static final long serialVersionUID = -538642295484486218L;
-
     static {
         // Generate 8 bytes of random data.
         SecureRandom secureRandom = new SecureRandom();
@@ -26,25 +13,17 @@ public final class VMID implements java.io.Serializable {
         secureRandom.nextBytes(bytes);
         randomBytes = bytes;
     }
-
-
     public VMID() {
         addr = randomBytes;
         uid = new UID();
     }
-
-
     @Deprecated
     public static boolean isUnique() {
         return true;
     }
-
-
     public int hashCode() {
         return uid.hashCode();
     }
-
-
     public boolean equals(Object obj) {
         if (obj instanceof VMID) {
             VMID vmid = (VMID) obj;
@@ -64,8 +43,6 @@ public final class VMID implements java.io.Serializable {
             return false;
         }
     }
-
-
     public String toString() {
         StringBuffer result = new StringBuffer();
         if (addr != null)

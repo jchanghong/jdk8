@@ -1,29 +1,17 @@
-
-
-
-
 package java.awt.font;
-
 import java.awt.RenderingHints;
 import static java.awt.RenderingHints.*;
 import java.awt.geom.AffineTransform;
-
-
-
 public class FontRenderContext {
     private transient AffineTransform tx;
     private transient Object aaHintValue;
     private transient Object fmHintValue;
     private transient boolean defaulting;
-
-
     protected FontRenderContext() {
         aaHintValue = VALUE_TEXT_ANTIALIAS_DEFAULT;
         fmHintValue = VALUE_FRACTIONALMETRICS_DEFAULT;
         defaulting = true;
     }
-
-
     public FontRenderContext(AffineTransform tx,
                             boolean isAntiAliased,
                             boolean usesFractionalMetrics) {
@@ -41,8 +29,6 @@ public class FontRenderContext {
             fmHintValue = VALUE_FRACTIONALMETRICS_OFF;
         }
     }
-
-
     public FontRenderContext(AffineTransform tx, Object aaHint, Object fmHint){
         if (tx != null && !tx.isIdentity()) {
             this.tx = new AffineTransform(tx);
@@ -66,8 +52,6 @@ public class FontRenderContext {
             throw new IllegalArgumentException("FM hint:" +fmHint);
         }
     }
-
-
     public boolean isTransformed() {
         if (!defaulting) {
             return tx != null;
@@ -75,8 +59,6 @@ public class FontRenderContext {
             return !getTransform().isIdentity();
         }
     }
-
-
     public int getTransformType() {
         if (!defaulting) {
             if (tx == null) {
@@ -88,25 +70,17 @@ public class FontRenderContext {
             return getTransform().getType();
         }
     }
-
-
     public AffineTransform getTransform() {
         return (tx == null) ? new AffineTransform() : new AffineTransform(tx);
     }
-
-
     public boolean isAntiAliased() {
         return !(aaHintValue == VALUE_TEXT_ANTIALIAS_OFF ||
                  aaHintValue == VALUE_TEXT_ANTIALIAS_DEFAULT);
     }
-
-
     public boolean usesFractionalMetrics() {
         return !(fmHintValue == VALUE_FRACTIONALMETRICS_OFF ||
                  fmHintValue == VALUE_FRACTIONALMETRICS_DEFAULT);
     }
-
-
     public Object getAntiAliasingHint() {
         if (defaulting) {
             if (isAntiAliased()) {
@@ -117,8 +91,6 @@ public class FontRenderContext {
         }
         return aaHintValue;
     }
-
-
     public Object getFractionalMetricsHint() {
         if (defaulting) {
             if (usesFractionalMetrics()) {
@@ -129,8 +101,6 @@ public class FontRenderContext {
         }
         return fmHintValue;
     }
-
-
     public boolean equals(Object obj) {
         try {
             return equals((FontRenderContext)obj);
@@ -139,8 +109,6 @@ public class FontRenderContext {
             return false;
         }
     }
-
-
     public boolean equals(FontRenderContext rhs) {
         if (this == rhs) {
             return true;
@@ -148,12 +116,9 @@ public class FontRenderContext {
         if (rhs == null) {
             return false;
         }
-
-
         if (!rhs.defaulting && !defaulting) {
             if (rhs.aaHintValue == aaHintValue &&
                 rhs.fmHintValue == fmHintValue) {
-
                 return tx == null ? rhs.tx == null : tx.equals(rhs.tx);
             }
             return false;
@@ -164,11 +129,8 @@ public class FontRenderContext {
                 rhs.getTransform().equals(getTransform());
         }
     }
-
-
     public int hashCode() {
         int hash = tx == null ? 0 : tx.hashCode();
-
         if (defaulting) {
             hash += getAntiAliasingHint().hashCode();
             hash += getFractionalMetricsHint().hashCode();

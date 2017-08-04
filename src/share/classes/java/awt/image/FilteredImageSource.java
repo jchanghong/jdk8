@@ -1,28 +1,18 @@
-
-
 package java.awt.image;
-
 import java.awt.Image;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageConsumer;
 import java.awt.image.ImageProducer;
 import java.util.Hashtable;
 import java.awt.image.ColorModel;
-
-
 public class FilteredImageSource implements ImageProducer {
     ImageProducer src;
     ImageFilter filter;
-
-
     public FilteredImageSource(ImageProducer orig, ImageFilter imgf) {
         src = orig;
         filter = imgf;
     }
-
     private Hashtable proxies;
-
-
     public synchronized void addConsumer(ImageConsumer ic) {
         if (proxies == null) {
             proxies = new Hashtable();
@@ -33,13 +23,9 @@ public class FilteredImageSource implements ImageProducer {
             src.addConsumer(imgf);
         }
     }
-
-
     public synchronized boolean isConsumer(ImageConsumer ic) {
         return (proxies != null && proxies.containsKey(ic));
     }
-
-
     public synchronized void removeConsumer(ImageConsumer ic) {
         if (proxies != null) {
             ImageFilter imgf = (ImageFilter) proxies.get(ic);
@@ -52,8 +38,6 @@ public class FilteredImageSource implements ImageProducer {
             }
         }
     }
-
-
     public void startProduction(ImageConsumer ic) {
         if (proxies == null) {
             proxies = new Hashtable();
@@ -65,8 +49,6 @@ public class FilteredImageSource implements ImageProducer {
         }
         src.startProduction(imgf);
     }
-
-
     public void requestTopDownLeftRightResend(ImageConsumer ic) {
         if (proxies != null) {
             ImageFilter imgf = (ImageFilter) proxies.get(ic);

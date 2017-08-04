@@ -1,41 +1,24 @@
-
-
 package java.security;
-
 import java.util.*;
-
 import java.security.spec.AlgorithmParameterSpec;
-
 import java.security.Provider.Service;
-
 import sun.security.jca.*;
 import sun.security.jca.GetInstance.Instance;
 import sun.security.util.Debug;
-
-
-
 public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
-
     private static final Debug pdebug =
                         Debug.getInstance("provider", "Provider");
     private static final boolean skipDebug =
         Debug.isOn("engine=") && !Debug.isOn("keypairgenerator");
-
     private final String algorithm;
-
     // The provider
     Provider provider;
-
-
     protected KeyPairGenerator(String algorithm) {
         this.algorithm = algorithm;
     }
-
-
     public String getAlgorithm() {
         return this.algorithm;
     }
-
     private static KeyPairGenerator getInstance(Instance instance,
             String algorithm) {
         KeyPairGenerator kpg;
@@ -46,16 +29,12 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
             kpg = new Delegate(spi, algorithm);
         }
         kpg.provider = instance.provider;
-
         if (!skipDebug && pdebug != null) {
             pdebug.println("KeyPairGenerator." + algorithm +
                 " algorithm from: " + kpg.provider.getName());
         }
-
         return kpg;
     }
-
-
     public static KeyPairGenerator getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         List<Service> list =
@@ -85,8 +64,6 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
         } while (t.hasNext());
         throw failure;
     }
-
-
     public static KeyPairGenerator getInstance(String algorithm,
             String provider)
             throws NoSuchAlgorithmException, NoSuchProviderException {
@@ -94,31 +71,22 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
                 KeyPairGeneratorSpi.class, algorithm, provider);
         return getInstance(instance, algorithm);
     }
-
-
     public static KeyPairGenerator getInstance(String algorithm,
             Provider provider) throws NoSuchAlgorithmException {
         Instance instance = GetInstance.getInstance("KeyPairGenerator",
                 KeyPairGeneratorSpi.class, algorithm, provider);
         return getInstance(instance, algorithm);
     }
-
-
     public final Provider getProvider() {
         disableFailover();
         return this.provider;
     }
-
     void disableFailover() {
         // empty, overridden in Delegate
     }
-
-
     public void initialize(int keysize) {
         initialize(keysize, JCAUtil.getSecureRandom());
     }
-
-
     public void initialize(int keysize, SecureRandom random) {
         // This does nothing, because either
         // 1. the implementation object returned by getInstance() is an
@@ -131,14 +99,10 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
         // (This is a special case, because the API and SPI method have the
         // same name.)
     }
-
-
     public void initialize(AlgorithmParameterSpec params)
             throws InvalidAlgorithmParameterException {
         initialize(params, JCAUtil.getSecureRandom());
     }
-
-
     public void initialize(AlgorithmParameterSpec params,
                            SecureRandom random)
         throws InvalidAlgorithmParameterException
@@ -154,13 +118,9 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
         // (This is a special case, because the API and SPI method have the
         // same name.)
     }
-
-
     public final KeyPair genKeyPair() {
         return generateKeyPair();
     }
-
-
     public KeyPair generateKeyPair() {
         // This does nothing (except returning null), because either:
         //
@@ -177,10 +137,6 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
         // method was used both as an API and a SPI method.)
         return null;
     }
-
-
-
-
     //
     // error failover notes:
     //
@@ -201,31 +157,23 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
     //      KeyPairGeneratorSpi (JDK 1.1 style)
     //    . once getProvider() is called
     //
-
     private static final class Delegate extends KeyPairGenerator {
-
         // The provider implementation (delegate)
         private volatile KeyPairGeneratorSpi spi;
-
         private final Object lock = new Object();
-
         private Iterator<Service> serviceIterator;
-
         private final static int I_NONE   = 1;
         private final static int I_SIZE   = 2;
         private final static int I_PARAMS = 3;
-
         private int initType;
         private int initKeySize;
         private AlgorithmParameterSpec initParams;
         private SecureRandom initRandom;
-
         // constructor
         Delegate(KeyPairGeneratorSpi spi, String algorithm) {
             super(algorithm);
             this.spi = spi;
         }
-
         Delegate(Instance instance, Iterator<Service> serviceIterator,
                 String algorithm) {
             super(algorithm);
@@ -233,14 +181,11 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
             provider = instance.provider;
             this.serviceIterator = serviceIterator;
             initType = I_NONE;
-
             if (!skipDebug && pdebug != null) {
                 pdebug.println("KeyPairGenerator." + algorithm +
                     " algorithm from: " + provider.getName());
             }
         }
-
-
         private KeyPairGeneratorSpi nextSpi(KeyPairGeneratorSpi oldSpi,
                 boolean reinit) {
             synchronized (lock) {
@@ -285,14 +230,12 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
                 return null;
             }
         }
-
         void disableFailover() {
             serviceIterator = null;
             initType = 0;
             initParams = null;
             initRandom = null;
         }
-
         // engine method
         public void initialize(int keysize, SecureRandom random) {
             if (serviceIterator == null) {
@@ -318,7 +261,6 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
             } while (mySpi != null);
             throw failure;
         }
-
         // engine method
         public void initialize(AlgorithmParameterSpec params,
                 SecureRandom random) throws InvalidAlgorithmParameterException {
@@ -349,7 +291,6 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
             // must be an InvalidAlgorithmParameterException
             throw (InvalidAlgorithmParameterException)failure;
         }
-
         // engine method
         public KeyPair generateKeyPair() {
             if (serviceIterator == null) {
@@ -370,5 +311,4 @@ public abstract class KeyPairGenerator extends KeyPairGeneratorSpi {
             throw failure;
         }
     }
-
 }

@@ -1,7 +1,4 @@
-
-
 package java.net;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.File;
@@ -9,18 +6,11 @@ import java.io.OutputStream;
 import java.util.Hashtable;
 import sun.net.util.IPAddressUtil;
 import sun.net.www.ParseUtil;
-
-
 public abstract class URLStreamHandler {
-
     abstract protected URLConnection openConnection(URL u) throws IOException;
-
-
     protected URLConnection openConnection(URL u, Proxy p) throws IOException {
         throw new UnsupportedOperationException("Method not implemented.");
     }
-
-
     protected void parseURL(URL u, String spec, int start, int limit) {
         // These fields may receive context content if this was relative URL
         String protocol = u.getProtocol();
@@ -30,13 +20,10 @@ public abstract class URLStreamHandler {
         int port = u.getPort();
         String path = u.getPath();
         String query = u.getQuery();
-
         // This field has already been parsed
         String ref = u.getRef();
-
         boolean isRelPath = false;
         boolean queryOnly = false;
-
 // FIX: should not assume query if opaque
         // Strip off the query part
         if (start < limit) {
@@ -49,7 +36,6 @@ public abstract class URLStreamHandler {
                 spec = spec.substring(0, queryStart);
             }
         }
-
         int i = 0;
         // Parse the authority part if any
         boolean isUNCName = (start <= limit - 4) &&
@@ -66,9 +52,7 @@ public abstract class URLStreamHandler {
                 if (i < 0 || i > limit)
                     i = limit;
             }
-
             host = authority = spec.substring(start, i);
-
             int ind = authority.indexOf('@');
             if (ind != -1) {
                 if (ind != authority.lastIndexOf('@')) {
@@ -87,7 +71,6 @@ public abstract class URLStreamHandler {
                 // literal address as specified in RFC2732
                 if (host.length()>0 && (host.charAt(0) == '[')) {
                     if ((ind = host.indexOf(']')) > 2) {
-
                         String nhost = host ;
                         host = nhost.substring(0,ind+1);
                         if (!IPAddressUtil.
@@ -95,7 +78,6 @@ public abstract class URLStreamHandler {
                             throw new IllegalArgumentException(
                                 "Invalid host: "+ host);
                         }
-
                         port = -1 ;
                         if (nhost.length() > ind+1) {
                             if (nhost.charAt(ind+1) == ':') {
@@ -136,11 +118,9 @@ public abstract class URLStreamHandler {
             if (authority != null && authority.length() > 0)
                 path = "";
         }
-
         if (host == null) {
             host = "";
         }
-
         // Parse the file path if any
         if (start < limit) {
             if (spec.charAt(start) == '/') {
@@ -153,7 +133,6 @@ public abstract class URLStreamHandler {
                     seperator = "/";
                 path = path.substring(0, ind + 1) + seperator +
                          spec.substring(start, limit);
-
             } else {
                 String seperator = (authority != null) ? "/" : "";
                 path = seperator + spec.substring(start, limit);
@@ -166,7 +145,6 @@ public abstract class URLStreamHandler {
         }
         if (path == null)
             path = "";
-
         if (isRelPath) {
             // Remove embedded /./
             while ((i = path.indexOf("/./")) >= 0) {
@@ -175,7 +153,6 @@ public abstract class URLStreamHandler {
             // Remove embedded /../ if possible
             i = 0;
             while ((i = path.indexOf("/../", i)) >= 0) {
-
                 if (i > 0 && (limit = path.lastIndexOf('/', i - 1)) >= 0 &&
                     (path.indexOf("/../", limit) != 0)) {
                     path = path.substring(0, limit) + path.substring(i + 3);
@@ -196,37 +173,27 @@ public abstract class URLStreamHandler {
             // Remove starting .
             if (path.startsWith("./") && path.length() > 2)
                 path = path.substring(2);
-
             // Remove trailing .
             if (path.endsWith("/."))
                 path = path.substring(0, path.length() -1);
         }
-
         setURL(u, protocol, host, port, authority, userInfo, path, query, ref);
     }
-
-
     protected int getDefaultPort() {
         return -1;
     }
-
-
     protected boolean equals(URL u1, URL u2) {
         String ref1 = u1.getRef();
         String ref2 = u2.getRef();
         return (ref1 == ref2 || (ref1 != null && ref1.equals(ref2))) &&
                sameFile(u1, u2);
     }
-
-
     protected int hashCode(URL u) {
         int h = 0;
-
         // Generate the protocol part.
         String protocol = u.getProtocol();
         if (protocol != null)
             h += protocol.hashCode();
-
         // Generate the host part.
         InetAddress addr = getHostAddress(u);
         if (addr != null) {
@@ -236,58 +203,45 @@ public abstract class URLStreamHandler {
             if (host != null)
                 h += host.toLowerCase().hashCode();
         }
-
         // Generate the file part.
         String file = u.getFile();
         if (file != null)
             h += file.hashCode();
-
         // Generate the port part.
         if (u.getPort() == -1)
             h += getDefaultPort();
         else
             h += u.getPort();
-
         // Generate the ref part.
         String ref = u.getRef();
         if (ref != null)
             h += ref.hashCode();
-
         return h;
     }
-
-
     protected boolean sameFile(URL u1, URL u2) {
         // Compare the protocols.
         if (!((u1.getProtocol() == u2.getProtocol()) ||
               (u1.getProtocol() != null &&
                u1.getProtocol().equalsIgnoreCase(u2.getProtocol()))))
             return false;
-
         // Compare the files.
         if (!(u1.getFile() == u2.getFile() ||
               (u1.getFile() != null && u1.getFile().equals(u2.getFile()))))
             return false;
-
         // Compare the ports.
         int port1, port2;
         port1 = (u1.getPort() != -1) ? u1.getPort() : u1.handler.getDefaultPort();
         port2 = (u2.getPort() != -1) ? u2.getPort() : u2.handler.getDefaultPort();
         if (port1 != port2)
             return false;
-
         // Compare the hosts.
         if (!hostsEqual(u1, u2))
             return false;
-
         return true;
     }
-
-
     protected synchronized InetAddress getHostAddress(URL u) {
         if (u.hostAddress != null)
             return u.hostAddress;
-
         String host = u.getHost();
         if (host == null || host.equals("")) {
             return null;
@@ -302,8 +256,6 @@ public abstract class URLStreamHandler {
         }
         return u.hostAddress;
     }
-
-
     protected boolean hostsEqual(URL u1, URL u2) {
         InetAddress a1 = getHostAddress(u1);
         InetAddress a2 = getHostAddress(u2);
@@ -316,10 +268,7 @@ public abstract class URLStreamHandler {
          else
             return u1.getHost() == null && u2.getHost() == null;
     }
-
-
     protected String toExternalForm(URL u) {
-
         // pre-compute length of StringBuffer
         int len = u.getProtocol().length() + 1;
         if (u.getAuthority() != null && u.getAuthority().length() > 0)
@@ -332,7 +281,6 @@ public abstract class URLStreamHandler {
         }
         if (u.getRef() != null)
             len += 1 + u.getRef().length();
-
         StringBuffer result = new StringBuffer(len);
         result.append(u.getProtocol());
         result.append(":");
@@ -353,8 +301,6 @@ public abstract class URLStreamHandler {
         }
         return result.toString();
     }
-
-
        protected void setURL(URL u, String protocol, String host, int port,
                              String authority, String userInfo, String path,
                              String query, String ref) {
@@ -365,12 +311,9 @@ public abstract class URLStreamHandler {
         // ensure that no one can reset the protocol on a given URL.
         u.set(u.getProtocol(), host, port, authority, userInfo, path, query, ref);
     }
-
-
     @Deprecated
     protected void setURL(URL u, String protocol, String host, int port,
                           String file, String ref) {
-
         String authority = null;
         String userInfo = null;
         if (host != null && host.length() != 0) {
@@ -381,8 +324,6 @@ public abstract class URLStreamHandler {
                 host = host.substring(at+1);
             }
         }
-
-
         String path = null;
         String query = null;
         if (file != null) {

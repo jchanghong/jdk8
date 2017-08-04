@@ -1,39 +1,24 @@
-
-
 package java.awt;
-
 import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
-
 import java.util.ArrayList;
 import sun.util.logging.PlatformLogger;
-
 import sun.awt.dnd.SunDragSourceContextPeer;
 import sun.awt.EventQueueDelegate;
-
-
 class EventDispatchThread extends Thread {
-
     private static final PlatformLogger eventLog = PlatformLogger.getLogger("java.awt.event.EventDispatchThread");
-
     private EventQueue theQueue;
     private volatile boolean doDispatch = true;
-
     private static final int ANY_EVENT = -1;
-
     private ArrayList<EventFilter> eventFilters = new ArrayList<EventFilter>();
-
     EventDispatchThread(ThreadGroup group, String name, EventQueue queue) {
         super(group, name);
         setEventQueue(queue);
     }
-
-
     public void stopDispatching() {
         doDispatch = false;
     }
-
     public void run() {
         try {
             pumpEvents(new Conditional() {
@@ -45,27 +30,21 @@ class EventDispatchThread extends Thread {
             getEventQueue().detachDispatchThread(this);
         }
     }
-
     void pumpEvents(Conditional cond) {
         pumpEvents(ANY_EVENT, cond);
     }
-
     void pumpEventsForHierarchy(Conditional cond, Component modalComponent) {
         pumpEventsForHierarchy(ANY_EVENT, cond, modalComponent);
     }
-
     void pumpEvents(int id, Conditional cond) {
         pumpEventsForHierarchy(id, cond, null);
     }
-
     void pumpEventsForHierarchy(int id, Conditional cond, Component modalComponent) {
         pumpEventsForFilter(id, cond, new HierarchyEventFilter(modalComponent));
     }
-
     void pumpEventsForFilter(Conditional cond, EventFilter filter) {
         pumpEventsForFilter(ANY_EVENT, cond, filter);
     }
-
     void pumpEventsForFilter(int id, Conditional cond, EventFilter filter) {
         addEventFilter(filter);
         doDispatch = true;
@@ -74,7 +53,6 @@ class EventDispatchThread extends Thread {
         }
         removeEventFilter(filter);
     }
-
     void addEventFilter(EventFilter filter) {
         if (eventLog.isLoggable(PlatformLogger.Level.FINEST)) {
             eventLog.finest("adding the event filter: " + filter);
@@ -100,7 +78,6 @@ class EventDispatchThread extends Thread {
             }
         }
     }
-
     void removeEventFilter(EventFilter filter) {
         if (eventLog.isLoggable(PlatformLogger.Level.FINEST)) {
             eventLog.finest("removing the event filter: " + filter);
@@ -109,7 +86,6 @@ class EventDispatchThread extends Thread {
             eventFilters.remove(filter);
         }
     }
-
     void pumpOneEventForFilters(int id) {
         AWTEvent event = null;
         boolean eventOK = false;
@@ -120,13 +96,11 @@ class EventDispatchThread extends Thread {
                 // EventQueue may change during the dispatching
                 eq = getEventQueue();
                 delegate = EventQueueDelegate.getDelegate();
-
                 if (delegate != null && id == ANY_EVENT) {
                     event = delegate.getNextEvent(eq);
                 } else {
                     event = (id == ANY_EVENT) ? eq.getNextEvent() : eq.getNextEvent(id);
                 }
-
                 eventOK = true;
                 synchronized (eventFilters) {
                     for (int i = eventFilters.size() - 1; i >= 0; i--) {
@@ -146,11 +120,9 @@ class EventDispatchThread extends Thread {
                 }
             }
             while (eventOK == false);
-
             if (eventLog.isLoggable(PlatformLogger.Level.FINEST)) {
                 eventLog.finest("Dispatching: " + event);
             }
-
             Object handle = null;
             if (delegate != null) {
                 handle = delegate.beforeDispatch(event);
@@ -172,21 +144,18 @@ class EventDispatchThread extends Thread {
             processException(e);
         }
     }
-
     private void processException(Throwable e) {
         if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
             eventLog.fine("Processing exception: " + e);
         }
         getUncaughtExceptionHandler().uncaughtException(this, e);
     }
-
     public synchronized EventQueue getEventQueue() {
         return theQueue;
     }
     public synchronized void setEventQueue(EventQueue eq) {
         theQueue = eq;
     }
-
     private static class HierarchyEventFilter implements EventFilter {
         private Component modalComponent;
         public HierarchyEventFilter(Component modalComponent) {
@@ -200,9 +169,7 @@ class EventDispatchThread extends Thread {
                 boolean actionEvent = (eventID >= ActionEvent.ACTION_FIRST) &&
                                       (eventID <= ActionEvent.ACTION_LAST);
                 boolean windowClosingEvent = (eventID == WindowEvent.WINDOW_CLOSING);
-
                 if (Component.isInstanceOf(modalComponent, "javax.swing.JInternalFrame")) {
-
                     return windowClosingEvent ? FilterAction.REJECT : FilterAction.ACCEPT;
                 }
                 if (mouseEvent || actionEvent || windowClosingEvent) {

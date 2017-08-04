@@ -1,10 +1,5 @@
-
-
-
 package java.time.chrono;
-
 import static java.time.temporal.ChronoUnit.SECONDS;
-
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInput;
@@ -24,23 +19,13 @@ import java.time.zone.ZoneOffsetTransition;
 import java.time.zone.ZoneRules;
 import java.util.List;
 import java.util.Objects;
-
-
 final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         implements ChronoZonedDateTime<D>, Serializable {
-
-
     private static final long serialVersionUID = -5261813987200935591L;
-
-
     private final transient ChronoLocalDateTimeImpl<D> dateTime;
-
     private final transient ZoneOffset offset;
-
     private final transient ZoneId zone;
-
     //-----------------------------------------------------------------------
-
     static <R extends ChronoLocalDate> ChronoZonedDateTime<R> ofBest(
             ChronoLocalDateTimeImpl<R> localDateTime, ZoneId zone, ZoneOffset preferredOffset) {
         Objects.requireNonNull(localDateTime, "localDateTime");
@@ -68,8 +53,6 @@ final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         Objects.requireNonNull(offset, "offset");  // protect against bad ZoneRules
         return new ChronoZonedDateTimeImpl<>(localDateTime, offset, zone);
     }
-
-
     static ChronoZonedDateTimeImpl<?> ofInstant(Chronology chrono, Instant instant, ZoneId zone) {
         ZoneRules rules = zone.getRules();
         ZoneOffset offset = rules.getOffset(instant);
@@ -78,14 +61,10 @@ final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         ChronoLocalDateTimeImpl<?> cldt = (ChronoLocalDateTimeImpl<?>)chrono.localDateTime(ldt);
         return new ChronoZonedDateTimeImpl<>(cldt, offset, zone);
     }
-
-
     @SuppressWarnings("unchecked")
     private ChronoZonedDateTimeImpl<D> create(Instant instant, ZoneId zone) {
         return (ChronoZonedDateTimeImpl<D>)ofInstant(getChronology(), instant, zone);
     }
-
-
     static <R extends ChronoLocalDate> ChronoZonedDateTimeImpl<R> ensureValid(Chronology chrono, Temporal temporal) {
         @SuppressWarnings("unchecked")
         ChronoZonedDateTimeImpl<R> other = (ChronoZonedDateTimeImpl<R>) temporal;
@@ -95,21 +74,17 @@ final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         }
         return other;
     }
-
     //-----------------------------------------------------------------------
-
     private ChronoZonedDateTimeImpl(ChronoLocalDateTimeImpl<D> dateTime, ZoneOffset offset, ZoneId zone) {
         this.dateTime = Objects.requireNonNull(dateTime, "dateTime");
         this.offset = Objects.requireNonNull(offset, "offset");
         this.zone = Objects.requireNonNull(zone, "zone");
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ZoneOffset getOffset() {
         return offset;
     }
-
     @Override
     public ChronoZonedDateTime<D> withEarlierOffsetAtOverlap() {
         ZoneOffsetTransition trans = getZone().getRules().getTransition(LocalDateTime.from(this));
@@ -121,7 +96,6 @@ final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         }
         return this;
     }
-
     @Override
     public ChronoZonedDateTime<D> withLaterOffsetAtOverlap() {
         ZoneOffsetTransition trans = getZone().getRules().getTransition(LocalDateTime.from(this));
@@ -133,35 +107,29 @@ final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         }
         return this;
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ChronoLocalDateTime<D> toLocalDateTime() {
         return dateTime;
     }
-
     @Override
     public ZoneId getZone() {
         return zone;
     }
-
     @Override
     public ChronoZonedDateTime<D> withZoneSameLocal(ZoneId zone) {
         return ofBest(dateTime, zone, offset);
     }
-
     @Override
     public ChronoZonedDateTime<D> withZoneSameInstant(ZoneId zone) {
         Objects.requireNonNull(zone, "zone");
         return this.zone.equals(zone) ? this : create(dateTime.toInstant(offset), zone);
     }
-
     //-----------------------------------------------------------------------
     @Override
     public boolean isSupported(TemporalField field) {
         return field instanceof ChronoField || (field != null && field.isSupportedBy(this));
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ChronoZonedDateTime<D> with(TemporalField field, long newValue) {
@@ -178,7 +146,6 @@ final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         }
         return ChronoZonedDateTimeImpl.ensureValid(getChronology(), field.adjustInto(this, newValue));
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ChronoZonedDateTime<D> plus(long amountToAdd, TemporalUnit unit) {
@@ -187,7 +154,6 @@ final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         }
         return ChronoZonedDateTimeImpl.ensureValid(getChronology(), unit.addTo(this, amountToAdd));   /// TODO: Generics replacement Risk!
     }
-
     //-----------------------------------------------------------------------
     @Override
     public long until(Temporal endExclusive, TemporalUnit unit) {
@@ -201,24 +167,18 @@ final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         Objects.requireNonNull(unit, "unit");
         return unit.between(this, end);
     }
-
     //-----------------------------------------------------------------------
-
     private Object writeReplace() {
         return new Ser(Ser.CHRONO_ZONE_DATE_TIME_TYPE, this);
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
     void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(dateTime);
         out.writeObject(offset);
         out.writeObject(zone);
     }
-
     static ChronoZonedDateTime<?> readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         ChronoLocalDateTime<?> dateTime = (ChronoLocalDateTime<?>) in.readObject();
         ZoneOffset offset = (ZoneOffset) in.readObject();
@@ -226,7 +186,6 @@ final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         return dateTime.atZone(offset).withZoneSameLocal(zone);
         // TODO: ZDT uses ofLenient()
     }
-
     //-------------------------------------------------------------------------
     @Override
     public boolean equals(Object obj) {
@@ -238,12 +197,10 @@ final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         }
         return false;
     }
-
     @Override
     public int hashCode() {
         return toLocalDateTime().hashCode() ^ getOffset().hashCode() ^ Integer.rotateLeft(getZone().hashCode(), 3);
     }
-
     @Override
     public String toString() {
         String str = toLocalDateTime().toString() + getOffset().toString();
@@ -252,6 +209,4 @@ final class ChronoZonedDateTimeImpl<D extends ChronoLocalDate>
         }
         return str;
     }
-
-
 }

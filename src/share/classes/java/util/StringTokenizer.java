@@ -1,10 +1,5 @@
-
-
 package java.util;
-
 import java.lang.*;
-
-
 public
 class StringTokenizer implements Enumeration<Object> {
     private int currentPosition;
@@ -14,23 +9,14 @@ class StringTokenizer implements Enumeration<Object> {
     private String delimiters;
     private boolean retDelims;
     private boolean delimsChanged;
-
-
     private int maxDelimCodePoint;
-
-
     private boolean hasSurrogates = false;
-
-
     private int[] delimiterCodePoints;
-
-
     private void setMaxDelimCodePoint() {
         if (delimiters == null) {
             maxDelimCodePoint = 0;
             return;
         }
-
         int m = 0;
         int c;
         int count = 0;
@@ -45,7 +31,6 @@ class StringTokenizer implements Enumeration<Object> {
             count++;
         }
         maxDelimCodePoint = m;
-
         if (hasSurrogates) {
             delimiterCodePoints = new int[count];
             for (int i = 0, j = 0; i < count; i++, j += Character.charCount(c)) {
@@ -54,8 +39,6 @@ class StringTokenizer implements Enumeration<Object> {
             }
         }
     }
-
-
     public StringTokenizer(String str, String delim, boolean returnDelims) {
         currentPosition = 0;
         newPosition = -1;
@@ -66,22 +49,15 @@ class StringTokenizer implements Enumeration<Object> {
         retDelims = returnDelims;
         setMaxDelimCodePoint();
     }
-
-
     public StringTokenizer(String str, String delim) {
         this(str, delim, false);
     }
-
-
     public StringTokenizer(String str) {
         this(str, " \t\n\r\f", false);
     }
-
-
     private int skipDelimiters(int startPos) {
         if (delimiters == null)
             throw new NullPointerException();
-
         int position = startPos;
         while (!retDelims && position < maxPosition) {
             if (!hasSurrogates) {
@@ -99,8 +75,6 @@ class StringTokenizer implements Enumeration<Object> {
         }
         return position;
     }
-
-
     private int scanToken(int startPos) {
         int position = startPos;
         while (position < maxPosition) {
@@ -129,7 +103,6 @@ class StringTokenizer implements Enumeration<Object> {
         }
         return position;
     }
-
     private boolean isDelimiter(int codePoint) {
         for (int i = 0; i < delimiterCodePoints.length; i++) {
             if (delimiterCodePoints[i] == codePoint) {
@@ -138,54 +111,33 @@ class StringTokenizer implements Enumeration<Object> {
         }
         return false;
     }
-
-
     public boolean hasMoreTokens() {
-
         newPosition = skipDelimiters(currentPosition);
         return (newPosition < maxPosition);
     }
-
-
     public String nextToken() {
-
-
         currentPosition = (newPosition >= 0 && !delimsChanged) ?
             newPosition : skipDelimiters(currentPosition);
-
-
         delimsChanged = false;
         newPosition = -1;
-
         if (currentPosition >= maxPosition)
             throw new NoSuchElementException();
         int start = currentPosition;
         currentPosition = scanToken(currentPosition);
         return str.substring(start, currentPosition);
     }
-
-
     public String nextToken(String delim) {
         delimiters = delim;
-
-
         delimsChanged = true;
-
         setMaxDelimCodePoint();
         return nextToken();
     }
-
-
     public boolean hasMoreElements() {
         return hasMoreTokens();
     }
-
-
     public Object nextElement() {
         return nextToken();
     }
-
-
     public int countTokens() {
         int count = 0;
         int currpos = currentPosition;

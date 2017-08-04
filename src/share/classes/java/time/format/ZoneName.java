@@ -1,13 +1,8 @@
-
 package java.time.format;
-
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
-
 class ZoneName {
-
     public static String toZid(String zid, Locale locale) {
         String mzone = zidToMzone.get(zid);
         if (mzone == null && aliases.containsKey(zid)) {
@@ -24,14 +19,12 @@ class ZoneName {
         }
         return toZid(zid);
     }
-
     public static String toZid(String zid) {
         if (aliases.containsKey(zid)) {
             return aliases.get(zid);
         }
         return zid;
     }
-
     private static final String[] zidMap = new String[] {
         "Pacific/Rarotonga", "Cook", "Pacific/Rarotonga",
         "Europe/Tirane", "Europe_Central", "Europe/Paris",
@@ -741,18 +734,15 @@ class ZoneName {
         "America/Kralendijk", "America/Curacao",
         "Asia/Rangoon", "Asia/Yangon",
     };
-
     private static final Map<String, String> zidToMzone = new HashMap<>();
     private static final Map<String, String> mzoneToZid = new HashMap<>();
     private static final Map<String, Map<String, String>> mzoneToZidL = new HashMap<>();
     private static final Map<String, String> aliases = new HashMap<>();
-
     static {
         for (int i = 0; i < zidMap.length; i += 3) {
             zidToMzone.put(zidMap[i], zidMap[i + 1]);
             mzoneToZid.put(zidMap[i + 1], zidMap[i + 2]);
         }
-
         for (int i = 0; i < mzoneMap.length; i += 3) {
             String mzone = mzoneMap[i];
             Map<String, String> map = mzoneToZidL.get(mzone);
@@ -762,7 +752,6 @@ class ZoneName {
             }
             map.put(mzoneMap[i + 1], mzoneMap[i + 2]);
         }
-
         for (int i = 0; i < aliasMap.length; i += 2) {
             aliases.put(aliasMap[i], aliasMap[i + 1]);
         }

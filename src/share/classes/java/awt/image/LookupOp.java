@@ -1,35 +1,22 @@
-
-
-
 package java.awt.image;
-
 import java.awt.color.ColorSpace;
 import java.awt.geom.Rectangle2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import sun.awt.image.ImagingLib;
-
-
-
 public class LookupOp implements BufferedImageOp, RasterOp {
     private LookupTable ltable;
     private int numComponents;
     RenderingHints hints;
-
-
     public LookupOp(LookupTable lookup, RenderingHints hints) {
         this.ltable = lookup;
         this.hints  = hints;
         numComponents = ltable.getNumComponents();
     }
-
-
     public final LookupTable getTable() {
         return ltable;
     }
-
-
     public final BufferedImage filter(BufferedImage src, BufferedImage dst) {
         ColorModel srcCM = src.getColorModel();
         int numBands = srcCM.getNumColorComponents();
@@ -50,13 +37,9 @@ public class LookupOp implements BufferedImageOp, RasterOp {
                                                " is not compatible with the "+
                                                " src image: "+src);
         }
-
-
         boolean needToConvert = false;
-
         int width = src.getWidth();
         int height = src.getHeight();
-
         if (dst == null) {
             dst = createCompatibleDestImage(src, null);
             dstCM = srcCM;
@@ -74,7 +57,6 @@ public class LookupOp implements BufferedImageOp, RasterOp {
                                              ") not equal to dst height ("+
                                              dst.getHeight()+")");
             }
-
             dstCM = dst.getColorModel();
             if (srcCM.getColorSpace().getType() !=
                 dstCM.getColorSpace().getType())
@@ -82,16 +64,12 @@ public class LookupOp implements BufferedImageOp, RasterOp {
                 needToConvert = true;
                 dst = createCompatibleDestImage(src, null);
             }
-
         }
-
         BufferedImage origDst = dst;
-
         if (ImagingLib.filter(this, src, dst) == null) {
             // Do it the slow way
             WritableRaster srcRaster = src.getRaster();
             WritableRaster dstRaster = dst.getRaster();
-
             if (srcCM.hasAlpha()) {
                 if (numBands-1 == numComponents || numComponents == 1) {
                     int minx = srcRaster.getMinX();
@@ -125,29 +103,22 @@ public class LookupOp implements BufferedImageOp, RasterOp {
                                                       bands);
                 }
             }
-
             filter(srcRaster, dstRaster);
         }
-
         if (needToConvert) {
             // ColorModels are not the same
             ColorConvertOp ccop = new ColorConvertOp(hints);
             ccop.filter(dst, origDst);
         }
-
         return origDst;
     }
-
-
     public final WritableRaster filter (Raster src, WritableRaster dst) {
         int numBands  = src.getNumBands();
         int dstLength = dst.getNumBands();
         int height    = src.getHeight();
         int width     = src.getWidth();
         int srcPix[]  = new int[numBands];
-
         // Create a new destination Raster, if needed
-
         if (dst == null) {
             dst = createCompatibleDestRaster(src);
         }
@@ -157,7 +128,6 @@ public class LookupOp implements BufferedImageOp, RasterOp {
                                           "match");
         }
         dstLength = dst.getNumBands();
-
         if (numBands != dstLength) {
             throw new
                 IllegalArgumentException ("Number of channels in the src ("
@@ -174,12 +144,9 @@ public class LookupOp implements BufferedImageOp, RasterOp {
                                                " is not compatible with the "+
                                                " src Raster: "+src);
         }
-
-
         if (ImagingLib.filter(this, src, dst) != null) {
             return dst;
         }
-
         // Optimize for cases we know about
         if (ltable instanceof ByteLookupTable) {
             byteFilter ((ByteLookupTable) ltable, src, dst,
@@ -201,31 +168,21 @@ public class LookupOp implements BufferedImageOp, RasterOp {
                 for (int x=0; x < width; x++, sX++, dX++) {
                     // Find data for all bands at this x,y position
                     src.getPixel(sX, sY, srcPix);
-
                     // Lookup the data for all bands at this x,y position
                     ltable.lookupPixel(srcPix, srcPix);
-
                     // Put it back for all bands
                     dst.setPixel(dX, dY, srcPix);
                 }
             }
         }
-
         return dst;
     }
-
-
     public final Rectangle2D getBounds2D (BufferedImage src) {
         return getBounds2D(src.getRaster());
     }
-
-
     public final Rectangle2D getBounds2D (Raster src) {
         return src.getBounds();
-
     }
-
-
     public BufferedImage createCompatibleDestImage (BufferedImage src,
                                                     ColorModel destCM) {
         BufferedImage image;
@@ -296,58 +253,44 @@ public class LookupOp implements BufferedImageOp, RasterOp {
                                       destCM.isAlphaPremultiplied(),
                                       null);
         }
-
         return image;
     }
-
-
     public WritableRaster createCompatibleDestRaster (Raster src) {
         return src.createCompatibleWritableRaster();
     }
-
-
     public final Point2D getPoint2D (Point2D srcPt, Point2D dstPt) {
         if (dstPt == null) {
             dstPt = new Point2D.Float();
         }
         dstPt.setLocation(srcPt.getX(), srcPt.getY());
-
         return dstPt;
     }
-
-
     public final RenderingHints getRenderingHints() {
         return hints;
     }
-
     private final void byteFilter(ByteLookupTable lookup, Raster src,
                                   WritableRaster dst,
                                   int width, int height, int numBands) {
         int[] srcPix = null;
-
         // Find the ref to the table and the offset
         byte[][] table = lookup.getTable();
         int offset = lookup.getOffset();
         int tidx;
         int step=1;
-
         // Check if it is one lookup applied to all bands
         if (table.length == 1) {
             step=0;
         }
-
         int x;
         int y;
         int band;
         int len = table[0].length;
-
         // Loop through the data
         for ( y=0; y < height; y++) {
             tidx = 0;
             for ( band=0; band < numBands; band++, tidx+=step) {
                 // Find data for this band, scanline
                 srcPix = src.getSamples(0, y, width, 1, band, srcPix);
-
                 for ( x=0; x < width; x++) {
                     int index = srcPix[x]-offset;
                     if (index < 0 || index > len) {
@@ -366,24 +309,20 @@ public class LookupOp implements BufferedImageOp, RasterOp {
             }
         }
     }
-
     private final void shortFilter(ShortLookupTable lookup, Raster src,
                                    WritableRaster dst,
                                    int width, int height, int numBands) {
         int band;
         int[] srcPix = null;
-
         // Find the ref to the table and the offset
         short[][] table = lookup.getTable();
         int offset = lookup.getOffset();
         int tidx;
         int step=1;
-
         // Check if it is one lookup applied to all bands
         if (table.length == 1) {
             step=0;
         }
-
         int x = 0;
         int y = 0;
         int index;
@@ -394,7 +333,6 @@ public class LookupOp implements BufferedImageOp, RasterOp {
             for ( band=0; band < numBands; band++, tidx+=step) {
                 // Find data for this band, scanline
                 srcPix = src.getSamples(0, y, width, 1, band, srcPix);
-
                 for ( x=0; x < width; x++) {
                     index = srcPix[x]-offset;
                     if (index < 0 || index > maxShort) {

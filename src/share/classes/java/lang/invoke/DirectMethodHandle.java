@@ -1,7 +1,4 @@
-
-
 package java.lang.invoke;
-
 import sun.misc.Unsafe;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -15,16 +12,12 @@ import java.lang.reflect.Field;
 import sun.invoke.util.ValueConversions;
 import sun.invoke.util.VerifyType;
 import sun.invoke.util.Wrapper;
-
-
 class DirectMethodHandle extends MethodHandle {
     final MemberName member;
-
     // Constructors and factory methods in this class *must* be package scoped or private.
     private DirectMethodHandle(MethodType mtype, LambdaForm form, MemberName member) {
         super(mtype, form);
         if (!member.isResolved())  throw new InternalError();
-
         if (member.getDeclaringClass().isInterface() &&
                 member.isMethod() && !member.isAbstract()) {
             // Check for corner case: invokeinterface of Object method
@@ -35,10 +28,8 @@ class DirectMethodHandle extends MethodHandle {
                 member = m;
             }
         }
-
         this.member = member;
     }
-
     // Factory methods:
     static DirectMethodHandle make(byte refKind, Class<?> receiver, MemberName member) {
         MethodType mtype = member.getMethodOrFieldType();
@@ -97,33 +88,26 @@ class DirectMethodHandle extends MethodHandle {
         assert(init.getMethodType().returnType() == void.class);
         return new Constructor(mtype, lform, ctor, init, instanceClass);
     }
-
     @Override
     BoundMethodHandle rebind() {
         return BoundMethodHandle.makeReinvoker(this);
     }
-
     @Override
     MethodHandle copyWith(MethodType mt, LambdaForm lf) {
         assert(this.getClass() == DirectMethodHandle.class);  // must override in subclasses
         return new DirectMethodHandle(mt, lf, member);
     }
-
     @Override
     String internalProperties() {
         return "\n& DMH.MN="+internalMemberName();
     }
-
     //// Implementation methods.
     @Override
     @ForceInline
     MemberName internalMemberName() {
         return member;
     }
-
     private static final MemberName.Factory IMPL_NAMES = MemberName.getFactory();
-
-
     private static LambdaForm preparedLambdaForm(MemberName m) {
         assert(m.isInvocable()) : m;  // call preparedFieldLambdaForm instead
         MethodType mtype = m.getInvocationType().basicType();
@@ -149,14 +133,12 @@ class DirectMethodHandle extends MethodHandle {
                 : Arrays.asList(m, m.getInvocationType().basicType(), lform, lform.methodType());
         return lform;
     }
-
     private static LambdaForm preparedLambdaForm(MethodType mtype, int which) {
         LambdaForm lform = mtype.form().cachedLambdaForm(which);
         if (lform != null)  return lform;
         lform = makePreparedLambdaForm(mtype, which);
         return mtype.form().setCachedLambdaForm(which, lform);
     }
-
     private static LambdaForm makePreparedLambdaForm(MethodType mtype, int which) {
         boolean needsInit = (which == LF_INVSTATIC_INIT);
         boolean doesAlloc = (which == LF_NEWINVSPECIAL);
@@ -216,7 +198,6 @@ class DirectMethodHandle extends MethodHandle {
         lform.compileToBytecode();
         return lform;
     }
-
     static Object findDirectMethodHandle(Name name) {
         if (name.function == Lazy.NF_internalMemberName ||
             name.function == Lazy.NF_internalMemberNameEnsureInit ||
@@ -226,26 +207,20 @@ class DirectMethodHandle extends MethodHandle {
         }
         return null;
     }
-
     private static void maybeCompile(LambdaForm lform, MemberName m) {
         if (VerifyAccess.isSamePackage(m.getDeclaringClass(), MethodHandle.class))
             // Help along bootstrapping...
             lform.compileToBytecode();
     }
-
-
     @ForceInline
      static Object internalMemberName(Object mh) {
         return ((DirectMethodHandle)mh).member;
     }
-
-
      static Object internalMemberNameEnsureInit(Object mh) {
         DirectMethodHandle dmh = (DirectMethodHandle)mh;
         dmh.ensureInitialized();
         return dmh.member;
     }
-
      static
     boolean shouldBeInitialized(MemberName member) {
         switch (member.getReferenceKind()) {
@@ -277,7 +252,6 @@ class DirectMethodHandle extends MethodHandle {
         }
         return UNSAFE.shouldBeInitialized(cls);
     }
-
     private static class EnsureInitialized extends ClassValue<WeakReference<Thread>> {
         @Override
         protected WeakReference<Thread> computeValue(Class<?> type) {
@@ -290,7 +264,6 @@ class DirectMethodHandle extends MethodHandle {
         }
         static final EnsureInitialized INSTANCE = new EnsureInitialized();
     }
-
     private void ensureInitialized() {
         if (checkInitialized(member)) {
             // The coast is clear.  Delete the <clinit> barrier.
@@ -322,12 +295,9 @@ class DirectMethodHandle extends MethodHandle {
         EnsureInitialized.INSTANCE.remove(defc);
         return true;
     }
-
      static void ensureInitialized(Object mh) {
         ((DirectMethodHandle)mh).ensureInitialized();
     }
-
-
     static class Special extends DirectMethodHandle {
         private Special(MethodType mtype, LambdaForm form, MemberName member) {
             super(mtype, form, member);
@@ -341,12 +311,9 @@ class DirectMethodHandle extends MethodHandle {
             return new Special(mt, lf, member);
         }
     }
-
-
     static class Constructor extends DirectMethodHandle {
         final MemberName initMethod;
         final Class<?>   instanceClass;
-
         private Constructor(MethodType mtype, LambdaForm form, MemberName constructor,
                             MemberName initMethod, Class<?> instanceClass) {
             super(mtype, form, constructor);
@@ -359,18 +326,14 @@ class DirectMethodHandle extends MethodHandle {
             return new Constructor(mt, lf, member, initMethod, instanceClass);
         }
     }
-
      static Object constructorMethod(Object mh) {
         Constructor dmh = (Constructor)mh;
         return dmh.initMethod;
     }
-
      static Object allocateInstance(Object mh) throws InstantiationException {
         Constructor dmh = (Constructor)mh;
         return UNSAFE.allocateInstance(dmh.instanceClass);
     }
-
-
     static class Accessor extends DirectMethodHandle {
         final Class<?> fieldType;
         final int      fieldOffset;
@@ -380,7 +343,6 @@ class DirectMethodHandle extends MethodHandle {
             this.fieldType   = member.getFieldType();
             this.fieldOffset = fieldOffset;
         }
-
         @Override Object checkCast(Object obj) {
             return fieldType.cast(obj);
         }
@@ -389,14 +351,12 @@ class DirectMethodHandle extends MethodHandle {
             return new Accessor(mt, lf, member, fieldOffset);
         }
     }
-
     @ForceInline
      static long fieldOffset(Object accessorObj) {
         // Note: We return a long because that is what Unsafe.getObject likes.
         // We store a plain int because it is more compact.
         return ((Accessor)accessorObj).fieldOffset;
     }
-
     @ForceInline
      static Object checkBase(Object obj) {
         // Note that the object's class has already been verified,
@@ -409,13 +369,10 @@ class DirectMethodHandle extends MethodHandle {
         obj.getClass();  // maybe throw NPE
         return obj;
     }
-
-
     static class StaticAccessor extends DirectMethodHandle {
         final private Class<?> fieldType;
         final private Object   staticBase;
         final private long     staticOffset;
-
         private StaticAccessor(MethodType mtype, LambdaForm form, MemberName member,
                                Object staticBase, long staticOffset) {
             super(mtype, form, member);
@@ -423,7 +380,6 @@ class DirectMethodHandle extends MethodHandle {
             this.staticBase   = staticBase;
             this.staticOffset = staticOffset;
         }
-
         @Override Object checkCast(Object obj) {
             return fieldType.cast(obj);
         }
@@ -432,32 +388,26 @@ class DirectMethodHandle extends MethodHandle {
             return new StaticAccessor(mt, lf, member, staticBase, staticOffset);
         }
     }
-
     @ForceInline
      static Object nullCheck(Object obj) {
         obj.getClass();
         return obj;
     }
-
     @ForceInline
      static Object staticBase(Object accessorObj) {
         return ((StaticAccessor)accessorObj).staticBase;
     }
-
     @ForceInline
      static long staticOffset(Object accessorObj) {
         return ((StaticAccessor)accessorObj).staticOffset;
     }
-
     @ForceInline
      static Object checkCast(Object mh, Object obj) {
         return ((DirectMethodHandle) mh).checkCast(obj);
     }
-
     Object checkCast(Object obj) {
         return member.getReturnType().cast(obj);
     }
-
     // Caching machinery for field accessors:
     private static byte
             AF_GETFIELD        = 0,
@@ -489,8 +439,6 @@ class DirectMethodHandle extends MethodHandle {
         else
             return FT_CHECKED_REF;
     }
-
-
     private static LambdaForm preparedFieldLambdaForm(MemberName m) {
         Class<?> ftype = m.getFieldType();
         boolean isVolatile = m.isVolatile();
@@ -524,7 +472,6 @@ class DirectMethodHandle extends MethodHandle {
         ACCESSOR_FORMS[afIndex] = lform;  // don't bother with a CAS
         return lform;
     }
-
     private static LambdaForm makePreparedFieldLambdaForm(byte formOp, boolean isVolatile, int ftypeKind) {
         boolean isGetter  = (formOp & 1) == (AF_GETFIELD & 1);
         boolean isStatic  = (formOp >= AF_GETSTATIC);
@@ -549,7 +496,6 @@ class DirectMethodHandle extends MethodHandle {
         } catch (ReflectiveOperationException ex) {
             throw newInternalError(ex);
         }
-
         // What is the external type of the lambda form?
         MethodType mtype;
         if (isGetter)
@@ -604,8 +550,6 @@ class DirectMethodHandle extends MethodHandle {
         if (needsInit)  lambdaName += "Init";
         return new LambdaForm(lambdaName, ARG_LIMIT, names, RESULT);
     }
-
-
     private static class Lazy {
         static final NamedFunction
                 NF_internalMemberName,

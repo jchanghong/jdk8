@@ -1,15 +1,11 @@
-
 package java.net;
 import java.io.IOException;
-
-
 class Inet4AddressImpl implements InetAddressImpl {
     public native String getLocalHostName() throws UnknownHostException;
     public native InetAddress[]
         lookupAllHostAddr(String hostname) throws UnknownHostException;
     public native String getHostByAddr(byte[] addr) throws UnknownHostException;
     private native boolean isReachable0(byte[] addr, int timeout, byte[] ifaddr, int ttl) throws IOException;
-
     public synchronized InetAddress anyLocalAddress() {
         if (anyLocalAddress == null) {
             anyLocalAddress = new Inet4Address(); // {0x00,0x00,0x00,0x00}
@@ -17,7 +13,6 @@ class Inet4AddressImpl implements InetAddressImpl {
         }
         return anyLocalAddress;
     }
-
     public synchronized InetAddress loopbackAddress() {
         if (loopbackAddress == null) {
             byte[] loopback = {0x7f,0x00,0x00,0x01};
@@ -25,11 +20,9 @@ class Inet4AddressImpl implements InetAddressImpl {
         }
         return loopbackAddress;
     }
-
   public boolean isReachable(InetAddress addr, int timeout, NetworkInterface netif, int ttl) throws IOException {
       byte[] ifaddr = null;
       if (netif != null) {
-
           java.util.Enumeration<InetAddress> it = netif.getInetAddresses();
           InetAddress inetaddr = null;
           while (!(inetaddr instanceof Inet4Address) &&

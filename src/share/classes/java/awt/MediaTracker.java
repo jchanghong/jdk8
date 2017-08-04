@@ -1,34 +1,18 @@
-
-
 package java.awt;
-
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.image.ImageObserver;
 import sun.awt.image.MultiResolutionToolkitImage;
-
-
 public class MediaTracker implements java.io.Serializable {
-
-
     Component target;
-
     MediaEntry head;
-
-
     private static final long serialVersionUID = -483174189758638095L;
-
-
     public MediaTracker(Component comp) {
         target = comp;
     }
-
-
     public void addImage(Image image, int id) {
         addImage(image, id, -1, -1);
     }
-
-
     public synchronized void addImage(Image image, int id, int w, int h) {
         addImageImpl(image, id, w, h);
         Image rvImage = getResolutionVariant(image);
@@ -38,35 +22,21 @@ public class MediaTracker implements java.io.Serializable {
                     h == -1 ? -1 : 2 * h);
         }
     }
-
     private void addImageImpl(Image image, int id, int w, int h) {
         head = MediaEntry.insert(head,
                                  new ImageMediaEntry(this, image, id, w, h));
     }
-
     public static final int LOADING = 1;
-
-
     public static final int ABORTED = 2;
-
-
     public static final int ERRORED = 4;
-
-
     public static final int COMPLETE = 8;
-
     static final int DONE = (ABORTED | ERRORED | COMPLETE);
-
-
     public boolean checkAll() {
         return checkAll(false, true);
     }
-
-
     public boolean checkAll(boolean load) {
         return checkAll(load, true);
     }
-
     private synchronized boolean checkAll(boolean load, boolean verify) {
         MediaEntry cur = head;
         boolean done = true;
@@ -78,8 +48,6 @@ public class MediaTracker implements java.io.Serializable {
         }
         return done;
     }
-
-
     public synchronized boolean isErrorAny() {
         MediaEntry cur = head;
         while (cur != null) {
@@ -90,8 +58,6 @@ public class MediaTracker implements java.io.Serializable {
         }
         return false;
     }
-
-
     public synchronized Object[] getErrorsAny() {
         MediaEntry cur = head;
         int numerrors = 0;
@@ -115,13 +81,9 @@ public class MediaTracker implements java.io.Serializable {
         }
         return errors;
     }
-
-
     public void waitForAll() throws InterruptedException {
         waitForAll(0);
     }
-
-
     public synchronized boolean waitForAll(long ms)
         throws InterruptedException
     {
@@ -145,12 +107,9 @@ public class MediaTracker implements java.io.Serializable {
             wait(timeout);
         }
     }
-
-
     public int statusAll(boolean load) {
         return statusAll(load, true);
     }
-
     private synchronized int statusAll(boolean load, boolean verify) {
         MediaEntry cur = head;
         int status = 0;
@@ -160,17 +119,12 @@ public class MediaTracker implements java.io.Serializable {
         }
         return status;
     }
-
-
     public boolean checkID(int id) {
         return checkID(id, false, true);
     }
-
-
     public boolean checkID(int id, boolean load) {
         return checkID(id, load, true);
     }
-
     private synchronized boolean checkID(int id, boolean load, boolean verify)
     {
         MediaEntry cur = head;
@@ -185,8 +139,6 @@ public class MediaTracker implements java.io.Serializable {
         }
         return done;
     }
-
-
     public synchronized boolean isErrorID(int id) {
         MediaEntry cur = head;
         while (cur != null) {
@@ -199,8 +151,6 @@ public class MediaTracker implements java.io.Serializable {
         }
         return false;
     }
-
-
     public synchronized Object[] getErrorsID(int id) {
         MediaEntry cur = head;
         int numerrors = 0;
@@ -228,13 +178,9 @@ public class MediaTracker implements java.io.Serializable {
         }
         return errors;
     }
-
-
     public void waitForID(int id) throws InterruptedException {
         waitForID(id, 0);
     }
-
-
     public synchronized boolean waitForID(int id, long ms)
         throws InterruptedException
     {
@@ -258,12 +204,9 @@ public class MediaTracker implements java.io.Serializable {
             wait(timeout);
         }
     }
-
-
     public int statusID(int id, boolean load) {
         return statusID(id, load, true);
     }
-
     private synchronized int statusID(int id, boolean load, boolean verify) {
         MediaEntry cur = head;
         int status = 0;
@@ -275,8 +218,6 @@ public class MediaTracker implements java.io.Serializable {
         }
         return status;
     }
-
-
     public synchronized void removeImage(Image image) {
         removeImageImpl(image);
         Image rvImage = getResolutionVariant(image);
@@ -285,7 +226,6 @@ public class MediaTracker implements java.io.Serializable {
         }
         notifyAll();    // Notify in case remaining images are "done".
     }
-
     private void removeImageImpl(Image image) {
         MediaEntry cur = head;
         MediaEntry prev = null;
@@ -304,8 +244,6 @@ public class MediaTracker implements java.io.Serializable {
             cur = next;
         }
     }
-
-
     public synchronized void removeImage(Image image, int id) {
         removeImageImpl(image, id);
         Image rvImage = getResolutionVariant(image);
@@ -314,7 +252,6 @@ public class MediaTracker implements java.io.Serializable {
         }
         notifyAll();    // Notify in case remaining images are "done".
     }
-
     private void removeImageImpl(Image image, int id) {
         MediaEntry cur = head;
         MediaEntry prev = null;
@@ -333,8 +270,6 @@ public class MediaTracker implements java.io.Serializable {
             cur = next;
         }
     }
-
-
     public synchronized void removeImage(Image image, int id,
                                          int width, int height) {
         removeImageImpl(image, id, width, height);
@@ -346,7 +281,6 @@ public class MediaTracker implements java.io.Serializable {
         }
         notifyAll();    // Notify in case remaining images are "done".
     }
-
     private void removeImageImpl(Image image, int id, int width, int height) {
         MediaEntry cur = head;
         MediaEntry prev = null;
@@ -367,11 +301,9 @@ public class MediaTracker implements java.io.Serializable {
             cur = next;
         }
     }
-
     synchronized void setDone() {
         notifyAll();
     }
-
     private static Image getResolutionVariant(Image image) {
         if (image instanceof MultiResolutionToolkitImage) {
             return ((MultiResolutionToolkitImage) image).getResolutionVariant();
@@ -379,22 +311,17 @@ public class MediaTracker implements java.io.Serializable {
         return null;
     }
 }
-
 abstract class MediaEntry {
     MediaTracker tracker;
     int ID;
     MediaEntry next;
-
     int status;
     boolean cancelled;
-
     MediaEntry(MediaTracker mt, int id) {
         tracker = mt;
         ID = id;
     }
-
     abstract Object getMedia();
-
     static MediaEntry insert(MediaEntry head, MediaEntry me) {
         MediaEntry cur = head;
         MediaEntry prev = null;
@@ -413,25 +340,19 @@ abstract class MediaEntry {
         }
         return head;
     }
-
     int getID() {
         return ID;
     }
-
     abstract void startLoad();
-
     void cancel() {
         cancelled = true;
     }
-
     static final int LOADING = MediaTracker.LOADING;
     static final int ABORTED = MediaTracker.ABORTED;
     static final int ERRORED = MediaTracker.ERRORED;
     static final int COMPLETE = MediaTracker.COMPLETE;
-
     static final int LOADSTARTED = (LOADING | ERRORED | COMPLETE);
     static final int DONE = (ABORTED | ERRORED | COMPLETE);
-
     synchronized int getStatus(boolean doLoad, boolean doVerify) {
         if (doLoad && ((status & LOADSTARTED) == 0)) {
             status = (status & ~ABORTED) | LOADING;
@@ -439,7 +360,6 @@ abstract class MediaEntry {
         }
         return status;
     }
-
     void setStatus(int flag) {
         synchronized (this) {
             status = flag;
@@ -447,31 +367,24 @@ abstract class MediaEntry {
         tracker.setDone();
     }
 }
-
 class ImageMediaEntry extends MediaEntry implements ImageObserver,
 java.io.Serializable {
     Image image;
     int width;
     int height;
-
-
     private static final long serialVersionUID = 4739377000350280650L;
-
     ImageMediaEntry(MediaTracker mt, Image img, int c, int w, int h) {
         super(mt, c);
         image = img;
         width = w;
         height = h;
     }
-
     boolean matches(Image img, int w, int h) {
         return (image == img && width == w && height == h);
     }
-
     Object getMedia() {
         return image;
     }
-
     synchronized int getStatus(boolean doLoad, boolean doVerify) {
         if (doVerify) {
             int flags = tracker.target.checkImage(image, width, height, null);
@@ -486,13 +399,11 @@ java.io.Serializable {
         }
         return super.getStatus(doLoad, doVerify);
     }
-
     void startLoad() {
         if (tracker.target.prepareImage(image, width, height, this)) {
             setStatus(COMPLETE);
         }
     }
-
     int parseflags(int infoflags) {
         if ((infoflags & ERROR) != 0) {
             return ERRORED;
@@ -503,7 +414,6 @@ java.io.Serializable {
         }
         return 0;
     }
-
     public boolean imageUpdate(Image img, int infoflags,
                                int x, int y, int w, int h) {
         if (cancelled) {

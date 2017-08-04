@@ -1,39 +1,24 @@
-
-
 package java.sql;
-
 import java.time.Instant;
 import java.time.LocalTime;
-
-
 public class Time extends java.util.Date {
-
-
     @Deprecated
     public Time(int hour, int minute, int second) {
         super(70, 0, 1, hour, minute, second);
     }
-
-
     public Time(long time) {
         super(time);
     }
-
-
     public void setTime(long time) {
         super.setTime(time);
     }
-
-
     public static Time valueOf(String s) {
         int hour;
         int minute;
         int second;
         int firstColon;
         int secondColon;
-
         if (s == null) throw new java.lang.IllegalArgumentException();
-
         firstColon = s.indexOf(':');
         secondColon = s.indexOf(':', firstColon+1);
         if ((firstColon > 0) & (secondColon > 0) &
@@ -45,11 +30,8 @@ public class Time extends java.util.Date {
         } else {
             throw new java.lang.IllegalArgumentException();
         }
-
         return new Time(hour, minute, second);
     }
-
-
     @SuppressWarnings("deprecation")
     public String toString () {
         int hour = super.getHours();
@@ -58,7 +40,6 @@ public class Time extends java.util.Date {
         String hourString;
         String minuteString;
         String secondString;
-
         if (hour < 10) {
             hourString = "0" + hour;
         } else {
@@ -76,67 +57,44 @@ public class Time extends java.util.Date {
         }
         return (hourString + ":" + minuteString + ":" + secondString);
     }
-
     // Override all the date operations inherited from java.util.Date;
-
-
     @Deprecated
     public int getYear() {
         throw new java.lang.IllegalArgumentException();
     }
-
-
     @Deprecated
     public int getMonth() {
         throw new java.lang.IllegalArgumentException();
     }
-
-
     @Deprecated
     public int getDay() {
         throw new java.lang.IllegalArgumentException();
     }
-
-
     @Deprecated
     public int getDate() {
         throw new java.lang.IllegalArgumentException();
     }
-
-
     @Deprecated
     public void setYear(int i) {
         throw new java.lang.IllegalArgumentException();
     }
-
-
     @Deprecated
     public void setMonth(int i) {
         throw new java.lang.IllegalArgumentException();
     }
-
-
     @Deprecated
     public void setDate(int i) {
         throw new java.lang.IllegalArgumentException();
     }
-
-
     static final long serialVersionUID = 8397324403548013681L;
-
-
     @SuppressWarnings("deprecation")
     public static Time valueOf(LocalTime time) {
         return new Time(time.getHour(), time.getMinute(), time.getSecond());
     }
-
-
     @SuppressWarnings("deprecation")
     public LocalTime toLocalTime() {
         return LocalTime.of(getHours(), getMinutes(), getSeconds());
     }
-
-
     @Override
     public Instant toInstant() {
         throw new java.lang.UnsupportedOperationException();

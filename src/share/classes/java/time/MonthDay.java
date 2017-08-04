@@ -1,11 +1,6 @@
-
-
-
 package java.time;
-
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -27,45 +22,29 @@ import java.time.temporal.TemporalQuery;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.time.temporal.ValueRange;
 import java.util.Objects;
-
-
 public final class MonthDay
         implements TemporalAccessor, TemporalAdjuster, Comparable<MonthDay>, Serializable {
-
-
     private static final long serialVersionUID = -939150713474957432L;
-
     private static final DateTimeFormatter PARSER = new DateTimeFormatterBuilder()
         .appendLiteral("--")
         .appendValue(MONTH_OF_YEAR, 2)
         .appendLiteral('-')
         .appendValue(DAY_OF_MONTH, 2)
         .toFormatter();
-
-
     private final int month;
-
     private final int day;
-
     //-----------------------------------------------------------------------
-
     public static MonthDay now() {
         return now(Clock.systemDefaultZone());
     }
-
-
     public static MonthDay now(ZoneId zone) {
         return now(Clock.system(zone));
     }
-
-
     public static MonthDay now(Clock clock) {
         final LocalDate now = LocalDate.now(clock);  // called once
         return MonthDay.of(now.getMonth(), now.getDayOfMonth());
     }
-
     //-----------------------------------------------------------------------
-
     public static MonthDay of(Month month, int dayOfMonth) {
         Objects.requireNonNull(month, "month");
         DAY_OF_MONTH.checkValidValue(dayOfMonth);
@@ -75,14 +54,10 @@ public final class MonthDay
         }
         return new MonthDay(month.getValue(), dayOfMonth);
     }
-
-
     public static MonthDay of(int month, int dayOfMonth) {
         return of(Month.of(month), dayOfMonth);
     }
-
     //-----------------------------------------------------------------------
-
     public static MonthDay from(TemporalAccessor temporal) {
         if (temporal instanceof MonthDay) {
             return (MonthDay) temporal;
@@ -97,28 +72,20 @@ public final class MonthDay
                     temporal + " of type " + temporal.getClass().getName(), ex);
         }
     }
-
     //-----------------------------------------------------------------------
-
     public static MonthDay parse(CharSequence text) {
         return parse(text, PARSER);
     }
-
-
     public static MonthDay parse(CharSequence text, DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         return formatter.parse(text, MonthDay::from);
     }
-
     //-----------------------------------------------------------------------
-
     private MonthDay(int month, int dayOfMonth) {
         this.month = month;
         this.day = dayOfMonth;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean isSupported(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -126,8 +93,6 @@ public final class MonthDay
         }
         return field != null && field.isSupportedBy(this);
     }
-
-
     @Override
     public ValueRange range(TemporalField field) {
         if (field == MONTH_OF_YEAR) {
@@ -137,14 +102,10 @@ public final class MonthDay
         }
         return TemporalAccessor.super.range(field);
     }
-
-
     @Override  // override for Javadoc
     public int get(TemporalField field) {
         return range(field).checkValidIntValue(getLong(field), field);
     }
-
-
     @Override
     public long getLong(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -157,36 +118,24 @@ public final class MonthDay
         }
         return field.getFrom(this);
     }
-
     //-----------------------------------------------------------------------
-
     public int getMonthValue() {
         return month;
     }
-
-
     public Month getMonth() {
         return Month.of(month);
     }
-
-
     public int getDayOfMonth() {
         return day;
     }
-
     //-----------------------------------------------------------------------
-
     public boolean isValidYear(int year) {
         return (day == 29 && month == 2 && Year.isLeap(year) == false) == false;
     }
-
     //-----------------------------------------------------------------------
-
     public MonthDay withMonth(int month) {
         return with(Month.of(month));
     }
-
-
     public MonthDay with(Month month) {
         Objects.requireNonNull(month, "month");
         if (month.getValue() == this.month) {
@@ -195,17 +144,13 @@ public final class MonthDay
         int day = Math.min(this.day, month.maxLength());
         return new MonthDay(month.getValue(), day);
     }
-
-
     public MonthDay withDayOfMonth(int dayOfMonth) {
         if (dayOfMonth == this.day) {
             return this;
         }
         return of(month, dayOfMonth);
     }
-
     //-----------------------------------------------------------------------
-
     @SuppressWarnings("unchecked")
     @Override
     public <R> R query(TemporalQuery<R> query) {
@@ -214,8 +159,6 @@ public final class MonthDay
         }
         return TemporalAccessor.super.query(query);
     }
-
-
     @Override
     public Temporal adjustInto(Temporal temporal) {
         if (Chronology.from(temporal).equals(IsoChronology.INSTANCE) == false) {
@@ -224,21 +167,15 @@ public final class MonthDay
         temporal = temporal.with(MONTH_OF_YEAR, month);
         return temporal.with(DAY_OF_MONTH, Math.min(temporal.range(DAY_OF_MONTH).getMaximum(), day));
     }
-
-
     public String format(DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         return formatter.format(this);
     }
-
     //-----------------------------------------------------------------------
-
     public LocalDate atYear(int year) {
         return LocalDate.of(year, month, isValidYear(year) ? day : 28);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public int compareTo(MonthDay other) {
         int cmp = (month - other.month);
@@ -247,19 +184,13 @@ public final class MonthDay
         }
         return cmp;
     }
-
-
     public boolean isAfter(MonthDay other) {
         return compareTo(other) > 0;
     }
-
-
     public boolean isBefore(MonthDay other) {
         return compareTo(other) < 0;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -271,15 +202,11 @@ public final class MonthDay
         }
         return false;
     }
-
-
     @Override
     public int hashCode() {
         return (month << 6) + day;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public String toString() {
         return new StringBuilder(10).append("--")
@@ -287,27 +214,20 @@ public final class MonthDay
             .append(day < 10 ? "-0" : "-").append(day)
             .toString();
     }
-
     //-----------------------------------------------------------------------
-
     private Object writeReplace() {
         return new Ser(Ser.MONTH_DAY_TYPE, this);
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
     void writeExternal(DataOutput out) throws IOException {
         out.writeByte(month);
         out.writeByte(day);
     }
-
     static MonthDay readExternal(DataInput in) throws IOException {
         byte month = in.readByte();
         byte day = in.readByte();
         return MonthDay.of(month, day);
     }
-
 }

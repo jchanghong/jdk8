@@ -1,19 +1,11 @@
-
-
 package java.util.prefs;
-
-
 class Base64 {
-
     static String byteArrayToBase64(byte[] a) {
         return byteArrayToBase64(a, false);
     }
-
-
     static String byteArrayToAltBase64(byte[] a) {
         return byteArrayToBase64(a, true);
     }
-
     private static String byteArrayToBase64(byte[] a, boolean alternate) {
         int aLen = a.length;
         int numFullGroups = aLen/3;
@@ -21,7 +13,6 @@ class Base64 {
         int resultLen = 4*((aLen + 2)/3);
         StringBuffer result = new StringBuffer(resultLen);
         char[] intToAlpha = (alternate ? intToAltBase64 : intToBase64);
-
         // Translate all full groups from byte array elements to Base64
         int inCursor = 0;
         for (int i=0; i<numFullGroups; i++) {
@@ -33,7 +24,6 @@ class Base64 {
             result.append(intToAlpha[(byte1 << 2)&0x3f | (byte2 >> 6)]);
             result.append(intToAlpha[byte2 & 0x3f]);
         }
-
         // Translate partial group if present
         if (numBytesInPartialGroup != 0) {
             int byte0 = a[inCursor++] & 0xff;
@@ -53,8 +43,6 @@ class Base64 {
         // assert result.length() == resultLen;
         return result.toString();
     }
-
-
     private static final char intToBase64[] = {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
         'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -62,8 +50,6 @@ class Base64 {
         'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
     };
-
-
     private static final char intToAltBase64[] = {
         '!', '"', '#', '$', '%', '&', '\'', '(', ')', ',', '-', '.', ':',
         ';', '<', '>', '@', '[', ']', '^',  '`', '_', '{', '|', '}', '~',
@@ -71,17 +57,12 @@ class Base64 {
         'n', 'o', 'p', 'q', 'r', 's', 't',  'u', 'v', 'w', 'x', 'y', 'z',
         '0', '1', '2', '3', '4', '5', '6',  '7', '8', '9', '+', '?'
     };
-
-
     static byte[] base64ToByteArray(String s) {
         return base64ToByteArray(s, false);
     }
-
-
     static byte[] altBase64ToByteArray(String s) {
         return base64ToByteArray(s, true);
     }
-
     private static byte[] base64ToByteArray(String s, boolean alternate) {
         byte[] alphaToInt = (alternate ?  altBase64ToInt : base64ToInt);
         int sLen = s.length();
@@ -100,7 +81,6 @@ class Base64 {
                 missingBytesInLastGroup++;
         }
         byte[] result = new byte[3*numGroups - missingBytesInLastGroup];
-
         // Translate all full groups from base64 to byte array elements
         int inCursor = 0, outCursor = 0;
         for (int i=0; i<numFullGroups; i++) {
@@ -112,13 +92,11 @@ class Base64 {
             result[outCursor++] = (byte) ((ch1 << 4) | (ch2 >> 2));
             result[outCursor++] = (byte) ((ch2 << 6) | ch3);
         }
-
         // Translate partial group, if present
         if (missingBytesInLastGroup != 0) {
             int ch0 = base64toInt(s.charAt(inCursor++), alphaToInt);
             int ch1 = base64toInt(s.charAt(inCursor++), alphaToInt);
             result[outCursor++] = (byte) ((ch0 << 2) | (ch1 >> 4));
-
             if (missingBytesInLastGroup == 1) {
                 int ch2 = base64toInt(s.charAt(inCursor++), alphaToInt);
                 result[outCursor++] = (byte) ((ch1 << 4) | (ch2 >> 2));
@@ -128,16 +106,12 @@ class Base64 {
         // assert outCursor == result.length;
         return result;
     }
-
-
     private static int base64toInt(char c, byte[] alphaToInt) {
         int result = alphaToInt[c];
         if (result < 0)
             throw new IllegalArgumentException("Illegal character " + c);
         return result;
     }
-
-
     private static final byte base64ToInt[] = {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -147,8 +121,6 @@ class Base64 {
         24, 25, -1, -1, -1, -1, -1, -1, 26, 27, 28, 29, 30, 31, 32, 33, 34,
         35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
     };
-
-
     private static final byte altBase64ToInt[] = {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 1,
@@ -159,7 +131,6 @@ class Base64 {
         34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
         51, 22, 23, 24, 25
     };
-
     public static void main(String args[]) {
         int numRuns  = Integer.parseInt(args[0]);
         int numBytes = Integer.parseInt(args[1]);
@@ -169,12 +140,10 @@ class Base64 {
                 byte[] arr = new byte[j];
                 for (int k=0; k<j; k++)
                     arr[k] = (byte)rnd.nextInt();
-
                 String s = byteArrayToBase64(arr);
                 byte [] b = base64ToByteArray(s);
                 if (!java.util.Arrays.equals(arr, b))
                     System.out.println("Dismal failure!");
-
                 s = byteArrayToAltBase64(arr);
                 b = altBase64ToByteArray(s);
                 if (!java.util.Arrays.equals(arr, b))

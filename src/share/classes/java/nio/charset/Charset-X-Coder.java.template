@@ -1,9 +1,5 @@
-
-
 #warn This file is preprocessed before being compiled
-
 package java.nio.charset;
-
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -12,36 +8,24 @@ import java.nio.BufferUnderflowException;
 import java.lang.ref.WeakReference;
 import java.nio.charset.CoderMalfunctionError;                  // javadoc
 import java.util.Arrays;
-
-
-
-
 public abstract class Charset$Coder$ {
-
     private final Charset charset;
     private final float average$ItypesPerOtype$;
     private final float max$ItypesPerOtype$;
-
     private $replType$ replacement;
     private CodingErrorAction malformedInputAction
         = CodingErrorAction.REPORT;
     private CodingErrorAction unmappableCharacterAction
         = CodingErrorAction.REPORT;
-
     // Internal states
     //
     private static final int ST_RESET   = 0;
     private static final int ST_CODING  = 1;
     private static final int ST_END     = 2;
     private static final int ST_FLUSHED = 3;
-
     private int state = ST_RESET;
-
     private static String stateNames[]
         = { "RESET", "CODING", "CODING_END", "FLUSHED" };
-
-
-
     {#if[encoder]?protected:private}
     Charset$Coder$(Charset cs,
                    float average$ItypesPerOtype$,
@@ -66,8 +50,6 @@ public abstract class Charset$Coder$ {
         this.max$ItypesPerOtype$ = max$ItypesPerOtype$;
         replaceWith(replacement);
     }
-
-
     protected Charset$Coder$(Charset cs,
                              float average$ItypesPerOtype$,
                              float max$ItypesPerOtype$)
@@ -76,13 +58,9 @@ public abstract class Charset$Coder$ {
              average$ItypesPerOtype$, max$ItypesPerOtype$,
              $defaultRepl$);
     }
-
-
     public final Charset charset() {
         return charset;
     }
-
-
     public final $replType$ replacement() {
 #if[decoder]
         return replacement;
@@ -91,8 +69,6 @@ public abstract class Charset$Coder$ {
         return Arrays.copyOf(replacement, replacement.$replLength$);
 #end[encoder]
     }
-
-
     public final Charset$Coder$ replaceWith($replType$ newReplacement) {
         if (newReplacement == null)
             throw new IllegalArgumentException("Null replacement");
@@ -112,16 +88,10 @@ public abstract class Charset$Coder$ {
         implReplaceWith(this.replacement);
         return this;
     }
-
-
     protected void implReplaceWith($replType$ newReplacement) {
     }
-
 #if[encoder]
-
     private WeakReference<CharsetDecoder> cachedDecoder = null;
-
-
     public boolean isLegalReplacement(byte[] repl) {
         WeakReference<CharsetDecoder> wr = cachedDecoder;
         CharsetDecoder dec = null;
@@ -139,15 +109,10 @@ public abstract class Charset$Coder$ {
         CoderResult cr = dec.decode(bb, cb, true);
         return !cr.isError();
     }
-
 #end[encoder]
-
-
     public CodingErrorAction malformedInputAction() {
         return malformedInputAction;
     }
-
-
     public final Charset$Coder$ onMalformedInput(CodingErrorAction newAction) {
         if (newAction == null)
             throw new IllegalArgumentException("Null action");
@@ -155,16 +120,10 @@ public abstract class Charset$Coder$ {
         implOnMalformedInput(newAction);
         return this;
     }
-
-
     protected void implOnMalformedInput(CodingErrorAction newAction) { }
-
-
     public CodingErrorAction unmappableCharacterAction() {
         return unmappableCharacterAction;
     }
-
-
     public final Charset$Coder$ onUnmappableCharacter(CodingErrorAction
                                                       newAction)
     {
@@ -174,21 +133,13 @@ public abstract class Charset$Coder$ {
         implOnUnmappableCharacter(newAction);
         return this;
     }
-
-
     protected void implOnUnmappableCharacter(CodingErrorAction newAction) { }
-
-
     public final float average$ItypesPerOtype$() {
         return average$ItypesPerOtype$;
     }
-
-
     public final float max$ItypesPerOtype$() {
         return max$ItypesPerOtype$;
     }
-
-
     public final CoderResult $code$($Itype$Buffer in, $Otype$Buffer out,
                                     boolean endOfInput)
     {
@@ -197,9 +148,7 @@ public abstract class Charset$Coder$ {
             && !(endOfInput && (state == ST_END)))
             throwIllegalStateException(state, newState);
         state = newState;
-
         for (;;) {
-
             CoderResult cr;
             try {
                 cr = $code$Loop(in, out);
@@ -208,10 +157,8 @@ public abstract class Charset$Coder$ {
             } catch (BufferOverflowException x) {
                 throw new CoderMalfunctionError(x);
             }
-
             if (cr.isOverflow())
                 return cr;
-
             if (cr.isUnderflow()) {
                 if (endOfInput && in.hasRemaining()) {
                     cr = CoderResult.malformedForLength(in.remaining());
@@ -220,7 +167,6 @@ public abstract class Charset$Coder$ {
                     return cr;
                 }
             }
-
             CodingErrorAction action = null;
             if (cr.isMalformed())
                 action = malformedInputAction;
@@ -228,29 +174,22 @@ public abstract class Charset$Coder$ {
                 action = unmappableCharacterAction;
             else
                 assert false : cr.toString();
-
             if (action == CodingErrorAction.REPORT)
                 return cr;
-
             if (action == CodingErrorAction.REPLACE) {
                 if (out.remaining() < replacement.$replLength$)
                     return CoderResult.OVERFLOW;
                 out.put(replacement);
             }
-
             if ((action == CodingErrorAction.IGNORE)
                 || (action == CodingErrorAction.REPLACE)) {
                 // Skip erroneous input either way
                 in.position(in.position() + cr.length());
                 continue;
             }
-
             assert false;
         }
-
     }
-
-
     public final CoderResult flush($Otype$Buffer out) {
         if (state == ST_END) {
             CoderResult cr = implFlush(out);
@@ -258,39 +197,26 @@ public abstract class Charset$Coder$ {
                 state = ST_FLUSHED;
             return cr;
         }
-
         if (state != ST_FLUSHED)
             throwIllegalStateException(state, ST_FLUSHED);
-
         return CoderResult.UNDERFLOW; // Already flushed
     }
-
-
     protected CoderResult implFlush($Otype$Buffer out) {
         return CoderResult.UNDERFLOW;
     }
-
-
     public final Charset$Coder$ reset() {
         implReset();
         state = ST_RESET;
         return this;
     }
-
-
     protected void implReset() { }
-
-
     protected abstract CoderResult $code$Loop($Itype$Buffer in,
                                               $Otype$Buffer out);
-
-
     public final $Otype$Buffer $code$($Itype$Buffer in)
         throws CharacterCodingException
     {
         int n = (int)(in.remaining() * average$ItypesPerOtype$());
         $Otype$Buffer out = $Otype$Buffer.allocate(n);
-
         if ((n == 0) && (in.remaining() == 0))
             return out;
         reset();
@@ -299,7 +225,6 @@ public abstract class Charset$Coder$ {
                 $code$(in, out, true) : CoderResult.UNDERFLOW;
             if (cr.isUnderflow())
                 cr = flush(out);
-
             if (cr.isUnderflow())
                 break;
             if (cr.isOverflow()) {
@@ -315,28 +240,18 @@ public abstract class Charset$Coder$ {
         out.flip();
         return out;
     }
-
 #if[decoder]
-
-
     public boolean isAutoDetecting() {
         return false;
     }
-
-
     public boolean isCharsetDetected() {
         throw new UnsupportedOperationException();
     }
-
-
     public Charset detectedCharset() {
         throw new UnsupportedOperationException();
     }
-
 #end[decoder]
-
 #if[encoder]
-
     private boolean canEncode(CharBuffer cb) {
         if (state == ST_FLUSHED)
             reset();
@@ -357,16 +272,12 @@ public abstract class Charset$Coder$ {
         }
         return true;
     }
-
-
     public boolean canEncode(char c) {
         CharBuffer cb = CharBuffer.allocate(1);
         cb.put(c);
         cb.flip();
         return canEncode(cb);
     }
-
-
     public boolean canEncode(CharSequence cs) {
         CharBuffer cb;
         if (cs instanceof CharBuffer)
@@ -375,13 +286,9 @@ public abstract class Charset$Coder$ {
             cb = CharBuffer.wrap(cs.toString());
         return canEncode(cb);
     }
-
 #end[encoder]
-
-
     private void throwIllegalStateException(int from, int to) {
         throw new IllegalStateException("Current state = " + stateNames[from]
                                         + ", new state = " + stateNames[to]);
     }
-
 }

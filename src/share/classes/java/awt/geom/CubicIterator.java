@@ -1,36 +1,22 @@
-
-
 package java.awt.geom;
-
 import java.util.*;
-
-
 class CubicIterator implements PathIterator {
     CubicCurve2D cubic;
     AffineTransform affine;
     int index;
-
     CubicIterator(CubicCurve2D q, AffineTransform at) {
         this.cubic = q;
         this.affine = at;
     }
-
-
     public int getWindingRule() {
         return WIND_NON_ZERO;
     }
-
-
     public boolean isDone() {
         return (index > 1);
     }
-
-
     public void next() {
         index++;
     }
-
-
     public int currentSegment(float[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("cubic iterator iterator out of bounds");
@@ -54,8 +40,6 @@ class CubicIterator implements PathIterator {
         }
         return type;
     }
-
-
     public int currentSegment(double[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("cubic iterator iterator out of bounds");

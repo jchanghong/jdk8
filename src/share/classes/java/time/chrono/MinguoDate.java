@@ -1,13 +1,8 @@
-
-
-
 package java.time.chrono;
-
 import static java.time.chrono.MinguoChronology.YEARS_DIFFERENCE;
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import static java.time.temporal.ChronoField.YEAR;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -30,70 +25,45 @@ import java.time.temporal.TemporalUnit;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.time.temporal.ValueRange;
 import java.util.Objects;
-
-
 public final class MinguoDate
         extends ChronoLocalDateImpl<MinguoDate>
         implements ChronoLocalDate, Serializable {
-
-
     private static final long serialVersionUID = 1300372329181994526L;
-
-
     private final transient LocalDate isoDate;
-
     //-----------------------------------------------------------------------
-
     public static MinguoDate now() {
         return now(Clock.systemDefaultZone());
     }
-
-
     public static MinguoDate now(ZoneId zone) {
         return now(Clock.system(zone));
     }
-
-
     public static MinguoDate now(Clock clock) {
         return new MinguoDate(LocalDate.now(clock));
     }
-
-
     public static MinguoDate of(int prolepticYear, int month, int dayOfMonth) {
         return new MinguoDate(LocalDate.of(prolepticYear + YEARS_DIFFERENCE, month, dayOfMonth));
     }
-
-
     public static MinguoDate from(TemporalAccessor temporal) {
         return MinguoChronology.INSTANCE.date(temporal);
     }
-
     //-----------------------------------------------------------------------
-
     MinguoDate(LocalDate isoDate) {
         Objects.requireNonNull(isoDate, "isoDate");
         this.isoDate = isoDate;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public MinguoChronology getChronology() {
         return MinguoChronology.INSTANCE;
     }
-
-
     @Override
     public MinguoEra getEra() {
         return (getProlepticYear() >= 1 ? MinguoEra.ROC : MinguoEra.BEFORE_ROC);
     }
-
-
     @Override
     public int lengthOfMonth() {
         return isoDate.lengthOfMonth();
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ValueRange range(TemporalField field) {
@@ -117,7 +87,6 @@ public final class MinguoDate
         }
         return field.rangeRefinedBy(this);
     }
-
     @Override
     public long getLong(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -137,15 +106,12 @@ public final class MinguoDate
         }
         return field.getFrom(this);
     }
-
     private long getProlepticMonth() {
         return getProlepticYear() * 12L + isoDate.getMonthValue() - 1;
     }
-
     private int getProlepticYear() {
         return isoDate.getYear() - YEARS_DIFFERENCE;
     }
-
     //-----------------------------------------------------------------------
     @Override
     public MinguoDate with(TemporalField field, long newValue) {
@@ -176,99 +142,77 @@ public final class MinguoDate
         }
         return super.with(field, newValue);
     }
-
-
     @Override
     public  MinguoDate with(TemporalAdjuster adjuster) {
         return super.with(adjuster);
     }
-
-
     @Override
     public MinguoDate plus(TemporalAmount amount) {
         return super.plus(amount);
     }
-
-
     @Override
     public MinguoDate minus(TemporalAmount amount) {
         return super.minus(amount);
     }
-
     //-----------------------------------------------------------------------
     @Override
     MinguoDate plusYears(long years) {
         return with(isoDate.plusYears(years));
     }
-
     @Override
     MinguoDate plusMonths(long months) {
         return with(isoDate.plusMonths(months));
     }
-
     @Override
     MinguoDate plusWeeks(long weeksToAdd) {
         return super.plusWeeks(weeksToAdd);
     }
-
     @Override
     MinguoDate plusDays(long days) {
         return with(isoDate.plusDays(days));
     }
-
     @Override
     public MinguoDate plus(long amountToAdd, TemporalUnit unit) {
         return super.plus(amountToAdd, unit);
     }
-
     @Override
     public MinguoDate minus(long amountToAdd, TemporalUnit unit) {
         return super.minus(amountToAdd, unit);
     }
-
     @Override
     MinguoDate minusYears(long yearsToSubtract) {
         return super.minusYears(yearsToSubtract);
     }
-
     @Override
     MinguoDate minusMonths(long monthsToSubtract) {
         return super.minusMonths(monthsToSubtract);
     }
-
     @Override
     MinguoDate minusWeeks(long weeksToSubtract) {
         return super.minusWeeks(weeksToSubtract);
     }
-
     @Override
     MinguoDate minusDays(long daysToSubtract) {
         return super.minusDays(daysToSubtract);
     }
-
     private MinguoDate with(LocalDate newDate) {
         return (newDate.equals(isoDate) ? this : new MinguoDate(newDate));
     }
-
     @Override        // for javadoc and covariant return type
     @SuppressWarnings("unchecked")
     public final ChronoLocalDateTime<MinguoDate> atTime(LocalTime localTime) {
         return (ChronoLocalDateTime<MinguoDate>)super.atTime(localTime);
     }
-
     @Override
     public ChronoPeriod until(ChronoLocalDate endDate) {
         Period period = isoDate.until(endDate);
         return getChronology().period(period.getYears(), period.getMonths(), period.getDays());
     }
-
     @Override  // override for performance
     public long toEpochDay() {
         return isoDate.toEpochDay();
     }
-
     //-------------------------------------------------------------------------
-
     @Override  // override for performance
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -280,36 +224,27 @@ public final class MinguoDate
         }
         return false;
     }
-
-
     @Override  // override for performance
     public int hashCode() {
         return getChronology().getId().hashCode() ^ isoDate.hashCode();
     }
-
     //-----------------------------------------------------------------------
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
-
     private Object writeReplace() {
         return new Ser(Ser.MINGUO_DATE_TYPE, this);
     }
-
     void writeExternal(DataOutput out) throws IOException {
         // MinguoChronology is implicit in the MINGUO_DATE_TYPE
         out.writeInt(get(YEAR));
         out.writeByte(get(MONTH_OF_YEAR));
         out.writeByte(get(DAY_OF_MONTH));
     }
-
     static MinguoDate readExternal(DataInput in) throws IOException {
         int year = in.readInt();
         int month = in.readByte();
         int dayOfMonth = in.readByte();
         return MinguoChronology.INSTANCE.date(year, month, dayOfMonth);
     }
-
 }

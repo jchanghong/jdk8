@@ -1,6 +1,4 @@
-
 package java.awt;
-
 import java.awt.peer.DialogPeer;
 import java.awt.event.*;
 import java.io.ObjectInputStream;
@@ -17,219 +15,134 @@ import sun.awt.util.IdentityArrayList;
 import sun.awt.util.IdentityLinkedList;
 import sun.security.util.SecurityConstants;
 import java.security.AccessControlException;
-
-
 public class Dialog extends Window {
-
     static {
-
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
             initIDs();
         }
     }
-
-
     boolean resizable = true;
-
-
-
     boolean undecorated = false;
-
     private transient boolean initialized = false;
-
-
     public static enum ModalityType {
-
         MODELESS,
-
         DOCUMENT_MODAL,
-
         APPLICATION_MODAL,
-
         TOOLKIT_MODAL
     };
-
-
     public final static ModalityType DEFAULT_MODALITY_TYPE = ModalityType.APPLICATION_MODAL;
-
-
     boolean modal;
-
-
     ModalityType modalityType;
-
-
     public static enum ModalExclusionType {
-
         NO_EXCLUDE,
-
         APPLICATION_EXCLUDE,
-
         TOOLKIT_EXCLUDE
     };
-
-
     transient static IdentityArrayList<Dialog> modalDialogs = new IdentityArrayList<Dialog>();
-
     transient IdentityArrayList<Window> blockedWindows = new IdentityArrayList<Window>();
-
-
     String title;
-
     private transient ModalEventFilter modalFilter;
     private transient volatile SecondaryLoop secondaryLoop;
-
-
     transient volatile boolean isInHide = false;
-
-
     transient volatile boolean isInDispose = false;
-
     private static final String base = "dialog";
     private static int nameCounter = 0;
-
-
     private static final long serialVersionUID = 5920926903803293709L;
-
-
      public Dialog(Frame owner) {
          this(owner, "", false);
      }
-
-
      public Dialog(Frame owner, boolean modal) {
          this(owner, "", modal);
      }
-
-
      public Dialog(Frame owner, String title) {
          this(owner, title, false);
      }
-
-
      public Dialog(Frame owner, String title, boolean modal) {
          this(owner, title, modal ? DEFAULT_MODALITY_TYPE : ModalityType.MODELESS);
      }
-
-
      public Dialog(Frame owner, String title, boolean modal,
                    GraphicsConfiguration gc) {
          this(owner, title, modal ? DEFAULT_MODALITY_TYPE : ModalityType.MODELESS, gc);
      }
-
-
      public Dialog(Dialog owner) {
          this(owner, "", false);
      }
-
-
      public Dialog(Dialog owner, String title) {
          this(owner, title, false);
      }
-
-
      public Dialog(Dialog owner, String title, boolean modal) {
          this(owner, title, modal ? DEFAULT_MODALITY_TYPE : ModalityType.MODELESS);
      }
-
-
      public Dialog(Dialog owner, String title, boolean modal,
                    GraphicsConfiguration gc) {
          this(owner, title, modal ? DEFAULT_MODALITY_TYPE : ModalityType.MODELESS, gc);
      }
-
-
     public Dialog(Window owner) {
         this(owner, "", ModalityType.MODELESS);
     }
-
-
     public Dialog(Window owner, String title) {
         this(owner, title, ModalityType.MODELESS);
     }
-
-
     public Dialog(Window owner, ModalityType modalityType) {
         this(owner, "", modalityType);
     }
-
-
     public Dialog(Window owner, String title, ModalityType modalityType) {
         super(owner);
-
         if ((owner != null) &&
             !(owner instanceof Frame) &&
             !(owner instanceof Dialog))
         {
             throw new IllegalArgumentException("Wrong parent window");
         }
-
         this.title = title;
         setModalityType(modalityType);
         SunToolkit.checkAndSetPolicy(this);
         initialized = true;
     }
-
-
     public Dialog(Window owner, String title, ModalityType modalityType,
                   GraphicsConfiguration gc) {
         super(owner, gc);
-
         if ((owner != null) &&
             !(owner instanceof Frame) &&
             !(owner instanceof Dialog))
         {
             throw new IllegalArgumentException("wrong owner window");
         }
-
         this.title = title;
         setModalityType(modalityType);
         SunToolkit.checkAndSetPolicy(this);
         initialized = true;
     }
-
-
     String constructComponentName() {
         synchronized (Dialog.class) {
             return base + nameCounter++;
         }
     }
-
-
     public void addNotify() {
         synchronized (getTreeLock()) {
             if (parent != null && parent.getPeer() == null) {
                 parent.addNotify();
             }
-
             if (peer == null) {
                 peer = getToolkit().createDialog(this);
             }
             super.addNotify();
         }
     }
-
-
     public boolean isModal() {
         return isModal_NoClientCode();
     }
     final boolean isModal_NoClientCode() {
         return modalityType != ModalityType.MODELESS;
     }
-
-
     public void setModal(boolean modal) {
         this.modal = modal;
         setModalityType(modal ? DEFAULT_MODALITY_TYPE : ModalityType.MODELESS);
     }
-
-
     public ModalityType getModalityType() {
         return modalityType;
     }
-
-
     public void setModalityType(ModalityType type) {
         if (type == null) {
             type = Dialog.ModalityType.MODELESS;
@@ -240,22 +153,15 @@ public class Dialog extends Window {
         if (modalityType == type) {
             return;
         }
-
         checkModalityPermission(type);
-
         modalityType = type;
         modal = (modalityType != ModalityType.MODELESS);
     }
-
-
     public String getTitle() {
         return title;
     }
-
-
     public void setTitle(String title) {
         String oldTitle = this.title;
-
         synchronized(this) {
             this.title = title;
             DialogPeer peer = (DialogPeer)this.peer;
@@ -265,13 +171,9 @@ public class Dialog extends Window {
         }
         firePropertyChange("title", oldTitle, title);
     }
-
-
     private boolean conditionalShow(Component toFocus, AtomicLong time) {
         boolean retval;
-
         closeSplashScreen();
-
         synchronized (getTreeLock()) {
             if (peer == null) {
                 addNotify();
@@ -282,7 +184,6 @@ public class Dialog extends Window {
                 retval = false;
             } else {
                 visible = retval = true;
-
                 // check if this dialog should be modal blocked BEFORE calling peer.show(),
                 // otherwise, a pair of FOCUS_GAINED and FOCUS_LOST may be mistakenly
                 // generated for the dialog
@@ -292,7 +193,6 @@ public class Dialog extends Window {
                     modalDialogs.add(this);
                     modalShow();
                 }
-
                 if (toFocus != null && time != null && isFocusable() &&
                     isEnabled() && !isModalBlocked()) {
                     // keep the KeyEvents from being dispatched
@@ -301,16 +201,13 @@ public class Dialog extends Window {
                     KeyboardFocusManager.getCurrentKeyboardFocusManager().
                         enqueueKeyEvents(time.get(), toFocus);
                 }
-
                 // This call is required as the show() method of the Dialog class
                 // does not invoke the super.show(). So wried... :(
                 mixOnShowing();
-
                 peer.setVisible(true); // now guaranteed never to block
                 if (isModalBlocked()) {
                     modalBlocker.toFront();
                 }
-
                 setLocationByPlatform(false);
                 for (int i = 0; i < ownedWindowList.size(); i++) {
                     Window child = ownedWindowList.elementAt(i).get();
@@ -320,7 +217,6 @@ public class Dialog extends Window {
                     }       // endif
                 }   // endfor
                 Window.updateChildFocusableWindowState(this);
-
                 createHierarchyEvents(HierarchyEvent.HIERARCHY_CHANGED,
                                       this, parent,
                                       HierarchyEvent.SHOWING_CHANGED,
@@ -334,34 +230,26 @@ public class Dialog extends Window {
                 }
             }
         }
-
         if (retval && (state & OPENED) == 0) {
             postWindowEvent(WindowEvent.WINDOW_OPENED);
             state |= OPENED;
         }
-
         return retval;
     }
-
-
     public void setVisible(boolean b) {
         super.setVisible(b);
     }
-
-
     @Deprecated
     public void show() {
         if (!initialized) {
             throw new IllegalStateException("The dialog component " +
                 "has not been initialized properly");
         }
-
         beforeFirstShow = false;
         if (!isModal()) {
             conditionalShow(null, null);
         } else {
             AppContext showAppContext = AppContext.getAppContext();
-
             AtomicLong time = new AtomicLong();
             Component predictedFocusOwner = null;
             try {
@@ -374,7 +262,6 @@ public class Dialog extends Window {
                             return windowClosingException == null;
                         }
                     };
-
                     // if this dialog is toolkit-modal, the filter should be added
                     // to all EDTs (for all AppContexts)
                     if (modalityType == ModalityType.TOOLKIT_MODAL) {
@@ -395,7 +282,6 @@ public class Dialog extends Window {
                             edt.addEventFilter(modalFilter);
                         }
                     }
-
                     modalityPushed();
                     try {
                         final EventQueue eventQueue = AccessController.doPrivileged(
@@ -411,7 +297,6 @@ public class Dialog extends Window {
                     } finally {
                         modalityPopped();
                     }
-
                     // if this dialog is toolkit-modal, its filter must be removed
                     // from all EDTs (for all AppContexts)
                     if (modalityType == ModalityType.TOOLKIT_MODAL) {
@@ -426,7 +311,6 @@ public class Dialog extends Window {
                             edt.removeEventFilter(modalFilter);
                         }
                     }
-
                     if (windowClosingException != null) {
                         windowClosingException.fillInStackTrace();
                         throw windowClosingException;
@@ -441,7 +325,6 @@ public class Dialog extends Window {
             }
         }
     }
-
     final void modalityPushed() {
         Toolkit tk = Toolkit.getDefaultToolkit();
         if (tk instanceof SunToolkit) {
@@ -449,7 +332,6 @@ public class Dialog extends Window {
             stk.notifyModalityPushed(this);
         }
     }
-
     final void modalityPopped() {
         Toolkit tk = Toolkit.getDefaultToolkit();
         if (tk instanceof SunToolkit) {
@@ -457,7 +339,6 @@ public class Dialog extends Window {
             stk.notifyModalityPopped(this);
         }
     }
-
     void interruptBlocking() {
         if (isModal()) {
             disposeImpl();
@@ -467,7 +348,6 @@ public class Dialog extends Window {
             windowClosingException = null;
         }
     }
-
     private void hideAndDisposePreHandler() {
         isInHide = true;
         synchronized (getTreeLock()) {
@@ -489,8 +369,6 @@ public class Dialog extends Window {
         }
         isInHide = false;
     }
-
-
     @Deprecated
     public void hide() {
         hideAndDisposePreHandler();
@@ -502,8 +380,6 @@ public class Dialog extends Window {
             hideAndDisposeHandler();
         }
     }
-
-
     void doDispose() {
         // fix for 5048370: set isInDispose flag to true to prevent calling
         // to hideAndDisposeHandler() from hide()
@@ -512,8 +388,6 @@ public class Dialog extends Window {
         hideAndDisposeHandler();
         isInDispose = false;
     }
-
-
     public void toBack() {
         super.toBack();
         if (visible) {
@@ -524,16 +398,11 @@ public class Dialog extends Window {
             }
         }
     }
-
-
     public boolean isResizable() {
         return resizable;
     }
-
-
     public void setResizable(boolean resizable) {
         boolean testvalid = false;
-
         synchronized (this) {
             this.resizable = resizable;
             DialogPeer peer = (DialogPeer)this.peer;
@@ -542,7 +411,6 @@ public class Dialog extends Window {
                 testvalid = true;
             }
         }
-
         // On some platforms, changing the resizable state affects
         // the insets of the Dialog. If we could, we'd call invalidate()
         // from the peer, but we need to guarantee that we're not holding
@@ -551,11 +419,7 @@ public class Dialog extends Window {
             invalidateIfValid();
         }
     }
-
-
-
     public void setUndecorated(boolean undecorated) {
-
         synchronized (getTreeLock()) {
             if (isDisplayable()) {
                 throw new IllegalComponentStateException("The dialog is displayable.");
@@ -575,13 +439,9 @@ public class Dialog extends Window {
             this.undecorated = undecorated;
         }
     }
-
-
     public boolean isUndecorated() {
         return undecorated;
     }
-
-
     @Override
     public void setOpacity(float opacity) {
         synchronized (getTreeLock()) {
@@ -591,8 +451,6 @@ public class Dialog extends Window {
             super.setOpacity(opacity);
         }
     }
-
-
     @Override
     public void setShape(Shape shape) {
         synchronized (getTreeLock()) {
@@ -602,8 +460,6 @@ public class Dialog extends Window {
             super.setShape(shape);
         }
     }
-
-
     @Override
     public void setBackground(Color bgColor) {
         synchronized (getTreeLock()) {
@@ -613,8 +469,6 @@ public class Dialog extends Window {
             super.setBackground(bgColor);
         }
     }
-
-
     protected String paramString() {
         String str = super.paramString() + "," + modalityType;
         if (title != null) {
@@ -622,13 +476,7 @@ public class Dialog extends Window {
         }
         return str;
     }
-
-
     private static native void initIDs();
-
-
-
-
     void modalShow() {
         // find all the dialogs that block this one
         IdentityArrayList<Dialog> blockers = new IdentityArrayList<Dialog>();
@@ -643,7 +491,6 @@ public class Dialog extends Window {
                 }
             }
         }
-
         // add all blockers' blockers to blockers :)
         for (int i = 0; i < blockers.size(); i++) {
             Dialog blocker = blockers.get(i);
@@ -654,11 +501,9 @@ public class Dialog extends Window {
                 }
             }
         }
-
         if (blockers.size() > 0) {
             blockers.get(0).blockWindow(this);
         }
-
         // find all windows from blockers' hierarchies
         IdentityArrayList<Window> blockersHierarchies = new IdentityArrayList<Window>(blockers);
         int k = 0;
@@ -670,7 +515,6 @@ public class Dialog extends Window {
             }
             k++;
         }
-
         java.util.List<Window> toBlock = new IdentityLinkedList<Window>();
         // block all windows from scope of blocking except from blockers' hierarchies
         IdentityArrayList<Window> unblockedWindows = Window.getAllUnblockedWindows();
@@ -686,13 +530,10 @@ public class Dialog extends Window {
             }
         }
         blockWindows(toBlock);
-
         if (!isModalBlocked()) {
             updateChildrenBlocking();
         }
     }
-
-
     void modalHide() {
         // we should unblock all the windows first...
         IdentityArrayList<Window> save = new IdentityArrayList<Window>();
@@ -714,8 +555,6 @@ public class Dialog extends Window {
             }
         }
     }
-
-
     boolean shouldBlock(Window w) {
         if (!isVisible_NoClientCode() ||
             (!w.isVisible_NoClientCode() && !w.isInShow) ||
@@ -763,18 +602,14 @@ public class Dialog extends Window {
             case TOOLKIT_MODAL:
                 return !w.isModalExcluded(ModalExclusionType.TOOLKIT_EXCLUDE);
         }
-
         return false;
     }
-
-
     void blockWindow(Window w) {
         if (!w.isModalBlocked()) {
             w.setModalBlocked(this, true, true);
             blockedWindows.add(w);
         }
     }
-
     void blockWindows(java.util.List<Window> toBlock) {
         DialogPeer dpeer = (DialogPeer)peer;
         if (dpeer == null) {
@@ -792,16 +627,12 @@ public class Dialog extends Window {
         dpeer.blockWindows(toBlock);
         blockedWindows.addAll(toBlock);
     }
-
-
     void unblockWindow(Window w) {
         if (w.isModalBlocked() && blockedWindows.contains(w)) {
             blockedWindows.remove(w);
             w.setModalBlocked(this, false, true);
         }
     }
-
-
     static void checkShouldBeBlocked(Window w) {
         synchronized (w.getTreeLock()) {
             for (int i = 0; i < modalDialogs.size(); i++) {
@@ -813,7 +644,6 @@ public class Dialog extends Window {
             }
         }
     }
-
     private void checkModalityPermission(ModalityType mt) {
         if (mt == ModalityType.TOOLKIT_MODAL) {
             SecurityManager sm = System.getSecurityManager();
@@ -824,23 +654,18 @@ public class Dialog extends Window {
             }
         }
     }
-
     private void readObject(ObjectInputStream s)
         throws ClassNotFoundException, IOException, HeadlessException
     {
         GraphicsEnvironment.checkHeadless();
-
         java.io.ObjectInputStream.GetField fields =
             s.readFields();
-
         ModalityType localModalityType = (ModalityType)fields.get("modalityType", null);
-
         try {
             checkModalityPermission(localModalityType);
         } catch (AccessControlException ace) {
             localModalityType = DEFAULT_MODALITY_TYPE;
         }
-
         // in 1.5 or earlier modalityType was absent, so use "modal" instead
         if (localModalityType == null) {
             this.modal = fields.get("modal", false);
@@ -848,41 +673,25 @@ public class Dialog extends Window {
         } else {
             this.modalityType = localModalityType;
         }
-
         this.resizable = fields.get("resizable", true);
         this.undecorated = fields.get("undecorated", false);
         this.title = (String)fields.get("title", "");
-
         blockedWindows = new IdentityArrayList<>();
-
         SunToolkit.checkAndSetPolicy(this);
-
         initialized = true;
-
     }
-
-
-
-
     public AccessibleContext getAccessibleContext() {
         if (accessibleContext == null) {
             accessibleContext = new AccessibleAWTDialog();
         }
         return accessibleContext;
     }
-
-
     protected class AccessibleAWTDialog extends AccessibleAWTWindow
     {
-
         private static final long serialVersionUID = 4837230331833941201L;
-
-
         public AccessibleRole getAccessibleRole() {
             return AccessibleRole.DIALOG;
         }
-
-
         public AccessibleStateSet getAccessibleStateSet() {
             AccessibleStateSet states = super.getAccessibleStateSet();
             if (getFocusOwner() != null) {
@@ -896,6 +705,5 @@ public class Dialog extends Window {
             }
             return states;
         }
-
     } // inner class AccessibleAWTDialog
 }

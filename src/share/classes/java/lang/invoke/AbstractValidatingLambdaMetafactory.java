@@ -1,16 +1,9 @@
-
 package java.lang.invoke;
-
 import sun.invoke.util.Wrapper;
-
 import static sun.invoke.util.Wrapper.forPrimitiveType;
 import static sun.invoke.util.Wrapper.forWrapperType;
 import static sun.invoke.util.Wrapper.isWrapperType;
-
-
  abstract class AbstractValidatingLambdaMetafactory {
-
-
     final Class<?> targetClass;               // The class calling the meta-factory via invokedynamic "class X"
     final MethodType invokedType;             // The type of the invoked method "(CC)II"
     final Class<?> samBase;                   // The type of the returned instance "interface JJ"
@@ -26,9 +19,6 @@ import static sun.invoke.util.Wrapper.isWrapperType;
     final boolean isSerializable;             // Should the returned instance be serializable
     final Class<?>[] markerInterfaces;        // Additional marker interfaces to be implemented
     final MethodType[] additionalBridges;     // Signatures of additional methods to bridge
-
-
-
     AbstractValidatingLambdaMetafactory(MethodHandles.Lookup caller,
                                        MethodType invokedType,
                                        String samMethodName,
@@ -46,12 +36,9 @@ import static sun.invoke.util.Wrapper.isWrapperType;
         }
         this.targetClass = caller.lookupClass();
         this.invokedType = invokedType;
-
         this.samBase = invokedType.returnType();
-
         this.samMethodName = samMethodName;
         this.samMethodType  = samMethodType;
-
         this.implMethod = implMethod;
         this.implInfo = caller.revealDirect(implMethod);
         this.implKind = implInfo.getReferenceKind();
@@ -65,13 +52,11 @@ import static sun.invoke.util.Wrapper.isWrapperType;
         this.isSerializable = isSerializable;
         this.markerInterfaces = markerInterfaces;
         this.additionalBridges = additionalBridges;
-
         if (!samBase.isInterface()) {
             throw new LambdaConversionException(String.format(
                     "Functional interface %s is not an interface",
                     samBase.getName()));
         }
-
         for (Class<?> c : markerInterfaces) {
             if (!c.isInterface()) {
                 throw new LambdaConversionException(String.format(
@@ -80,12 +65,8 @@ import static sun.invoke.util.Wrapper.isWrapperType;
             }
         }
     }
-
-
     abstract CallSite buildCallSite()
             throws LambdaConversionException;
-
-
     void validateMetafactoryArgs() throws LambdaConversionException {
         switch (implKind) {
             case MethodHandleInfo.REF_invokeInterface:
@@ -97,7 +78,6 @@ import static sun.invoke.util.Wrapper.isWrapperType;
             default:
                 throw new LambdaConversionException(String.format("Unsupported MethodHandle kind: %s", implInfo));
         }
-
         // Check arity: optional-receiver + captured + SAM == impl
         final int implArity = implMethodType.parameterCount();
         final int receiverArity = implIsInstanceMethod ? 1 : 0;
@@ -123,13 +103,11 @@ import static sun.invoke.util.Wrapper.isWrapperType;
                                       bridgeMT, samMethodType));
             }
         }
-
         // If instance: first captured arg (receiver) must be subtype of class where impl method is defined
         final int capturedStart;
         final int samStart;
         if (implIsInstanceMethod) {
             final Class<?> receiverClass;
-
             // implementation is an instance method, adjust for receiver in captured variables / SAM arguments
             if (capturedArity == 0) {
                 // receiver is function parameter
@@ -142,14 +120,12 @@ import static sun.invoke.util.Wrapper.isWrapperType;
                 samStart = 0;
                 receiverClass = invokedType.parameterType(0);
             }
-
             // check receiver type
             if (!implDefiningClass.isAssignableFrom(receiverClass)) {
                 throw new LambdaConversionException(
                         String.format("Invalid receiver type %s; not a subtype of implementation type %s",
                                       receiverClass, implDefiningClass));
             }
-
            Class<?> implReceiverClass = implMethod.type().parameterType(0);
            if (implReceiverClass != implDefiningClass && !implReceiverClass.isAssignableFrom(receiverClass)) {
                throw new LambdaConversionException(
@@ -161,7 +137,6 @@ import static sun.invoke.util.Wrapper.isWrapperType;
             capturedStart = 0;
             samStart = 0;
         }
-
         // Check for exact match on non-receiver captured arguments
         final int implFromCaptured = capturedArity - capturedStart;
         for (int i=0; i<implFromCaptured; i++) {
@@ -184,7 +159,6 @@ import static sun.invoke.util.Wrapper.isWrapperType;
                                       i, instantiatedParamType, implParamType));
             }
         }
-
         // Adaptation match: return type
         Class<?> expectedType = instantiatedMethodType.returnType();
         Class<?> actualReturnType =
@@ -210,8 +184,6 @@ import static sun.invoke.util.Wrapper.isWrapperType;
             }
         }
      }
-
-
     private boolean isAdaptableTo(Class<?> fromType, Class<?> toType, boolean strict) {
         if (fromType.equals(toType)) {
             return true;
@@ -244,8 +216,6 @@ import static sun.invoke.util.Wrapper.isWrapperType;
             }
         }
     }
-
-
     private boolean isAdaptableToAsReturn(Class<?> fromType, Class<?> toType) {
         return toType.equals(void.class)
                || !fromType.equals(void.class) && isAdaptableTo(fromType, toType, false);
@@ -254,8 +224,4 @@ import static sun.invoke.util.Wrapper.isWrapperType;
         if (fromType.equals(void.class)) return toType.equals(void.class);
         return isAdaptableTo(fromType, toType, true);
     }
-
-
-
-
 }

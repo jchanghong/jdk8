@@ -1,7 +1,4 @@
-
-
 package java.awt.geom;
-
 import java.awt.Shape;
 import java.awt.Rectangle;
 import java.util.Vector;
@@ -10,19 +7,12 @@ import java.util.NoSuchElementException;
 import sun.awt.geom.Curve;
 import sun.awt.geom.Crossings;
 import sun.awt.geom.AreaOp;
-
-
 public class Area implements Shape, Cloneable {
     private static Vector EmptyCurves = new Vector();
-
     private Vector curves;
-
-
     public Area() {
         curves = EmptyCurves;
     }
-
-
     public Area(Shape s) {
         if (s instanceof Area) {
             curves = ((Area) s).curves;
@@ -30,7 +20,6 @@ public class Area implements Shape, Cloneable {
             curves = pathToCurves(s.getPathIterator(null));
         }
     }
-
     private static Vector pathToCurves(PathIterator pi) {
         Vector curves = new Vector();
         int windingRule = pi.getWindingRule();
@@ -98,43 +87,29 @@ public class Area implements Shape, Cloneable {
         }
         return operator.calculate(curves, EmptyCurves);
     }
-
-
     public void add(Area rhs) {
         curves = new AreaOp.AddOp().calculate(this.curves, rhs.curves);
         invalidateBounds();
     }
-
-
     public void subtract(Area rhs) {
         curves = new AreaOp.SubOp().calculate(this.curves, rhs.curves);
         invalidateBounds();
     }
-
-
     public void intersect(Area rhs) {
         curves = new AreaOp.IntOp().calculate(this.curves, rhs.curves);
         invalidateBounds();
     }
-
-
     public void exclusiveOr(Area rhs) {
         curves = new AreaOp.XorOp().calculate(this.curves, rhs.curves);
         invalidateBounds();
     }
-
-
     public void reset() {
         curves = new Vector();
         invalidateBounds();
     }
-
-
     public boolean isEmpty() {
         return (curves.size() == 0);
     }
-
-
     public boolean isPolygonal() {
         Enumeration enum_ = curves.elements();
         while (enum_.hasMoreElements()) {
@@ -144,8 +119,6 @@ public class Area implements Shape, Cloneable {
         }
         return true;
     }
-
-
     public boolean isRectangular() {
         int size = curves.size();
         if (size == 0) {
@@ -168,8 +141,6 @@ public class Area implements Shape, Cloneable {
         }
         return true;
     }
-
-
     public boolean isSingular() {
         if (curves.size() < 3) {
             return true;
@@ -183,7 +154,6 @@ public class Area implements Shape, Cloneable {
         }
         return true;
     }
-
     private Rectangle2D cachedBounds;
     private void invalidateBounds() {
         cachedBounds = null;
@@ -203,23 +173,15 @@ public class Area implements Shape, Cloneable {
         }
         return (cachedBounds = r);
     }
-
-
     public Rectangle2D getBounds2D() {
         return getCachedBounds().getBounds2D();
     }
-
-
     public Rectangle getBounds() {
         return getCachedBounds().getBounds();
     }
-
-
     public Object clone() {
         return new Area(this);
     }
-
-
     public boolean equals(Area other) {
         // REMIND: A *much* simpler operation should be possible...
         // Should be able to do a curve-wise comparison since all Areas
@@ -233,8 +195,6 @@ public class Area implements Shape, Cloneable {
         Vector c = new AreaOp.XorOp().calculate(this.curves, other.curves);
         return c.isEmpty();
     }
-
-
     public void transform(AffineTransform t) {
         if (t == null) {
             throw new NullPointerException("transform must not be null");
@@ -244,15 +204,11 @@ public class Area implements Shape, Cloneable {
         curves = pathToCurves(getPathIterator(t));
         invalidateBounds();
     }
-
-
     public Area createTransformedArea(AffineTransform t) {
         Area a = new Area(this);
         a.transform(t);
         return a;
     }
-
-
     public boolean contains(double x, double y) {
         if (!getCachedBounds().contains(x, y)) {
             return false;
@@ -265,13 +221,9 @@ public class Area implements Shape, Cloneable {
         }
         return ((crossings & 1) == 1);
     }
-
-
     public boolean contains(Point2D p) {
         return contains(p.getX(), p.getY());
     }
-
-
     public boolean contains(double x, double y, double w, double h) {
         if (w < 0 || h < 0) {
             return false;
@@ -282,13 +234,9 @@ public class Area implements Shape, Cloneable {
         Crossings c = Crossings.findCrossings(curves, x, y, x+w, y+h);
         return (c != null && c.covers(y, y+h));
     }
-
-
     public boolean contains(Rectangle2D r) {
         return contains(r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
-
-
     public boolean intersects(double x, double y, double w, double h) {
         if (w < 0 || h < 0) {
             return false;
@@ -299,30 +247,22 @@ public class Area implements Shape, Cloneable {
         Crossings c = Crossings.findCrossings(curves, x, y, x+w, y+h);
         return (c == null || !c.isEmpty());
     }
-
-
     public boolean intersects(Rectangle2D r) {
         return intersects(r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
-
-
     public PathIterator getPathIterator(AffineTransform at) {
         return new AreaIterator(curves, at);
     }
-
-
     public PathIterator getPathIterator(AffineTransform at, double flatness) {
         return new FlatteningPathIterator(getPathIterator(at), flatness);
     }
 }
-
 class AreaIterator implements PathIterator {
     private AffineTransform transform;
     private Vector curves;
     private int index;
     private Curve prevcurve;
     private Curve thiscurve;
-
     public AreaIterator(Vector curves, AffineTransform at) {
         this.curves = curves;
         this.transform = at;
@@ -330,18 +270,15 @@ class AreaIterator implements PathIterator {
             thiscurve = (Curve) curves.get(0);
         }
     }
-
     public int getWindingRule() {
         // REMIND: Which is better, EVEN_ODD or NON_ZERO?
         //         The paths calculated could be classified either way.
         //return WIND_EVEN_ODD;
         return WIND_NON_ZERO;
     }
-
     public boolean isDone() {
         return (prevcurve == null && thiscurve == null);
     }
-
     public void next() {
         if (prevcurve != null) {
             prevcurve = null;
@@ -361,7 +298,6 @@ class AreaIterator implements PathIterator {
             }
         }
     }
-
     public int currentSegment(float coords[]) {
         double dcoords[] = new double[6];
         int segtype = currentSegment(dcoords);
@@ -374,7 +310,6 @@ class AreaIterator implements PathIterator {
         }
         return segtype;
     }
-
     public int currentSegment(double coords[]) {
         int segtype;
         int numpoints;

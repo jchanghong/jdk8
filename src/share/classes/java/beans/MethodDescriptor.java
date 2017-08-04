@@ -1,32 +1,17 @@
-
-
 package java.beans;
-
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.ArrayList;
-
-
-
 public class MethodDescriptor extends FeatureDescriptor {
-
     private final MethodRef methodRef = new MethodRef();
-
     private String[] paramNames;
-
     private List<WeakReference<Class<?>>> params;
-
     private ParameterDescriptor parameterDescriptors[];
-
-
     public MethodDescriptor(Method method) {
         this(method, null);
     }
-
-
-
     public MethodDescriptor(Method method,
                 ParameterDescriptor parameterDescriptors[]) {
         setName(method.getName());
@@ -35,8 +20,6 @@ public class MethodDescriptor extends FeatureDescriptor {
                 ? parameterDescriptors.clone()
                 : null;
     }
-
-
     public synchronized Method getMethod() {
         Method method = this.methodRef.get();
         if (method == null) {
@@ -62,7 +45,6 @@ public class MethodDescriptor extends FeatureDescriptor {
         }
         return method;
     }
-
     private synchronized void setMethod(Method method) {
         if (method == null) {
             return;
@@ -73,7 +55,6 @@ public class MethodDescriptor extends FeatureDescriptor {
         setParams(getParameterTypes(getClass0(), method));
         this.methodRef.set(method);
     }
-
     private synchronized void setParams(Class<?>[] param) {
         if (param == null) {
             return;
@@ -85,15 +66,12 @@ public class MethodDescriptor extends FeatureDescriptor {
             params.add(new WeakReference<Class<?>>(param[i]));
         }
     }
-
     // pp getParamNames used as an optimization to avoid method.getParameterTypes.
     String[] getParamNames() {
         return paramNames;
     }
-
     private synchronized Class<?>[] getParams() {
         Class<?>[] clss = new Class<?>[params.size()];
-
         for (int i = 0; i < params.size(); i++) {
             Reference<? extends Class<?>> ref = (Reference<? extends Class<?>>)params.get(i);
             Class<?> cls = ref.get();
@@ -105,14 +83,11 @@ public class MethodDescriptor extends FeatureDescriptor {
         }
         return clss;
     }
-
-
     public ParameterDescriptor[] getParameterDescriptors() {
         return (this.parameterDescriptors != null)
                 ? this.parameterDescriptors.clone()
                 : null;
     }
-
     private static Method resolve(Method oldMethod, Method newMethod) {
         if (oldMethod == null) {
             return newMethod;
@@ -122,12 +97,8 @@ public class MethodDescriptor extends FeatureDescriptor {
         }
         return !oldMethod.isSynthetic() && newMethod.isSynthetic() ? oldMethod : newMethod;
     }
-
-
-
     MethodDescriptor(MethodDescriptor x, MethodDescriptor y) {
         super(x, y);
-
         this.methodRef.set(resolve(x.methodRef.get(), y.methodRef.get()));
         params = x.params;
         if (y.params != null) {
@@ -137,21 +108,16 @@ public class MethodDescriptor extends FeatureDescriptor {
         if (y.paramNames != null) {
             paramNames = y.paramNames;
         }
-
         parameterDescriptors = x.parameterDescriptors;
         if (y.parameterDescriptors != null) {
             parameterDescriptors = y.parameterDescriptors;
         }
     }
-
-
     MethodDescriptor(MethodDescriptor old) {
         super(old);
-
         this.methodRef.set(old.getMethod());
         params = old.params;
         paramNames = old.paramNames;
-
         if (old.parameterDescriptors != null) {
             int len = old.parameterDescriptors.length;
             parameterDescriptors = new ParameterDescriptor[len];
@@ -160,7 +126,6 @@ public class MethodDescriptor extends FeatureDescriptor {
             }
         }
     }
-
     void appendTo(StringBuilder sb) {
         appendTo(sb, "method", this.methodRef.get());
         if (this.parameterDescriptors != null) {

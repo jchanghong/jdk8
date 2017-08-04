@@ -1,7 +1,4 @@
-
-
 package java.lang;
-
 import java.util.NoSuchElementException;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
@@ -9,32 +6,17 @@ import java.util.Spliterators;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
-
-
-
 public interface CharSequence {
-
-
     int length();
-
-
     char charAt(int index);
-
-
     CharSequence subSequence(int start, int end);
-
-
     public String toString();
-
-
     public default IntStream chars() {
         class CharIterator implements PrimitiveIterator.OfInt {
             int cur = 0;
-
             public boolean hasNext() {
                 return cur < length();
             }
-
             public int nextInt() {
                 if (hasNext()) {
                     return charAt(cur++);
@@ -42,7 +24,6 @@ public interface CharSequence {
                     throw new NoSuchElementException();
                 }
             }
-
             @Override
             public void forEachRemaining(IntConsumer block) {
                 for (; cur < length(); cur++) {
@@ -50,7 +31,6 @@ public interface CharSequence {
                 }
             }
         }
-
         return StreamSupport.intStream(() ->
                 Spliterators.spliterator(
                         new CharIterator(),
@@ -59,12 +39,9 @@ public interface CharSequence {
                 Spliterator.SUBSIZED | Spliterator.SIZED | Spliterator.ORDERED,
                 false);
     }
-
-
     public default IntStream codePoints() {
         class CodePointIterator implements PrimitiveIterator.OfInt {
             int cur = 0;
-
             @Override
             public void forEachRemaining(IntConsumer block) {
                 final int length = length();
@@ -88,14 +65,11 @@ public interface CharSequence {
                     cur = i;
                 }
             }
-
             public boolean hasNext() {
                 return cur < length();
             }
-
             public int nextInt() {
                 final int length = length();
-
                 if (cur >= length) {
                     throw new NoSuchElementException();
                 }
@@ -110,7 +84,6 @@ public interface CharSequence {
                 return c1;
             }
         }
-
         return StreamSupport.intStream(() ->
                 Spliterators.spliteratorUnknownSize(
                         new CodePointIterator(),

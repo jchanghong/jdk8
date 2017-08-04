@@ -1,8 +1,4 @@
-
-
 package java.io;
-
-
 @Deprecated
 public
 class LineNumberInputStream extends FilterInputStream {
@@ -10,23 +6,17 @@ class LineNumberInputStream extends FilterInputStream {
     int lineNumber;
     int markLineNumber;
     int markPushBack = -1;
-
-
     public LineNumberInputStream(InputStream in) {
         super(in);
     }
-
-
     @SuppressWarnings("fallthrough")
     public int read() throws IOException {
         int c = pushBack;
-
         if (c != -1) {
             pushBack = -1;
         } else {
             c = in.read();
         }
-
         switch (c) {
           case '\r':
             pushBack = in.read();
@@ -39,8 +29,6 @@ class LineNumberInputStream extends FilterInputStream {
         }
         return c;
     }
-
-
     public int read(byte b[], int off, int len) throws IOException {
         if (b == null) {
             throw new NullPointerException();
@@ -50,13 +38,11 @@ class LineNumberInputStream extends FilterInputStream {
         } else if (len == 0) {
             return 0;
         }
-
         int c = read();
         if (c == -1) {
             return -1;
         }
         b[off] = (byte)c;
-
         int i = 1;
         try {
             for (; i < len ; i++) {
@@ -72,18 +58,14 @@ class LineNumberInputStream extends FilterInputStream {
         }
         return i;
     }
-
-
     public long skip(long n) throws IOException {
         int chunk = 2048;
         long remaining = n;
         byte data[];
         int nr;
-
         if (n <= 0) {
             return 0;
         }
-
         data = new byte[chunk];
         while (remaining > 0) {
             nr = read(data, 0, (int) Math.min(chunk, remaining));
@@ -92,34 +74,22 @@ class LineNumberInputStream extends FilterInputStream {
             }
             remaining -= nr;
         }
-
         return n - remaining;
     }
-
-
     public void setLineNumber(int lineNumber) {
         this.lineNumber = lineNumber;
     }
-
-
     public int getLineNumber() {
         return lineNumber;
     }
-
-
-
     public int available() throws IOException {
         return (pushBack == -1) ? super.available()/2 : super.available()/2 + 1;
     }
-
-
     public void mark(int readlimit) {
         markLineNumber = lineNumber;
         markPushBack   = pushBack;
         in.mark(readlimit);
     }
-
-
     public void reset() throws IOException {
         lineNumber = markLineNumber;
         pushBack   = markPushBack;

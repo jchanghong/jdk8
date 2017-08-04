@@ -1,19 +1,13 @@
-
 package java.beans;
-
 import com.sun.beans.decoder.DocumentHandler;
-
 import java.io.Closeable;
 import java.io.InputStream;
 import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
-
-
 public class XMLDecoder implements AutoCloseable {
     private final AccessControlContext acc = AccessController.getContext();
     private final DocumentHandler handler = new DocumentHandler();
@@ -21,35 +15,22 @@ public class XMLDecoder implements AutoCloseable {
     private Object owner;
     private Object[] array;
     private int index;
-
-
     public XMLDecoder(InputStream in) {
         this(in, null);
     }
-
-
     public XMLDecoder(InputStream in, Object owner) {
         this(in, owner, null);
     }
-
-
     public XMLDecoder(InputStream in, Object owner, ExceptionListener exceptionListener) {
         this(in, owner, exceptionListener, null);
     }
-
-
     public XMLDecoder(InputStream in, Object owner,
                       ExceptionListener exceptionListener, ClassLoader cl) {
         this(new InputSource(in), owner, exceptionListener, cl);
     }
-
-
-
     public XMLDecoder(InputSource is) {
         this(is, null, null, null);
     }
-
-
     private XMLDecoder(InputSource is, Object owner, ExceptionListener el, ClassLoader cl) {
         this.input = is;
         this.owner = owner;
@@ -57,15 +38,12 @@ public class XMLDecoder implements AutoCloseable {
         this.handler.setClassLoader(cl);
         this.handler.setOwner(this);
     }
-
-
     public void close() {
         if (parsingComplete()) {
             close(this.input.getCharacterStream());
             close(this.input.getByteStream());
         }
     }
-
     private void close(Closeable in) {
         if (in != null) {
             try {
@@ -76,7 +54,6 @@ public class XMLDecoder implements AutoCloseable {
             }
         }
     }
-
     private boolean parsingComplete() {
         if (this.input == null) {
             return false;
@@ -95,38 +72,26 @@ public class XMLDecoder implements AutoCloseable {
         }
         return true;
     }
-
-
     public void setExceptionListener(ExceptionListener exceptionListener) {
         if (exceptionListener == null) {
             exceptionListener = Statement.defaultExceptionListener;
         }
         this.handler.setExceptionListener(exceptionListener);
     }
-
-
     public ExceptionListener getExceptionListener() {
         return this.handler.getExceptionListener();
     }
-
-
     public Object readObject() {
         return (parsingComplete())
                 ? this.array[this.index++]
                 : null;
     }
-
-
     public void setOwner(Object owner) {
         this.owner = owner;
     }
-
-
     public Object getOwner() {
         return owner;
     }
-
-
     public static DefaultHandler createHandler(Object owner, ExceptionListener el, ClassLoader cl) {
         DocumentHandler handler = new DocumentHandler();
         handler.setOwner(owner);

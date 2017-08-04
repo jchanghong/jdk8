@@ -1,6 +1,1 @@
-
-
-
-
-
 package java.time.format;

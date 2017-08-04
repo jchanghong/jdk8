@@ -1,37 +1,16 @@
-
-
 package java.awt.image;
-
 import java.awt.image.ImageConsumer;
 import java.awt.image.ColorModel;
 import java.util.Hashtable;
 import java.awt.Rectangle;
-
-
 public class ReplicateScaleFilter extends ImageFilter {
-
-
     protected int srcWidth;
-
-
     protected int srcHeight;
-
-
     protected int destWidth;
-
-
     protected int destHeight;
-
-
     protected int srcrows[];
-
-
     protected int srccols[];
-
-
     protected Object outpixbuf;
-
-
     public ReplicateScaleFilter(int width, int height) {
         if (width == 0 || height == 0) {
             throw new IllegalArgumentException("Width ("+width+
@@ -41,8 +20,6 @@ public class ReplicateScaleFilter extends ImageFilter {
         destWidth = width;
         destHeight = height;
     }
-
-
     public void setProperties(Hashtable<?,?> props) {
         Hashtable<Object,Object> p = (Hashtable<Object,Object>)props.clone();
         String key = "rescale";
@@ -54,8 +31,6 @@ public class ReplicateScaleFilter extends ImageFilter {
         p.put(key, val);
         super.setProperties(p);
     }
-
-
     public void setDimensions(int w, int h) {
         srcWidth = w;
         srcHeight = h;
@@ -71,7 +46,6 @@ public class ReplicateScaleFilter extends ImageFilter {
         }
         consumer.setDimensions(destWidth, destHeight);
     }
-
     private void calculateMaps() {
         srcrows = new int[destHeight + 1];
         for (int y = 0; y <= destHeight; y++) {
@@ -82,8 +56,6 @@ public class ReplicateScaleFilter extends ImageFilter {
             srccols[x] = (2 * x * srcWidth + srcWidth) / (2 * destWidth);
         }
     }
-
-
     public void setPixels(int x, int y, int w, int h,
                           ColorModel model, byte pixels[], int off,
                           int scansize) {
@@ -112,8 +84,6 @@ public class ReplicateScaleFilter extends ImageFilter {
             }
         }
     }
-
-
     public void setPixels(int x, int y, int w, int h,
                           ColorModel model, int pixels[], int off,
                           int scansize) {

@@ -1,105 +1,57 @@
-
 package java.awt;
-
 import java.awt.dnd.DropTarget;
-
 import java.awt.event.*;
-
 import java.awt.peer.ContainerPeer;
 import java.awt.peer.ComponentPeer;
 import java.awt.peer.LightweightPeer;
-
 import java.beans.PropertyChangeListener;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-
 import java.lang.ref.WeakReference;
 import java.security.AccessController;
-
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.accessibility.*;
-
 import sun.util.logging.PlatformLogger;
-
 import sun.awt.AppContext;
 import sun.awt.AWTAccessor;
 import sun.awt.CausedFocusEvent;
 import sun.awt.PeerEvent;
 import sun.awt.SunToolkit;
-
 import sun.awt.dnd.SunDropTargetEvent;
-
 import sun.java2d.pipe.Region;
-
 import sun.security.action.GetBooleanAction;
-
-
 public class Container extends Component {
-
     private static final PlatformLogger log = PlatformLogger.getLogger("java.awt.Container");
     private static final PlatformLogger eventLog = PlatformLogger.getLogger("java.awt.event.Container");
-
     private static final Component[] EMPTY_ARRAY = new Component[0];
-
-
     private java.util.List<Component> component = new ArrayList<>();
-
-
     LayoutManager layoutMgr;
-
-
     private LightweightDispatcher dispatcher;
-
-
     private transient FocusTraversalPolicy focusTraversalPolicy;
-
-
     private boolean focusCycleRoot = false;
-
-
-
     private boolean focusTraversalPolicyProvider;
-
     // keeps track of the threads that are printing this component
     private transient Set<Thread> printingThreads;
     // True if there is at least one thread that's printing this component
     private transient boolean printing = false;
-
     transient ContainerListener containerListener;
-
-
     transient int listeningChildren;
     transient int listeningBoundsChildren;
     transient int descendantsCount;
-
-
     transient Color preserveBackgroundColor = null;
-
-
     private static final long serialVersionUID = 4613797578919906343L;
-
-
     static final boolean INCLUDE_SELF = true;
-
-
     static final boolean SEARCH_HEAVYWEIGHTS = true;
-
-
     private transient int numOfHWComponents = 0;
     private transient int numOfLWComponents = 0;
-
     private static final PlatformLogger mixingLog = PlatformLogger.getLogger("java.awt.mixing.Container");
-
-
     private static final ObjectStreamField[] serialPersistentFields = {
         new ObjectStreamField("ncomponents", Integer.TYPE),
         new ObjectStreamField("component", Component[].class),
@@ -110,20 +62,16 @@ public class Container extends Component {
         new ObjectStreamField("containerSerializedDataVersion", Integer.TYPE),
         new ObjectStreamField("focusTraversalPolicyProvider", Boolean.TYPE),
     };
-
     static {
-
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
             initIDs();
         }
-
         AWTAccessor.setContainerAccessor(new AWTAccessor.ContainerAccessor() {
             @Override
             public void validateUnconditionally(Container cont) {
                 cont.validateUnconditionally();
             }
-
             @Override
             public Component findComponentAt(Container cont, int x, int y,
                     boolean ignoreEnabled) {
@@ -131,24 +79,16 @@ public class Container extends Component {
             }
         });
     }
-
-
     private static native void initIDs();
-
-
     public Container() {
     }
     @SuppressWarnings({"unchecked","rawtypes"})
     void initializeFocusTraversalKeys() {
         focusTraversalKeys = new Set[4];
     }
-
-
     public int getComponentCount() {
         return countComponents();
     }
-
-
     @Deprecated
     public int countComponents() {
         // This method is not synchronized under AWT tree lock.
@@ -156,8 +96,6 @@ public class Container extends Component {
         // synchronization. See 6784816 for details.
         return component.size();
     }
-
-
     public Component getComponent(int n) {
         // This method is not synchronized under AWT tree lock.
         // Instead, the calling code is responsible for the
@@ -168,15 +106,12 @@ public class Container extends Component {
             throw new ArrayIndexOutOfBoundsException("No such child: " + n);
         }
     }
-
-
     public Component[] getComponents() {
         // This method is not synchronized under AWT tree lock.
         // Instead, the calling code is responsible for the
         // synchronization. See 6784816 for details.
         return getComponents_NoClientCode();
     }
-
     // NOTE: This method may be called by privileged threads.
     //       This functionality is implemented in a package-private method
     //       to insure that it cannot be overridden by client subclasses.
@@ -184,20 +119,14 @@ public class Container extends Component {
     final Component[] getComponents_NoClientCode() {
         return component.toArray(EMPTY_ARRAY);
     }
-
-
     Component[] getComponentsSync() {
         synchronized (getTreeLock()) {
             return getComponents();
         }
     }
-
-
     public Insets getInsets() {
         return insets();
     }
-
-
     @Deprecated
     public Insets insets() {
         ComponentPeer peer = this.peer;
@@ -207,26 +136,18 @@ public class Container extends Component {
         }
         return new Insets(0, 0, 0, 0);
     }
-
-
     public Component add(Component comp) {
         addImpl(comp, null, -1);
         return comp;
     }
-
-
     public Component add(String name, Component comp) {
         addImpl(comp, name, -1);
         return comp;
     }
-
-
     public Component add(Component comp, int index) {
         addImpl(comp, null, index);
         return comp;
     }
-
-
     private void checkAddToSelf(Component comp){
         if (comp instanceof Container) {
             for (Container cn = this; cn != null; cn=cn.parent) {
@@ -236,20 +157,14 @@ public class Container extends Component {
             }
         }
     }
-
-
     private void checkNotAWindow(Component comp){
         if (comp instanceof Window) {
             throw new IllegalArgumentException("adding a window to a container");
         }
     }
-
-
     private void checkAdding(Component comp, int index) {
         checkTreeLock();
-
         GraphicsConfiguration thisGC = getGraphicsConfiguration();
-
         if (index > component.size() || index < 0) {
             throw new IllegalArgumentException("illegal component position");
         }
@@ -261,7 +176,6 @@ public class Container extends Component {
         }
         checkAddToSelf(comp);
         checkNotAWindow(comp);
-
         Window thisTopLevel = getContainingWindow();
         Window compTopLevel = comp.getContainingWindow();
         if (thisTopLevel != compTopLevel) {
@@ -271,11 +185,8 @@ public class Container extends Component {
             comp.checkGD(thisGC.getDevice().getIDstring());
         }
     }
-
-
     private boolean removeDelicately(Component comp, Container newParent, int newIndex) {
         checkTreeLock();
-
         int index = getComponentZOrder(comp);
         boolean needRemoveNotify = isRemoveNotifyNeeded(comp, this, newParent);
         if (needRemoveNotify) {
@@ -290,13 +201,11 @@ public class Container extends Component {
             adjustListeningChildren(AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK,
                                     -comp.numListening(AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK));
             adjustDescendants(-(comp.countHierarchyMembers()));
-
             comp.parent = null;
             if (needRemoveNotify) {
                 comp.setGraphicsConfiguration(null);
             }
             component.remove(index);
-
             invalidateIfValid();
         } else {
             // We should remove component and then
@@ -315,7 +224,6 @@ public class Container extends Component {
                                                       ContainerEvent.COMPONENT_REMOVED,
                                                       comp);
                 dispatchEvent(e);
-
             }
             comp.createHierarchyEvents(HierarchyEvent.HIERARCHY_CHANGED, comp,
                                        this, HierarchyEvent.PARENT_CHANGED,
@@ -326,8 +234,6 @@ public class Container extends Component {
         }
         return needRemoveNotify;
     }
-
-
     boolean canContainFocusOwner(Component focusOwnerCandidate) {
         if (!(isEnabled() && isDisplayable()
               && isVisible() && isFocusable()))
@@ -349,20 +255,14 @@ public class Container extends Component {
         }
         return true;
     }
-
-
     final boolean hasHeavyweightDescendants() {
         checkTreeLock();
         return numOfHWComponents > 0;
     }
-
-
     final boolean hasLightweightDescendants() {
         checkTreeLock();
         return numOfLWComponents > 0;
     }
-
-
     Container getHeavyweightContainer() {
         checkTreeLock();
         if (peer != null && !(peer instanceof LightweightPeer)) {
@@ -371,8 +271,6 @@ public class Container extends Component {
             return getNativeContainer();
         }
     }
-
-
     private static boolean isRemoveNotifyNeeded(Component comp, Container oldContainer, Container newContainer) {
         if (oldContainer == null) { // Component didn't have parent - no removeNotify
             return false;
@@ -384,19 +282,15 @@ public class Container extends Component {
             // Component has peer but new Container doesn't - call removeNotify
             return true;
         }
-
         // If component is lightweight non-Container or lightweight Container with all but heavyweight
         // children there is no need to call remove notify
         if (comp.isLightweight()) {
             boolean isContainer = comp instanceof Container;
-
             if (!isContainer || (isContainer && !((Container)comp).hasHeavyweightDescendants())) {
                 return false;
             }
         }
-
         // If this point is reached, then the comp is either a HW or a LW container with HW descendants.
-
         // All three components have peers, check for peer change
         Container newNativeContainer = oldContainer.getHeavyweightContainer();
         Container oldNativeContainer = newContainer.getHeavyweightContainer();
@@ -413,24 +307,18 @@ public class Container extends Component {
             return false;
         }
     }
-
-
     public void setComponentZOrder(Component comp, int index) {
          synchronized (getTreeLock()) {
              // Store parent because remove will clear it
              Container curParent = comp.parent;
              int oldZindex = getComponentZOrder(comp);
-
              if (curParent == this && index == oldZindex) {
                  return;
              }
              checkAdding(comp, index);
-
              boolean peerRecreated = (curParent != null) ?
                  curParent.removeDelicately(comp, this, index) : false;
-
              addDelicately(comp, curParent, index);
-
              // If the oldZindex == -1, the component gets inserted,
              // rather than it changes its z-order.
              if (!peerRecreated && oldZindex != -1) {
@@ -443,11 +331,8 @@ public class Container extends Component {
              }
          }
     }
-
-
     private void reparentTraverse(ContainerPeer parentPeer, Container child) {
         checkTreeLock();
-
         for (int i = 0; i < child.getComponentCount(); i++) {
             Component comp = child.getComponent(i);
             if (comp.isLightweight()) {
@@ -462,8 +347,6 @@ public class Container extends Component {
             }
         }
     }
-
-
     private void reparentChild(Component comp) {
         checkTreeLock();
         if (comp == null) {
@@ -479,11 +362,8 @@ public class Container extends Component {
             comp.getPeer().reparent((ContainerPeer)getPeer());
         }
     }
-
-
     private void addDelicately(Component comp, Container curParent, int index) {
         checkTreeLock();
-
         // Check if moving between containers
         if (curParent != this) {
             //index == -1 means add to the end.
@@ -494,7 +374,6 @@ public class Container extends Component {
             }
             comp.parent = this;
             comp.setGraphicsConfiguration(getGraphicsConfiguration());
-
             adjustListeningChildren(AWTEvent.HIERARCHY_EVENT_MASK,
                                     comp.numListening(AWTEvent.HIERARCHY_EVENT_MASK));
             adjustListeningChildren(AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK,
@@ -505,7 +384,6 @@ public class Container extends Component {
                 component.set(index, comp);
             }
         }
-
         invalidateIfValid();
         if (peer != null) {
             if (comp.peer == null) { // Remove notify was called or it didn't have peer - create new one
@@ -519,7 +397,6 @@ public class Container extends Component {
                     newNativeContainer.reparentChild(comp);
                 }
                 comp.updateZOrder();
-
                 if (!comp.isLightweight() && isLightweight()) {
                     // If component is heavyweight and one of the containers is lightweight
                     // the location of the component should be fixed.
@@ -528,7 +405,6 @@ public class Container extends Component {
             }
         }
         if (curParent != this) {
-
             if (layoutMgr != null) {
                 if (layoutMgr instanceof LayoutManager2) {
                     ((LayoutManager2)layoutMgr).addLayoutComponent(comp, null);
@@ -547,7 +423,6 @@ public class Container extends Component {
             comp.createHierarchyEvents(HierarchyEvent.HIERARCHY_CHANGED, comp,
                                        this, HierarchyEvent.PARENT_CHANGED,
                                        Toolkit.enabledOnToolkit(AWTEvent.HIERARCHY_EVENT_MASK));
-
             // If component is focus owner or parent container of focus owner check that after reparenting
             // focus owner moved out if new container prohibit this kind of focus owner.
             if (comp.isFocusOwner() && !comp.canBeFocusOwnerRecursively()) {
@@ -563,13 +438,10 @@ public class Container extends Component {
                                        this, HierarchyEvent.HIERARCHY_CHANGED,
                                        Toolkit.enabledOnToolkit(AWTEvent.HIERARCHY_EVENT_MASK));
         }
-
         if (peer != null && layoutMgr == null && isVisible()) {
             updateCursorImmediately();
         }
     }
-
-
     public int getComponentZOrder(Component comp) {
         if (comp == null) {
             return -1;
@@ -582,30 +454,21 @@ public class Container extends Component {
             return component.indexOf(comp);
         }
     }
-
-
     public void add(Component comp, Object constraints) {
         addImpl(comp, constraints, -1);
     }
-
-
     public void add(Component comp, Object constraints, int index) {
        addImpl(comp, constraints, index);
     }
-
-
     protected void addImpl(Component comp, Object constraints, int index) {
         synchronized (getTreeLock()) {
-
             GraphicsConfiguration thisGC = this.getGraphicsConfiguration();
-
             if (index > component.size() || (index < 0 && index != -1)) {
                 throw new IllegalArgumentException(
                           "illegal component position");
             }
             checkAddToSelf(comp);
             checkNotAWindow(comp);
-
             if (comp.parent != null) {
                 comp.parent.remove(comp);
                 if (index > component.size()) {
@@ -615,9 +478,6 @@ public class Container extends Component {
             if (thisGC != null) {
                 comp.checkGD(thisGC.getDevice().getIDstring());
             }
-
-
-
             //index == -1 means add to the end.
             if (index == -1) {
                 component.add(comp);
@@ -626,19 +486,15 @@ public class Container extends Component {
             }
             comp.parent = this;
             comp.setGraphicsConfiguration(thisGC);
-
             adjustListeningChildren(AWTEvent.HIERARCHY_EVENT_MASK,
                 comp.numListening(AWTEvent.HIERARCHY_EVENT_MASK));
             adjustListeningChildren(AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK,
                 comp.numListening(AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK));
             adjustDescendants(comp.countHierarchyMembers());
-
             invalidateIfValid();
             if (peer != null) {
                 comp.addNotify();
             }
-
-
             if (layoutMgr != null) {
                 if (layoutMgr instanceof LayoutManager2) {
                     ((LayoutManager2)layoutMgr).addLayoutComponent(comp, constraints);
@@ -654,7 +510,6 @@ public class Container extends Component {
                                      comp);
                 dispatchEvent(e);
             }
-
             comp.createHierarchyEvents(HierarchyEvent.HIERARCHY_CHANGED, comp,
                                        this, HierarchyEvent.PARENT_CHANGED,
                                        Toolkit.enabledOnToolkit(AWTEvent.HIERARCHY_EVENT_MASK));
@@ -663,13 +518,10 @@ public class Container extends Component {
             }
         }
     }
-
     @Override
     boolean updateGraphicsData(GraphicsConfiguration gc) {
         checkTreeLock();
-
         boolean ret = super.updateGraphicsData(gc);
-
         for (Component comp : component) {
             if (comp != null) {
                 ret |= comp.updateGraphicsData(gc);
@@ -677,8 +529,6 @@ public class Container extends Component {
         }
         return ret;
     }
-
-
     void checkGD(String stringID) {
         for (Component comp : component) {
             if (comp != null) {
@@ -686,8 +536,6 @@ public class Container extends Component {
             }
         }
     }
-
-
     public void remove(int index) {
         synchronized (getTreeLock()) {
             if (index < 0  || index >= component.size()) {
@@ -700,17 +548,14 @@ public class Container extends Component {
             if (layoutMgr != null) {
                 layoutMgr.removeLayoutComponent(comp);
             }
-
             adjustListeningChildren(AWTEvent.HIERARCHY_EVENT_MASK,
                 -comp.numListening(AWTEvent.HIERARCHY_EVENT_MASK));
             adjustListeningChildren(AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK,
                 -comp.numListening(AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK));
             adjustDescendants(-(comp.countHierarchyMembers()));
-
             comp.parent = null;
             component.remove(index);
             comp.setGraphicsConfiguration(null);
-
             invalidateIfValid();
             if (containerListener != null ||
                 (eventMask & AWTEvent.CONTAINER_EVENT_MASK) != 0 ||
@@ -720,7 +565,6 @@ public class Container extends Component {
                                      comp);
                 dispatchEvent(e);
             }
-
             comp.createHierarchyEvents(HierarchyEvent.HIERARCHY_CHANGED, comp,
                                        this, HierarchyEvent.PARENT_CHANGED,
                                        Toolkit.enabledOnToolkit(AWTEvent.HIERARCHY_EVENT_MASK));
@@ -729,8 +573,6 @@ public class Container extends Component {
             }
         }
     }
-
-
     public void remove(Component comp) {
         synchronized (getTreeLock()) {
             if (comp.parent == this)  {
@@ -741,8 +583,6 @@ public class Container extends Component {
             }
         }
     }
-
-
     public void removeAll() {
         synchronized (getTreeLock()) {
             adjustListeningChildren(AWTEvent.HIERARCHY_EVENT_MASK,
@@ -750,10 +590,8 @@ public class Container extends Component {
             adjustListeningChildren(AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK,
                                     -listeningBoundsChildren);
             adjustDescendants(-descendantsCount);
-
             while (!component.isEmpty()) {
                 Component comp = component.remove(component.size()-1);
-
                 if (peer != null) {
                     comp.removeNotify();
                 }
@@ -770,7 +608,6 @@ public class Container extends Component {
                                      comp);
                     dispatchEvent(e);
                 }
-
                 comp.createHierarchyEvents(HierarchyEvent.HIERARCHY_CHANGED,
                                            comp, this,
                                            HierarchyEvent.PARENT_CHANGED,
@@ -782,11 +619,9 @@ public class Container extends Component {
             invalidateIfValid();
         }
     }
-
     // Should only be called while holding tree lock
     int numListening(long mask) {
         int superListening = super.numListening(mask);
-
         if (mask == AWTEvent.HIERARCHY_EVENT_MASK) {
             if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
                 // Verify listeningChildren is correct
@@ -819,7 +654,6 @@ public class Container extends Component {
             return superListening;
         }
     }
-
     // Should only be called while holding tree lock
     void adjustListeningChildren(long mask, int num) {
         if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
@@ -831,36 +665,29 @@ public class Container extends Component {
                 eventLog.fine("Assertion failed");
             }
         }
-
         if (num == 0)
             return;
-
         if ((mask & AWTEvent.HIERARCHY_EVENT_MASK) != 0) {
             listeningChildren += num;
         }
         if ((mask & AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK) != 0) {
             listeningBoundsChildren += num;
         }
-
         adjustListeningChildrenOnParent(mask, num);
     }
-
     // Should only be called while holding tree lock
     void adjustDescendants(int num) {
         if (num == 0)
             return;
-
         descendantsCount += num;
         adjustDecendantsOnParent(num);
     }
-
     // Should only be called while holding tree lock
     void adjustDecendantsOnParent(int num) {
         if (parent != null) {
             parent.adjustDescendants(num);
         }
     }
-
     // Should only be called while holding tree lock
     int countHierarchyMembers() {
         if (log.isLoggable(PlatformLogger.Level.FINE)) {
@@ -875,7 +702,6 @@ public class Container extends Component {
         }
         return descendantsCount + 1;
     }
-
     private int getListenersCount(int id, boolean enabledOnToolkit) {
         checkTreeLock();
         if (enabledOnToolkit) {
@@ -891,13 +717,11 @@ public class Container extends Component {
             return 0;
         }
     }
-
     final int createHierarchyEvents(int id, Component changed,
         Container changedParent, long changeFlags, boolean enabledOnToolkit)
     {
         checkTreeLock();
         int listeners = getListenersCount(id, enabledOnToolkit);
-
         for (int count = listeners, i = 0; count > 0; i++) {
             count -= component.get(i).createHierarchyEvents(id, changed,
                 changedParent, changeFlags, enabledOnToolkit);
@@ -906,7 +730,6 @@ public class Container extends Component {
             super.createHierarchyEvents(id, changed, changedParent,
                                         changeFlags, enabledOnToolkit);
     }
-
     final void createChildHierarchyEvents(int id, long changeFlags,
         boolean enabledOnToolkit)
     {
@@ -915,30 +738,21 @@ public class Container extends Component {
             return;
         }
         int listeners = getListenersCount(id, enabledOnToolkit);
-
         for (int count = listeners, i = 0; count > 0; i++) {
             count -= component.get(i).createHierarchyEvents(id, this, parent,
                 changeFlags, enabledOnToolkit);
         }
     }
-
-
     public LayoutManager getLayout() {
         return layoutMgr;
     }
-
-
     public void setLayout(LayoutManager mgr) {
         layoutMgr = mgr;
         invalidateIfValid();
     }
-
-
     public void doLayout() {
         layout();
     }
-
-
     @Deprecated
     public void layout() {
         LayoutManager layoutMgr = this.layoutMgr;
@@ -946,28 +760,21 @@ public class Container extends Component {
             layoutMgr.layoutContainer(this);
         }
     }
-
-
     public boolean isValidateRoot() {
         return false;
     }
-
     private static final boolean isJavaAwtSmartInvalidate;
     static {
         // Don't lazy-read because every app uses invalidate()
         isJavaAwtSmartInvalidate = AccessController.doPrivileged(
                 new GetBooleanAction("java.awt.smartInvalidate"));
     }
-
-
     @Override
     void invalidateParent() {
         if (!isJavaAwtSmartInvalidate || !isValidateRoot()) {
             super.invalidateParent();
         }
     }
-
-
     @Override
     public void invalidate() {
         LayoutManager layoutMgr = this.layoutMgr;
@@ -977,8 +784,6 @@ public class Container extends Component {
         }
         super.invalidate();
     }
-
-
     public void validate() {
         boolean updateCur = false;
         synchronized (getTreeLock()) {
@@ -1007,29 +812,21 @@ public class Container extends Component {
             updateCursorImmediately();
         }
     }
-
-
     private static boolean descendUnconditionallyWhenValidating = false;
-
-
     final void validateUnconditionally() {
         boolean updateCur = false;
         synchronized (getTreeLock()) {
             descendUnconditionallyWhenValidating = true;
-
             validate();
             if (peer instanceof ContainerPeer) {
                 updateCur = isVisible();
             }
-
             descendUnconditionallyWhenValidating = false;
         }
         if (updateCur) {
             updateCursorImmediately();
         }
     }
-
-
     protected void validateTree() {
         checkTreeLock();
         if (!isValid() || descendUnconditionallyWhenValidating) {
@@ -1057,8 +854,6 @@ public class Container extends Component {
         }
         super.validate();
     }
-
-
     void invalidateTree() {
         synchronized (getTreeLock()) {
             for (int i = 0; i < component.size(); i++) {
@@ -1073,11 +868,8 @@ public class Container extends Component {
             invalidateIfValid();
         }
     }
-
-
     public void setFont(Font f) {
         boolean shouldinvalidate = false;
-
         Font oldfont = getFont();
         super.setFont(f);
         Font newfont = getFont();
@@ -1086,16 +878,11 @@ public class Container extends Component {
             invalidateTree();
         }
     }
-
-
     public Dimension getPreferredSize() {
         return preferredSize();
     }
-
-
     @Deprecated
     public Dimension preferredSize() {
-
         Dimension dim = prefSize;
         if (dim == null || !(isPreferredSizeSet() || isValid())) {
             synchronized (getTreeLock()) {
@@ -1112,16 +899,11 @@ public class Container extends Component {
             return dim;
         }
     }
-
-
     public Dimension getMinimumSize() {
         return minimumSize();
     }
-
-
     @Deprecated
     public Dimension minimumSize() {
-
         Dimension dim = minSize;
         if (dim == null || !(isMinimumSizeSet() || isValid())) {
             synchronized (getTreeLock()) {
@@ -1138,10 +920,7 @@ public class Container extends Component {
             return dim;
         }
     }
-
-
     public Dimension getMaximumSize() {
-
         Dimension dim = maxSize;
         if (dim == null || !(isMaximumSizeSet() || isValid())) {
             synchronized (getTreeLock()) {
@@ -1161,8 +940,6 @@ public class Container extends Component {
             return dim;
         }
     }
-
-
     public float getAlignmentX() {
         float xAlign;
         if (layoutMgr instanceof LayoutManager2) {
@@ -1175,8 +952,6 @@ public class Container extends Component {
         }
         return xAlign;
     }
-
-
     public float getAlignmentY() {
         float yAlign;
         if (layoutMgr instanceof LayoutManager2) {
@@ -1189,8 +964,6 @@ public class Container extends Component {
         }
         return yAlign;
     }
-
-
     public void paint(Graphics g) {
         if (isShowing()) {
             synchronized (getObjectLock()) {
@@ -1200,19 +973,14 @@ public class Container extends Component {
                     }
                 }
             }
-
             // The container is showing on screen and
             // this paint() is not called from print().
             // Paint self and forward the paint to lightweight subcomponents.
-
             // super.paint(); -- Don't bother, since it's a NOP.
-
             GraphicsCallback.PaintCallback.getInstance().
                 runComponents(getComponentsSync(), g, GraphicsCallback.LIGHTWEIGHTS);
         }
     }
-
-
     public void update(Graphics g) {
         if (isShowing()) {
             if (! (peer instanceof LightweightPeer)) {
@@ -1221,8 +989,6 @@ public class Container extends Component {
             paint(g);
         }
     }
-
-
     public void print(Graphics g) {
         if (isShowing()) {
             Thread t = Thread.currentThread();
@@ -1241,27 +1007,20 @@ public class Container extends Component {
                     printing = !printingThreads.isEmpty();
                 }
             }
-
             GraphicsCallback.PrintCallback.getInstance().
                 runComponents(getComponentsSync(), g, GraphicsCallback.LIGHTWEIGHTS);
         }
     }
-
-
     public void paintComponents(Graphics g) {
         if (isShowing()) {
             GraphicsCallback.PaintAllCallback.getInstance().
                 runComponents(getComponentsSync(), g, GraphicsCallback.TWO_PASSES);
         }
     }
-
-
     void lightweightPaint(Graphics g) {
         super.lightweightPaint(g);
         paintHeavyweightComponents(g);
     }
-
-
     void paintHeavyweightComponents(Graphics g) {
         if (isShowing()) {
             GraphicsCallback.PaintHeavyweightComponentsCallback.getInstance().
@@ -1269,22 +1028,16 @@ public class Container extends Component {
                               GraphicsCallback.LIGHTWEIGHTS | GraphicsCallback.HEAVYWEIGHTS);
         }
     }
-
-
     public void printComponents(Graphics g) {
         if (isShowing()) {
             GraphicsCallback.PrintAllCallback.getInstance().
                 runComponents(getComponentsSync(), g, GraphicsCallback.TWO_PASSES);
         }
     }
-
-
     void lightweightPrint(Graphics g) {
         super.lightweightPrint(g);
         printHeavyweightComponents(g);
     }
-
-
     void printHeavyweightComponents(Graphics g) {
         if (isShowing()) {
             GraphicsCallback.PrintHeavyweightComponentsCallback.getInstance().
@@ -1292,8 +1045,6 @@ public class Container extends Component {
                               GraphicsCallback.LIGHTWEIGHTS | GraphicsCallback.HEAVYWEIGHTS);
         }
     }
-
-
     public synchronized void addContainerListener(ContainerListener l) {
         if (l == null) {
             return;
@@ -1301,21 +1052,15 @@ public class Container extends Component {
         containerListener = AWTEventMulticaster.add(containerListener, l);
         newEventsOnly = true;
     }
-
-
     public synchronized void removeContainerListener(ContainerListener l) {
         if (l == null) {
             return;
         }
         containerListener = AWTEventMulticaster.remove(containerListener, l);
     }
-
-
     public synchronized ContainerListener[] getContainerListeners() {
         return getListeners(ContainerListener.class);
     }
-
-
     public <T extends EventListener> T[] getListeners(Class<T> listenerType) {
         EventListener l = null;
         if  (listenerType == ContainerListener.class) {
@@ -1325,11 +1070,9 @@ public class Container extends Component {
         }
         return AWTEventMulticaster.getListeners(l, listenerType);
     }
-
     // REMIND: remove when filtering is done at lower level
     boolean eventEnabled(AWTEvent e) {
         int id = e.getID();
-
         if (id == ContainerEvent.COMPONENT_ADDED ||
             id == ContainerEvent.COMPONENT_REMOVED) {
             if ((eventMask & AWTEvent.CONTAINER_EVENT_MASK) != 0 ||
@@ -1340,8 +1083,6 @@ public class Container extends Component {
         }
         return super.eventEnabled(e);
     }
-
-
     protected void processEvent(AWTEvent e) {
         if (e instanceof ContainerEvent) {
             processContainerEvent((ContainerEvent)e);
@@ -1349,8 +1090,6 @@ public class Container extends Component {
         }
         super.processEvent(e);
     }
-
-
     protected void processContainerEvent(ContainerEvent e) {
         ContainerListener listener = containerListener;
         if (listener != null) {
@@ -1364,8 +1103,6 @@ public class Container extends Component {
             }
         }
     }
-
-
     void dispatchEventImpl(AWTEvent e) {
         if ((dispatcher != null) && dispatcher.dispatchEvent(e)) {
             // event was sent to a lightweight component.  The
@@ -1380,9 +1117,7 @@ public class Container extends Component {
             }
             return;
         }
-
         super.dispatchEventImpl(e);
-
         synchronized (getTreeLock()) {
             switch (e.getID()) {
               case ComponentEvent.COMPONENT_RESIZED:
@@ -1398,27 +1133,19 @@ public class Container extends Component {
             }
         }
     }
-
-
     void dispatchEventToSelf(AWTEvent e) {
         super.dispatchEventImpl(e);
     }
-
-
     Component getMouseEventTarget(int x, int y, boolean includeSelf) {
         return getMouseEventTarget(x, y, includeSelf,
                                    MouseEventTargetFilter.FILTER,
                                    !SEARCH_HEAVYWEIGHTS);
     }
-
-
     Component getDropTargetEventTarget(int x, int y, boolean includeSelf) {
         return getMouseEventTarget(x, y, includeSelf,
                                    DropTargetEventTargetFilter.FILTER,
                                    SEARCH_HEAVYWEIGHTS);
     }
-
-
     private Component getMouseEventTarget(int x, int y, boolean includeSelf,
                                           EventTargetFilter filter,
                                           boolean searchHeavyweights) {
@@ -1428,23 +1155,18 @@ public class Container extends Component {
                                            SEARCH_HEAVYWEIGHTS,
                                            searchHeavyweights);
         }
-
         if (comp == null || comp == this) {
             comp = getMouseEventTargetImpl(x, y, includeSelf, filter,
                                            !SEARCH_HEAVYWEIGHTS,
                                            searchHeavyweights);
         }
-
         return comp;
     }
-
-
     private Component getMouseEventTargetImpl(int x, int y, boolean includeSelf,
                                          EventTargetFilter filter,
                                          boolean searchHeavyweightChildren,
                                          boolean searchHeavyweightDescendants) {
         synchronized (getTreeLock()) {
-
             for (int i = 0; i < component.size(); i++) {
                 Component comp = component.get(i);
                 if (comp != null && comp.visible &&
@@ -1453,7 +1175,6 @@ public class Container extends Component {
                      (searchHeavyweightChildren &&
                       !(comp.peer instanceof LightweightPeer))) &&
                     comp.contains(x - comp.x, y - comp.y)) {
-
                     // found a component that intersects the point, see if there
                     // is a deeper possibility.
                     if (comp instanceof Container) {
@@ -1476,13 +1197,10 @@ public class Container extends Component {
                     }
                 }
             }
-
             boolean isPeerOK;
             boolean isMouseOverMe;
-
             isPeerOK = (peer instanceof LightweightPeer) || includeSelf;
             isMouseOverMe = contains(x,y);
-
             // didn't find a child target, return this component if it's
             // a possible target
             if (isMouseOverMe && isPeerOK && filter.accept(this)) {
@@ -1492,16 +1210,12 @@ public class Container extends Component {
             return null;
         }
     }
-
     static interface EventTargetFilter {
         boolean accept(final Component comp);
     }
-
     static class MouseEventTargetFilter implements EventTargetFilter {
         static final EventTargetFilter FILTER = new MouseEventTargetFilter();
-
         private MouseEventTargetFilter() {}
-
         public boolean accept(final Component comp) {
             return (comp.eventMask & AWTEvent.MOUSE_MOTION_EVENT_MASK) != 0
                 || (comp.eventMask & AWTEvent.MOUSE_EVENT_MASK) != 0
@@ -1511,19 +1225,14 @@ public class Container extends Component {
                 || comp.mouseWheelListener != null;
         }
     }
-
     static class DropTargetEventTargetFilter implements EventTargetFilter {
         static final EventTargetFilter FILTER = new DropTargetEventTargetFilter();
-
         private DropTargetEventTargetFilter() {}
-
         public boolean accept(final Component comp) {
             DropTarget dt = comp.getDropTarget();
             return dt != null && dt.isActive();
         }
     }
-
-
     void proxyEnableEvents(long events) {
         if (peer instanceof LightweightPeer) {
             // this container is lightweight.... continue sending it
@@ -1542,8 +1251,6 @@ public class Container extends Component {
             }
         }
     }
-
-
     @Deprecated
     public void deliverEvent(Event e) {
         Component comp = getComponentAt(e.x, e.y);
@@ -1554,13 +1261,9 @@ public class Container extends Component {
             postEvent(e);
         }
     }
-
-
     public Component getComponentAt(int x, int y) {
         return locate(x, y);
     }
-
-
     @Deprecated
     public Component locate(int x, int y) {
         if (!contains(x, y)) {
@@ -1585,13 +1288,9 @@ public class Container extends Component {
         }
         return lightweight != null ? lightweight : this;
     }
-
-
     public Component getComponentAt(Point p) {
         return getComponentAt(p.x, p.y);
     }
-
-
     public Point getMousePosition(boolean allowChildren) throws HeadlessException {
         if (GraphicsEnvironment.isHeadless()) {
             throw new HeadlessException();
@@ -1611,17 +1310,12 @@ public class Container extends Component {
             return null;
         }
     }
-
     boolean isSameOrAncestorOf(Component comp, boolean allowChildren) {
         return this == comp || (allowChildren && isParentOf(comp));
     }
-
-
     public Component findComponentAt(int x, int y) {
         return findComponentAt(x, y, true);
     }
-
-
     final Component findComponentAt(int x, int y, boolean ignoreEnabled) {
         synchronized (getTreeLock()) {
             if (isRecursivelyVisible()){
@@ -1630,10 +1324,8 @@ public class Container extends Component {
         }
         return null;
     }
-
     final Component findComponentAtImpl(int x, int y, boolean ignoreEnabled) {
         // checkTreeLock(); commented for a performance reason
-
         if (!(contains(x, y) && visible && (ignoreEnabled || enabled))) {
             return null;
         }
@@ -1661,8 +1353,6 @@ public class Container extends Component {
         }
         return lightweight != null ? lightweight : this;
     }
-
-
     private static Component getChildAt(Component comp, int x, int y,
                                         boolean ignoreEnabled) {
         if (comp instanceof Container) {
@@ -1677,13 +1367,9 @@ public class Container extends Component {
         }
         return null;
     }
-
-
     public Component findComponentAt(Point p) {
         return findComponentAt(p.x, p.y);
     }
-
-
     public void addNotify() {
         synchronized (getTreeLock()) {
             // addNotify() on the children may cause proxy event enabling
@@ -1694,7 +1380,6 @@ public class Container extends Component {
             if (! (peer instanceof LightweightPeer)) {
                 dispatcher = new LightweightDispatcher(this);
             }
-
             // We shouldn't use iterator because of the Swing menu
             // implementation specifics:
             // the menu is being assigned as a child to JLayeredPane
@@ -1705,8 +1390,6 @@ public class Container extends Component {
             }
         }
     }
-
-
     public void removeNotify() {
         synchronized (getTreeLock()) {
             // We shouldn't use iterator because of the Swing menu
@@ -1743,8 +1426,6 @@ public class Container extends Component {
             super.removeNotify();
         }
     }
-
-
     public boolean isAncestorOf(Component c) {
         Container p;
         if (c == null || ((p = c.getParent()) == null)) {
@@ -1758,18 +1439,13 @@ public class Container extends Component {
         }
         return false;
     }
-
-
-
     transient Component modalComp;
     transient AppContext modalAppContext;
-
     private void startLWModal() {
         // Store the app context on which this component is being shown.
         // Event dispatch thread of this app context will be sleeping until
         // we wake it by any event from hideAndDisposeHandler().
         modalAppContext = AppContext.getAppContext();
-
         // keep the KeyEvents from being dispatched
         // until the focus has been transfered
         long time = Toolkit.getEventQueue().getMostRecentKeyEventTime();
@@ -1793,7 +1469,6 @@ public class Container extends Component {
                 nativeContainer.modalComp = this;
             }
         }
-
         Runnable pumpEventsForHierarchy = new Runnable() {
             public void run() {
                 EventDispatchThread dispatchThread =
@@ -1806,7 +1481,6 @@ public class Container extends Component {
                         }, Container.this);
             }
         };
-
         if (EventQueue.isDispatchThread()) {
             SequencedEvent currentSequencedEvent =
                 KeyboardFocusManager.getCurrentKeyboardFocusManager().
@@ -1814,7 +1488,6 @@ public class Container extends Component {
             if (currentSequencedEvent != null) {
                 currentSequencedEvent.dispose();
             }
-
             pumpEventsForHierarchy.run();
         } else {
             synchronized (getTreeLock()) {
@@ -1842,7 +1515,6 @@ public class Container extends Component {
                 dequeueKeyEvents(time, predictedFocusOwner);
         }
     }
-
     private void stopLWModal() {
         synchronized (getTreeLock()) {
             if (modalAppContext != null) {
@@ -1868,15 +1540,10 @@ public class Container extends Component {
             getTreeLock().notifyAll();
         }
     }
-
     final static class WakingRunnable implements Runnable {
         public void run() {
         }
     }
-
-
-
-
     protected String paramString() {
         String str = super.paramString();
         LayoutManager layoutMgr = this.layoutMgr;
@@ -1885,8 +1552,6 @@ public class Container extends Component {
         }
         return str;
     }
-
-
     public void list(PrintStream out, int indent) {
         super.list(out, indent);
         synchronized(getTreeLock()) {
@@ -1898,8 +1563,6 @@ public class Container extends Component {
             }
         }
     }
-
-
     public void list(PrintWriter out, int indent) {
         super.list(out, indent);
         synchronized(getTreeLock()) {
@@ -1911,41 +1574,30 @@ public class Container extends Component {
             }
         }
     }
-
-
     public void setFocusTraversalKeys(int id,
                                       Set<? extends AWTKeyStroke> keystrokes)
     {
         if (id < 0 || id >= KeyboardFocusManager.TRAVERSAL_KEY_LENGTH) {
             throw new IllegalArgumentException("invalid focus traversal key identifier");
         }
-
         // Don't call super.setFocusTraversalKey. The Component parameter check
         // does not allow DOWN_CYCLE_TRAVERSAL_KEYS, but we do.
         setFocusTraversalKeys_NoIDCheck(id, keystrokes);
     }
-
-
     public Set<AWTKeyStroke> getFocusTraversalKeys(int id) {
         if (id < 0 || id >= KeyboardFocusManager.TRAVERSAL_KEY_LENGTH) {
             throw new IllegalArgumentException("invalid focus traversal key identifier");
         }
-
         // Don't call super.getFocusTraversalKey. The Component parameter check
         // does not allow DOWN_CYCLE_TRAVERSAL_KEY, but we do.
         return getFocusTraversalKeys_NoIDCheck(id);
     }
-
-
     public boolean areFocusTraversalKeysSet(int id) {
         if (id < 0 || id >= KeyboardFocusManager.TRAVERSAL_KEY_LENGTH) {
             throw new IllegalArgumentException("invalid focus traversal key identifier");
         }
-
         return (focusTraversalKeys != null && focusTraversalKeys[id] != null);
     }
-
-
     public boolean isFocusCycleRoot(Container container) {
         if (isFocusCycleRoot() && container == this) {
             return true;
@@ -1953,7 +1605,6 @@ public class Container extends Component {
             return super.isFocusCycleRoot(container);
         }
     }
-
     private Container findTraversalRoot() {
         // I potentially have two roots, myself and my root parent
         // If I am the current root, then use me
@@ -1961,11 +1612,9 @@ public class Container extends Component {
         // If my root parent is the current root, then use my root parent
         // If neither I nor my root parent is the current root, then
         // use my root parent (a guess)
-
         Container currentFocusCycleRoot = KeyboardFocusManager.
             getCurrentKeyboardFocusManager().getCurrentFocusCycleRoot();
         Container root;
-
         if (currentFocusCycleRoot == this) {
             root = this;
         } else {
@@ -1974,21 +1623,17 @@ public class Container extends Component {
                 root = this;
             }
         }
-
         if (root != currentFocusCycleRoot) {
             KeyboardFocusManager.getCurrentKeyboardFocusManager().
                 setGlobalCurrentFocusCycleRootPriv(root);
         }
         return root;
     }
-
     final boolean containsFocus() {
         final Component focusOwner = KeyboardFocusManager.
             getCurrentKeyboardFocusManager().getFocusOwner();
         return isParentOf(focusOwner);
     }
-
-
     private boolean isParentOf(Component comp) {
         synchronized(getTreeLock()) {
             while (comp != null && comp != this && !(comp instanceof Window)) {
@@ -1997,11 +1642,9 @@ public class Container extends Component {
             return (comp == this);
         }
     }
-
     void clearMostRecentFocusOwnerOnHide() {
         boolean reset = false;
         Window window = null;
-
         synchronized (getTreeLock()) {
             window = getContainingWindow();
             if (window != null) {
@@ -2017,31 +1660,24 @@ public class Container extends Component {
                 }
             }
         }
-
         if (reset) {
             KeyboardFocusManager.setMostRecentFocusOwner(window, null);
         }
     }
-
     void clearCurrentFocusCycleRootOnHide() {
         KeyboardFocusManager kfm =
             KeyboardFocusManager.getCurrentKeyboardFocusManager();
         Container cont = kfm.getCurrentFocusCycleRoot();
-
         if (cont == this || isParentOf(cont)) {
             kfm.setGlobalCurrentFocusCycleRootPriv(null);
         }
     }
-
     final Container getTraversalRoot() {
         if (isFocusCycleRoot()) {
             return findTraversalRoot();
         }
-
         return super.getTraversalRoot();
     }
-
-
     public void setFocusTraversalPolicy(FocusTraversalPolicy policy) {
         FocusTraversalPolicy oldPolicy;
         synchronized (this) {
@@ -2050,18 +1686,14 @@ public class Container extends Component {
         }
         firePropertyChange("focusTraversalPolicy", oldPolicy, policy);
     }
-
-
     public FocusTraversalPolicy getFocusTraversalPolicy() {
         if (!isFocusTraversalPolicyProvider() && !isFocusCycleRoot()) {
             return null;
         }
-
         FocusTraversalPolicy policy = this.focusTraversalPolicy;
         if (policy != null) {
             return policy;
         }
-
         Container rootAncestor = getFocusCycleRootAncestor();
         if (rootAncestor != null) {
             return rootAncestor.getFocusTraversalPolicy();
@@ -2070,13 +1702,9 @@ public class Container extends Component {
                 getDefaultFocusTraversalPolicy();
         }
     }
-
-
     public boolean isFocusTraversalPolicySet() {
         return (focusTraversalPolicy != null);
     }
-
-
     public void setFocusCycleRoot(boolean focusCycleRoot) {
         boolean oldFocusCycleRoot;
         synchronized (this) {
@@ -2086,13 +1714,9 @@ public class Container extends Component {
         firePropertyChange("focusCycleRoot", oldFocusCycleRoot,
                            focusCycleRoot);
     }
-
-
     public boolean isFocusCycleRoot() {
         return focusCycleRoot;
     }
-
-
     public final void setFocusTraversalPolicyProvider(boolean provider) {
         boolean oldProvider;
         synchronized(this) {
@@ -2101,13 +1725,9 @@ public class Container extends Component {
         }
         firePropertyChange("focusTraversalPolicyProvider", oldProvider, provider);
     }
-
-
     public final boolean isFocusTraversalPolicyProvider() {
         return focusTraversalPolicyProvider;
     }
-
-
     public void transferFocusDownCycle() {
         if (isFocusCycleRoot()) {
             KeyboardFocusManager.getCurrentKeyboardFocusManager().
@@ -2119,26 +1739,21 @@ public class Container extends Component {
             }
         }
     }
-
     void preProcessKeyEvent(KeyEvent e) {
         Container parent = this.parent;
         if (parent != null) {
             parent.preProcessKeyEvent(e);
         }
     }
-
     void postProcessKeyEvent(KeyEvent e) {
         Container parent = this.parent;
         if (parent != null) {
             parent.postProcessKeyEvent(e);
         }
     }
-
     boolean postsOldMouseEvents() {
         return true;
     }
-
-
     public void applyComponentOrientation(ComponentOrientation o) {
         super.applyComponentOrientation(o);
         synchronized (getTreeLock()) {
@@ -2148,25 +1763,16 @@ public class Container extends Component {
             }
         }
     }
-
-
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         super.addPropertyChangeListener(listener);
     }
-
-
     public void addPropertyChangeListener(String propertyName,
                                           PropertyChangeListener listener) {
         super.addPropertyChangeListener(propertyName, listener);
     }
-
     // Serialization support. A Container is responsible for restoring the
     // parent fields of its component children.
-
-
     private int containerSerializedDataVersion = 1;
-
-
     private void writeObject(ObjectOutputStream s) throws IOException {
         ObjectOutputStream.PutField f = s.putFields();
         f.put("ncomponents", component.size());
@@ -2178,18 +1784,14 @@ public class Container extends Component {
         f.put("containerSerializedDataVersion", containerSerializedDataVersion);
         f.put("focusTraversalPolicyProvider", focusTraversalPolicyProvider);
         s.writeFields();
-
         AWTEventMulticaster.save(s, containerListenerK, containerListener);
         s.writeObject(null);
-
         if (focusTraversalPolicy instanceof java.io.Serializable) {
             s.writeObject(focusTraversalPolicy);
         } else {
             s.writeObject(null);
         }
     }
-
-
     private void readObject(ObjectInputStream s)
         throws ClassNotFoundException, IOException
     {
@@ -2218,11 +1820,9 @@ public class Container extends Component {
                                     comp.numListening(AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK));
             adjustDescendants(comp.countHierarchyMembers());
         }
-
         Object keyOrNull;
         while(null != (keyOrNull = s.readObject())) {
             String key = ((String)keyOrNull).intern();
-
             if (containerListenerK == key) {
                 addContainerListener((ContainerListener)(s.readObject()));
             } else {
@@ -2230,7 +1830,6 @@ public class Container extends Component {
                 s.readObject();
             }
         }
-
         try {
             Object policy = s.readObject();
             if (policy instanceof FocusTraversalPolicy) {
@@ -2242,42 +1841,24 @@ public class Container extends Component {
             // available for this object. If e.eof is not true, throw the
             // exception as it might have been caused by reasons unrelated to
             // focusTraversalPolicy.
-
             if (!e.eof) {
                 throw e;
             }
         }
     }
-
-
-
-
     protected class AccessibleAWTContainer extends AccessibleAWTComponent {
-
-
         private static final long serialVersionUID = 5081320404842566097L;
-
-
         public int getAccessibleChildrenCount() {
             return Container.this.getAccessibleChildrenCount();
         }
-
-
         public Accessible getAccessibleChild(int i) {
             return Container.this.getAccessibleChild(i);
         }
-
-
         public Accessible getAccessibleAt(Point p) {
             return Container.this.getAccessibleAt(p);
         }
-
-
         private volatile transient int propertyListenersCount = 0;
-
         protected ContainerListener accessibleContainerHandler = null;
-
-
         protected class AccessibleContainerHandler
             implements ContainerListener {
             public void componentAdded(ContainerEvent e) {
@@ -2297,8 +1878,6 @@ public class Container extends Component {
                 }
             }
         }
-
-
         public void addPropertyChangeListener(PropertyChangeListener listener) {
             if (accessibleContainerHandler == null) {
                 accessibleContainerHandler = new AccessibleContainerHandler();
@@ -2308,18 +1887,13 @@ public class Container extends Component {
             }
             super.addPropertyChangeListener(listener);
         }
-
-
         public void removePropertyChangeListener(PropertyChangeListener listener) {
             if (--propertyListenersCount == 0) {
                 Container.this.removeContainerListener(accessibleContainerHandler);
             }
             super.removePropertyChangeListener(listener);
         }
-
     } // inner class AccessibleAWTContainer
-
-
     Accessible getAccessibleAt(Point p) {
         synchronized (getTreeLock()) {
             if (this instanceof Accessible) {
@@ -2371,8 +1945,6 @@ public class Container extends Component {
             return null;
         }
     }
-
-
     int getAccessibleChildrenCount() {
         synchronized (getTreeLock()) {
             int count = 0;
@@ -2385,8 +1957,6 @@ public class Container extends Component {
             return count;
         }
     }
-
-
     Accessible getAccessibleChild(int i) {
         synchronized (getTreeLock()) {
             Component[] children = this.getComponents();
@@ -2403,9 +1973,7 @@ public class Container extends Component {
             return null;
         }
     }
-
     // ************************** MIXING CODE *******************************
-
     final void increaseComponentCount(Component c) {
         synchronized (getTreeLock()) {
             if (!c.isDisplayable()) {
@@ -2413,10 +1981,8 @@ public class Container extends Component {
                     "Peer does not exist while invoking the increaseComponentCount() method"
                 );
             }
-
             int addHW = 0;
             int addLW = 0;
-
             if (c instanceof Container) {
                 addLW = ((Container)c).numOfLWComponents;
                 addHW = ((Container)c).numOfHWComponents;
@@ -2426,14 +1992,12 @@ public class Container extends Component {
             } else {
                 addHW++;
             }
-
             for (Container cont = this; cont != null; cont = cont.getContainer()) {
                 cont.numOfLWComponents += addLW;
                 cont.numOfHWComponents += addHW;
             }
         }
     }
-
     final void decreaseComponentCount(Component c) {
         synchronized (getTreeLock()) {
             if (!c.isDisplayable()) {
@@ -2441,10 +2005,8 @@ public class Container extends Component {
                     "Peer does not exist while invoking the decreaseComponentCount() method"
                 );
             }
-
             int subHW = 0;
             int subLW = 0;
-
             if (c instanceof Container) {
                 subLW = ((Container)c).numOfLWComponents;
                 subHW = ((Container)c).numOfHWComponents;
@@ -2454,14 +2016,12 @@ public class Container extends Component {
             } else {
                 subHW++;
             }
-
             for (Container cont = this; cont != null; cont = cont.getContainer()) {
                 cont.numOfLWComponents -= subLW;
                 cont.numOfHWComponents -= subHW;
             }
         }
     }
-
     private int getTopmostComponentIndex() {
         checkTreeLock();
         if (getComponentCount() > 0) {
@@ -2469,7 +2029,6 @@ public class Container extends Component {
         }
         return -1;
     }
-
     private int getBottommostComponentIndex() {
         checkTreeLock();
         if (getComponentCount() > 0) {
@@ -2477,8 +2036,6 @@ public class Container extends Component {
         }
         return -1;
     }
-
-
     @Override
     final Region getOpaqueShape() {
         checkTreeLock();
@@ -2496,15 +2053,12 @@ public class Container extends Component {
         }
         return super.getOpaqueShape();
     }
-
     final void recursiveSubtractAndApplyShape(Region shape) {
         recursiveSubtractAndApplyShape(shape, getTopmostComponentIndex(), getBottommostComponentIndex());
     }
-
     final void recursiveSubtractAndApplyShape(Region shape, int fromZorder) {
         recursiveSubtractAndApplyShape(shape, fromZorder, getBottommostComponentIndex());
     }
-
     final void recursiveSubtractAndApplyShape(Region shape, int fromZorder, int toZorder) {
         checkTreeLock();
         if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
@@ -2533,15 +2087,12 @@ public class Container extends Component {
             }
         }
     }
-
     final void recursiveApplyCurrentShape() {
         recursiveApplyCurrentShape(getTopmostComponentIndex(), getBottommostComponentIndex());
     }
-
     final void recursiveApplyCurrentShape(int fromZorder) {
         recursiveApplyCurrentShape(fromZorder, getBottommostComponentIndex());
     }
-
     final void recursiveApplyCurrentShape(int fromZorder, int toZorder) {
         checkTreeLock();
         if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
@@ -2568,7 +2119,6 @@ public class Container extends Component {
             }
         }
     }
-
     private void recursiveShowHeavyweightChildren() {
         if (!hasHeavyweightDescendants() || !isVisible()) {
             return;
@@ -2589,7 +2139,6 @@ public class Container extends Component {
             }
         }
     }
-
     private void recursiveHideHeavyweightChildren() {
         if (!hasHeavyweightDescendants()) {
             return;
@@ -2610,7 +2159,6 @@ public class Container extends Component {
             }
         }
     }
-
     private void recursiveRelocateHeavyweightChildren(Point origin) {
         for (int index = 0; index < getComponentCount(); index++) {
             Component comp = getComponent(index);
@@ -2632,13 +2180,10 @@ public class Container extends Component {
             }
         }
     }
-
-
     final boolean isRecursivelyVisibleUpToHeavyweightContainer() {
         if (!isLightweight()) {
             return true;
         }
-
         for (Container cont = this;
                 cont != null && cont.isLightweight();
                 cont = cont.getContainer())
@@ -2649,32 +2194,25 @@ public class Container extends Component {
         }
         return true;
     }
-
     @Override
     void mixOnShowing() {
         synchronized (getTreeLock()) {
             if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
                 mixingLog.fine("this = " + this);
             }
-
             boolean isLightweight = isLightweight();
-
             if (isLightweight && isRecursivelyVisibleUpToHeavyweightContainer()) {
                 recursiveShowHeavyweightChildren();
             }
-
             if (!isMixingNeeded()) {
                 return;
             }
-
             if (!isLightweight || (isLightweight && hasHeavyweightDescendants())) {
                 recursiveApplyCurrentShape();
             }
-
             super.mixOnShowing();
         }
     }
-
     @Override
     void mixOnHiding(boolean isLightweight) {
         synchronized (getTreeLock()) {
@@ -2688,16 +2226,13 @@ public class Container extends Component {
             super.mixOnHiding(isLightweight);
         }
     }
-
     @Override
     void mixOnReshaping() {
         synchronized (getTreeLock()) {
             if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
                 mixingLog.fine("this = " + this);
             }
-
             boolean isMixingNeeded = isMixingNeeded();
-
             if (isLightweight() && hasHeavyweightDescendants()) {
                 final Point origin = new Point(getX(), getY());
                 for (Container cont = getContainer();
@@ -2706,24 +2241,18 @@ public class Container extends Component {
                 {
                     origin.translate(cont.getX(), cont.getY());
                 }
-
                 recursiveRelocateHeavyweightChildren(origin);
-
                 if (!isMixingNeeded) {
                     return;
                 }
-
                 recursiveApplyCurrentShape();
             }
-
             if (!isMixingNeeded) {
                 return;
             }
-
             super.mixOnReshaping();
         }
     }
-
     @Override
     void mixOnZOrderChanging(int oldZorder, int newZorder) {
         synchronized (getTreeLock()) {
@@ -2731,59 +2260,41 @@ public class Container extends Component {
                 mixingLog.fine("this = " + this +
                     "; oldZ=" + oldZorder + "; newZ=" + newZorder);
             }
-
             if (!isMixingNeeded()) {
                 return;
             }
-
             boolean becameHigher = newZorder < oldZorder;
-
             if (becameHigher && isLightweight() && hasHeavyweightDescendants()) {
                 recursiveApplyCurrentShape();
             }
             super.mixOnZOrderChanging(oldZorder, newZorder);
         }
     }
-
     @Override
     void mixOnValidating() {
         synchronized (getTreeLock()) {
             if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
                 mixingLog.fine("this = " + this);
             }
-
             if (!isMixingNeeded()) {
                 return;
             }
-
             if (hasHeavyweightDescendants()) {
                 recursiveApplyCurrentShape();
             }
-
             if (isLightweight() && isNonOpaqueForMixing()) {
                 subtractAndApplyShapeBelowMe();
             }
-
             super.mixOnValidating();
         }
     }
-
     // ****************** END OF MIXING CODE ********************************
 }
-
-
-
 class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
-
-
     private static final long serialVersionUID = 5184291520170872969L;
-
     private static final int  LWD_MOUSE_DRAGGED_OVER = 1500;
-
     private static final PlatformLogger eventLog = PlatformLogger.getLogger("java.awt.event.LightweightDispatcher");
-
     private static final int BUTTONS_DOWN_MASK;
-
     static {
         int[] buttonsDownMask = AWTAccessor.getInputEventAccessor().
                 getButtonDownMasks();
@@ -2793,7 +2304,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
         }
         BUTTONS_DOWN_MASK = mask;
     }
-
     LightweightDispatcher(Container nativeContainer) {
         this.nativeContainer = nativeContainer;
         mouseEventTarget = new WeakReference<>(null);
@@ -2801,8 +2311,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
         targetLastEnteredDT = new WeakReference<>(null);
         eventMask = 0;
     }
-
-
     void dispose() {
         //System.out.println("Disposing lw dispatcher");
         stopListeningForOtherDrags();
@@ -2810,57 +2318,39 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
         targetLastEntered.clear();
         targetLastEnteredDT.clear();
     }
-
-
     void enableEvents(long events) {
         eventMask |= events;
     }
-
-
     boolean dispatchEvent(AWTEvent e) {
         boolean ret = false;
-
-
         if (e instanceof SunDropTargetEvent) {
-
             SunDropTargetEvent sdde = (SunDropTargetEvent) e;
             ret = processDropTargetEvent(sdde);
-
         } else {
             if (e instanceof MouseEvent && (eventMask & MOUSE_MASK) != 0) {
                 MouseEvent me = (MouseEvent) e;
                 ret = processMouseEvent(me);
             }
-
             if (e.getID() == MouseEvent.MOUSE_MOVED) {
                 nativeContainer.updateCursorImmediately();
             }
         }
-
         return ret;
     }
-
-
     private boolean isMouseGrab(MouseEvent e) {
         int modifiers = e.getModifiersEx();
-
         if (e.getID() == MouseEvent.MOUSE_PRESSED
                 || e.getID() == MouseEvent.MOUSE_RELEASED) {
             modifiers ^= InputEvent.getMaskForButton(e.getButton());
         }
-
         return ((modifiers & BUTTONS_DOWN_MASK) != 0);
     }
-
-
     private boolean processMouseEvent(MouseEvent e) {
         int id = e.getID();
         Component mouseOver =   // sensitive to mouse events
             nativeContainer.getMouseEventTarget(e.getX(), e.getY(),
                                                 Container.INCLUDE_SELF);
-
         trackMouseEnterExit(mouseOver, e);
-
         Component met = mouseEventTarget.get();
         // 4508327 : MOUSE_CLICKED should only go to the recipient of
         // the accompanying MOUSE_PRESSED, so don't reset mouseEventTarget on a
@@ -2869,7 +2359,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
             met = (mouseOver != nativeContainer) ? mouseOver : null;
             mouseEventTarget = new WeakReference<>(met);
         }
-
         if (met != null) {
             switch (id) {
                 case MouseEvent.MOUSE_ENTERED:
@@ -2918,13 +2407,10 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
         }
         return e.isConsumed();
     }
-
     private boolean processDropTargetEvent(SunDropTargetEvent e) {
         int id = e.getID();
         int x = e.getX();
         int y = e.getY();
-
-
         if (!nativeContainer.contains(x, y)) {
             final Dimension d = nativeContainer.getSize();
             if (d.width <= x) {
@@ -2942,7 +2428,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
             nativeContainer.getDropTargetEventTarget(x, y,
                                                      Container.INCLUDE_SELF);
         trackMouseEnterExit(mouseOver, e);
-
         if (mouseOver != nativeContainer && mouseOver != null) {
             switch (id) {
             case SunDropTargetEvent.MOUSE_ENTERED:
@@ -2956,8 +2441,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
         }
         return e.isConsumed();
     }
-
-
     private void trackDropTargetEnterExit(Component targetOver, MouseEvent e) {
         int id = e.getID();
         if (id == MouseEvent.MOUSE_ENTERED && isMouseDTInNativeContainer) {
@@ -2976,15 +2459,12 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
                                                      isMouseDTInNativeContainer);
         targetLastEnteredDT = new WeakReference<>(tle);
     }
-
-
     private void trackMouseEnterExit(Component targetOver, MouseEvent e) {
         if (e instanceof SunDropTargetEvent) {
             trackDropTargetEnterExit(targetOver, e);
             return;
         }
         int id = e.getID();
-
         if ( id != MouseEvent.MOUSE_EXITED &&
              id != MouseEvent.MOUSE_DRAGGED &&
              id != LWD_MOUSE_DRAGGED_OVER &&
@@ -3001,13 +2481,11 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
                                                    isMouseInNativeContainer);
         targetLastEntered = new WeakReference<>(tle);
     }
-
     private Component retargetMouseEnterExit(Component targetOver, MouseEvent e,
                                              Component lastEntered,
                                              boolean inNativeContainer) {
         int id = e.getID();
         Component targetEnter = inNativeContainer ? targetOver : null;
-
         if (lastEntered != targetEnter) {
             if (lastEntered != null) {
                 retargetMouseEvent(lastEntered, MouseEvent.MOUSE_EXITED, e);
@@ -3016,7 +2494,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
                 // consume native exit event if we generate one
                 e.consume();
             }
-
             if (targetEnter != null) {
                 retargetMouseEvent(targetEnter, MouseEvent.MOUSE_ENTERED, e);
             }
@@ -3027,8 +2504,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
         }
         return targetEnter;
     }
-
-
     private void startListeningForOtherDrags() {
         //System.out.println("Adding AWTEventListener");
         java.security.AccessController.doPrivileged(
@@ -3043,7 +2518,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
             }
         );
     }
-
     private void stopListeningForOtherDrags() {
         //System.out.println("Removing AWTEventListener");
         java.security.AccessController.doPrivileged(
@@ -3055,31 +2529,24 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
             }
         );
     }
-
-
     public void eventDispatched(AWTEvent e) {
         boolean isForeignDrag = (e instanceof MouseEvent) &&
                                 !(e instanceof SunDropTargetEvent) &&
                                 (e.id == MouseEvent.MOUSE_DRAGGED) &&
                                 (e.getSource() != nativeContainer);
-
         if (!isForeignDrag) {
             // only interested in drags from other hw components
             return;
         }
-
         MouseEvent      srcEvent = (MouseEvent)e;
         MouseEvent      me;
-
         synchronized (nativeContainer.getTreeLock()) {
             Component srcComponent = srcEvent.getComponent();
-
             // component may have disappeared since drag event posted
             // (i.e. Swing hierarchical menus)
             if ( !srcComponent.isShowing() ) {
                 return;
             }
-
             // see 5083555
             // check if srcComponent is in any modal blocked window
             Component c = nativeContainer;
@@ -3089,7 +2556,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
             if ((c == null) || ((Window)c).isModalBlocked()) {
                 return;
             }
-
             //
             // create an internal 'dragged-over' event indicating
             // we are being dragged over from another hw component
@@ -3108,7 +2574,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
             ((AWTEvent)srcEvent).copyPrivateDataInto(me);
             // translate coordinates to this native container
             final Point ptSrcOrigin = srcComponent.getLocationOnScreen();
-
             if (AppContext.getAppContext() != nativeContainer.appContext) {
                 final MouseEvent mouseEvent = me;
                 Runnable r = new Runnable() {
@@ -3116,7 +2581,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
                             if (!nativeContainer.isShowing() ) {
                                 return;
                             }
-
                             Point       ptDstOrigin = nativeContainer.getLocationOnScreen();
                             mouseEvent.translatePoint(ptSrcOrigin.x - ptDstOrigin.x,
                                               ptSrcOrigin.y - ptDstOrigin.y );
@@ -3133,7 +2597,6 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
                 if (!nativeContainer.isShowing() ) {
                     return;
                 }
-
                 Point   ptDstOrigin = nativeContainer.getLocationOnScreen();
                 me.translatePoint( ptSrcOrigin.x - ptDstOrigin.x, ptSrcOrigin.y - ptDstOrigin.y );
             }
@@ -3146,16 +2609,12 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
                                                 Container.INCLUDE_SELF);
         trackMouseEnterExit(targetOver, me);
     }
-
-
     void retargetMouseEvent(Component target, int id, MouseEvent e) {
         if (target == null) {
             return; // mouse is over another hw component or target is disabled
         }
-
         int x = e.getX(), y = e.getY();
         Component component;
-
         for(component = target;
             component != null && component != nativeContainer;
             component = component.getParent()) {
@@ -3199,15 +2658,12 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
                                             e.isPopupTrigger(),
                                             e.getButton());
             }
-
             ((AWTEvent)e).copyPrivateDataInto(retargeted);
-
             if (target == nativeContainer) {
                 // avoid recursively calling LightweightDispatcher...
                 ((Container)target).dispatchEventToSelf(retargeted);
             } else {
                 assert AppContext.getAppContext() == target.appContext;
-
                 if (nativeContainer.modalComp != null) {
                     if (((Container)nativeContainer.modalComp).isAncestorOf(target)) {
                         target.dispatchEvent(retargeted);
@@ -3226,44 +2682,22 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
             }
         }
     }
-
     // --- member variables -------------------------------
-
-
     private Container nativeContainer;
-
-
     private Component focus;
-
-
     private transient WeakReference<Component> mouseEventTarget;
-
-
     private transient  WeakReference<Component> targetLastEntered;
-
-
     private transient  WeakReference<Component> targetLastEnteredDT;
-
-
     private transient boolean isMouseInNativeContainer = false;
-
-
     private transient boolean isMouseDTInNativeContainer = false;
-
-
     private Cursor nativeCursor;
-
-
     private long eventMask;
-
-
     private static final long PROXY_EVENT_MASK =
         AWTEvent.FOCUS_EVENT_MASK |
         AWTEvent.KEY_EVENT_MASK |
         AWTEvent.MOUSE_EVENT_MASK |
         AWTEvent.MOUSE_MOTION_EVENT_MASK |
         AWTEvent.MOUSE_WHEEL_EVENT_MASK;
-
     private static final long MOUSE_MASK =
         AWTEvent.MOUSE_EVENT_MASK |
         AWTEvent.MOUSE_MOTION_EVENT_MASK |

@@ -4,35 +4,26 @@
 <!--
  Copyright (c) 1998, 2013, Oracle and/or its affiliates. All rights reserved.
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-
 This code is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License version 2 only, as
 published by the Free Software Foundation.  Oracle designates this
 particular file as subject to the "Classpath" exception as provided
 by Oracle in the LICENSE file that accompanied this code.
-
 This code is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 version 2 for more details (a copy is included in the LICENSE file that
 accompanied this code).
-
 You should have received a copy of the GNU General Public License version
 2 along with this work; if not, write to the Free Software Foundation,
 Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-
 Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
 or visit www.oracle.com if you need additional information or have any
 questions.
 -->
-
 </head>
-
-
-
 <body bgcolor="white">
-
-Provides the API for accessing and processing data stored in a 
+Provides the API for accessing and processing data stored in a
 data source (usually a relational database) using the 
 Java<sup><font size=-2>TM</font></sup> programming language. 
 This API includes a framework whereby different
@@ -102,7 +93,6 @@ version 1.3 release. This class is used to prevent unauthorized
 access to the logging stream associated with the <code>DriverManager</code>,
 which may contain information such as table names, column data, and so on.
 <p>
-
 <h2>What the <code>java.sql</code> Package Contains</h2>
 The <code>java.sql</code> package contains API for the following:
 <UL>
@@ -129,7 +119,6 @@ The <code>java.sql</code> package contains API for the following:
 	 <LI><code>Connection</code> interface --  provides methods for creating
              statements and managing connections and their properties
 	 <LI><code>Savepoint</code> --  provides savepoints in a transaction
-
   </UL>
   <LI>Retrieving and updating the results of a query
   <UL>
@@ -190,7 +179,6 @@ The <code>java.sql</code> package contains API for the following:
     <LI><code>DatabaseMetaData</code> methods to return maximum Logical LOB size
         and if Ref Cursors are supported</LI>
     <LI>Added support for large update counts</LI>
-
 </UL>
 <P>
     <h3><code>java.sql</code> and <code>javax.sql</code> Features Introduced in the JDBC 4.1 API</h3>
@@ -210,7 +198,6 @@ The <code>java.sql</code> package contains API for the following:
     <LI>Support for obtaining the parent logger for a <code>Driver</code>,
      <code>DataSource</code>, <code>ConnectionPoolDataSource</code> and
      <code>XADataSource</code></LI>
-
 </UL>
 <h3><code>java.sql</code> and <code>javax.sql</code> Features Introduced in the JDBC 4.0 API</h3>
 <UL>
@@ -228,8 +215,6 @@ The <code>java.sql</code> package contains API for the following:
  pooling environment.
  <li>Availability to be notified when a <code>PreparedStatement</code> that is associated
  with a <code>PooledConnection</code> has been closed or the driver determines is invalid
- 
- 
 </UL>
 <P>
 <P>
@@ -313,16 +298,12 @@ When these are in place for a UDT, calling the methods
 on that UDT will automatically retrieve the custom mapping for it. Also, the
 <code>PreparedStatement.setObject</code> method will automatically map the
 object back to its SQL type to store it in the data source.
-
 <h2>Package Specification</h2>
-
 <ul>
   <li><a href="http://java.sun.com/products/jdbc/download.html">Specification 
       of the JDBC 4.0 API</a>
 </ul>
-
 <h2>Related Documentation</h2>
-
 <ul>
   <li><a href="../../../technotes/guides/jdbc/getstart/GettingStartedTOC.fm.html">Getting Started</a>--overviews of the major interfaces
 <P>

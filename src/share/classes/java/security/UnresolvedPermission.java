@@ -1,48 +1,29 @@
-
-
 package java.security;
-
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.lang.reflect.*;
 import java.security.cert.*;
-
-
-
 public final class UnresolvedPermission extends Permission
 implements java.io.Serializable
 {
-
     private static final long serialVersionUID = -4821973115467008846L;
-
     private static final sun.security.util.Debug debug =
         sun.security.util.Debug.getInstance
         ("policy,access", "UnresolvedPermission");
-
-
     private String type;
-
-
     private String name;
-
-
     private String actions;
-
     private transient java.security.cert.Certificate certs[];
-
-
     public UnresolvedPermission(String type,
                                 String name,
                                 String actions,
                                 java.security.cert.Certificate certs[])
     {
         super(type);
-
         if (type == null)
                 throw new NullPointerException("type can't be null");
-
         this.type = type;
         this.name = name;
         this.actions = actions;
@@ -56,7 +37,6 @@ implements java.io.Serializable
                     break;
                 }
             }
-
             if (this.certs == null) {
                 // Go through the list of certs and see if all the certs are
                 // signer certs.
@@ -76,7 +56,6 @@ implements java.io.Serializable
                     // array
                     this.certs = certs.clone();
                 }
-
                 if (this.certs == null) {
                     // extract the signer certs
                     ArrayList<java.security.cert.Certificate> signerCerts =
@@ -98,20 +77,15 @@ implements java.io.Serializable
             }
         }
     }
-
-
     private static final Class[] PARAMS0 = { };
     private static final Class[] PARAMS1 = { String.class };
     private static final Class[] PARAMS2 = { String.class, String.class };
-
-
     Permission resolve(Permission p, java.security.cert.Certificate certs[]) {
         if (this.certs != null) {
             // if p wasn't signed, we don't have a match
             if (certs == null) {
                 return null;
             }
-
             // all certs in this.certs must be present in certs
             boolean match;
             for (int i = 0; i < this.certs.length; i++) {
@@ -127,7 +101,6 @@ implements java.io.Serializable
         }
         try {
             Class<?> pc = p.getClass();
-
             if (name == null && actions == null) {
                 try {
                     Constructor<?> c = pc.getConstructor(PARAMS0);
@@ -175,26 +148,19 @@ implements java.io.Serializable
             return null;
         }
     }
-
-
     public boolean implies(Permission p) {
         return false;
     }
-
-
     public boolean equals(Object obj) {
         if (obj == this)
             return true;
-
         if (! (obj instanceof UnresolvedPermission))
             return false;
         UnresolvedPermission that = (UnresolvedPermission) obj;
-
         // check type
         if (!this.type.equals(that.type)) {
             return false;
         }
-
         // check name
         if (this.name == null) {
             if (that.name != null) {
@@ -203,7 +169,6 @@ implements java.io.Serializable
         } else if (!this.name.equals(that.name)) {
             return false;
         }
-
         // check actions
         if (this.actions == null) {
             if (that.actions != null) {
@@ -214,7 +179,6 @@ implements java.io.Serializable
                 return false;
             }
         }
-
         // check certs
         if ((this.certs == null && that.certs != null) ||
             (this.certs != null && that.certs == null) ||
@@ -222,10 +186,8 @@ implements java.io.Serializable
                 this.certs.length != that.certs.length)) {
             return false;
         }
-
         int i,j;
         boolean match;
-
         for (i = 0; this.certs != null && i < this.certs.length; i++) {
             match = false;
             for (j = 0; j < that.certs.length; j++) {
@@ -236,7 +198,6 @@ implements java.io.Serializable
             }
             if (!match) return false;
         }
-
         for (i = 0; that.certs != null && i < that.certs.length; i++) {
             match = false;
             for (j = 0; j < this.certs.length; j++) {
@@ -249,9 +210,6 @@ implements java.io.Serializable
         }
         return true;
     }
-
-
-
     public int hashCode() {
         int hash = type.hashCode();
         if (name != null)
@@ -260,50 +218,32 @@ implements java.io.Serializable
             hash ^= actions.hashCode();
         return hash;
     }
-
-
     public String getActions()
     {
         return "";
     }
-
-
     public String getUnresolvedType() {
         return type;
     }
-
-
     public String getUnresolvedName() {
         return name;
     }
-
-
     public String getUnresolvedActions() {
         return actions;
     }
-
-
     public java.security.cert.Certificate[] getUnresolvedCerts() {
         return (certs == null) ? null : certs.clone();
     }
-
-
     public String toString() {
         return "(unresolved " + type + " " + name + " " + actions + ")";
     }
-
-
-
     public PermissionCollection newPermissionCollection() {
         return new UnresolvedPermissionCollection();
     }
-
-
     private void writeObject(java.io.ObjectOutputStream oos)
         throws IOException
     {
         oos.defaultWriteObject();
-
         if (certs==null || certs.length==0) {
             oos.writeInt(0);
         } else {
@@ -323,19 +263,14 @@ implements java.io.Serializable
             }
         }
     }
-
-
     private void readObject(java.io.ObjectInputStream ois)
         throws IOException, ClassNotFoundException
     {
         CertificateFactory cf;
         Hashtable<String, CertificateFactory> cfs = null;
-
         ois.defaultReadObject();
-
         if (type == null)
                 throw new NullPointerException("type can't be null");
-
         // process any new-style certs in the stream (if present)
         int size = ois.readInt();
         if (size > 0) {
@@ -344,7 +279,6 @@ implements java.io.Serializable
             cfs = new Hashtable<String, CertificateFactory>(3);
             this.certs = new java.security.cert.Certificate[size];
         }
-
         for (int i=0; i<size; i++) {
             // read the certificate type, and instantiate a certificate
             // factory of that type (reuse existing factory if possible)

@@ -1,20 +1,9 @@
-
-
-
 package java.time.chrono;
-
 import java.time.DateTimeException;
-
-
 public enum MinguoEra implements Era {
-
-
     BEFORE_ROC,
-
     ROC;
-
     //-----------------------------------------------------------------------
-
     public static MinguoEra of(int minguoEra) {
         switch (minguoEra) {
             case 0:
@@ -25,12 +14,9 @@ public enum MinguoEra implements Era {
                 throw new DateTimeException("Invalid era: " + minguoEra);
         }
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public int getValue() {
         return ordinal();
     }
-
 }

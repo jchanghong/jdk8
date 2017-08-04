@@ -1,8 +1,4 @@
-
-
-
 package java.time;
-
 import static java.time.LocalTime.NANOS_PER_HOUR;
 import static java.time.LocalTime.NANOS_PER_MINUTE;
 import static java.time.LocalTime.NANOS_PER_SECOND;
@@ -10,7 +6,6 @@ import static java.time.LocalTime.SECONDS_PER_DAY;
 import static java.time.temporal.ChronoField.NANO_OF_DAY;
 import static java.time.temporal.ChronoField.OFFSET_SECONDS;
 import static java.time.temporal.ChronoUnit.NANOS;
-
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -33,55 +28,33 @@ import java.time.temporal.UnsupportedTemporalTypeException;
 import java.time.temporal.ValueRange;
 import java.time.zone.ZoneRules;
 import java.util.Objects;
-
-
 public final class OffsetTime
         implements Temporal, TemporalAdjuster, Comparable<OffsetTime>, Serializable {
-
-
     public static final OffsetTime MIN = LocalTime.MIN.atOffset(ZoneOffset.MAX);
-
     public static final OffsetTime MAX = LocalTime.MAX.atOffset(ZoneOffset.MIN);
-
-
     private static final long serialVersionUID = 7264499704384272492L;
-
-
     private final LocalTime time;
-
     private final ZoneOffset offset;
-
     //-----------------------------------------------------------------------
-
     public static OffsetTime now() {
         return now(Clock.systemDefaultZone());
     }
-
-
     public static OffsetTime now(ZoneId zone) {
         return now(Clock.system(zone));
     }
-
-
     public static OffsetTime now(Clock clock) {
         Objects.requireNonNull(clock, "clock");
         final Instant now = clock.instant();  // called once
         return ofInstant(now, clock.getZone().getRules().getOffset(now));
     }
-
     //-----------------------------------------------------------------------
-
     public static OffsetTime of(LocalTime time, ZoneOffset offset) {
         return new OffsetTime(time, offset);
     }
-
-
     public static OffsetTime of(int hour, int minute, int second, int nanoOfSecond, ZoneOffset offset) {
         return new OffsetTime(LocalTime.of(hour, minute, second, nanoOfSecond), offset);
     }
-
     //-----------------------------------------------------------------------
-
     public static OffsetTime ofInstant(Instant instant, ZoneId zone) {
         Objects.requireNonNull(instant, "instant");
         Objects.requireNonNull(zone, "zone");
@@ -92,9 +65,7 @@ public final class OffsetTime
         LocalTime time = LocalTime.ofNanoOfDay(secsOfDay * NANOS_PER_SECOND + instant.getNano());
         return new OffsetTime(time, offset);
     }
-
     //-----------------------------------------------------------------------
-
     public static OffsetTime from(TemporalAccessor temporal) {
         if (temporal instanceof OffsetTime) {
             return (OffsetTime) temporal;
@@ -108,36 +79,26 @@ public final class OffsetTime
                     temporal + " of type " + temporal.getClass().getName(), ex);
         }
     }
-
     //-----------------------------------------------------------------------
-
     public static OffsetTime parse(CharSequence text) {
         return parse(text, DateTimeFormatter.ISO_OFFSET_TIME);
     }
-
-
     public static OffsetTime parse(CharSequence text, DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         return formatter.parse(text, OffsetTime::from);
     }
-
     //-----------------------------------------------------------------------
-
     private OffsetTime(LocalTime time, ZoneOffset offset) {
         this.time = Objects.requireNonNull(time, "time");
         this.offset = Objects.requireNonNull(offset, "offset");
     }
-
-
     private OffsetTime with(LocalTime time, ZoneOffset offset) {
         if (this.time == time && this.offset.equals(offset)) {
             return this;
         }
         return new OffsetTime(time, offset);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean isSupported(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -145,8 +106,6 @@ public final class OffsetTime
         }
         return field != null && field.isSupportedBy(this);
     }
-
-
     @Override  // override for Javadoc
     public boolean isSupported(TemporalUnit unit) {
         if (unit instanceof ChronoUnit) {
@@ -154,9 +113,7 @@ public final class OffsetTime
         }
         return unit != null && unit.isSupportedBy(this);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public ValueRange range(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -167,14 +124,10 @@ public final class OffsetTime
         }
         return field.rangeRefinedBy(this);
     }
-
-
     @Override  // override for Javadoc
     public int get(TemporalField field) {
         return Temporal.super.get(field);
     }
-
-
     @Override
     public long getLong(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -185,19 +138,13 @@ public final class OffsetTime
         }
         return field.getFrom(this);
     }
-
     //-----------------------------------------------------------------------
-
     public ZoneOffset getOffset() {
         return offset;
     }
-
-
     public OffsetTime withOffsetSameLocal(ZoneOffset offset) {
         return offset != null && offset.equals(this.offset) ? this : new OffsetTime(time, offset);
     }
-
-
     public OffsetTime withOffsetSameInstant(ZoneOffset offset) {
         if (offset.equals(this.offset)) {
             return this;
@@ -206,36 +153,24 @@ public final class OffsetTime
         LocalTime adjusted = time.plusSeconds(difference);
         return new OffsetTime(adjusted, offset);
     }
-
     //-----------------------------------------------------------------------
-
     public LocalTime toLocalTime() {
         return time;
     }
-
     //-----------------------------------------------------------------------
-
     public int getHour() {
         return time.getHour();
     }
-
-
     public int getMinute() {
         return time.getMinute();
     }
-
-
     public int getSecond() {
         return time.getSecond();
     }
-
-
     public int getNano() {
         return time.getNano();
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public OffsetTime with(TemporalAdjuster adjuster) {
         // optimizations
@@ -248,8 +183,6 @@ public final class OffsetTime
         }
         return (OffsetTime) adjuster.adjustInto(this);
     }
-
-
     @Override
     public OffsetTime with(TemporalField field, long newValue) {
         if (field instanceof ChronoField) {
@@ -261,42 +194,28 @@ public final class OffsetTime
         }
         return field.adjustInto(this, newValue);
     }
-
     //-----------------------------------------------------------------------
-
     public OffsetTime withHour(int hour) {
         return with(time.withHour(hour), offset);
     }
-
-
     public OffsetTime withMinute(int minute) {
         return with(time.withMinute(minute), offset);
     }
-
-
     public OffsetTime withSecond(int second) {
         return with(time.withSecond(second), offset);
     }
-
-
     public OffsetTime withNano(int nanoOfSecond) {
         return with(time.withNano(nanoOfSecond), offset);
     }
-
     //-----------------------------------------------------------------------
-
     public OffsetTime truncatedTo(TemporalUnit unit) {
         return with(time.truncatedTo(unit), offset);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public OffsetTime plus(TemporalAmount amountToAdd) {
         return (OffsetTime) amountToAdd.addTo(this);
     }
-
-
     @Override
     public OffsetTime plus(long amountToAdd, TemporalUnit unit) {
         if (unit instanceof ChronoUnit) {
@@ -304,64 +223,42 @@ public final class OffsetTime
         }
         return unit.addTo(this, amountToAdd);
     }
-
     //-----------------------------------------------------------------------
-
     public OffsetTime plusHours(long hours) {
         return with(time.plusHours(hours), offset);
     }
-
-
     public OffsetTime plusMinutes(long minutes) {
         return with(time.plusMinutes(minutes), offset);
     }
-
-
     public OffsetTime plusSeconds(long seconds) {
         return with(time.plusSeconds(seconds), offset);
     }
-
-
     public OffsetTime plusNanos(long nanos) {
         return with(time.plusNanos(nanos), offset);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public OffsetTime minus(TemporalAmount amountToSubtract) {
         return (OffsetTime) amountToSubtract.subtractFrom(this);
     }
-
-
     @Override
     public OffsetTime minus(long amountToSubtract, TemporalUnit unit) {
         return (amountToSubtract == Long.MIN_VALUE ? plus(Long.MAX_VALUE, unit).plus(1, unit) : plus(-amountToSubtract, unit));
     }
-
     //-----------------------------------------------------------------------
-
     public OffsetTime minusHours(long hours) {
         return with(time.minusHours(hours), offset);
     }
-
-
     public OffsetTime minusMinutes(long minutes) {
         return with(time.minusMinutes(minutes), offset);
     }
-
-
     public OffsetTime minusSeconds(long seconds) {
         return with(time.minusSeconds(seconds), offset);
     }
-
-
     public OffsetTime minusNanos(long nanos) {
         return with(time.minusNanos(nanos), offset);
     }
-
     //-----------------------------------------------------------------------
-
     @SuppressWarnings("unchecked")
     @Override
     public <R> R query(TemporalQuery<R> query) {
@@ -378,16 +275,12 @@ public final class OffsetTime
         // non-JDK classes are not permitted to make this optimization
         return query.queryFrom(this);
     }
-
-
     @Override
     public Temporal adjustInto(Temporal temporal) {
         return temporal
                 .with(NANO_OF_DAY, time.toNanoOfDay())
                 .with(OFFSET_SECONDS, offset.getTotalSeconds());
     }
-
-
     @Override
     public long until(Temporal endExclusive, TemporalUnit unit) {
         OffsetTime end = OffsetTime.from(endExclusive);
@@ -406,29 +299,21 @@ public final class OffsetTime
         }
         return unit.between(this, end);
     }
-
-
     public String format(DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         return formatter.format(this);
     }
-
     //-----------------------------------------------------------------------
-
     public OffsetDateTime atDate(LocalDate date) {
         return OffsetDateTime.of(date, time, offset);
     }
-
     //-----------------------------------------------------------------------
-
     private long toEpochNano() {
         long nod = time.toNanoOfDay();
         long offsetNanos = offset.getTotalSeconds() * NANOS_PER_SECOND;
         return nod - offsetNanos;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public int compareTo(OffsetTime other) {
         if (offset.equals(other.offset)) {
@@ -440,25 +325,17 @@ public final class OffsetTime
         }
         return compare;
     }
-
     //-----------------------------------------------------------------------
-
     public boolean isAfter(OffsetTime other) {
         return toEpochNano() > other.toEpochNano();
     }
-
-
     public boolean isBefore(OffsetTime other) {
         return toEpochNano() < other.toEpochNano();
     }
-
-
     public boolean isEqual(OffsetTime other) {
         return toEpochNano() == other.toEpochNano();
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -470,40 +347,29 @@ public final class OffsetTime
         }
         return false;
     }
-
-
     @Override
     public int hashCode() {
         return time.hashCode() ^ offset.hashCode();
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public String toString() {
         return time.toString() + offset.toString();
     }
-
     //-----------------------------------------------------------------------
-
     private Object writeReplace() {
         return new Ser(Ser.OFFSET_TIME_TYPE, this);
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
     void writeExternal(ObjectOutput out) throws IOException {
         time.writeExternal(out);
         offset.writeExternal(out);
     }
-
     static OffsetTime readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         LocalTime time = LocalTime.readExternal(in);
         ZoneOffset offset = ZoneOffset.readExternal(in);
         return OffsetTime.of(time, offset);
     }
-
 }

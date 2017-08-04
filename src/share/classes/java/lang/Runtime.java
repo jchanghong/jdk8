@@ -1,26 +1,14 @@
-
-
 package java.lang;
-
 import java.io.*;
 import java.util.StringTokenizer;
 import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
-
-
-
 public class Runtime {
     private static Runtime currentRuntime = new Runtime();
-
-
     public static Runtime getRuntime() {
         return currentRuntime;
     }
-
-
     private Runtime() {}
-
-
     public void exit(int status) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -28,8 +16,6 @@ public class Runtime {
         }
         Shutdown.exit(status);
     }
-
-
     public void addShutdownHook(Thread hook) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -37,8 +23,6 @@ public class Runtime {
         }
         ApplicationShutdownHooks.add(hook);
     }
-
-
     public boolean removeShutdownHook(Thread hook) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -46,8 +30,6 @@ public class Runtime {
         }
         return ApplicationShutdownHooks.remove(hook);
     }
-
-
     public void halt(int status) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -55,8 +37,6 @@ public class Runtime {
         }
         Shutdown.halt(status);
     }
-
-
     @Deprecated
     public static void runFinalizersOnExit(boolean value) {
         SecurityManager security = System.getSecurityManager();
@@ -69,42 +49,28 @@ public class Runtime {
         }
         Shutdown.setRunFinalizersOnExit(value);
     }
-
-
     public Process exec(String command) throws IOException {
         return exec(command, null, null);
     }
-
-
     public Process exec(String command, String[] envp) throws IOException {
         return exec(command, envp, null);
     }
-
-
     public Process exec(String command, String[] envp, File dir)
         throws IOException {
         if (command.length() == 0)
             throw new IllegalArgumentException("Empty command");
-
         StringTokenizer st = new StringTokenizer(command);
         String[] cmdarray = new String[st.countTokens()];
         for (int i = 0; st.hasMoreTokens(); i++)
             cmdarray[i] = st.nextToken();
         return exec(cmdarray, envp, dir);
     }
-
-
     public Process exec(String cmdarray[]) throws IOException {
         return exec(cmdarray, null, null);
     }
-
-
     public Process exec(String[] cmdarray, String[] envp) throws IOException {
         return exec(cmdarray, envp, null);
     }
-
-
-
     public Process exec(String[] cmdarray, String[] envp, File dir)
         throws IOException {
         return new ProcessBuilder(cmdarray)
@@ -112,42 +78,21 @@ public class Runtime {
             .directory(dir)
             .start();
     }
-
-
     public native int availableProcessors();
-
-
     public native long freeMemory();
-
-
     public native long totalMemory();
-
-
     public native long maxMemory();
-
-
     public native void gc();
-
-
     private static native void runFinalization0();
-
-
     public void runFinalization() {
         runFinalization0();
     }
-
-
     public native void traceInstructions(boolean on);
-
-
     public native void traceMethodCalls(boolean on);
-
-
     @CallerSensitive
     public void load(String filename) {
         load0(Reflection.getCallerClass(), filename);
     }
-
     synchronized void load0(Class<?> fromClass, String filename) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -159,13 +104,10 @@ public class Runtime {
         }
         ClassLoader.loadLibrary(fromClass, filename, true);
     }
-
-
     @CallerSensitive
     public void loadLibrary(String libname) {
         loadLibrary0(Reflection.getCallerClass(), libname);
     }
-
     synchronized void loadLibrary0(Class<?> fromClass, String libname) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -177,17 +119,12 @@ public class Runtime {
         }
         ClassLoader.loadLibrary(fromClass, libname, false);
     }
-
-
     @Deprecated
     public InputStream getLocalizedInputStream(InputStream in) {
         return in;
     }
-
-
     @Deprecated
     public OutputStream getLocalizedOutputStream(OutputStream out) {
         return out;
     }
-
 }

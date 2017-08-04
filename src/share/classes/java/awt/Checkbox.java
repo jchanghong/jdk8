@@ -1,6 +1,4 @@
-
 package java.awt;
-
 import java.awt.peer.CheckboxPeer;
 import java.awt.event.*;
 import java.util.EventListener;
@@ -8,37 +6,20 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
 import javax.accessibility.*;
-
-
-
 public class Checkbox extends Component implements ItemSelectable, Accessible {
-
     static {
-
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
             initIDs();
         }
     }
-
-
     String label;
-
-
     boolean state;
-
-
     CheckboxGroup group;
-
     transient ItemListener itemListener;
-
     private static final String base = "checkbox";
     private static int nameCounter = 0;
-
-
     private static final long serialVersionUID = 7270714317450821763L;
-
-
     void setStateInternal(boolean state) {
         this.state = state;
         CheckboxPeer peer = (CheckboxPeer)this.peer;
@@ -46,23 +27,15 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
             peer.setState(state);
         }
     }
-
-
     public Checkbox() throws HeadlessException {
         this("", false, null);
     }
-
-
     public Checkbox(String label) throws HeadlessException {
         this(label, false, null);
     }
-
-
     public Checkbox(String label, boolean state) throws HeadlessException {
         this(label, state, null);
     }
-
-
     public Checkbox(String label, boolean state, CheckboxGroup group)
         throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
@@ -73,21 +46,15 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
             group.setSelectedCheckbox(this);
         }
     }
-
-
     public Checkbox(String label, CheckboxGroup group, boolean state)
         throws HeadlessException {
         this(label, state, group);
     }
-
-
     String constructComponentName() {
         synchronized (Checkbox.class) {
             return base + nameCounter++;
         }
     }
-
-
     public void addNotify() {
         synchronized (getTreeLock()) {
             if (peer == null)
@@ -95,16 +62,11 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
             super.addNotify();
         }
     }
-
-
     public String getLabel() {
         return label;
     }
-
-
     public void setLabel(String label) {
         boolean testvalid = false;
-
         synchronized (this) {
             if (label != this.label && (this.label == null ||
                                         !this.label.equals(label))) {
@@ -116,21 +78,15 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
                 testvalid = true;
             }
         }
-
         // This could change the preferred size of the Component.
         if (testvalid) {
             invalidateIfValid();
         }
     }
-
-
     public boolean getState() {
         return state;
     }
-
-
     public void setState(boolean state) {
-
         CheckboxGroup group = this.group;
         if (group != null) {
             if (state) {
@@ -141,8 +97,6 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
         }
         setStateInternal(state);
     }
-
-
     public Object[] getSelectedObjects() {
         if (state) {
             Object[] items = new Object[1];
@@ -151,26 +105,18 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
         }
         return null;
     }
-
-
     public CheckboxGroup getCheckboxGroup() {
         return group;
     }
-
-
     public void setCheckboxGroup(CheckboxGroup g) {
         CheckboxGroup oldGroup;
         boolean oldState;
-
-
         if (this.group == g) {
             return;
         }
-
         synchronized (this) {
             oldGroup = this.group;
             oldState = getState();
-
             this.group = g;
             CheckboxPeer peer = (CheckboxPeer)this.peer;
             if (peer != null) {
@@ -184,14 +130,10 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
                 }
             }
         }
-
-
         if (oldGroup != null && oldState) {
             oldGroup.setSelectedCheckbox(null);
         }
     }
-
-
     public synchronized void addItemListener(ItemListener l) {
         if (l == null) {
             return;
@@ -199,21 +141,15 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
         itemListener = AWTEventMulticaster.add(itemListener, l);
         newEventsOnly = true;
     }
-
-
     public synchronized void removeItemListener(ItemListener l) {
         if (l == null) {
             return;
         }
         itemListener = AWTEventMulticaster.remove(itemListener, l);
     }
-
-
     public synchronized ItemListener[] getItemListeners() {
         return getListeners(ItemListener.class);
     }
-
-
     public <T extends EventListener> T[] getListeners(Class<T> listenerType) {
         EventListener l = null;
         if  (listenerType == ItemListener.class) {
@@ -223,7 +159,6 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
         }
         return AWTEventMulticaster.getListeners(l, listenerType);
     }
-
     // REMIND: remove when filtering is done at lower level
     boolean eventEnabled(AWTEvent e) {
         if (e.id == ItemEvent.ITEM_STATE_CHANGED) {
@@ -235,8 +170,6 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
         }
         return super.eventEnabled(e);
     }
-
-
     protected void processEvent(AWTEvent e) {
         if (e instanceof ItemEvent) {
             processItemEvent((ItemEvent)e);
@@ -244,16 +177,12 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
         }
         super.processEvent(e);
     }
-
-
     protected void processItemEvent(ItemEvent e) {
         ItemListener listener = itemListener;
         if (listener != null) {
             listener.itemStateChanged(e);
         }
     }
-
-
     protected String paramString() {
         String str = super.paramString();
         String label = this.label;
@@ -262,72 +191,46 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
         }
         return str + ",state=" + state;
     }
-
-
-
-
-
     private int checkboxSerializedDataVersion = 1;
-
-
     private void writeObject(ObjectOutputStream s)
       throws java.io.IOException
     {
       s.defaultWriteObject();
-
       AWTEventMulticaster.save(s, itemListenerK, itemListener);
       s.writeObject(null);
     }
-
-
     private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException
     {
       GraphicsEnvironment.checkHeadless();
       s.defaultReadObject();
-
       Object keyOrNull;
       while(null != (keyOrNull = s.readObject())) {
         String key = ((String)keyOrNull).intern();
-
         if (itemListenerK == key)
           addItemListener((ItemListener)(s.readObject()));
-
         else // skip value for unrecognized key
           s.readObject();
       }
     }
-
-
     private static native void initIDs();
-
-
 /////////////////
 // Accessibility support
 ////////////////
-
-
-
     public AccessibleContext getAccessibleContext() {
         if (accessibleContext == null) {
             accessibleContext = new AccessibleAWTCheckbox();
         }
         return accessibleContext;
     }
-
-
     protected class AccessibleAWTCheckbox extends AccessibleAWTComponent
         implements ItemListener, AccessibleAction, AccessibleValue
     {
-
         private static final long serialVersionUID = 7881579233144754107L;
-
         public AccessibleAWTCheckbox() {
             super();
             Checkbox.this.addItemListener(this);
         }
-
-
         public void itemStateChanged(ItemEvent e) {
             Checkbox cb = (Checkbox) e.getSource();
             if (Checkbox.this.accessibleContext != null) {
@@ -342,58 +245,36 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
                 }
             }
         }
-
-
         public AccessibleAction getAccessibleAction() {
             return this;
         }
-
-
         public AccessibleValue getAccessibleValue() {
             return this;
         }
-
-
         public int getAccessibleActionCount() {
             return 0;  //  To be fully implemented in a future release
         }
-
-
         public String getAccessibleActionDescription(int i) {
             return null;  //  To be fully implemented in a future release
         }
-
-
         public boolean doAccessibleAction(int i) {
             return false;    //  To be fully implemented in a future release
         }
-
-
         public Number getCurrentAccessibleValue() {
             return null;  //  To be fully implemented in a future release
         }
-
-
         public boolean setCurrentAccessibleValue(Number n) {
             return false;  //  To be fully implemented in a future release
         }
-
-
         public Number getMinimumAccessibleValue() {
             return null;  //  To be fully implemented in a future release
         }
-
-
         public Number getMaximumAccessibleValue() {
             return null;  //  To be fully implemented in a future release
         }
-
-
         public AccessibleRole getAccessibleRole() {
             return AccessibleRole.CHECK_BOX;
         }
-
-
         public AccessibleStateSet getAccessibleStateSet() {
             AccessibleStateSet states = super.getAccessibleStateSet();
             if (getState()) {
@@ -401,8 +282,5 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
             }
             return states;
         }
-
-
     } // inner class AccessibleAWTCheckbox
-
 }

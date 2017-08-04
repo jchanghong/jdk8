@@ -1,28 +1,13 @@
-
-
 package java.io;
-
-
-
-
 public class BufferedWriter extends Writer {
-
     private Writer out;
-
     private char cb[];
     private int nChars, nextChar;
-
     private static int defaultCharBufferSize = 8192;
-
-
     private String lineSeparator;
-
-
     public BufferedWriter(Writer out) {
         this(out, defaultCharBufferSize);
     }
-
-
     public BufferedWriter(Writer out, int sz) {
         super(out);
         if (sz <= 0)
@@ -31,18 +16,13 @@ public class BufferedWriter extends Writer {
         cb = new char[sz];
         nChars = sz;
         nextChar = 0;
-
         lineSeparator = java.security.AccessController.doPrivileged(
             new sun.security.action.GetPropertyAction("line.separator"));
     }
-
-
     private void ensureOpen() throws IOException {
         if (out == null)
             throw new IOException("Stream closed");
     }
-
-
     void flushBuffer() throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -52,8 +32,6 @@ public class BufferedWriter extends Writer {
             nextChar = 0;
         }
     }
-
-
     public void write(int c) throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -62,14 +40,10 @@ public class BufferedWriter extends Writer {
             cb[nextChar++] = (char) c;
         }
     }
-
-
     private int min(int a, int b) {
         if (a < b) return a;
         return b;
     }
-
-
     public void write(char cbuf[], int off, int len) throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -79,14 +53,11 @@ public class BufferedWriter extends Writer {
             } else if (len == 0) {
                 return;
             }
-
             if (len >= nChars) {
-
                 flushBuffer();
                 out.write(cbuf, off, len);
                 return;
             }
-
             int b = off, t = off + len;
             while (b < t) {
                 int d = min(nChars - nextChar, t - b);
@@ -98,12 +69,9 @@ public class BufferedWriter extends Writer {
             }
         }
     }
-
-
     public void write(String s, int off, int len) throws IOException {
         synchronized (lock) {
             ensureOpen();
-
             int b = off, t = off + len;
             while (b < t) {
                 int d = min(nChars - nextChar, t - b);
@@ -115,20 +83,15 @@ public class BufferedWriter extends Writer {
             }
         }
     }
-
-
     public void newLine() throws IOException {
         write(lineSeparator);
     }
-
-
     public void flush() throws IOException {
         synchronized (lock) {
             flushBuffer();
             out.flush();
         }
     }
-
     @SuppressWarnings("try")
     public void close() throws IOException {
         synchronized (lock) {

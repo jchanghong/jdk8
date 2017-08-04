@@ -4,34 +4,25 @@
 <!--
 Copyright (c) 2000, 2006, Oracle and/or its affiliates. All rights reserved.
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-
 This code is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License version 2 only, as
 published by the Free Software Foundation.  Oracle designates this
 particular file as subject to the "Classpath" exception as provided
 by Oracle in the LICENSE file that accompanied this code.
-
 This code is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 version 2 for more details (a copy is included in the LICENSE file that
 accompanied this code).
-
 You should have received a copy of the GNU General Public License version
 2 along with this work; if not, write to the Free Software Foundation,
 Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-
 Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
 or visit www.oracle.com if you need additional information or have any
 questions.
 -->
-
 </head>
-
-
-
 <body bgcolor="white">
-
 Provides the API for server side data source access and processing from
 the Java<sup><font size=-2>TM</font></sup> programming language.
 This package supplements the <code>java.sql</code>
@@ -54,9 +45,7 @@ The <code>javax.sql</code> package provides for the following:
 Applications use the <code>DataSource</code> and <code>RowSet</code>
 APIs directly, but the connection pooling and distributed transaction
 APIs are used internally by the middle-tier infrastructure.
-
 <H2>Using a <code>DataSource</code> Object to Make a Connection</H2>
-
 The <code>javax.sql</code> package provides the preferred
 way to make a connection with a data source.  The <code>DriverManager</code>
 class, the original mechanism, is still valid, and code using it will
@@ -67,7 +56,6 @@ is preferred because it offers many advantages over the
 These are the main advantages of using a <code>DataSource</code> object to 
 make a connection:
 <UL>
-  
   <LI>Changes can be made to a data source's properties, which means
       that it is not necessary to make changes in application code when
       something about the data source or driver changes.
@@ -101,9 +89,7 @@ connection pooling.
 A <code>DataSource</code> object can also be implemented to work with the 
 middle tier infrastructure so that the connections it produces can be
 used for distributed transactions without any special coding.
-
 <H2>Connection Pooling and Statement Pooling</H2>
-
 Connections made via a <code>DataSource</code>
 object that is implemented to work with a middle tier connection pool manager
 will participate in connection pooling.  This can improve performance
@@ -146,9 +132,7 @@ object with the new <code>PooledConnection</code> object.  When the
 pool manager (being a listener)
 gets a notification that includes a <code>StatementEvent</code> object.
 <p>
-
 <H2>Distributed Transactions</H2>
-
 As with pooled connections, connections made via a <code>DataSource</code>
 object that is implemented to work with the middle tier infrastructure
 may participate in distributed transactions.  This gives an application
@@ -182,8 +166,6 @@ The transaction manager manages the transaction behind the scenes.  The
 <code>XADataSource</code> interface creates <code>XAConnection</code> objects, and
 each <code>XAConnection</code> object creates an <code>XAResource</code> object 
 that the transaction manager uses to manage the connection.
-
-
 <H2>Rowsets</H2>
 The <code>RowSet</code> interface works with various other classes and
 interfaces behind the scenes. These can be grouped into three categories.
@@ -236,7 +218,6 @@ object associated with it to write any changes to its rows back to the
 data source from which it originally got the rows.
 A rowset that remains connected to its data source does not need to use a 
 reader and writer because it can simply operate on the data source directly.
-
 <UL>
   <LI><code>RowSetInternal</code><br>
 By implementing the <code>RowSetInternal</code> interface, a 
@@ -260,15 +241,12 @@ reads data from the data source and populates the rowset with it, and closes
 the connection. A reader may also update the <code>RowSetMetaData</code> object
 for its rowset.  The rowset's internal state is also updated, either by the
 reader or directly by the method <code>RowSet.execute</code>.
-
-
   <LI><code>RowSetWriter</code><br>
 A disconnected <code>RowSet</code> object that has implemented the 
 <code>RowSetInternal</code> interface can call on its writer (the 
 <code>RowSetWriter</code> object associated with it) to write changes
 back to the underlying data source.  Implementations may vary widely, but
 generally, a writer will do the following:
-
 <P>
 <UL>
   <LI>Make a connection to the data source 
@@ -278,8 +256,6 @@ generally, a writer will do the following:
   <LI>Write the new values to the data source if there is no conflict 
   <LI>Close the connection
 </UL>
- 
-
 </UL>
 </OL>
 <P>
@@ -292,20 +268,15 @@ JDBC technology driver that implements the JDBC 4.0 API.
 You must check your driver documentation to be sure that it implements
 the particular features you want to use.
 <P>
-
 <h2>Package Specification</h2>
-
 <ul>
   <li><a href="http://java.sun.com/products/jdbc/download.html">Specification of the 
       JDBC 4.0 API</a>
 </ul>
-
 <h2>Related Documentation</h2>
-
 The Java Series book published by Addison-Wesley Longman provides detailed
 information about the classes and interfaces in the <code>javax.sql</code>
 package: 
-
 <ul>
   <li><a href="http://java.sun.com/docs/books/jdbc"><i>JDBC<sup><font size=-2>TM</font></sup>
       API Tutorial and Reference, Third Edition:</i></a>

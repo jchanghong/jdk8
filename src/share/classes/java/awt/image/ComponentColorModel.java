@@ -1,14 +1,7 @@
-
-
 package java.awt.image;
-
 import java.awt.color.ColorSpace;
 import java.awt.color.ICC_ColorSpace;
-
-
 public class ComponentColorModel extends ColorModel {
-
-
     private boolean signed; // true for transfer types short, float, double
                             // false for byte, ushort, int
     private boolean is_sRGB_stdScale;
@@ -27,8 +20,6 @@ public class ComponentColorModel extends ColorModel {
     private float[] diffMinMax;
     private float[] compOffset;
     private float[] compScale;
-
-
     public ComponentColorModel (ColorSpace colorSpace,
                                 int[] bits,
                                 boolean hasAlpha,
@@ -63,8 +54,6 @@ public class ComponentColorModel extends ColorModel {
         }
         setupLUTs();
     }
-
-
     public ComponentColorModel (ColorSpace colorSpace,
                                 boolean hasAlpha,
                                 boolean isAlphaPremultiplied,
@@ -73,7 +62,6 @@ public class ComponentColorModel extends ColorModel {
         this(colorSpace, null, hasAlpha, isAlphaPremultiplied,
              transparency, transferType);
     }
-
     private static int bitsHelper(int transferType,
                                   ColorSpace colorSpace,
                                   boolean hasAlpha) {
@@ -84,7 +72,6 @@ public class ComponentColorModel extends ColorModel {
         }
         return numBits * numComponents;
     }
-
     private static int[] bitsArrayHelper(int[] origBits,
                                          int transferType,
                                          ColorSpace colorSpace,
@@ -111,7 +98,6 @@ public class ComponentColorModel extends ColorModel {
         }
         return bits;
     }
-
     private void setupLUTs() {
         // REMIND: there is potential to accelerate sRGB, LinearRGB,
         // LinearGray, ICCGray, and non-ICC Gray spaces with non-standard
@@ -198,7 +184,6 @@ public class ComponentColorModel extends ColorModel {
             }
         }
     }
-
     private void initScale() {
         // This method is called the first time any method which uses
         // pixel sample value to color component value scaling information
@@ -327,7 +312,6 @@ public class ComponentColorModel extends ColorModel {
             }
         }
     }
-
     private int getRGBComponent(int pixel, int idx) {
         if (numComponents > 1) {
             throw new
@@ -341,7 +325,6 @@ public class ComponentColorModel extends ColorModel {
             initScale();
         }
         // Since there is only 1 component, there is no alpha
-
         // Normalize the pixel in order to convert it
         Object opixel = null;
         switch (transferType) {
@@ -366,26 +349,17 @@ public class ComponentColorModel extends ColorModel {
         }
         float[] norm = getNormalizedComponents(opixel, null, 0);
         float[] rgb = colorSpace.toRGB(norm);
-
         return (int) (rgb[idx] * 255.0f + 0.5f);
     }
-
-
     public int getRed(int pixel) {
         return getRGBComponent(pixel, 0);
     }
-
-
     public int getGreen(int pixel) {
         return getRGBComponent(pixel, 1);
     }
-
-
     public int getBlue(int pixel) {
         return getRGBComponent(pixel, 2);
     }
-
-
     public int getAlpha(int pixel) {
         if (supportsAlpha == false) {
             return 255;
@@ -398,11 +372,8 @@ public class ComponentColorModel extends ColorModel {
             throw new
                 IllegalArgumentException("Component value is signed");
         }
-
         return (int) ((((float) pixel) / ((1<<nBits[0])-1)) * 255.0f + 0.5f);
     }
-
-
     public int getRGB(int pixel) {
         if (numComponents > 1) {
             throw new
@@ -412,20 +383,17 @@ public class ComponentColorModel extends ColorModel {
             throw new
                 IllegalArgumentException("Component value is signed");
         }
-
         return (getAlpha(pixel) << 24)
             | (getRed(pixel) << 16)
             | (getGreen(pixel) << 8)
             | (getBlue(pixel) << 0);
     }
-
     private int extractComponent(Object inData, int idx, int precision) {
         // Extract component idx from inData.  The precision argument
         // should be either 8 or 16.  If it's 8, this method will return
         // an 8-bit value.  If it's 16, this method will return a 16-bit
         // value for transferTypes other than TYPE_BYTE.  For TYPE_BYTE,
         // an 8-bit value will be returned.
-
         // This method maps the input value corresponding to a
         // normalized ColorSpace component value of 0.0 to 0, and the
         // input value corresponding to a normalized ColorSpace
@@ -434,12 +402,10 @@ public class ComponentColorModel extends ColorModel {
         // values of 0.0/1.0.  This will be true for sRGB, the built-in
         // Linear RGB and Linear Gray spaces, and any other ICC grayscale
         // spaces for which we have precomputed LUTs.
-
         boolean needAlpha = (supportsAlpha && isAlphaPremultiplied);
         int alp = 0;
         int comp;
         int mask = (1 << nBits[idx]) - 1;
-
         switch (transferType) {
             // Note: we do no clamping of the pixel data here - we
             // assume that the data is scaled properly
@@ -532,7 +498,6 @@ public class ComponentColorModel extends ColorModel {
             return comp;
         }
     }
-
     private int getRGBComponent(Object inData, int idx) {
         if (needScaleInit) {
             initScale();
@@ -546,41 +511,28 @@ public class ComponentColorModel extends ColorModel {
             int lutidx = extractComponent(inData, 0, 16);
             return tosRGB8LUT[lutidx] & 0xff;
         }
-
         // Not CS_sRGB, CS_LINEAR_RGB, or any TYPE_GRAY ICC_ColorSpace
         float[] norm = getNormalizedComponents(inData, null, 0);
         // Note that getNormalizedComponents returns non-premultiplied values
         float[] rgb = colorSpace.toRGB(norm);
         return (int) (rgb[idx] * 255.0f + 0.5f);
     }
-
-
     public int getRed(Object inData) {
         return getRGBComponent(inData, 0);
     }
-
-
-
     public int getGreen(Object inData) {
         return getRGBComponent(inData, 1);
     }
-
-
-
     public int getBlue(Object inData) {
         return getRGBComponent(inData, 2);
     }
-
-
     public int getAlpha(Object inData) {
         if (supportsAlpha == false) {
             return 255;
         }
-
         int alpha = 0;
         int aIdx = numColorComponents;
         int mask = (1 << nBits[aIdx]) - 1;
-
         switch (transferType) {
             case DataBuffer.TYPE_SHORT:
                 short sdata[] = (short[])inData;
@@ -611,7 +563,6 @@ public class ComponentColorModel extends ColorModel {
                    UnsupportedOperationException("This method has not "+
                    "been implemented for transferType " + transferType);
         }
-
         if (nBits[aIdx] == 8) {
             return alpha;
         } else {
@@ -620,8 +571,6 @@ public class ComponentColorModel extends ColorModel {
                  255.0f + 0.5f);
         }
     }
-
-
     public int getRGB(Object inData) {
         if (needScaleInit) {
             initScale();
@@ -647,22 +596,17 @@ public class ComponentColorModel extends ColorModel {
             | (((int) (rgb[1] * 255.0f + 0.5f)) << 8)
             | (((int) (rgb[2] * 255.0f + 0.5f)) << 0);
     }
-
-
     public Object getDataElements(int rgb, Object pixel) {
         // REMIND: Use rendering hints?
-
         int red, grn, blu, alp;
         red = (rgb>>16) & 0xff;
         grn = (rgb>>8) & 0xff;
         blu = rgb & 0xff;
-
         if (needScaleInit) {
             initScale();
         }
         if (signed) {
             // Handle SHORT, FLOAT, & DOUBLE here
-
             switch(transferType) {
             case DataBuffer.TYPE_SHORT:
                 {
@@ -927,7 +871,6 @@ public class ComponentColorModel extends ColorModel {
                 }
             }
         }
-
         // Handle BYTE, USHORT, & INT here
         //REMIND: maybe more efficient not to use int array for
         //DataBuffer.TYPE_USHORT and DataBuffer.TYPE_INT
@@ -938,7 +881,6 @@ public class ComponentColorModel extends ColorModel {
         } else {
             intpixel = new int[numComponents];
         }
-
         if (is_sRGB_stdScale || is_LinearRGB_stdScale) {
             int precision;
             float factor;
@@ -1077,7 +1019,6 @@ public class ComponentColorModel extends ColorModel {
                 intpixel[i] = (int) (norm[i] * ((1<<nBits[i]) - 1) + 0.5f);
             }
         }
-
         switch (transferType) {
             case DataBuffer.TYPE_BYTE: {
                byte bdata[];
@@ -1120,8 +1061,6 @@ public class ComponentColorModel extends ColorModel {
         throw new IllegalArgumentException("This method has not been "+
                  "implemented for transferType " + transferType);
     }
-
-
     public int[] getComponents(int pixel, int[] components, int offset) {
         if (numComponents > 1) {
             throw new
@@ -1138,12 +1077,9 @@ public class ComponentColorModel extends ColorModel {
         if (components == null) {
             components = new int[offset+1];
         }
-
         components[offset+0] = (pixel & ((1<<nBits[0]) - 1));
         return components;
     }
-
-
     public int[] getComponents(Object pixel, int[] components, int offset) {
         int intpixel[];
         if (needScaleInit) {
@@ -1175,11 +1111,8 @@ public class ComponentColorModel extends ColorModel {
                 ("Length of components array < number of components in model");
         }
         System.arraycopy(intpixel, 0, components, offset, numComponents);
-
         return components;
     }
-
-
     public int[] getUnnormalizedComponents(float[] normComponents,
                                            int normOffset,
                                            int[] components, int offset) {
@@ -1194,8 +1127,6 @@ public class ComponentColorModel extends ColorModel {
         return super.getUnnormalizedComponents(normComponents, normOffset,
                                                components, offset);
     }
-
-
     public float[] getNormalizedComponents(int[] components, int offset,
                                            float[] normComponents,
                                            int normOffset) {
@@ -1210,8 +1141,6 @@ public class ComponentColorModel extends ColorModel {
         return super.getNormalizedComponents(components, offset,
                                              normComponents, normOffset);
     }
-
-
     public int getDataElement(int[] components, int offset) {
         if (needScaleInit) {
             initScale();
@@ -1228,8 +1157,6 @@ public class ComponentColorModel extends ColorModel {
                                            numComponents+
                                            " elements in the pixel array.");
     }
-
-
     public Object getDataElements(int[] components, int offset, Object obj) {
         if (needScaleInit) {
             initScale();
@@ -1257,7 +1184,6 @@ public class ComponentColorModel extends ColorModel {
                                  numComponents);
                 return pixel;
             }
-
         case DataBuffer.TYPE_BYTE:
             {
                 byte[] pixel;
@@ -1272,7 +1198,6 @@ public class ComponentColorModel extends ColorModel {
                 }
                 return pixel;
             }
-
         case DataBuffer.TYPE_USHORT:
             {
                 short[] pixel;
@@ -1287,15 +1212,12 @@ public class ComponentColorModel extends ColorModel {
                 }
                 return pixel;
             }
-
         default:
             throw new UnsupportedOperationException("This method has not been "+
                                         "implemented for transferType " +
                                         transferType);
         }
     }
-
-
     public int getDataElement(float[] normComponents, int normOffset) {
         if (numComponents > 1) {
             throw new
@@ -1330,8 +1252,6 @@ public class ComponentColorModel extends ColorModel {
                 + "implemented for transferType " + transferType);
         }
     }
-
-
     public Object getDataElements(float[] normComponents, int normOffset,
                                   Object obj) {
         boolean needAlpha = supportsAlpha && isAlphaPremultiplied;
@@ -1519,8 +1439,6 @@ public class ComponentColorModel extends ColorModel {
                                         transferType);
         }
     }
-
-
     public float[] getNormalizedComponents(Object pixel,
                                            float[] normComponents,
                                            int normOffset) {
@@ -1572,7 +1490,6 @@ public class ComponentColorModel extends ColorModel {
                                         "implemented for transferType " +
                                         transferType);
         }
-
         if (supportsAlpha && isAlphaPremultiplied) {
             float alpha = normComponents[numColorComponents + normOffset];
             if (alpha != 0.0f) {
@@ -1604,8 +1521,6 @@ public class ComponentColorModel extends ColorModel {
         }
         return normComponents;
     }
-
-
     public ColorModel coerceData (WritableRaster raster,
                                   boolean isAlphaPremultiplied) {
         if ((supportsAlpha == false) ||
@@ -1614,7 +1529,6 @@ public class ComponentColorModel extends ColorModel {
             // Nothing to do
             return this;
         }
-
         int w = raster.getWidth();
         int h = raster.getHeight();
         int aIdx = raster.getNumBands() - 1;
@@ -1918,7 +1832,6 @@ public class ComponentColorModel extends ColorModel {
                          "implemented for transferType " + transferType);
             }
         }
-
         // Return a new color model
         if (!signed) {
             return new ComponentColorModel(colorSpace, nBits, supportsAlpha,
@@ -1929,14 +1842,9 @@ public class ComponentColorModel extends ColorModel {
                                            isAlphaPremultiplied, transparency,
                                            transferType);
         }
-
     }
-
-
     public boolean isCompatibleRaster(Raster raster) {
-
         SampleModel sm = raster.getSampleModel();
-
         if (sm instanceof ComponentSampleModel) {
             if (sm.getNumBands() != getNumComponents()) {
                 return false;
@@ -1952,12 +1860,9 @@ public class ComponentColorModel extends ColorModel {
             return false;
         }
     }
-
-
     public WritableRaster createCompatibleWritableRaster (int w, int h) {
         int dataSize = w*h*numComponents;
         WritableRaster raster = null;
-
         switch (transferType) {
         case DataBuffer.TYPE_BYTE:
         case DataBuffer.TYPE_USHORT:
@@ -1970,11 +1875,8 @@ public class ComponentColorModel extends ColorModel {
             DataBuffer db = sm.createDataBuffer();
             raster = Raster.createWritableRaster(sm, db, null);
         }
-
         return raster;
     }
-
-
     public SampleModel createCompatibleSampleModel(int w, int h) {
         int[] bandOffsets = new int[numComponents];
         for (int i=0; i < numComponents; i++) {
@@ -1994,31 +1896,23 @@ public class ComponentColorModel extends ColorModel {
                                             bandOffsets);
         }
     }
-
-
     public boolean isCompatibleSampleModel(SampleModel sm) {
         if (!(sm instanceof ComponentSampleModel)) {
             return false;
         }
-
         // Must have the same number of components
         if (numComponents != sm.getNumBands()) {
             return false;
         }
-
         if (sm.getTransferType() != transferType) {
             return false;
         }
-
         return true;
     }
-
-
     public WritableRaster getAlphaRaster(WritableRaster raster) {
         if (hasAlpha() == false) {
             return null;
         }
-
         int x = raster.getMinX();
         int y = raster.getMinY();
         int[] band = new int[1];
@@ -2027,18 +1921,13 @@ public class ComponentColorModel extends ColorModel {
                                           raster.getHeight(), x, y,
                                           band);
     }
-
-
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
             return false;
         }
-
         if (obj.getClass() !=  getClass()) {
             return false;
         }
-
         return true;
     }
-
 }

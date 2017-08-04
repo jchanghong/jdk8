@@ -1,11 +1,7 @@
-
-
 package java.awt.print;
-
 import java.awt.AWTError;
 import java.awt.HeadlessException;
 import java.util.Enumeration;
-
 import javax.print.DocFlavor;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
@@ -16,15 +12,8 @@ import javax.print.attribute.standard.MediaPrintableArea;
 import javax.print.attribute.standard.MediaSize;
 import javax.print.attribute.standard.MediaSizeName;
 import javax.print.attribute.standard.OrientationRequested;
-
 import sun.security.action.GetPropertyAction;
-
-
 public abstract class PrinterJob {
-
-
-
-
     public static PrinterJob getPrinterJob() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -46,108 +35,66 @@ public abstract class PrinterJob {
             }
         });
     }
-
-
     public static PrintService[] lookupPrintServices() {
         return PrintServiceLookup.
             lookupPrintServices(DocFlavor.SERVICE_FORMATTED.PAGEABLE, null);
     }
-
-
-
     public static StreamPrintServiceFactory[]
         lookupStreamPrintServices(String mimeType) {
         return StreamPrintServiceFactory.lookupStreamPrintServiceFactories(
                                        DocFlavor.SERVICE_FORMATTED.PAGEABLE,
                                        mimeType);
     }
-
-
-
-
-
     public PrinterJob() {
     }
-
-
     public PrintService getPrintService() {
         return null;
     }
-
-
     public void setPrintService(PrintService service)
         throws PrinterException {
             throw new PrinterException(
                          "Setting a service is not supported on this class");
     }
-
-
     public abstract void setPrintable(Printable painter);
-
-
     public abstract void setPrintable(Printable painter, PageFormat format);
-
-
     public abstract void setPageable(Pageable document)
         throws NullPointerException;
-
-
     public abstract boolean printDialog() throws HeadlessException;
-
-
     public boolean printDialog(PrintRequestAttributeSet attributes)
         throws HeadlessException {
-
         if (attributes == null) {
             throw new NullPointerException("attributes");
         }
         return printDialog();
     }
-
-
     public abstract PageFormat pageDialog(PageFormat page)
         throws HeadlessException;
-
-
     public PageFormat pageDialog(PrintRequestAttributeSet attributes)
         throws HeadlessException {
-
         if (attributes == null) {
             throw new NullPointerException("attributes");
         }
         return pageDialog(defaultPage());
     }
-
-
     public abstract PageFormat defaultPage(PageFormat page);
-
-
     public PageFormat defaultPage() {
         return defaultPage(new PageFormat());
     }
-
-
     public PageFormat getPageFormat(PrintRequestAttributeSet attributes) {
-
         PrintService service = getPrintService();
         PageFormat pf = defaultPage();
-
         if (service == null || attributes == null) {
             return pf;
         }
-
         Media media = (Media)attributes.get(Media.class);
         MediaPrintableArea mpa =
             (MediaPrintableArea)attributes.get(MediaPrintableArea.class);
         OrientationRequested orientReq =
            (OrientationRequested)attributes.get(OrientationRequested.class);
-
         if (media == null && mpa == null && orientReq == null) {
            return pf;
         }
         Paper paper = pf.getPaper();
-
-
         if (mpa == null && media != null &&
             service.isAttributeCategorySupported(MediaPrintableArea.class)) {
             Object mpaVals =
@@ -158,7 +105,6 @@ public abstract class PrinterJob {
                 mpa = ((MediaPrintableArea[])mpaVals)[0];
             }
         }
-
         if (media != null &&
             service.isAttributeValueSupported(media, null, attributes)) {
             if (media instanceof MediaSizeName) {
@@ -177,7 +123,6 @@ public abstract class PrinterJob {
                 }
             }
         }
-
         if (mpa != null &&
             service.isAttributeValueSupported(mpa, null, attributes)) {
             float [] printableArea =
@@ -188,7 +133,6 @@ public abstract class PrinterJob {
             paper.setImageableArea(printableArea[0], printableArea[1],
                                    printableArea[2], printableArea[3]);
         }
-
         if (orientReq != null &&
             service.isAttributeValueSupported(orientReq, null, attributes)) {
             int orient;
@@ -201,43 +145,21 @@ public abstract class PrinterJob {
             }
             pf.setOrientation(orient);
         }
-
         pf.setPaper(paper);
         pf = validatePage(pf);
         return pf;
     }
-
-
     public abstract PageFormat validatePage(PageFormat page);
-
-
     public abstract void print() throws PrinterException;
-
-
     public void print(PrintRequestAttributeSet attributes)
         throws PrinterException {
         print();
     }
-
-
     public abstract void setCopies(int copies);
-
-
     public abstract int getCopies();
-
-
     public abstract String getUserName();
-
-
     public abstract void setJobName(String jobName);
-
-
     public abstract String getJobName();
-
-
     public abstract void cancel();
-
-
     public abstract boolean isCancelled();
-
 }

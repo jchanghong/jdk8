@@ -1,7 +1,4 @@
-
-
 package java.lang.invoke;
-
 import sun.invoke.util.Wrapper;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
@@ -15,23 +12,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import sun.invoke.util.BytecodeDescriptor;
 import static java.lang.invoke.MethodHandleStatics.*;
 import sun.invoke.util.VerifyType;
-
-
 public final
 class MethodType implements java.io.Serializable {
     private static final long serialVersionUID = 292L;  // {rtype, {ptype...}}
-
     // The rtype and ptypes fields define the structural identity of the method type:
     private final Class<?>   rtype;
     private final Class<?>[] ptypes;
-
     // The remaining fields are caches of various sorts:
     private @Stable MethodTypeForm form; // erased form, plus cached data about primitives
     private @Stable MethodType wrapAlt;  // alternative wrapped/unwrapped version
     private @Stable Invokers invokers;   // cache of handy higher-order adapters
     private @Stable String methodDescriptor;  // cache for toMethodDescriptorString
-
-
     private MethodType(Class<?> rtype, Class<?>[] ptypes, boolean trusted) {
         checkRtype(rtype);
         checkPtypes(ptypes);
@@ -39,29 +30,18 @@ class MethodType implements java.io.Serializable {
         // defensively copy the array passed in by the user
         this.ptypes = trusted ? ptypes : Arrays.copyOf(ptypes, ptypes.length);
     }
-
-
     private MethodType(Class<?>[] ptypes, Class<?> rtype) {
         this.rtype = rtype;
         this.ptypes = ptypes;
     }
-
      MethodTypeForm form() { return form; }
      Class<?> rtype() { return rtype; }
      Class<?>[] ptypes() { return ptypes; }
-
     void setForm(MethodTypeForm f) { form = f; }
-
-
      static final int MAX_JVM_ARITY = 255;  // this is mandated by the JVM spec.
-
-
     // Issue:  Should we allow MH.invokeWithArguments to go to the full 255?
      static final int MAX_MH_ARITY = MAX_JVM_ARITY-1;  // deduct one for mh receiver
-
-
      static final int MAX_MH_INVOKER_ARITY = MAX_MH_ARITY-1;  // deduct one more for invoker
-
     private static void checkRtype(Class<?> rtype) {
         Objects.requireNonNull(rtype);
     }
@@ -70,7 +50,6 @@ class MethodType implements java.io.Serializable {
         if (ptype == void.class)
             throw newIllegalArgumentException("parameter type cannot be void");
     }
-
     private static int checkPtypes(Class<?>[] ptypes) {
         int slots = 0;
         for (Class<?> ptype : ptypes) {
@@ -92,31 +71,22 @@ class MethodType implements java.io.Serializable {
         if (num instanceof Integer)  num = "bad index: "+num;
         return new IndexOutOfBoundsException(num.toString());
     }
-
     static final ConcurrentWeakInternSet<MethodType> internTable = new ConcurrentWeakInternSet<>();
-
     static final Class<?>[] NO_PTYPES = {};
-
-
     public static
     MethodType methodType(Class<?> rtype, Class<?>[] ptypes) {
         return makeImpl(rtype, ptypes, false);
     }
-
-
     public static
     MethodType methodType(Class<?> rtype, List<Class<?>> ptypes) {
         boolean notrust = false;  // random List impl. could return evil ptypes array
         return makeImpl(rtype, listToArray(ptypes), notrust);
     }
-
     private static Class<?>[] listToArray(List<Class<?>> ptypes) {
         // sanity check the size before the toArray call, since size might be huge
         checkSlotCount(ptypes.size());
         return ptypes.toArray(NO_PTYPES);
     }
-
-
     public static
     MethodType methodType(Class<?> rtype, Class<?> ptype0, Class<?>... ptypes) {
         Class<?>[] ptypes1 = new Class<?>[1+ptypes.length];
@@ -124,26 +94,18 @@ class MethodType implements java.io.Serializable {
         System.arraycopy(ptypes, 0, ptypes1, 1, ptypes.length);
         return makeImpl(rtype, ptypes1, true);
     }
-
-
     public static
     MethodType methodType(Class<?> rtype) {
         return makeImpl(rtype, NO_PTYPES, true);
     }
-
-
     public static
     MethodType methodType(Class<?> rtype, Class<?> ptype0) {
         return makeImpl(rtype, new Class<?>[]{ ptype0 }, true);
     }
-
-
     public static
     MethodType methodType(Class<?> rtype, MethodType ptypes) {
         return makeImpl(rtype, ptypes.ptypes, true);
     }
-
-
      static
     MethodType makeImpl(Class<?> rtype, Class<?>[] ptypes, boolean trusted) {
         MethodType mt = internTable.get(new MethodType(ptypes, rtype));
@@ -158,8 +120,6 @@ class MethodType implements java.io.Serializable {
         return internTable.add(mt);
     }
     private static final MethodType[] objectOnlyTypes = new MethodType[20];
-
-
     public static
     MethodType genericMethodType(int objectArgCount, boolean finalArray) {
         MethodType mt;
@@ -179,14 +139,10 @@ class MethodType implements java.io.Serializable {
         }
         return mt;
     }
-
-
     public static
     MethodType genericMethodType(int objectArgCount) {
         return genericMethodType(objectArgCount, false);
     }
-
-
     public MethodType changeParameterType(int num, Class<?> nptype) {
         if (parameterType(num) == nptype)  return this;
         checkPtype(nptype);
@@ -194,8 +150,6 @@ class MethodType implements java.io.Serializable {
         nptypes[num] = nptype;
         return makeImpl(rtype, nptypes, true);
     }
-
-
     public MethodType insertParameterTypes(int num, Class<?>... ptypesToInsert) {
         int len = ptypes.length;
         if (num < 0 || num > len)
@@ -209,23 +163,15 @@ class MethodType implements java.io.Serializable {
         System.arraycopy(ptypesToInsert, 0, nptypes, num, ilen);
         return makeImpl(rtype, nptypes, true);
     }
-
-
     public MethodType appendParameterTypes(Class<?>... ptypesToInsert) {
         return insertParameterTypes(parameterCount(), ptypesToInsert);
     }
-
-
     public MethodType insertParameterTypes(int num, List<Class<?>> ptypesToInsert) {
         return insertParameterTypes(num, listToArray(ptypesToInsert));
     }
-
-
     public MethodType appendParameterTypes(List<Class<?>> ptypesToInsert) {
         return insertParameterTypes(parameterCount(), ptypesToInsert);
     }
-
-
      MethodType replaceParameterTypes(int start, int end, Class<?>... ptypesToInsert) {
         if (start == end)
             return insertParameterTypes(start, ptypesToInsert);
@@ -237,8 +183,6 @@ class MethodType implements java.io.Serializable {
             return dropParameterTypes(start, end);
         return dropParameterTypes(start, end).insertParameterTypes(start, ptypesToInsert);
     }
-
-
      MethodType asSpreaderType(Class<?> arrayType, int arrayLength) {
         assert(parameterCount() >= arrayLength);
         int spreadPos = ptypes.length - arrayLength;
@@ -265,8 +209,6 @@ class MethodType implements java.io.Serializable {
         }
         return this;  // arguments check out; no change
     }
-
-
      Class<?> leadingReferenceParameter() {
         Class<?> ptype;
         if (ptypes.length == 0 ||
@@ -274,8 +216,6 @@ class MethodType implements java.io.Serializable {
             throw newIllegalArgumentException("no leading reference parameter");
         return ptype;
     }
-
-
      MethodType asCollectorType(Class<?> arrayType, int arrayLength) {
         assert(parameterCount() >= 1);
         assert(lastParameterType().isAssignableFrom(arrayType));
@@ -296,8 +236,6 @@ class MethodType implements java.io.Serializable {
             return res.insertParameterTypes(0, parameterList().subList(0, ptypes.length-1));
         }
     }
-
-
     public MethodType dropParameterTypes(int start, int end) {
         int len = ptypes.length;
         if (!(0 <= start && start <= end && end <= len))
@@ -324,58 +262,38 @@ class MethodType implements java.io.Serializable {
         }
         return makeImpl(rtype, nptypes, true);
     }
-
-
     public MethodType changeReturnType(Class<?> nrtype) {
         if (returnType() == nrtype)  return this;
         return makeImpl(nrtype, ptypes, true);
     }
-
-
     public boolean hasPrimitives() {
         return form.hasPrimitives();
     }
-
-
     public boolean hasWrappers() {
         return unwrap() != this;
     }
-
-
     public MethodType erase() {
         return form.erasedType();
     }
-
-
      MethodType basicType() {
         return form.basicType();
     }
-
-
      MethodType invokerType() {
         return insertParameterTypes(0, MethodHandle.class);
     }
-
-
     public MethodType generic() {
         return genericMethodType(parameterCount());
     }
-
      boolean isGeneric() {
         return this == erase() && !hasPrimitives();
     }
-
-
     public MethodType wrap() {
         return hasPrimitives() ? wrapWithPrims(this) : this;
     }
-
-
     public MethodType unwrap() {
         MethodType noprims = !hasPrimitives() ? this : wrapWithPrims(this);
         return unwrapWithNoPrims(noprims);
     }
-
     private static MethodType wrapWithPrims(MethodType pt) {
         assert(pt.hasPrimitives());
         MethodType wt = pt.wrapAlt;
@@ -387,7 +305,6 @@ class MethodType implements java.io.Serializable {
         }
         return wt;
     }
-
     private static MethodType unwrapWithNoPrims(MethodType wt) {
         assert(!wt.hasPrimitives());
         MethodType uwt = wt.wrapAlt;
@@ -400,47 +317,33 @@ class MethodType implements java.io.Serializable {
         }
         return uwt;
     }
-
-
     public Class<?> parameterType(int num) {
         return ptypes[num];
     }
-
     public int parameterCount() {
         return ptypes.length;
     }
-
     public Class<?> returnType() {
         return rtype;
     }
-
-
     public List<Class<?>> parameterList() {
         return Collections.unmodifiableList(Arrays.asList(ptypes.clone()));
     }
-
      Class<?> lastParameterType() {
         int len = ptypes.length;
         return len == 0 ? void.class : ptypes[len-1];
     }
-
-
     public Class<?>[] parameterArray() {
         return ptypes.clone();
     }
-
-
     @Override
     public boolean equals(Object x) {
         return this == x || x instanceof MethodType && equals((MethodType)x);
     }
-
     private boolean equals(MethodType that) {
         return this.rtype == that.rtype
             && Arrays.equals(this.ptypes, that.ptypes);
     }
-
-
     @Override
     public int hashCode() {
       int hashCode = 31 + rtype.hashCode();
@@ -448,8 +351,6 @@ class MethodType implements java.io.Serializable {
           hashCode = 31*hashCode + ptype.hashCode();
       return hashCode;
     }
-
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -462,16 +363,11 @@ class MethodType implements java.io.Serializable {
         sb.append(rtype.getSimpleName());
         return sb.toString();
     }
-
-
-
     boolean isViewableAs(MethodType newType, boolean keepInterfaces) {
         if (!VerifyType.isNullConversion(returnType(), newType.returnType(), keepInterfaces))
             return false;
         return parametersAreViewableAs(newType, keepInterfaces);
     }
-
-
     boolean parametersAreViewableAs(MethodType newType, boolean keepInterfaces) {
         if (form == newType.form && form.erasedType == this)
             return true;  // my reference parameters are all Object
@@ -486,7 +382,6 @@ class MethodType implements java.io.Serializable {
         }
         return true;
     }
-
     boolean isConvertibleTo(MethodType newType) {
         MethodTypeForm oldForm = this.form();
         MethodTypeForm newForm = newType.form();
@@ -516,9 +411,6 @@ class MethodType implements java.io.Serializable {
         }
         return canConvertParameters(srcTypes, dstTypes);
     }
-
-
-
     boolean explicitCastEquivalentToAsType(MethodType newType) {
         if (this == newType)  return true;
         if (!explicitCastEquivalentToAsType(rtype, newType.rtype)) {
@@ -537,8 +429,6 @@ class MethodType implements java.io.Serializable {
         }
         return true;
     }
-
-
     private static boolean explicitCastEquivalentToAsType(Class<?> src, Class<?> dst) {
         if (src == dst || dst == Object.class || dst == void.class)  return true;
         if (src.isPrimitive()) {
@@ -553,7 +443,6 @@ class MethodType implements java.io.Serializable {
             return !dst.isInterface() || dst.isAssignableFrom(src);
         }
     }
-
     private boolean canConvertParameters(Class<?>[] srcTypes, Class<?>[] dstTypes) {
         for (int i = 0; i < srcTypes.length; i++) {
             if (!canConvert(srcTypes[i], dstTypes[i])) {
@@ -562,8 +451,6 @@ class MethodType implements java.io.Serializable {
         }
         return true;
     }
-
-
     static boolean canConvert(Class<?> src, Class<?> dst) {
         // short-circuit a few cases:
         if (src == dst || src == Object.class || dst == Object.class)  return true;
@@ -615,34 +502,24 @@ class MethodType implements java.io.Serializable {
             return true;
         }
     }
-
     /// Queries which have to do with the bytecode architecture
-
-
      int parameterSlotCount() {
         return form.parameterSlotCount();
     }
-
      Invokers invokers() {
         Invokers inv = invokers;
         if (inv != null)  return inv;
         invokers = inv = new Invokers(this);
         return inv;
     }
-
-
      int parameterSlotDepth(int num) {
         if (num < 0 || num > ptypes.length)
             parameterType(num);  // force a range check
         return form.parameterToArgSlot(num-1);
     }
-
-
      int returnSlotCount() {
         return form.returnSlotCount();
     }
-
-
     public static MethodType fromMethodDescriptorString(String descriptor, ClassLoader loader)
         throws IllegalArgumentException, TypeNotPresentException
     {
@@ -656,8 +533,6 @@ class MethodType implements java.io.Serializable {
         Class<?>[] ptypes = listToArray(types);
         return makeImpl(rtype, ptypes, true);
     }
-
-
     public String toMethodDescriptorString() {
         String desc = methodDescriptor;
         if (desc == null) {
@@ -666,40 +541,27 @@ class MethodType implements java.io.Serializable {
         }
         return desc;
     }
-
      static String toFieldDescriptorString(Class<?> cls) {
         return BytecodeDescriptor.unparse(cls);
     }
-
     /// Serialization.
-
-
     private static final java.io.ObjectStreamField[] serialPersistentFields = { };
-
-
     private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException {
         s.defaultWriteObject();  // requires serialPersistentFields to be an empty array
         s.writeObject(returnType());
         s.writeObject(parameterArray());
     }
-
-
     private void readObject(java.io.ObjectInputStream s) throws java.io.IOException, ClassNotFoundException {
         s.defaultReadObject();  // requires serialPersistentFields to be an empty array
-
         Class<?>   returnType     = (Class<?>)   s.readObject();
         Class<?>[] parameterArray = (Class<?>[]) s.readObject();
-
         // Probably this object will never escape, but let's check
         // the field values now, just to be sure.
         checkRtype(returnType);
         checkPtypes(parameterArray);
-
         parameterArray = parameterArray.clone();  // make sure it is unshared
         MethodType_init(returnType, parameterArray);
     }
-
-
     private MethodType() {
         this.rtype = null;
         this.ptypes = null;
@@ -712,7 +574,6 @@ class MethodType implements java.io.Serializable {
         UNSAFE.putObject(this, rtypeOffset, rtype);
         UNSAFE.putObject(this, ptypesOffset, ptypes);
     }
-
     // Support for resetting final fields while deserializing
     private static final long rtypeOffset, ptypesOffset;
     static {
@@ -725,31 +586,22 @@ class MethodType implements java.io.Serializable {
             throw new Error(ex);
         }
     }
-
-
     private Object readResolve() {
         // Do not use a trusted path for deserialization:
         //return makeImpl(rtype, ptypes, true);
         // Verify all operands, and make sure ptypes is unshared:
         return methodType(rtype, ptypes);
     }
-
-
     private static class ConcurrentWeakInternSet<T> {
-
         private final ConcurrentMap<WeakEntry<T>, WeakEntry<T>> map;
         private final ReferenceQueue<T> stale;
-
         public ConcurrentWeakInternSet() {
             this.map = new ConcurrentHashMap<>();
             this.stale = new ReferenceQueue<>();
         }
-
-
         public T get(T elem) {
             if (elem == null) throw new NullPointerException();
             expungeStaleElements();
-
             WeakEntry<T> value = map.get(new WeakEntry<>(elem));
             if (value != null) {
                 T res = value.get();
@@ -759,11 +611,8 @@ class MethodType implements java.io.Serializable {
             }
             return null;
         }
-
-
         public T add(T elem) {
             if (elem == null) throw new NullPointerException();
-
             // Playing double race here, and so spinloop is required.
             // First race is with two concurrent updaters.
             // Second race is with GC purging weak ref under our feet.
@@ -777,28 +626,22 @@ class MethodType implements java.io.Serializable {
             } while (interned == null);
             return interned;
         }
-
         private void expungeStaleElements() {
             Reference<? extends T> reference;
             while ((reference = stale.poll()) != null) {
                 map.remove(reference);
             }
         }
-
         private static class WeakEntry<T> extends WeakReference<T> {
-
             public final int hashcode;
-
             public WeakEntry(T key, ReferenceQueue<T> queue) {
                 super(key, queue);
                 hashcode = key.hashCode();
             }
-
             public WeakEntry(T key) {
                 super(key);
                 hashcode = key.hashCode();
             }
-
             @Override
             public boolean equals(Object obj) {
                 if (obj instanceof WeakEntry) {
@@ -808,13 +651,10 @@ class MethodType implements java.io.Serializable {
                 }
                 return false;
             }
-
             @Override
             public int hashCode() {
                 return hashcode;
             }
-
         }
     }
-
 }

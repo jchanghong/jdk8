@@ -1,24 +1,11 @@
-
-
 package javax.sql.rowset.serial;
-
 import java.sql.*;
 import java.io.*;
 import java.util.*;
-
-
 public class SerialRef implements Ref, Serializable, Cloneable {
-
-
     private String baseTypeName;
-
-
     private Object object;
-
-
     private Ref reference;
-
-
     public SerialRef(Ref ref) throws SerialException, SQLException {
         if (ref == null) {
             throw new SQLException("Cannot instantiate a SerialRef object " +
@@ -33,13 +20,9 @@ public class SerialRef implements Ref, Serializable, Cloneable {
             baseTypeName = ref.getBaseTypeName();
         }
     }
-
-
     public String getBaseTypeName() throws SerialException {
         return baseTypeName;
     }
-
-
     public Object getObject(java.util.Map<String,Class<?>> map)
         throws SerialException
     {
@@ -50,10 +33,7 @@ public class SerialRef implements Ref, Serializable, Cloneable {
             throw new SerialException("The object is not set");
         }
     }
-
-
     public Object getObject() throws SerialException {
-
         if (reference != null) {
             try {
                 return reference.getObject();
@@ -61,17 +41,11 @@ public class SerialRef implements Ref, Serializable, Cloneable {
                 throw new SerialException("SQLException: " + e.getMessage());
             }
         }
-
         if (object != null) {
             return object;
         }
-
-
         throw new SerialException("The object is not set");
-
     }
-
-
     public void setObject(Object obj) throws SerialException {
         try {
             reference.setObject(obj);
@@ -80,8 +54,6 @@ public class SerialRef implements Ref, Serializable, Cloneable {
         }
         object = obj;
     }
-
-
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -93,13 +65,9 @@ public class SerialRef implements Ref, Serializable, Cloneable {
         }
         return false;
     }
-
-
     public int hashCode() {
         return (31 + object.hashCode()) * 31 + baseTypeName.hashCode();
     }
-
-
     public Object clone() {
         try {
             SerialRef ref = (SerialRef) super.clone();
@@ -109,10 +77,7 @@ public class SerialRef implements Ref, Serializable, Cloneable {
             // this shouldn't happen, since we are Cloneable
             throw new InternalError();
         }
-
     }
-
-
     private void readObject(ObjectInputStream s)
             throws IOException, ClassNotFoundException {
         ObjectInputStream.GetField fields = s.readFields();
@@ -120,11 +85,8 @@ public class SerialRef implements Ref, Serializable, Cloneable {
         baseTypeName = (String) fields.get("baseTypeName", null);
         reference = (Ref) fields.get("reference", null);
     }
-
-
     private void writeObject(ObjectOutputStream s)
             throws IOException, ClassNotFoundException {
-
         ObjectOutputStream.PutField fields = s.putFields();
         fields.put("baseTypeName", baseTypeName);
         fields.put("object", object);
@@ -133,9 +95,5 @@ public class SerialRef implements Ref, Serializable, Cloneable {
         fields.put("reference", reference instanceof Serializable ? reference : null);
         s.writeFields();
     }
-
-
     static final long serialVersionUID = -4727123500609662274L;
-
-
 }

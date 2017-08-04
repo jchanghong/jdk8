@@ -1,15 +1,8 @@
-
-
 package java.lang;
-
-
 public final class Compiler  {
     private Compiler() {}               // don't make instances
-
     private static native void initialize();
-
     private static native void registerNatives();
-
     static {
         registerNatives();
         java.security.AccessController.doPrivileged(
@@ -39,19 +32,9 @@ public final class Compiler  {
                 }
             });
     }
-
-
     public static native boolean compileClass(Class<?> clazz);
-
-
     public static native boolean compileClasses(String string);
-
-
     public static native Object command(Object any);
-
-
     public static native void enable();
-
-
     public static native void disable();
 }

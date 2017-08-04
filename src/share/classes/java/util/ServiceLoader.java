@@ -1,7 +1,4 @@
-
-
 package java.util;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,63 +12,46 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-
-
-
 public final class ServiceLoader<S>
     implements Iterable<S>
 {
-
     private static final String PREFIX = "META-INF/services/";
-
     // The class or interface representing the service being loaded
     private final Class<S> service;
-
     // The class loader used to locate, load, and instantiate providers
     private final ClassLoader loader;
-
     // The access control context taken when the ServiceLoader is created
     private final AccessControlContext acc;
-
     // Cached providers, in instantiation order
     private LinkedHashMap<String,S> providers = new LinkedHashMap<>();
-
     // The current lazy-lookup iterator
     private LazyIterator lookupIterator;
-
-
     public void reload() {
         providers.clear();
         lookupIterator = new LazyIterator(service, loader);
     }
-
     private ServiceLoader(Class<S> svc, ClassLoader cl) {
         service = Objects.requireNonNull(svc, "Service interface cannot be null");
         loader = (cl == null) ? ClassLoader.getSystemClassLoader() : cl;
         acc = (System.getSecurityManager() != null) ? AccessController.getContext() : null;
         reload();
     }
-
     private static void fail(Class<?> service, String msg, Throwable cause)
         throws ServiceConfigurationError
     {
         throw new ServiceConfigurationError(service.getName() + ": " + msg,
                                             cause);
     }
-
     private static void fail(Class<?> service, String msg)
         throws ServiceConfigurationError
     {
         throw new ServiceConfigurationError(service.getName() + ": " + msg);
     }
-
     private static void fail(Class<?> service, URL u, int line, String msg)
         throws ServiceConfigurationError
     {
         fail(service, u + ":" + line + ": " + msg);
     }
-
     // Parse a single line from the given configuration file, adding the name
     // on the line to the names list.
     //
@@ -103,7 +83,6 @@ public final class ServiceLoader<S>
         }
         return lc + 1;
     }
-
     // Parse the content of the given URL as a provider-configuration file.
     //
     // @param  service
@@ -144,24 +123,20 @@ public final class ServiceLoader<S>
         }
         return names.iterator();
     }
-
     // Private inner class implementing fully-lazy provider lookup
     //
     private class LazyIterator
         implements Iterator<S>
     {
-
         Class<S> service;
         ClassLoader loader;
         Enumeration<URL> configs = null;
         Iterator<String> pending = null;
         String nextName = null;
-
         private LazyIterator(Class<S> service, ClassLoader loader) {
             this.service = service;
             this.loader = loader;
         }
-
         private boolean hasNextService() {
             if (nextName != null) {
                 return true;
@@ -186,7 +161,6 @@ public final class ServiceLoader<S>
             nextName = pending.next();
             return true;
         }
-
         private S nextService() {
             if (!hasNextService())
                 throw new NoSuchElementException();
@@ -214,7 +188,6 @@ public final class ServiceLoader<S>
             }
             throw new Error();          // This cannot happen
         }
-
         public boolean hasNext() {
             if (acc == null) {
                 return hasNextService();
@@ -225,7 +198,6 @@ public final class ServiceLoader<S>
                 return AccessController.doPrivileged(action, acc);
             }
         }
-
         public S next() {
             if (acc == null) {
                 return nextService();
@@ -236,53 +208,38 @@ public final class ServiceLoader<S>
                 return AccessController.doPrivileged(action, acc);
             }
         }
-
         public void remove() {
             throw new UnsupportedOperationException();
         }
-
     }
-
-
     public Iterator<S> iterator() {
         return new Iterator<S>() {
-
             Iterator<Map.Entry<String,S>> knownProviders
                 = providers.entrySet().iterator();
-
             public boolean hasNext() {
                 if (knownProviders.hasNext())
                     return true;
                 return lookupIterator.hasNext();
             }
-
             public S next() {
                 if (knownProviders.hasNext())
                     return knownProviders.next().getValue();
                 return lookupIterator.next();
             }
-
             public void remove() {
                 throw new UnsupportedOperationException();
             }
-
         };
     }
-
-
     public static <S> ServiceLoader<S> load(Class<S> service,
                                             ClassLoader loader)
     {
         return new ServiceLoader<>(service, loader);
     }
-
-
     public static <S> ServiceLoader<S> load(Class<S> service) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         return ServiceLoader.load(service, cl);
     }
-
-
     public static <S> ServiceLoader<S> loadInstalled(Class<S> service) {
         ClassLoader cl = ClassLoader.getSystemClassLoader();
         ClassLoader prev = null;
@@ -292,10 +249,7 @@ public final class ServiceLoader<S>
         }
         return ServiceLoader.load(service, prev);
     }
-
-
     public String toString() {
         return "java.util.ServiceLoader[" + service.getName() + "]";
     }
-
 }

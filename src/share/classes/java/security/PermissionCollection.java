@@ -1,38 +1,18 @@
-
-
 package java.security;
-
 import java.util.*;
-
-
-
 public abstract class PermissionCollection implements java.io.Serializable {
-
     private static final long serialVersionUID = -6727011328946861783L;
-
     // when set, add will throw an exception.
     private volatile boolean readOnly;
-
-
     public abstract void add(Permission permission);
-
-
     public abstract boolean implies(Permission permission);
-
-
     public abstract Enumeration<Permission> elements();
-
-
     public void setReadOnly() {
         readOnly = true;
     }
-
-
     public boolean isReadOnly() {
         return readOnly;
     }
-
-
     public String toString() {
         Enumeration<Permission> enum_ = elements();
         StringBuilder sb = new StringBuilder();

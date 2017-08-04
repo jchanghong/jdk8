@@ -1,17 +1,11 @@
-
-
 package java.awt.geom;
-
 import java.util.*;
-
-
 class ArcIterator implements PathIterator {
     double x, y, w, h, angStRad, increment, cv;
     AffineTransform affine;
     int index;
     int arcSegs;
     int lineSegs;
-
     ArcIterator(Arc2D a, AffineTransform at) {
         this.w = a.getWidth() / 2;
         this.h = a.getHeight() / 2;
@@ -52,29 +46,19 @@ class ArcIterator implements PathIterator {
             arcSegs = lineSegs = -1;
         }
     }
-
-
     public int getWindingRule() {
         return WIND_NON_ZERO;
     }
-
-
     public boolean isDone() {
         return index > arcSegs + lineSegs;
     }
-
-
     public void next() {
         index++;
     }
-
-
     private static double btan(double increment) {
         increment /= 2.0;
         return 4.0 / 3.0 * Math.sin(increment) / (1.0 + Math.cos(increment));
     }
-
-
     public int currentSegment(float[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("arc iterator out of bounds");
@@ -116,8 +100,6 @@ class ArcIterator implements PathIterator {
         }
         return SEG_CUBICTO;
     }
-
-
     public int currentSegment(double[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("arc iterator out of bounds");

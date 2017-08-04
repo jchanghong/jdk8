@@ -1,11 +1,5 @@
-
-
-
-
 package java.time.chrono;
-
 import static java.time.temporal.ChronoField.EPOCH_DAY;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,54 +25,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
-
 import sun.util.logging.PlatformLogger;
-
-
 public final class HijrahChronology extends AbstractChronology implements Serializable {
-
-
     private final transient String typeId;
-
     private final transient String calendarType;
-
     private static final long serialVersionUID = 3127340209035924785L;
-
     public static final HijrahChronology INSTANCE;
-
     private transient volatile boolean initComplete;
-
     private transient int[] hijrahEpochMonthStartDays;
-
     private transient int minEpochDay;
-
     private transient int maxEpochDay;
-
     private transient int hijrahStartEpochMonth;
-
     private transient int minMonthLength;
-
     private transient int maxMonthLength;
-
     private transient int minYearLength;
-
     private transient int maxYearLength;
-
     private final transient static Properties calendarProperties;
-
-
     private static final String PROP_PREFIX = "calendar.hijrah.";
-
     private static final String PROP_TYPE_SUFFIX = ".type";
-
-
     static {
         try {
             calendarProperties = sun.util.calendar.BaseCalendar.getCalendarProperties();
         } catch (IOException ioe) {
             throw new InternalError("Can't initialize lib/calendars.properties", ioe);
         }
-
         try {
             INSTANCE = new HijrahChronology("Hijrah-umalqura");
             // Register it by its aliases
@@ -92,8 +62,6 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         }
         registerVariants();
     }
-
-
     private static void registerVariants() {
         for (String name : calendarProperties.stringPropertyNames()) {
             if (name.startsWith(PROP_PREFIX)) {
@@ -116,8 +84,6 @@ public final class HijrahChronology extends AbstractChronology implements Serial
             }
         }
     }
-
-
     private HijrahChronology(String id) throws DateTimeException {
         if (id.isEmpty()) {
             throw new IllegalArgumentException("calendar id is empty");
@@ -130,8 +96,6 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         this.typeId = id;
         this.calendarType = calType;
     }
-
-
     private void checkCalendarInit() {
         // Keep this short so it can be inlined for performance
         if (initComplete == false) {
@@ -139,40 +103,28 @@ public final class HijrahChronology extends AbstractChronology implements Serial
             initComplete = true;
         }
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public String getId() {
         return typeId;
     }
-
-
     @Override
     public String getCalendarType() {
         return calendarType;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public HijrahDate date(Era era, int yearOfEra, int month, int dayOfMonth) {
         return date(prolepticYear(era, yearOfEra), month, dayOfMonth);
     }
-
-
     @Override
     public HijrahDate date(int prolepticYear, int month, int dayOfMonth) {
         return HijrahDate.of(this, prolepticYear, month, dayOfMonth);
     }
-
-
     @Override
     public HijrahDate dateYearDay(Era era, int yearOfEra, int dayOfYear) {
         return dateYearDay(prolepticYear(era, yearOfEra), dayOfYear);
     }
-
-
     @Override
     public HijrahDate dateYearDay(int prolepticYear, int dayOfYear) {
         HijrahDate date = HijrahDate.of(this, prolepticYear, 1, 1);
@@ -181,28 +133,22 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         }
         return date.plusDays(dayOfYear - 1);
     }
-
-
     @Override  // override with covariant return type
     public HijrahDate dateEpochDay(long epochDay) {
         return HijrahDate.ofEpochDay(this, epochDay);
     }
-
     @Override
     public HijrahDate dateNow() {
         return dateNow(Clock.systemDefaultZone());
     }
-
     @Override
     public HijrahDate dateNow(ZoneId zone) {
         return dateNow(Clock.system(zone));
     }
-
     @Override
     public HijrahDate dateNow(Clock clock) {
         return date(LocalDate.now(clock));
     }
-
     @Override
     public HijrahDate date(TemporalAccessor temporal) {
         if (temporal instanceof HijrahDate) {
@@ -210,25 +156,21 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         }
         return HijrahDate.ofEpochDay(this, temporal.getLong(EPOCH_DAY));
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public ChronoLocalDateTime<HijrahDate> localDateTime(TemporalAccessor temporal) {
         return (ChronoLocalDateTime<HijrahDate>) super.localDateTime(temporal);
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public ChronoZonedDateTime<HijrahDate> zonedDateTime(TemporalAccessor temporal) {
         return (ChronoZonedDateTime<HijrahDate>) super.zonedDateTime(temporal);
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public ChronoZonedDateTime<HijrahDate> zonedDateTime(Instant instant, ZoneId zone) {
         return (ChronoZonedDateTime<HijrahDate>) super.zonedDateTime(instant, zone);
     }
-
     //-----------------------------------------------------------------------
     @Override
     public boolean isLeapYear(long prolepticYear) {
@@ -239,7 +181,6 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         int len = getYearLength((int) prolepticYear);
         return (len > 354);
     }
-
     @Override
     public int prolepticYear(Era era, int yearOfEra) {
         if (era instanceof HijrahEra == false) {
@@ -247,7 +188,6 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         }
         return yearOfEra;
     }
-
     @Override
     public HijrahEra eraOf(int eraValue) {
         switch (eraValue) {
@@ -257,12 +197,10 @@ public final class HijrahChronology extends AbstractChronology implements Serial
                 throw new DateTimeException("invalid Hijrah era");
         }
     }
-
     @Override
     public List<Era> eras() {
         return Arrays.<Era>asList(HijrahEra.values());
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ValueRange range(ChronoField field) {
@@ -287,56 +225,45 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         }
         return field.range();
     }
-
     //-----------------------------------------------------------------------
     @Override  // override for return type
     public HijrahDate resolveDate(Map<TemporalField, Long> fieldValues, ResolverStyle resolverStyle) {
         return (HijrahDate) super.resolveDate(fieldValues, resolverStyle);
     }
-
     //-----------------------------------------------------------------------
-
     int checkValidYear(long prolepticYear) {
         if (prolepticYear < getMinimumYear() || prolepticYear > getMaximumYear()) {
             throw new DateTimeException("Invalid Hijrah year: " + prolepticYear);
         }
         return (int) prolepticYear;
     }
-
     void checkValidDayOfYear(int dayOfYear) {
         if (dayOfYear < 1 || dayOfYear > getMaximumDayOfYear()) {
             throw new DateTimeException("Invalid Hijrah day of year: " + dayOfYear);
         }
     }
-
     void checkValidMonth(int month) {
         if (month < 1 || month > 12) {
             throw new DateTimeException("Invalid Hijrah month: " + month);
         }
     }
-
     //-----------------------------------------------------------------------
-
     int[] getHijrahDateInfo(int epochDay) {
         checkCalendarInit();    // ensure that the chronology is initialized
         if (epochDay < minEpochDay || epochDay >= maxEpochDay) {
             throw new DateTimeException("Hijrah date out of range");
         }
-
         int epochMonth = epochDayToEpochMonth(epochDay);
         int year = epochMonthToYear(epochMonth);
         int month = epochMonthToMonth(epochMonth);
         int day1 = epochMonthToEpochDay(epochMonth);
         int date = epochDay - day1; // epochDay - dayOfEpoch(year, month);
-
         int dateInfo[] = new int[3];
         dateInfo[0] = year;
         dateInfo[1] = month + 1; // change to 1-based.
         dateInfo[2] = date + 1; // change to 1-based.
         return dateInfo;
     }
-
-
     long getEpochDay(int prolepticYear, int monthOfYear, int dayOfMonth) {
         checkCalendarInit();    // ensure that the chronology is initialized
         checkValidMonth(monthOfYear);
@@ -350,13 +277,9 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         }
         return epochMonthToEpochDay(epochMonth) + (dayOfMonth - 1);
     }
-
-
     int getDayOfYear(int prolepticYear, int month) {
         return yearMonthToDayOfYear(prolepticYear, (month - 1));
     }
-
-
     int getMonthLength(int prolepticYear, int monthOfYear) {
         int epochMonth = yearToEpochMonth(prolepticYear) + (monthOfYear - 1);
         if (epochMonth < 0 || epochMonth >= hijrahEpochMonthStartDays.length) {
@@ -365,43 +288,27 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         }
         return epochMonthLength(epochMonth);
     }
-
-
     int getYearLength(int prolepticYear) {
         return yearMonthToDayOfYear(prolepticYear, 12);
     }
-
-
     int getMinimumYear() {
         return epochMonthToYear(0);
     }
-
-
     int getMaximumYear() {
         return epochMonthToYear(hijrahEpochMonthStartDays.length - 1) - 1;
     }
-
-
     int getMaximumMonthLength() {
         return maxMonthLength;
     }
-
-
     int getMinimumMonthLength() {
         return minMonthLength;
     }
-
-
     int getMaximumDayOfYear() {
         return maxYearLength;
     }
-
-
     int getSmallestMaximumDayOfYear() {
         return minYearLength;
     }
-
-
     private int epochDayToEpochMonth(int epochDay) {
         // binary search
         int ndx = Arrays.binarySearch(hijrahEpochMonthStartDays, epochDay);
@@ -410,49 +317,33 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         }
         return ndx;
     }
-
-
     private int epochMonthToYear(int epochMonth) {
         return (epochMonth + hijrahStartEpochMonth) / 12;
     }
-
-
     private int yearToEpochMonth(int year) {
         return (year * 12) - hijrahStartEpochMonth;
     }
-
-
     private int epochMonthToMonth(int epochMonth) {
         return (epochMonth + hijrahStartEpochMonth) % 12;
     }
-
-
     private int epochMonthToEpochDay(int epochMonth) {
         return hijrahEpochMonthStartDays[epochMonth];
-
     }
-
-
     private int yearMonthToDayOfYear(int prolepticYear, int month) {
         int epochMonthFirst = yearToEpochMonth(prolepticYear);
         return epochMonthToEpochDay(epochMonthFirst + month)
                 - epochMonthToEpochDay(epochMonthFirst);
     }
-
-
     private int epochMonthLength(int epochMonth) {
         // The very last entry in the epochMonth table is not the start of a month
         return hijrahEpochMonthStartDays[epochMonth + 1]
                 - hijrahEpochMonthStartDays[epochMonth];
     }
-
     //-----------------------------------------------------------------------
     private static final String KEY_ID = "id";
     private static final String KEY_TYPE = "type";
     private static final String KEY_VERSION = "version";
     private static final String KEY_ISO_START = "iso-start";
-
-
     private static Properties readConfigProperties(final String resource) throws Exception {
         try {
             return AccessController
@@ -470,14 +361,11 @@ public final class HijrahChronology extends AbstractChronology implements Serial
             throw pax.getException();
         }
     }
-
-
     private void loadCalendarData() {
         try {
             String resourceName = calendarProperties.getProperty(PROP_PREFIX + typeId);
             Objects.requireNonNull(resourceName, "Resource missing for calendar: " + PROP_PREFIX + typeId);
             Properties props = readConfigProperties(resourceName);
-
             Map<Integer, int[]> years = new HashMap<>();
             int minYear = Integer.MAX_VALUE;
             int maxYear = Integer.MIN_VALUE;
@@ -515,7 +403,6 @@ public final class HijrahChronology extends AbstractChronology implements Serial
                         }
                 }
             }
-
             if (!getId().equals(id)) {
                 throw new IllegalArgumentException("Configuration is for a different calendar: " + id);
             }
@@ -528,13 +415,11 @@ public final class HijrahChronology extends AbstractChronology implements Serial
             if (isoStart == 0) {
                 throw new IllegalArgumentException("Configuration does not contain a ISO start date");
             }
-
             // Now create and validate the array of epochDays indexed by epochMonth
             hijrahStartEpochMonth = minYear * 12;
             minEpochDay = isoStart;
             hijrahEpochMonthStartDays = createEpochMonths(minEpochDay, minYear, maxYear, years);
             maxEpochDay = hijrahEpochMonthStartDays[hijrahEpochMonthStartDays.length - 1];
-
             // Compute the min and max year length in days.
             for (int year = minYear; year < maxYear; year++) {
                 int length = getYearLength(year);
@@ -548,25 +433,20 @@ public final class HijrahChronology extends AbstractChronology implements Serial
             throw new DateTimeException("Unable to initialize HijrahCalendar: " + typeId, ex);
         }
     }
-
-
     private int[] createEpochMonths(int epochDay, int minYear, int maxYear, Map<Integer, int[]> years) {
         // Compute the size for the array of dates
         int numMonths = (maxYear - minYear + 1) * 12 + 1;
-
         // Initialize the running epochDay as the corresponding ISO Epoch day
         int epochMonth = 0; // index into array of epochMonths
         int[] epochMonths = new int[numMonths];
         minMonthLength = Integer.MAX_VALUE;
         maxMonthLength = Integer.MIN_VALUE;
-
         // Only whole years are valid, any zero's in the array are illegal
         for (int year = minYear; year <= maxYear; year++) {
             int[] months = years.get(year);// must not be gaps
             for (int month = 0; month < 12; month++) {
                 int length = months[month];
                 epochMonths[epochMonth++] = epochDay;
-
                 if (length < 29 || length > 32) {
                     throw new IllegalArgumentException("Invalid month length in year: " + minYear);
                 }
@@ -575,19 +455,14 @@ public final class HijrahChronology extends AbstractChronology implements Serial
                 maxMonthLength = Math.max(maxMonthLength, length);
             }
         }
-
         // Insert the final epochDay
         epochMonths[epochMonth++] = epochDay;
-
         if (epochMonth != epochMonths.length) {
             throw new IllegalStateException("Did not fill epochMonths exactly: ndx = " + epochMonth
                     + " should be " + epochMonths.length);
         }
-
         return epochMonths;
     }
-
-
     private int[] parseMonths(String line) {
         int[] months = new int[12];
         String[] numbers = line.split("\\s");
@@ -603,8 +478,6 @@ public final class HijrahChronology extends AbstractChronology implements Serial
         }
         return months;
     }
-
-
     private int[] parseYMD(String string) {
         // yyyy-MM-dd
         string = string.trim();
@@ -621,15 +494,11 @@ public final class HijrahChronology extends AbstractChronology implements Serial
             throw new IllegalArgumentException("date must be yyyy-MM-dd", ex);
         }
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     Object writeReplace() {
         return super.writeReplace();
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }

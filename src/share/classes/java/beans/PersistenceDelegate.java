@@ -1,11 +1,5 @@
-
 package java.beans;
-
-
-
 public abstract class PersistenceDelegate {
-
-
     public void writeObject(Object oldInstance, Encoder out) {
         Object newInstance = out.get(oldInstance);
         if (!mutatesTo(oldInstance, newInstance)) {
@@ -16,17 +10,11 @@ public abstract class PersistenceDelegate {
             initialize(oldInstance.getClass(), oldInstance, newInstance, out);
         }
     }
-
-
     protected boolean mutatesTo(Object oldInstance, Object newInstance) {
         return (newInstance != null && oldInstance != null &&
                 oldInstance.getClass() == newInstance.getClass());
     }
-
-
     protected abstract Expression instantiate(Object oldInstance, Encoder out);
-
-
     protected void initialize(Class<?> type,
                               Object oldInstance, Object newInstance,
                               Encoder out)

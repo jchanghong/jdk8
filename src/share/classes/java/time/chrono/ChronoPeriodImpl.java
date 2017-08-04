@@ -1,13 +1,8 @@
-
-
-
 package java.time.chrono;
-
 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.YEARS;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -28,29 +23,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-
 final class ChronoPeriodImpl
         implements ChronoPeriod, Serializable {
     // this class is only used by JDK chronology implementations and makes assumptions based on that fact
-
-
     private static final long serialVersionUID = 57387258289L;
-
-
     private static final List<TemporalUnit> SUPPORTED_UNITS =
             Collections.unmodifiableList(Arrays.<TemporalUnit>asList(YEARS, MONTHS, DAYS));
-
-
     private final Chronology chrono;
-
     final int years;
-
     final int months;
-
     final int days;
-
-
     ChronoPeriodImpl(Chronology chrono, int years, int months, int days) {
         Objects.requireNonNull(chrono, "chrono");
         this.chrono = chrono;
@@ -58,7 +40,6 @@ final class ChronoPeriodImpl
         this.months = months;
         this.days = days;
     }
-
     //-----------------------------------------------------------------------
     @Override
     public long get(TemporalUnit unit) {
@@ -72,28 +53,23 @@ final class ChronoPeriodImpl
             throw new UnsupportedTemporalTypeException("Unsupported unit: " + unit);
         }
     }
-
     @Override
     public List<TemporalUnit> getUnits() {
         return ChronoPeriodImpl.SUPPORTED_UNITS;
     }
-
     @Override
     public Chronology getChronology() {
         return chrono;
     }
-
     //-----------------------------------------------------------------------
     @Override
     public boolean isZero() {
         return years == 0 && months == 0 && days == 0;
     }
-
     @Override
     public boolean isNegative() {
         return years < 0 || months < 0 || days < 0;
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ChronoPeriod plus(TemporalAmount amountToAdd) {
@@ -104,7 +80,6 @@ final class ChronoPeriodImpl
                 Math.addExact(months, amount.months),
                 Math.addExact(days, amount.days));
     }
-
     @Override
     public ChronoPeriod minus(TemporalAmount amountToSubtract) {
         ChronoPeriodImpl amount = validateAmount(amountToSubtract);
@@ -114,8 +89,6 @@ final class ChronoPeriodImpl
                 Math.subtractExact(months, amount.months),
                 Math.subtractExact(days, amount.days));
     }
-
-
     private ChronoPeriodImpl validateAmount(TemporalAmount amount) {
         Objects.requireNonNull(amount, "amount");
         if (amount instanceof ChronoPeriodImpl == false) {
@@ -127,7 +100,6 @@ final class ChronoPeriodImpl
         }
         return period;
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ChronoPeriod multipliedBy(int scalar) {
@@ -140,7 +112,6 @@ final class ChronoPeriodImpl
                 Math.multiplyExact(months, scalar),
                 Math.multiplyExact(days, scalar));
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ChronoPeriod normalized() {
@@ -153,12 +124,9 @@ final class ChronoPeriodImpl
                 return this;
             }
             return new ChronoPeriodImpl(chrono, Math.toIntExact(splitYears), splitMonths, days);
-
         }
         return this;
     }
-
-
     private long monthRange() {
         ValueRange startRange = chrono.range(MONTH_OF_YEAR);
         if (startRange.isFixed() && startRange.isIntValue()) {
@@ -166,7 +134,6 @@ final class ChronoPeriodImpl
         }
         return -1;
     }
-
     //-------------------------------------------------------------------------
     @Override
     public Temporal addTo(Temporal temporal) {
@@ -191,9 +158,6 @@ final class ChronoPeriodImpl
         }
         return temporal;
     }
-
-
-
     @Override
     public Temporal subtractFrom(Temporal temporal) {
         validateChrono(temporal);
@@ -217,8 +181,6 @@ final class ChronoPeriodImpl
         }
         return temporal;
     }
-
-
     private void validateChrono(TemporalAccessor temporal) {
         Objects.requireNonNull(temporal, "temporal");
         Chronology temporalChrono = temporal.query(TemporalQueries.chronology());
@@ -226,7 +188,6 @@ final class ChronoPeriodImpl
             throw new DateTimeException("Chronology mismatch, expected: " + chrono.getId() + ", actual: " + temporalChrono.getId());
         }
     }
-
     //-----------------------------------------------------------------------
     @Override
     public boolean equals(Object obj) {
@@ -240,12 +201,10 @@ final class ChronoPeriodImpl
         }
         return false;
     }
-
     @Override
     public int hashCode() {
         return (years + Integer.rotateLeft(months, 8) + Integer.rotateLeft(days, 16)) ^ chrono.hashCode();
     }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
@@ -266,25 +225,19 @@ final class ChronoPeriodImpl
             return buf.toString();
         }
     }
-
     //-----------------------------------------------------------------------
-
     protected Object writeReplace() {
         return new Ser(Ser.CHRONO_PERIOD_TYPE, this);
     }
-
-
     private void readObject(ObjectInputStream s) throws ObjectStreamException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
     void writeExternal(DataOutput out) throws IOException {
         out.writeUTF(chrono.getId());
         out.writeInt(years);
         out.writeInt(months);
         out.writeInt(days);
     }
-
     static ChronoPeriodImpl readExternal(DataInput in) throws IOException {
         Chronology chrono = Chronology.of(in.readUTF());
         int years = in.readInt();
@@ -292,5 +245,4 @@ final class ChronoPeriodImpl
         int days = in.readInt();
         return new ChronoPeriodImpl(chrono, years, months, days);
     }
-
 }

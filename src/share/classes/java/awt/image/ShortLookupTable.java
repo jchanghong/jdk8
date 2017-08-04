@@ -1,16 +1,6 @@
-
-
 package java.awt.image;
-
-
-
 public class ShortLookupTable extends LookupTable {
-
-
-
     short data[][];
-
-
     public ShortLookupTable(int offset, short data[][]) {
         super(offset,data.length);
         numComponents = data.length;
@@ -21,8 +11,6 @@ public class ShortLookupTable extends LookupTable {
             this.data[i] = data[i];
         }
     }
-
-
     public ShortLookupTable(int offset, short data[]) {
         super(offset,data.length);
         numComponents = 1;
@@ -30,19 +18,14 @@ public class ShortLookupTable extends LookupTable {
         this.data     = new short[1][];
         this.data[0]  = data;
     }
-
-
     public final short[][] getTable(){
         return data;
     }
-
-
     public int[] lookupPixel(int[] src, int[] dst){
         if (dst == null) {
             // Need to alloc a new destination array
             dst = new int[src.length];
         }
-
         if (numComponents == 1) {
             // Apply one LUT to all channels
             for (int i=0; i < src.length; i++) {
@@ -68,14 +51,11 @@ public class ShortLookupTable extends LookupTable {
         }
         return dst;
     }
-
-
     public short[] lookupPixel(short[] src, short[] dst){
         if (dst == null) {
             // Need to alloc a new destination array
             dst = new short[src.length];
         }
-
         if (numComponents == 1) {
             // Apply one LUT to all channels
             for (int i=0; i < src.length; i++) {
@@ -101,5 +81,4 @@ public class ShortLookupTable extends LookupTable {
         }
         return dst;
     }
-
 }

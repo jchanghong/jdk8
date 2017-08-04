@@ -1,8 +1,4 @@
-
-
-
 package java.time;
-
 import static java.time.temporal.ChronoField.ERA;
 import static java.time.temporal.ChronoField.YEAR;
 import static java.time.temporal.ChronoField.YEAR_OF_ERA;
@@ -11,7 +7,6 @@ import static java.time.temporal.ChronoUnit.DECADES;
 import static java.time.temporal.ChronoUnit.ERAS;
 import static java.time.temporal.ChronoUnit.MILLENNIA;
 import static java.time.temporal.ChronoUnit.YEARS;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -37,52 +32,32 @@ import java.time.temporal.TemporalUnit;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.time.temporal.ValueRange;
 import java.util.Objects;
-
-
 public final class Year
         implements Temporal, TemporalAdjuster, Comparable<Year>, Serializable {
-
-
     public static final int MIN_VALUE = -999_999_999;
-
     public static final int MAX_VALUE = 999_999_999;
-
-
     private static final long serialVersionUID = -23038383694477807L;
-
     private static final DateTimeFormatter PARSER = new DateTimeFormatterBuilder()
         .appendValue(YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
         .toFormatter();
-
-
     private final int year;
-
     //-----------------------------------------------------------------------
-
     public static Year now() {
         return now(Clock.systemDefaultZone());
     }
-
-
     public static Year now(ZoneId zone) {
         return now(Clock.system(zone));
     }
-
-
     public static Year now(Clock clock) {
         final LocalDate now = LocalDate.now(clock);  // called once
         return Year.of(now.getYear());
     }
-
     //-----------------------------------------------------------------------
-
     public static Year of(int isoYear) {
         YEAR.checkValidValue(isoYear);
         return new Year(isoYear);
     }
-
     //-----------------------------------------------------------------------
-
     public static Year from(TemporalAccessor temporal) {
         if (temporal instanceof Year) {
             return (Year) temporal;
@@ -98,39 +73,27 @@ public final class Year
                     temporal + " of type " + temporal.getClass().getName(), ex);
         }
     }
-
     //-----------------------------------------------------------------------
-
     public static Year parse(CharSequence text) {
         return parse(text, PARSER);
     }
-
-
     public static Year parse(CharSequence text, DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         return formatter.parse(text, Year::from);
     }
-
     //-------------------------------------------------------------------------
-
     public static boolean isLeap(long year) {
         return ((year & 3) == 0) && ((year % 100) != 0 || (year % 400) == 0);
     }
-
     //-----------------------------------------------------------------------
-
     private Year(int year) {
         this.year = year;
     }
-
     //-----------------------------------------------------------------------
-
     public int getValue() {
         return year;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean isSupported(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -138,8 +101,6 @@ public final class Year
         }
         return field != null && field.isSupportedBy(this);
     }
-
-
     @Override
     public boolean isSupported(TemporalUnit unit) {
         if (unit instanceof ChronoUnit) {
@@ -147,9 +108,7 @@ public final class Year
         }
         return unit != null && unit.isSupportedBy(this);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public ValueRange range(TemporalField field) {
         if (field == YEAR_OF_ERA) {
@@ -157,14 +116,10 @@ public final class Year
         }
         return Temporal.super.range(field);
     }
-
-
     @Override  // override for Javadoc
     public int get(TemporalField field) {
         return range(field).checkValidIntValue(getLong(field), field);
     }
-
-
     @Override
     public long getLong(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -177,31 +132,21 @@ public final class Year
         }
         return field.getFrom(this);
     }
-
     //-----------------------------------------------------------------------
-
     public boolean isLeap() {
         return Year.isLeap(year);
     }
-
-
     public boolean isValidMonthDay(MonthDay monthDay) {
         return monthDay != null && monthDay.isValidYear(year);
     }
-
-
     public int length() {
         return isLeap() ? 366 : 365;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public Year with(TemporalAdjuster adjuster) {
         return (Year) adjuster.adjustInto(this);
     }
-
-
     @Override
     public Year with(TemporalField field, long newValue) {
         if (field instanceof ChronoField) {
@@ -216,15 +161,11 @@ public final class Year
         }
         return field.adjustInto(this, newValue);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public Year plus(TemporalAmount amountToAdd) {
         return (Year) amountToAdd.addTo(this);
     }
-
-
     @Override
     public Year plus(long amountToAdd, TemporalUnit unit) {
         if (unit instanceof ChronoUnit) {
@@ -239,35 +180,25 @@ public final class Year
         }
         return unit.addTo(this, amountToAdd);
     }
-
-
     public Year plusYears(long yearsToAdd) {
         if (yearsToAdd == 0) {
             return this;
         }
         return of(YEAR.checkValidIntValue(year + yearsToAdd));  // overflow safe
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public Year minus(TemporalAmount amountToSubtract) {
         return (Year) amountToSubtract.subtractFrom(this);
     }
-
-
     @Override
     public Year minus(long amountToSubtract, TemporalUnit unit) {
         return (amountToSubtract == Long.MIN_VALUE ? plus(Long.MAX_VALUE, unit).plus(1, unit) : plus(-amountToSubtract, unit));
     }
-
-
     public Year minusYears(long yearsToSubtract) {
         return (yearsToSubtract == Long.MIN_VALUE ? plusYears(Long.MAX_VALUE).plusYears(1) : plusYears(-yearsToSubtract));
     }
-
     //-----------------------------------------------------------------------
-
     @SuppressWarnings("unchecked")
     @Override
     public <R> R query(TemporalQuery<R> query) {
@@ -278,8 +209,6 @@ public final class Year
         }
         return Temporal.super.query(query);
     }
-
-
     @Override
     public Temporal adjustInto(Temporal temporal) {
         if (Chronology.from(temporal).equals(IsoChronology.INSTANCE) == false) {
@@ -287,8 +216,6 @@ public final class Year
         }
         return temporal.with(YEAR, year);
     }
-
-
     @Override
     public long until(Temporal endExclusive, TemporalUnit unit) {
         Year end = Year.from(endExclusive);
@@ -305,53 +232,35 @@ public final class Year
         }
         return unit.between(this, end);
     }
-
-
     public String format(DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         return formatter.format(this);
     }
-
     //-----------------------------------------------------------------------
-
     public LocalDate atDay(int dayOfYear) {
         return LocalDate.ofYearDay(year, dayOfYear);
     }
-
-
     public YearMonth atMonth(Month month) {
         return YearMonth.of(year, month);
     }
-
-
     public YearMonth atMonth(int month) {
         return YearMonth.of(year, month);
     }
-
-
     public LocalDate atMonthDay(MonthDay monthDay) {
         return monthDay.atYear(year);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public int compareTo(Year other) {
         return year - other.year;
     }
-
-
     public boolean isAfter(Year other) {
         return year > other.year;
     }
-
-
     public boolean isBefore(Year other) {
         return year < other.year;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -362,37 +271,26 @@ public final class Year
         }
         return false;
     }
-
-
     @Override
     public int hashCode() {
         return year;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public String toString() {
         return Integer.toString(year);
     }
-
     //-----------------------------------------------------------------------
-
     private Object writeReplace() {
         return new Ser(Ser.YEAR_TYPE, this);
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
     void writeExternal(DataOutput out) throws IOException {
         out.writeInt(year);
     }
-
     static Year readExternal(DataInput in) throws IOException {
         return Year.of(in.readInt());
     }
-
 }

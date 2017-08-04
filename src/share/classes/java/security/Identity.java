@@ -1,38 +1,17 @@
-
-
 package java.security;
-
 import java.io.Serializable;
 import java.util.*;
-
-
 @Deprecated
 public abstract class Identity implements Principal, Serializable {
-
-
     private static final long serialVersionUID = 3609922007826600659L;
-
-
     private String name;
-
-
     private PublicKey publicKey;
-
-
     String info = "No further information available.";
-
-
     IdentityScope scope;
-
-
     Vector<Certificate> certificates;
-
-
     protected Identity() {
         this("restoring...");
     }
-
-
     public Identity(String name, IdentityScope scope) throws
     KeyManagementException {
         this(name);
@@ -41,53 +20,33 @@ public abstract class Identity implements Principal, Serializable {
         }
         this.scope = scope;
     }
-
-
     public Identity(String name) {
         this.name = name;
     }
-
-
     public final String getName() {
         return name;
     }
-
-
     public final IdentityScope getScope() {
         return scope;
     }
-
-
     public PublicKey getPublicKey() {
         return publicKey;
     }
-
-
-
     public void setPublicKey(PublicKey key) throws KeyManagementException {
-
         check("setIdentityPublicKey");
         this.publicKey = key;
         certificates = new Vector<Certificate>();
     }
-
-
     public void setInfo(String info) {
         check("setIdentityInfo");
         this.info = info;
     }
-
-
     public String getInfo() {
         return info;
     }
-
-
     public void addCertificate(Certificate certificate)
     throws KeyManagementException {
-
         check("addIdentityCertificate");
-
         if (certificates == null) {
             certificates = new Vector<Certificate>();
         }
@@ -101,7 +60,6 @@ public abstract class Identity implements Principal, Serializable {
         }
         certificates.addElement(certificate);
     }
-
     private boolean keyEquals(PublicKey aKey, PublicKey anotherKey) {
         String aKeyFormat = aKey.getFormat();
         String anotherKeyFormat = anotherKey.getFormat();
@@ -113,9 +71,6 @@ public abstract class Identity implements Principal, Serializable {
         return java.util.Arrays.equals(aKey.getEncoded(),
                                      anotherKey.getEncoded());
     }
-
-
-
     public void removeCertificate(Certificate certificate)
     throws KeyManagementException {
         check("removeIdentityCertificate");
@@ -123,8 +78,6 @@ public abstract class Identity implements Principal, Serializable {
             certificates.removeElement(certificate);
         }
     }
-
-
     public Certificate[] certificates() {
         if (certificates == null) {
             return new Certificate[0];
@@ -134,14 +87,10 @@ public abstract class Identity implements Principal, Serializable {
         certificates.copyInto(certs);
         return certs;
     }
-
-
     public final boolean equals(Object identity) {
-
         if (identity == this) {
             return true;
         }
-
         if (identity instanceof Identity) {
             Identity i = (Identity)identity;
             if (this.fullName().equals(i.fullName())) {
@@ -152,24 +101,16 @@ public abstract class Identity implements Principal, Serializable {
         }
         return false;
     }
-
-
     protected boolean identityEquals(Identity identity) {
         if (!name.equalsIgnoreCase(identity.name))
             return false;
-
         if ((publicKey == null) ^ (identity.publicKey == null))
             return false;
-
         if (publicKey != null && identity.publicKey != null)
             if (!publicKey.equals(identity.publicKey))
                 return false;
-
         return true;
-
     }
-
-
     String fullName() {
         String parsable = name;
         if (scope != null) {
@@ -177,8 +118,6 @@ public abstract class Identity implements Principal, Serializable {
         }
         return parsable;
     }
-
-
     public String toString() {
         check("printIdentity");
         String printable = name;
@@ -187,8 +126,6 @@ public abstract class Identity implements Principal, Serializable {
         }
         return printable;
     }
-
-
     public String toString(boolean detailed) {
         String out = toString();
         if (detailed) {
@@ -203,7 +140,6 @@ public abstract class Identity implements Principal, Serializable {
         }
         return out;
     }
-
     String printKeys() {
         String key = "";
         if (publicKey != null) {
@@ -213,14 +149,12 @@ public abstract class Identity implements Principal, Serializable {
         }
         return key;
     }
-
     String printCertificates() {
         String out = "";
         if (certificates == null) {
             return "\tno certificates";
         } else {
             out += "\tcertificates: \n";
-
             int i = 1;
             for (Certificate cert : certificates) {
                 out += "\tcertificate " + i++ +
@@ -231,12 +165,9 @@ public abstract class Identity implements Principal, Serializable {
         }
         return out;
     }
-
-
     public int hashCode() {
         return name.hashCode();
     }
-
     private static void check(String directive) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {

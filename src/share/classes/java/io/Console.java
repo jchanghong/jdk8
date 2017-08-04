@@ -1,38 +1,23 @@
-
-
 package java.io;
-
 import java.util.*;
 import java.nio.charset.Charset;
 import sun.nio.cs.StreamDecoder;
 import sun.nio.cs.StreamEncoder;
-
-
-
 public final class Console implements Flushable
 {
-
     public PrintWriter writer() {
         return pw;
     }
-
-
     public Reader reader() {
         return reader;
     }
-
-
     public Console format(String fmt, Object ...args) {
         formatter.format(fmt, args).flush();
         return this;
     }
-
-
     public Console printf(String format, Object ... args) {
         return format(format, args);
     }
-
-
     public String readLine(String fmt, Object ... args) {
         String line = null;
         synchronized (writeLock) {
@@ -50,13 +35,9 @@ public final class Console implements Flushable
         }
         return line;
     }
-
-
     public String readLine() {
         return readLine("");
     }
-
-
     public char[] readPassword(String fmt, Object ... args) {
         char[] passwd = null;
         synchronized (writeLock) {
@@ -90,17 +71,12 @@ public final class Console implements Flushable
         }
         return passwd;
     }
-
-
     public char[] readPassword() {
         return readPassword("");
     }
-
-
     public void flush() {
         pw.flush();
     }
-
     private Object readLock;
     private Object writeLock;
     private Reader reader;
@@ -112,7 +88,6 @@ public final class Console implements Flushable
     private static native String encoding();
     private static native boolean echo(boolean on) throws IOException;
     private static boolean echoOff;
-
     private char[] readline(boolean zeroOut) throws IOException {
         int len = reader.read(rcb, 0, rcb.length);
         if (len < 0)
@@ -133,7 +108,6 @@ public final class Console implements Flushable
         }
         return b;
     }
-
     private char[] grow() {
         assert Thread.holdsLock(readLock);
         char[] t = new char[rcb.length * 2];
@@ -141,7 +115,6 @@ public final class Console implements Flushable
         rcb = t;
         return rcb;
     }
-
     class LineReader extends Reader {
         private Reader in;
         private char[] cb;
@@ -158,7 +131,6 @@ public final class Console implements Flushable
             //in.ready synchronizes on readLock already
             return in.ready();
         }
-
         public int read(char cbuf[], int offset, int length)
             throws IOException
         {
@@ -182,7 +154,6 @@ public final class Console implements Flushable
                             nextChar = 0;
                             if (n < cb.length &&
                                 cb[n-1] != '\n' && cb[n-1] != '\r') {
-
                                 eof = true;
                             }
                         } else {
@@ -192,7 +163,6 @@ public final class Console implements Flushable
                         }
                     }
                     if (leftoverLF && cbuf == rcb && cb[nextChar] == '\n') {
-
                         nextChar++;
                     }
                     leftoverLF = false;
@@ -203,7 +173,6 @@ public final class Console implements Flushable
                             return off - offset;
                         } else if (c == '\r') {
                             if (off == end) {
-
                                 if (cbuf == rcb) {
                                     cbuf = grow();
                                     end = cbuf.length;
@@ -213,7 +182,6 @@ public final class Console implements Flushable
                                 }
                             }
                             if (nextChar == nChars && in.ready()) {
-
                                 nChars = in.read(cb, 0, cb.length);
                                 nextChar = 0;
                             }
@@ -237,7 +205,6 @@ public final class Console implements Flushable
             }
         }
     }
-
     // Set up JavaIOAccess in SharedSecrets
     static {
         try {
@@ -259,7 +226,6 @@ public final class Console implements Flushable
             // shutdown is already in progress and console is first used
             // by a shutdown hook
         }
-
         sun.misc.SharedSecrets.setJavaIOAccess(new sun.misc.JavaIOAccess() {
             public Console console() {
                 if (istty()) {
@@ -269,7 +235,6 @@ public final class Console implements Flushable
                 }
                 return null;
             }
-
             public Charset charset() {
                 // This method is called in sun.security.util.Password,
                 // cons already exists when this method is called

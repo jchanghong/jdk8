@@ -1,40 +1,27 @@
-
-
 package java.awt.image;
-
 import java.awt.image.ImageConsumer;
 import java.awt.image.ColorModel;
 import java.util.Hashtable;
 import java.awt.Rectangle;
-
-
 public class CropImageFilter extends ImageFilter {
     int cropX;
     int cropY;
     int cropW;
     int cropH;
-
-
     public CropImageFilter(int x, int y, int w, int h) {
         cropX = x;
         cropY = y;
         cropW = w;
         cropH = h;
     }
-
-
     public void setProperties(Hashtable<?,?> props) {
         Hashtable<Object,Object> p = (Hashtable<Object,Object>)props.clone();
         p.put("croprect", new Rectangle(cropX, cropY, cropW, cropH));
         super.setProperties(p);
     }
-
-
     public void setDimensions(int w, int h) {
         consumer.setDimensions(cropW, cropH);
     }
-
-
     public void setPixels(int x, int y, int w, int h,
                           ColorModel model, byte pixels[], int off,
                           int scansize) {
@@ -50,7 +37,6 @@ public class CropImageFilter extends ImageFilter {
         if (y1 < cropY) {
             y1 = cropY;
         }
-
     int y2 = addWithoutOverflow(y, h);
         if (y2 > cropY + cropH) {
             y2 = cropY + cropH;
@@ -62,8 +48,6 @@ public class CropImageFilter extends ImageFilter {
                            model, pixels,
                            off + (y1 - y) * scansize + (x1 - x), scansize);
     }
-
-
     public void setPixels(int x, int y, int w, int h,
                           ColorModel model, int pixels[], int off,
                           int scansize) {
@@ -79,7 +63,6 @@ public class CropImageFilter extends ImageFilter {
         if (y1 < cropY) {
             y1 = cropY;
         }
-
     int y2 = addWithoutOverflow(y, h);
         if (y2 > cropY + cropH) {
             y2 = cropY + cropH;
@@ -91,7 +74,6 @@ public class CropImageFilter extends ImageFilter {
                            model, pixels,
                            off + (y1 - y) * scansize + (x1 - x), scansize);
     }
-
     //check for potential overflow (see bug 4801285)
     private int addWithoutOverflow(int x, int w) {
         int x2 = x + w;

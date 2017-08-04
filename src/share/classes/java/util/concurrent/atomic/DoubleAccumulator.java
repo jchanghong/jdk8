@@ -1,26 +1,15 @@
-
-
-
-
 package java.util.concurrent.atomic;
 import java.io.Serializable;
 import java.util.function.DoubleBinaryOperator;
-
-
 public class DoubleAccumulator extends Striped64 implements Serializable {
     private static final long serialVersionUID = 7249069246863182397L;
-
     private final DoubleBinaryOperator function;
     private final long identity; // use long representation
-
-
     public DoubleAccumulator(DoubleBinaryOperator accumulatorFunction,
                              double identity) {
         this.function = accumulatorFunction;
         base = this.identity = Double.doubleToRawLongBits(identity);
     }
-
-
     public void accumulate(double x) {
         Cell[] as; long b, v, r; int m; Cell a;
         if ((as = cells) != null ||
@@ -38,8 +27,6 @@ public class DoubleAccumulator extends Striped64 implements Serializable {
                 doubleAccumulate(x, function, uncontended);
         }
     }
-
-
     public double get() {
         Cell[] as = cells; Cell a;
         double result = Double.longBitsToDouble(base);
@@ -52,8 +39,6 @@ public class DoubleAccumulator extends Striped64 implements Serializable {
         }
         return result;
     }
-
-
     public void reset() {
         Cell[] as = cells; Cell a;
         base = identity;
@@ -64,8 +49,6 @@ public class DoubleAccumulator extends Striped64 implements Serializable {
             }
         }
     }
-
-
     public double getThenReset() {
         Cell[] as = cells; Cell a;
         double result = Double.longBitsToDouble(base);
@@ -81,50 +64,31 @@ public class DoubleAccumulator extends Striped64 implements Serializable {
         }
         return result;
     }
-
-
     public String toString() {
         return Double.toString(get());
     }
-
-
     public double doubleValue() {
         return get();
     }
-
-
     public long longValue() {
         return (long)get();
     }
-
-
     public int intValue() {
         return (int)get();
     }
-
-
     public float floatValue() {
         return (float)get();
     }
-
-
     private static class SerializationProxy implements Serializable {
         private static final long serialVersionUID = 7249069246863182397L;
-
-
         private final double value;
-
         private final DoubleBinaryOperator function;
-
         private final long identity;
-
         SerializationProxy(DoubleAccumulator a) {
             function = a.function;
             identity = a.identity;
             value = a.get();
         }
-
-
         private Object readResolve() {
             double d = Double.longBitsToDouble(identity);
             DoubleAccumulator a = new DoubleAccumulator(function, d);
@@ -132,16 +96,11 @@ public class DoubleAccumulator extends Striped64 implements Serializable {
             return a;
         }
     }
-
-
     private Object writeReplace() {
         return new SerializationProxy(this);
     }
-
-
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.InvalidObjectException {
         throw new java.io.InvalidObjectException("Proxy required");
     }
-
 }

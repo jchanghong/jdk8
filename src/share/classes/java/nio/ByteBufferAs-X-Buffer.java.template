@@ -1,21 +1,12 @@
-
-
 #warn This file is preprocessed before being compiled
-
 package java.nio;
-
-
 class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
     extends {#if[ro]?ByteBufferAs}$Type$Buffer{#if[ro]?$BO$}
 {
-
 #if[rw]
-
     protected final ByteBuffer bb;
     protected final int offset;
-
 #end[rw]
-
     ByteBufferAs$Type$Buffer$RW$$BO$(ByteBuffer bb) {   // package-private
 #if[rw]
         super(-1, 0,
@@ -32,7 +23,6 @@ class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
         super(bb);
 #end[rw]
     }
-
     ByteBufferAs$Type$Buffer$RW$$BO$(ByteBuffer bb,
                                      int mark, int pos, int lim, int cap,
                                      int off)
@@ -45,7 +35,6 @@ class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
         super(bb, mark, pos, lim, cap, off);
 #end[rw]
     }
-
     public $Type$Buffer slice() {
         int pos = this.position();
         int lim = this.limit();
@@ -55,7 +44,6 @@ class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
         assert (off >= 0);
         return new ByteBufferAs$Type$Buffer$RW$$BO$(bb, -1, 0, rem, rem, off);
     }
-
     public $Type$Buffer duplicate() {
         return new ByteBufferAs$Type$Buffer$RW$$BO$(bb,
                                                     this.markValue(),
@@ -64,7 +52,6 @@ class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
                                                     this.capacity(),
                                                     offset);
     }
-
     public $Type$Buffer asReadOnlyBuffer() {
 #if[rw]
         return new ByteBufferAs$Type$BufferR$BO$(bb,
@@ -77,29 +64,22 @@ class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
         return duplicate();
 #end[rw]
     }
-
 #if[rw]
-
     protected int ix(int i) {
         return (i << $LG_BYTES_PER_VALUE$) + offset;
     }
-
     public $type$ get() {
         return Bits.get$Type$$BO$(bb, ix(nextGetIndex()));
     }
-
     public $type$ get(int i) {
         return Bits.get$Type$$BO$(bb, ix(checkIndex(i)));
     }
-
 #if[streamableType]
    $type$ getUnchecked(int i) {
         return Bits.get$Type$$BO$(bb, ix(i));
     }
 #end[streamableType]
-
 #end[rw]
-
     public $Type$Buffer put($type$ x) {
 #if[rw]
         Bits.put$Type$$BO$(bb, ix(nextPutIndex()), x);
@@ -108,7 +88,6 @@ class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer put(int i, $type$ x) {
 #if[rw]
         Bits.put$Type$$BO$(bb, ix(checkIndex(i)), x);
@@ -117,14 +96,12 @@ class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public $Type$Buffer compact() {
 #if[rw]
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
         int rem = (pos <= lim ? lim - pos : 0);
-
         ByteBuffer db = bb.duplicate();
         db.limit(ix(lim));
         db.position(ix(0));
@@ -139,17 +116,13 @@ class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
         throw new ReadOnlyBufferException();
 #end[rw]
     }
-
     public boolean isDirect() {
         return bb.isDirect();
     }
-
     public boolean isReadOnly() {
         return {#if[rw]?false:true};
     }
-
 #if[char]
-
     public String toString(int start, int end) {
         if ((end > limit()) || (start > end))
             throw new IndexOutOfBoundsException();
@@ -166,17 +139,13 @@ class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
             throw new IndexOutOfBoundsException();
         }
     }
-
-
     // --- Methods to support CharSequence ---
-
     public CharBuffer subSequence(int start, int end) {
         int pos = position();
         int lim = limit();
         assert (pos <= lim);
         pos = (pos <= lim ? pos : lim);
         int len = lim - pos;
-
         if ((start < 0) || (end > len) || (start > end))
             throw new IndexOutOfBoundsException();
         return new ByteBufferAsCharBuffer$RW$$BO$(bb,
@@ -186,10 +155,7 @@ class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
                                                   capacity(),
                                                   offset);
     }
-
 #end[char]
-
-
     public ByteOrder order() {
 #if[boB]
         return ByteOrder.BIG_ENDIAN;
@@ -198,5 +164,4 @@ class ByteBufferAs$Type$Buffer$RW$$BO$                  // package-private
         return ByteOrder.LITTLE_ENDIAN;
 #end[boL]
     }
-
 }

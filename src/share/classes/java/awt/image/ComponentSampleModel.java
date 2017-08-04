@@ -1,40 +1,18 @@
-
-
-
-
 package java.awt.image;
-
 import java.util.Arrays;
-
-
-
 public class ComponentSampleModel extends SampleModel
 {
-
     protected int bandOffsets[];
-
-
     protected int[] bankIndices;
-
-
     protected int numBands = 1;
-
-
     protected int numBanks = 1;
-
-
     protected int scanlineStride;
-
-
     protected int pixelStride;
-
     static private native void initIDs();
     static {
         ColorModel.loadLibraries();
         initIDs();
     }
-
-
     public ComponentSampleModel(int dataType,
                                 int w, int h,
                                 int pixelStride,
@@ -66,9 +44,6 @@ public class ComponentSampleModel extends SampleModel
         }
         verify();
     }
-
-
-
     public ComponentSampleModel(int dataType,
                                 int w, int h,
                                 int pixelStride,
@@ -115,58 +90,40 @@ public class ComponentSampleModel extends SampleModel
         }
         verify();
     }
-
     private void verify() {
         int requiredSize = getBufferSize();
     }
-
-
      private int getBufferSize() {
          int maxBandOff=bandOffsets[0];
          for (int i=1; i<bandOffsets.length; i++) {
              maxBandOff = Math.max(maxBandOff,bandOffsets[i]);
          }
-
          if (maxBandOff < 0 || maxBandOff > (Integer.MAX_VALUE - 1)) {
              throw new IllegalArgumentException("Invalid band offset");
          }
-
          if (pixelStride < 0 || pixelStride > (Integer.MAX_VALUE / width)) {
              throw new IllegalArgumentException("Invalid pixel stride");
          }
-
          if (scanlineStride < 0 || scanlineStride > (Integer.MAX_VALUE / height)) {
              throw new IllegalArgumentException("Invalid scanline stride");
          }
-
          int size = maxBandOff + 1;
-
          int val = pixelStride * (width - 1);
-
          if (val > (Integer.MAX_VALUE - size)) {
              throw new IllegalArgumentException("Invalid pixel stride");
          }
-
          size += val;
-
          val = scanlineStride * (height - 1);
-
          if (val > (Integer.MAX_VALUE - size)) {
              throw new IllegalArgumentException("Invalid scan stride");
          }
-
          size += val;
-
          return size;
      }
-
-
     int []orderBands(int orig[], int step) {
         int map[] = new int[orig.length];
         int ret[] = new int[orig.length];
-
         for (int i=0; i<map.length; i++) map[i] = i;
-
         for (int i = 0; i < ret.length; i++) {
             int index = i;
             for (int j = i+1; j < ret.length; j++) {
@@ -179,8 +136,6 @@ public class ComponentSampleModel extends SampleModel
         }
         return ret;
     }
-
-
     public SampleModel createCompatibleSampleModel(int w, int h) {
         SampleModel ret=null;
         long size;
@@ -191,13 +146,11 @@ public class ComponentSampleModel extends SampleModel
             maxBandOff = Math.max(maxBandOff,bandOffsets[i]);
         }
         maxBandOff -= minBandOff;
-
         int bands   = bandOffsets.length;
         int bandOff[];
         int pStride = Math.abs(pixelStride);
         int lStride = Math.abs(scanlineStride);
         int bStride = Math.abs(maxBandOff);
-
         if (pStride > lStride) {
             if (pStride > bStride) {
                 if (lStride > bStride) { // pix > line > band
@@ -231,7 +184,6 @@ public class ComponentSampleModel extends SampleModel
                 }
             }
         }
-
         // make sure we make room for negative offsets...
         int base = 0;
         if (scanlineStride < 0) {
@@ -242,14 +194,11 @@ public class ComponentSampleModel extends SampleModel
             base += pStride*w;
             pStride *= -1;
         }
-
         for (int i=0; i<bands; i++)
             bandOff[i] += base;
         return new ComponentSampleModel(dataType, w, h, pStride,
                                         lStride, bankIndices, bandOff);
     }
-
-
     public SampleModel createSubsetSampleModel(int bands[]) {
        if (bands.length > bankIndices.length)
             throw new RasterFormatException("There are only " +
@@ -257,22 +206,17 @@ public class ComponentSampleModel extends SampleModel
                                             " bands");
         int newBankIndices[] = new int[bands.length];
         int newBandOffsets[] = new int[bands.length];
-
         for (int i=0; i<bands.length; i++) {
             newBankIndices[i] = bankIndices[bands[i]];
             newBandOffsets[i] = bandOffsets[bands[i]];
         }
-
         return new ComponentSampleModel(this.dataType, width, height,
                                         this.pixelStride,
                                         this.scanlineStride,
                                         newBankIndices, newBandOffsets);
     }
-
-
     public DataBuffer createDataBuffer() {
         DataBuffer dataBuffer = null;
-
         int size = getBufferSize();
         switch (dataType) {
         case DataBuffer.TYPE_BYTE:
@@ -294,168 +238,114 @@ public class ComponentSampleModel extends SampleModel
             dataBuffer = new DataBufferDouble(size, numBanks);
             break;
         }
-
         return dataBuffer;
     }
-
-
-
     public int getOffset(int x, int y) {
         int offset = y*scanlineStride + x*pixelStride + bandOffsets[0];
         return offset;
     }
-
-
     public int getOffset(int x, int y, int b) {
         int offset = y*scanlineStride + x*pixelStride + bandOffsets[b];
         return offset;
     }
-
-
     public final int[] getSampleSize() {
         int sampleSize[] = new int [numBands];
         int sizeInBits = getSampleSize(0);
-
         for (int i=0; i<numBands; i++)
             sampleSize[i] = sizeInBits;
-
         return sampleSize;
     }
-
-
     public final int getSampleSize(int band) {
         return DataBuffer.getDataTypeSize(dataType);
     }
-
-
     public final int [] getBankIndices() {
         return (int[]) bankIndices.clone();
     }
-
-
     public final int [] getBandOffsets() {
         return (int[])bandOffsets.clone();
     }
-
-
     public final int getScanlineStride() {
         return scanlineStride;
     }
-
-
     public final int getPixelStride() {
         return pixelStride;
     }
-
-
     public final int getNumDataElements() {
         return getNumBands();
     }
-
-
     public Object getDataElements(int x, int y, Object obj, DataBuffer data) {
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
             throw new ArrayIndexOutOfBoundsException
                 ("Coordinate out of bounds!");
         }
-
         int type = getTransferType();
         int numDataElems = getNumDataElements();
         int pixelOffset = y*scanlineStride + x*pixelStride;
-
         switch(type) {
-
         case DataBuffer.TYPE_BYTE:
-
             byte[] bdata;
-
             if (obj == null)
                 bdata = new byte[numDataElems];
             else
                 bdata = (byte[])obj;
-
             for (int i=0; i<numDataElems; i++) {
                 bdata[i] = (byte)data.getElem(bankIndices[i],
                                               pixelOffset + bandOffsets[i]);
             }
-
             obj = (Object)bdata;
             break;
-
         case DataBuffer.TYPE_USHORT:
         case DataBuffer.TYPE_SHORT:
-
             short[] sdata;
-
             if (obj == null)
                 sdata = new short[numDataElems];
             else
                 sdata = (short[])obj;
-
             for (int i=0; i<numDataElems; i++) {
                 sdata[i] = (short)data.getElem(bankIndices[i],
                                                pixelOffset + bandOffsets[i]);
             }
-
             obj = (Object)sdata;
             break;
-
         case DataBuffer.TYPE_INT:
-
             int[] idata;
-
             if (obj == null)
                 idata = new int[numDataElems];
             else
                 idata = (int[])obj;
-
             for (int i=0; i<numDataElems; i++) {
                 idata[i] = data.getElem(bankIndices[i],
                                         pixelOffset + bandOffsets[i]);
             }
-
             obj = (Object)idata;
             break;
-
         case DataBuffer.TYPE_FLOAT:
-
             float[] fdata;
-
             if (obj == null)
                 fdata = new float[numDataElems];
             else
                 fdata = (float[])obj;
-
             for (int i=0; i<numDataElems; i++) {
                 fdata[i] = data.getElemFloat(bankIndices[i],
                                              pixelOffset + bandOffsets[i]);
             }
-
             obj = (Object)fdata;
             break;
-
         case DataBuffer.TYPE_DOUBLE:
-
             double[] ddata;
-
             if (obj == null)
                 ddata = new double[numDataElems];
             else
                 ddata = (double[])obj;
-
             for (int i=0; i<numDataElems; i++) {
                 ddata[i] = data.getElemDouble(bankIndices[i],
                                               pixelOffset + bandOffsets[i]);
             }
-
             obj = (Object)ddata;
             break;
         }
-
         return obj;
     }
-
-
     public int[] getPixel(int x, int y, int iArray[], DataBuffer data) {
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
             throw new ArrayIndexOutOfBoundsException
@@ -474,13 +364,10 @@ public class ComponentSampleModel extends SampleModel
         }
         return pixels;
     }
-
-
     public int[] getPixels(int x, int y, int w, int h,
                            int iArray[], DataBuffer data) {
         int x1 = x + w;
         int y1 = y + h;
-
         if (x < 0 || x >= width || w > width || x1 < 0 || x1 > width ||
             y < 0 || y >= height || y > height || y1 < 0 || y1 >  height)
         {
@@ -495,7 +382,6 @@ public class ComponentSampleModel extends SampleModel
         }
         int lineOffset = y*scanlineStride + x*pixelStride;
         int srcOffset = 0;
-
         for (int i = 0; i < h; i++) {
            int pixelOffset = lineOffset;
            for (int j = 0; j < w; j++) {
@@ -509,8 +395,6 @@ public class ComponentSampleModel extends SampleModel
         }
         return pixels;
     }
-
-
     public int getSample(int x, int y, int b, DataBuffer data) {
         // Bounds check for 'b' will be performed automatically
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
@@ -522,36 +406,28 @@ public class ComponentSampleModel extends SampleModel
                                   bandOffsets[b]);
         return sample;
     }
-
-
     public float getSampleFloat(int x, int y, int b, DataBuffer data) {
         // Bounds check for 'b' will be performed automatically
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
             throw new ArrayIndexOutOfBoundsException
                 ("Coordinate out of bounds!");
         }
-
         float sample = data.getElemFloat(bankIndices[b],
                                          y*scanlineStride + x*pixelStride +
                                          bandOffsets[b]);
         return sample;
     }
-
-
     public double getSampleDouble(int x, int y, int b, DataBuffer data) {
         // Bounds check for 'b' will be performed automatically
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
             throw new ArrayIndexOutOfBoundsException
                 ("Coordinate out of bounds!");
         }
-
         double sample = data.getElemDouble(bankIndices[b],
                                            y*scanlineStride + x*pixelStride +
                                            bandOffsets[b]);
         return sample;
     }
-
-
     public int[] getSamples(int x, int y, int w, int h, int b,
                             int iArray[], DataBuffer data) {
         // Bounds check for 'b' will be performed automatically
@@ -567,7 +443,6 @@ public class ComponentSampleModel extends SampleModel
         }
         int lineOffset = y*scanlineStride + x*pixelStride +  bandOffsets[b];
         int srcOffset = 0;
-
         for (int i = 0; i < h; i++) {
            int sampleOffset = lineOffset;
            for (int j = 0; j < w; j++) {
@@ -579,75 +454,53 @@ public class ComponentSampleModel extends SampleModel
         }
         return samples;
     }
-
-
     public void setDataElements(int x, int y, Object obj, DataBuffer data) {
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
             throw new ArrayIndexOutOfBoundsException
                 ("Coordinate out of bounds!");
         }
-
         int type = getTransferType();
         int numDataElems = getNumDataElements();
         int pixelOffset = y*scanlineStride + x*pixelStride;
-
         switch(type) {
-
         case DataBuffer.TYPE_BYTE:
-
             byte[] barray = (byte[])obj;
-
             for (int i=0; i<numDataElems; i++) {
                 data.setElem(bankIndices[i], pixelOffset + bandOffsets[i],
                            ((int)barray[i])&0xff);
             }
             break;
-
         case DataBuffer.TYPE_USHORT:
         case DataBuffer.TYPE_SHORT:
-
             short[] sarray = (short[])obj;
-
             for (int i=0; i<numDataElems; i++) {
                 data.setElem(bankIndices[i], pixelOffset + bandOffsets[i],
                            ((int)sarray[i])&0xffff);
             }
             break;
-
         case DataBuffer.TYPE_INT:
-
             int[] iarray = (int[])obj;
-
             for (int i=0; i<numDataElems; i++) {
                 data.setElem(bankIndices[i],
                              pixelOffset + bandOffsets[i], iarray[i]);
             }
             break;
-
         case DataBuffer.TYPE_FLOAT:
-
             float[] farray = (float[])obj;
-
             for (int i=0; i<numDataElems; i++) {
                 data.setElemFloat(bankIndices[i],
                              pixelOffset + bandOffsets[i], farray[i]);
             }
             break;
-
         case DataBuffer.TYPE_DOUBLE:
-
             double[] darray = (double[])obj;
-
             for (int i=0; i<numDataElems; i++) {
                 data.setElemDouble(bankIndices[i],
                              pixelOffset + bandOffsets[i], darray[i]);
             }
             break;
-
         }
     }
-
-
     public void setPixel(int x, int y, int iArray[], DataBuffer data) {
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
             throw new ArrayIndexOutOfBoundsException
@@ -659,23 +512,18 @@ public class ComponentSampleModel extends SampleModel
                         pixelOffset + bandOffsets[i],iArray[i]);
        }
     }
-
-
     public void setPixels(int x, int y, int w, int h,
                           int iArray[], DataBuffer data) {
         int x1 = x + w;
         int y1 = y + h;
-
         if (x < 0 || x >= width || w > width || x1 < 0 || x1 > width ||
             y < 0 || y >= height || h > height || y1 < 0 || y1 >  height)
         {
             throw new ArrayIndexOutOfBoundsException
                 ("Coordinate out of bounds!");
         }
-
         int lineOffset = y*scanlineStride + x*pixelStride;
         int srcOffset = 0;
-
         for (int i = 0; i < h; i++) {
            int pixelOffset = lineOffset;
            for (int j = 0; j < w; j++) {
@@ -688,8 +536,6 @@ public class ComponentSampleModel extends SampleModel
            lineOffset += scanlineStride;
         }
     }
-
-
     public void setSample(int x, int y, int b, int s,
                           DataBuffer data) {
         // Bounds check for 'b' will be performed automatically
@@ -700,8 +546,6 @@ public class ComponentSampleModel extends SampleModel
         data.setElem(bankIndices[b],
                      y*scanlineStride + x*pixelStride + bandOffsets[b], s);
     }
-
-
     public void setSample(int x, int y, int b,
                           float s ,
                           DataBuffer data) {
@@ -714,8 +558,6 @@ public class ComponentSampleModel extends SampleModel
                           y*scanlineStride + x*pixelStride + bandOffsets[b],
                           s);
     }
-
-
     public void setSample(int x, int y, int b,
                           double s,
                           DataBuffer data) {
@@ -728,8 +570,6 @@ public class ComponentSampleModel extends SampleModel
                           y*scanlineStride + x*pixelStride + bandOffsets[b],
                           s);
     }
-
-
     public void setSamples(int x, int y, int w, int h, int b,
                            int iArray[], DataBuffer data) {
         // Bounds check for 'b' will be performed automatically
@@ -739,7 +579,6 @@ public class ComponentSampleModel extends SampleModel
         }
         int lineOffset = y*scanlineStride + x*pixelStride + bandOffsets[b];
         int srcOffset = 0;
-
         for (int i = 0; i < h; i++) {
            int sampleOffset = lineOffset;
            for (int j = 0; j < w; j++) {
@@ -749,12 +588,10 @@ public class ComponentSampleModel extends SampleModel
            lineOffset += scanlineStride;
         }
     }
-
     public boolean equals(Object o) {
         if ((o == null) || !(o instanceof ComponentSampleModel)) {
             return false;
         }
-
         ComponentSampleModel that = (ComponentSampleModel)o;
         return this.width == that.width &&
             this.height == that.height &&
@@ -767,7 +604,6 @@ public class ComponentSampleModel extends SampleModel
             this.scanlineStride == that.scanlineStride &&
             this.pixelStride == that.pixelStride;
     }
-
     // If we implement equals() we must also implement hashCode
     public int hashCode() {
         int hash = 0;

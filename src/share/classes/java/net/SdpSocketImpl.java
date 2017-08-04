@@ -1,16 +1,9 @@
-
-
 package java.net;
-
 import java.io.IOException;
 import java.io.FileDescriptor;
-
 import sun.net.sdp.SdpSupport;
-
-
 class SdpSocketImpl extends PlainSocketImpl {
     SdpSocketImpl() { }
-
     @Override
     protected void create(boolean stream) throws IOException {
         if (!stream)

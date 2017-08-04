@@ -1,32 +1,13 @@
-
-
 package java.rmi.activation;
-
 import java.io.Serializable;
 import java.rmi.MarshalledObject;
-
-
 public final class ActivationDesc implements Serializable {
-
-
     private ActivationGroupID groupID;
-
-
     private String className;
-
-
     private String location;
-
-
     private MarshalledObject<?> data;
-
-
     private boolean restart;
-
-
     private static final long serialVersionUID = 7455834104417690957L;
-
-
     public ActivationDesc(String className,
                           String location,
                           MarshalledObject<?> data)
@@ -35,8 +16,6 @@ public final class ActivationDesc implements Serializable {
         this(ActivationGroup.internalCurrentGroupID(),
              className, location, data, false);
     }
-
-
     public ActivationDesc(String className,
                           String location,
                           MarshalledObject<?> data,
@@ -46,8 +25,6 @@ public final class ActivationDesc implements Serializable {
         this(ActivationGroup.internalCurrentGroupID(),
              className, location, data, restart);
     }
-
-
     public ActivationDesc(ActivationGroupID groupID,
                           String className,
                           String location,
@@ -55,8 +32,6 @@ public final class ActivationDesc implements Serializable {
     {
         this(groupID, className, location, data, false);
     }
-
-
     public ActivationDesc(ActivationGroupID groupID,
                           String className,
                           String location,
@@ -71,35 +46,22 @@ public final class ActivationDesc implements Serializable {
         this.data = data;
         this.restart = restart;
     }
-
-
     public ActivationGroupID getGroupID() {
         return groupID;
     }
-
-
     public String getClassName() {
         return className;
     }
-
-
     public String getLocation() {
         return location;
     }
-
-
     public MarshalledObject<?> getData() {
         return data;
     }
-
-
     public boolean getRestartMode() {
         return restart;
     }
-
-
     public boolean equals(Object obj) {
-
         if (obj instanceof ActivationDesc) {
             ActivationDesc desc = (ActivationDesc) obj;
             return
@@ -112,13 +74,10 @@ public final class ActivationDesc implements Serializable {
                  (data == null ? desc.data == null :
                   data.equals(desc.data)) &&
                  (restart == desc.restart));
-
         } else {
             return false;
         }
     }
-
-
     public int hashCode() {
         return ((location == null
                     ? 0

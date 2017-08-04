@@ -1,66 +1,32 @@
-
-
 package java.io;
-
 import java.util.Arrays;
-
-
-
 public class StreamTokenizer {
-
-
     private Reader reader = null;
     private InputStream input = null;
-
     private char buf[] = new char[20];
-
-
     private int peekc = NEED_CHAR;
-
     private static final int NEED_CHAR = Integer.MAX_VALUE;
     private static final int SKIP_LF = Integer.MAX_VALUE - 1;
-
     private boolean pushedBack;
     private boolean forceLower;
-
     private int LINENO = 1;
-
     private boolean eolIsSignificantP = false;
     private boolean slashSlashCommentsP = false;
     private boolean slashStarCommentsP = false;
-
     private byte ctype[] = new byte[256];
     private static final byte CT_WHITESPACE = 1;
     private static final byte CT_DIGIT = 2;
     private static final byte CT_ALPHA = 4;
     private static final byte CT_QUOTE = 8;
     private static final byte CT_COMMENT = 16;
-
-
     public int ttype = TT_NOTHING;
-
-
     public static final int TT_EOF = -1;
-
-
     public static final int TT_EOL = '\n';
-
-
     public static final int TT_NUMBER = -2;
-
-
     public static final int TT_WORD = -3;
-
-
     private static final int TT_NOTHING = -4;
-
-
     public String sval;
-
-
     public double nval;
-
-
     private StreamTokenizer() {
         wordChars('a', 'z');
         wordChars('A', 'Z');
@@ -71,8 +37,6 @@ public class StreamTokenizer {
         quoteChar('\'');
         parseNumbers();
     }
-
-
     @Deprecated
     public StreamTokenizer(InputStream is) {
         this();
@@ -81,8 +45,6 @@ public class StreamTokenizer {
         }
         input = is;
     }
-
-
     public StreamTokenizer(Reader r) {
         this();
         if (r == null) {
@@ -90,14 +52,10 @@ public class StreamTokenizer {
         }
         reader = r;
     }
-
-
     public void resetSyntax() {
         for (int i = ctype.length; --i >= 0;)
             ctype[i] = 0;
     }
-
-
     public void wordChars(int low, int hi) {
         if (low < 0)
             low = 0;
@@ -106,8 +64,6 @@ public class StreamTokenizer {
         while (low <= hi)
             ctype[low++] |= CT_ALPHA;
     }
-
-
     public void whitespaceChars(int low, int hi) {
         if (low < 0)
             low = 0;
@@ -116,8 +72,6 @@ public class StreamTokenizer {
         while (low <= hi)
             ctype[low++] = CT_WHITESPACE;
     }
-
-
     public void ordinaryChars(int low, int hi) {
         if (low < 0)
             low = 0;
@@ -126,54 +80,36 @@ public class StreamTokenizer {
         while (low <= hi)
             ctype[low++] = 0;
     }
-
-
     public void ordinaryChar(int ch) {
         if (ch >= 0 && ch < ctype.length)
             ctype[ch] = 0;
     }
-
-
     public void commentChar(int ch) {
         if (ch >= 0 && ch < ctype.length)
             ctype[ch] = CT_COMMENT;
     }
-
-
     public void quoteChar(int ch) {
         if (ch >= 0 && ch < ctype.length)
             ctype[ch] = CT_QUOTE;
     }
-
-
     public void parseNumbers() {
         for (int i = '0'; i <= '9'; i++)
             ctype[i] |= CT_DIGIT;
         ctype['.'] |= CT_DIGIT;
         ctype['-'] |= CT_DIGIT;
     }
-
-
     public void eolIsSignificant(boolean flag) {
         eolIsSignificantP = flag;
     }
-
-
     public void slashStarComments(boolean flag) {
         slashStarCommentsP = flag;
     }
-
-
     public void slashSlashComments(boolean flag) {
         slashSlashCommentsP = flag;
     }
-
-
     public void lowerCaseMode(boolean fl) {
         forceLower = fl;
     }
-
-
     private int read() throws IOException {
         if (reader != null)
             return reader.read();
@@ -182,8 +118,6 @@ public class StreamTokenizer {
         else
             throw new IllegalStateException();
     }
-
-
     public int nextToken() throws IOException {
         if (pushedBack) {
             pushedBack = false;
@@ -191,7 +125,6 @@ public class StreamTokenizer {
         }
         byte ct[] = ctype;
         sval = null;
-
         int c = peekc;
         if (c < 0)
             c = NEED_CHAR;
@@ -208,10 +141,7 @@ public class StreamTokenizer {
                 return ttype = TT_EOF;
         }
         ttype = c;
-
-
         peekc = NEED_CHAR;
-
         int ctype = c < 256 ? ct[c] : CT_ALPHA;
         while ((ctype & CT_WHITESPACE) != 0) {
             if (c == '\r') {
@@ -236,7 +166,6 @@ public class StreamTokenizer {
                 return ttype = TT_EOF;
             ctype = c < 256 ? ct[c] : CT_ALPHA;
         }
-
         if ((ctype & CT_DIGIT) != 0) {
             boolean neg = false;
             if (c == '-') {
@@ -268,13 +197,11 @@ public class StreamTokenizer {
                     denom *= 10;
                     decexp--;
                 }
-
                 v = v / denom;
             }
             nval = neg ? -v : v;
             return ttype = TT_NUMBER;
         }
-
         if ((ctype & CT_ALPHA) != 0) {
             int i = 0;
             do {
@@ -291,11 +218,9 @@ public class StreamTokenizer {
                 sval = sval.toLowerCase();
             return ttype = TT_WORD;
         }
-
         if ((ctype & CT_QUOTE) != 0) {
             ttype = c;
             int i = 0;
-
             int d = read();
             while (d >= 0 && d != ttype && d != '\n' && d != '\r') {
                 if (d == '\\') {
@@ -349,14 +274,10 @@ public class StreamTokenizer {
                 }
                 buf[i++] = (char)c;
             }
-
-
             peekc = (d == ttype) ? NEED_CHAR : d;
-
             sval = String.copyValueOf(buf, 0, i);
             return ttype;
         }
-
         if (c == '/' && (slashSlashCommentsP || slashStarCommentsP)) {
             c = read();
             if (c == '*' && slashStarCommentsP) {
@@ -384,7 +305,6 @@ public class StreamTokenizer {
                 peekc = c;
                 return nextToken();
             } else {
-
                 if ((ct['/'] & CT_COMMENT) != 0) {
                     while ((c = read()) != '\n' && c != '\r' && c >= 0);
                     peekc = c;
@@ -395,28 +315,20 @@ public class StreamTokenizer {
                 }
             }
         }
-
         if ((ctype & CT_COMMENT) != 0) {
             while ((c = read()) != '\n' && c != '\r' && c >= 0);
             peekc = c;
             return nextToken();
         }
-
         return ttype = c;
     }
-
-
     public void pushBack() {
         if (ttype != TT_NOTHING)
             pushedBack = true;
     }
-
-
     public int lineno() {
         return LINENO;
     }
-
-
     public String toString() {
         String ret;
         switch (ttype) {
@@ -436,13 +348,11 @@ public class StreamTokenizer {
             ret = "NOTHING";
             break;
           default: {
-
                 if (ttype < 256 &&
                     ((ctype[ttype] & CT_QUOTE) != 0)) {
                     ret = sval;
                     break;
                 }
-
                 char s[] = new char[3];
                 s[0] = s[2] = '\'';
                 s[1] = (char) ttype;
@@ -452,5 +362,4 @@ public class StreamTokenizer {
         }
         return "Token[" + ret + "], line " + LINENO;
     }
-
 }

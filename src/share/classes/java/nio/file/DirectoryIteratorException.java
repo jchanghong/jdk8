@@ -1,32 +1,20 @@
-
-
 package java.nio.file;
-
 import java.util.ConcurrentModificationException;
 import java.util.Objects;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.InvalidObjectException;
-
-
-
 public final class DirectoryIteratorException
     extends ConcurrentModificationException
 {
     private static final long serialVersionUID = -6012699886086212874L;
-
-
     public DirectoryIteratorException(IOException cause) {
         super(Objects.requireNonNull(cause));
     }
-
-
     @Override
     public IOException getCause() {
         return (IOException)super.getCause();
     }
-
-
     private void readObject(ObjectInputStream s)
         throws IOException, ClassNotFoundException
     {

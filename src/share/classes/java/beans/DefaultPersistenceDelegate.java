@@ -1,29 +1,18 @@
-
 package java.beans;
-
 import java.util.*;
 import java.lang.reflect.*;
 import java.util.Objects;
 import sun.reflect.misc.*;
-
-
-
-
 public class DefaultPersistenceDelegate extends PersistenceDelegate {
     private static final String[] EMPTY = {};
     private final String[] constructor;
     private Boolean definesEquals;
-
-
     public DefaultPersistenceDelegate() {
         this.constructor = EMPTY;
     }
-
-
     public DefaultPersistenceDelegate(String[] constructorPropertyNames) {
         this.constructor = (constructorPropertyNames == null) ? EMPTY : constructorPropertyNames.clone();
     }
-
     private static boolean definesEquals(Class<?> type) {
         try {
             return type == type.getMethod("equals", Object.class).getDeclaringClass();
@@ -32,7 +21,6 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
             return false;
         }
     }
-
     private boolean definesEquals(Object instance) {
         if (definesEquals != null) {
             return (definesEquals == Boolean.TRUE);
@@ -43,8 +31,6 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
             return result;
         }
     }
-
-
     protected boolean mutatesTo(Object oldInstance, Object newInstance) {
         // Assume the instance is either mutable or a singleton
         // if it has a nullary constructor.
@@ -52,8 +38,6 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
             super.mutatesTo(oldInstance, newInstance) :
             oldInstance.equals(newInstance);
     }
-
-
     protected Expression instantiate(Object oldInstance, Encoder out) {
         int nArgs = constructor.length;
         Class<?> type = oldInstance.getClass();
@@ -69,7 +53,6 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
         }
         return new Expression(oldInstance, oldInstance.getClass(), "new", constructorArgs);
     }
-
     private Method findMethod(Class<?> type, String property) {
         if (property == null) {
             throw new IllegalArgumentException("Property name is null");
@@ -84,11 +67,9 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
         }
         return method;
     }
-
     private void doProperty(Class<?> type, PropertyDescriptor pd, Object oldInstance, Object newInstance, Encoder out) throws Exception {
         Method getter = pd.getReadMethod();
         Method setter = pd.getWriteMethod();
-
         if (getter != null && setter != null) {
             Expression oldGetExp = new Expression(oldInstance, getter.getName(), new Object[]{});
             Expression newGetExp = new Expression(newInstance, getter.getName(), new Object[]{});
@@ -115,11 +96,9 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
             }
         }
     }
-
     static void invokeStatement(Object instance, String methodName, Object[] args, Encoder out) {
         out.writeStatement(new Statement(instance, methodName, args));
     }
-
     // Write out the properties of this instance.
     private void initBean(Class<?> type, Object oldInstance, Object newInstance, Encoder out) {
         for (Field field : type.getFields()) {
@@ -162,9 +141,7 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
                 out.getExceptionListener().exceptionThrown(e);
             }
         }
-
         // Listeners
-
         if (!java.awt.Component.class.isAssignableFrom(type)) {
             return; // Just handle the listeners of Components for now.
         }
@@ -173,14 +150,11 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
                 continue;
             }
             Class<?> listenerType = d.getListenerType();
-
-
             // The ComponentListener is added automatically, when
             // Contatiner:add is called on the parent.
             if (listenerType == java.awt.event.ComponentListener.class) {
                 continue;
             }
-
             // JMenuItems have a change listener added to them in
             // their "add" methods to enable accessibility support -
             // see the add method in JMenuItem for details. We cannot
@@ -192,7 +166,6 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
                 type == javax.swing.JMenuItem.class) {
                 continue;
             }
-
             EventListener[] oldL = new EventListener[0];
             EventListener[] newL = new EventListener[0];
             try {
@@ -210,7 +183,6 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
                     return;
                 }
             }
-
             // Asssume the listeners are in the same order and that there are no gaps.
             // Eventually, this may need to do true differencing.
             String addListenerMethodName = d.getAddListenerMethod().getName();
@@ -218,15 +190,12 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
                 // System.out.println("Adding listener: " + addListenerMethodName + oldL[i]);
                 invokeStatement(oldInstance, addListenerMethodName, new Object[]{oldL[i]}, out);
             }
-
             String removeListenerMethodName = d.getRemoveListenerMethod().getName();
             for (int i = oldL.length; i < newL.length; i++) {
                 invokeStatement(oldInstance, removeListenerMethodName, new Object[]{newL[i]}, out);
             }
         }
     }
-
-
     protected void initialize(Class<?> type,
                               Object oldInstance, Object newInstance,
                               Encoder out)
@@ -237,7 +206,6 @@ public class DefaultPersistenceDelegate extends PersistenceDelegate {
             initBean(type, oldInstance, newInstance, out);
         }
     }
-
     private static PropertyDescriptor getPropertyDescriptor(Class<?> type, String property) {
         try {
             for (PropertyDescriptor pd : Introspector.getBeanInfo(type).getPropertyDescriptors()) {

@@ -1,9 +1,4 @@
-
-
-
-
 package java.text;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -19,34 +14,21 @@ import java.util.concurrent.ConcurrentMap;
 import sun.util.locale.provider.LocaleProviderAdapter;
 import sun.util.locale.provider.LocaleServiceProviderPool;
 import sun.util.locale.provider.ResourceBundleBasedAdapter;
-
-
-
 public class DecimalFormatSymbols implements Cloneable, Serializable {
-
-
     public DecimalFormatSymbols() {
         initialize( Locale.getDefault(Locale.Category.FORMAT) );
     }
-
-
     public DecimalFormatSymbols( Locale locale ) {
         initialize( locale );
     }
-
-
     public static Locale[] getAvailableLocales() {
         LocaleServiceProviderPool pool =
             LocaleServiceProviderPool.getPool(DecimalFormatSymbolsProvider.class);
         return pool.getAvailableLocales();
     }
-
-
     public static final DecimalFormatSymbols getInstance() {
         return getInstance(Locale.getDefault(Locale.Category.FORMAT));
     }
-
-
     public static final DecimalFormatSymbols getInstance(Locale locale) {
         LocaleProviderAdapter adapter;
         adapter = LocaleProviderAdapter.getAdapter(DecimalFormatSymbolsProvider.class, locale);
@@ -58,126 +40,78 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         }
         return dfsyms;
     }
-
-
     public char getZeroDigit() {
         return zeroDigit;
     }
-
-
     public void setZeroDigit(char zeroDigit) {
         this.zeroDigit = zeroDigit;
     }
-
-
     public char getGroupingSeparator() {
         return groupingSeparator;
     }
-
-
     public void setGroupingSeparator(char groupingSeparator) {
         this.groupingSeparator = groupingSeparator;
     }
-
-
     public char getDecimalSeparator() {
         return decimalSeparator;
     }
-
-
     public void setDecimalSeparator(char decimalSeparator) {
         this.decimalSeparator = decimalSeparator;
     }
-
-
     public char getPerMill() {
         return perMill;
     }
-
-
     public void setPerMill(char perMill) {
         this.perMill = perMill;
     }
-
-
     public char getPercent() {
         return percent;
     }
-
-
     public void setPercent(char percent) {
         this.percent = percent;
     }
-
-
     public char getDigit() {
         return digit;
     }
-
-
     public void setDigit(char digit) {
         this.digit = digit;
     }
-
-
     public char getPatternSeparator() {
         return patternSeparator;
     }
-
-
     public void setPatternSeparator(char patternSeparator) {
         this.patternSeparator = patternSeparator;
     }
-
-
     public String getInfinity() {
         return infinity;
     }
-
-
     public void setInfinity(String infinity) {
         this.infinity = infinity;
     }
-
-
     public String getNaN() {
         return NaN;
     }
-
-
     public void setNaN(String NaN) {
         this.NaN = NaN;
     }
-
-
     public char getMinusSign() {
         return minusSign;
     }
-
-
     public void setMinusSign(char minusSign) {
         this.minusSign = minusSign;
     }
-
-
     public String getCurrencySymbol()
     {
         return currencySymbol;
     }
-
-
     public void setCurrencySymbol(String currency)
     {
         currencySymbol = currency;
     }
-
-
     public String getInternationalCurrencySymbol()
     {
         return intlCurrencySymbol;
     }
-
-
     public void setInternationalCurrencySymbol(String currencyCode)
     {
         intlCurrencySymbol = currencyCode;
@@ -190,13 +124,9 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
             }
         }
     }
-
-
     public Currency getCurrency() {
         return currency;
     }
-
-
     public void setCurrency(Currency currency) {
         if (currency == null) {
             throw new NullPointerException();
@@ -205,42 +135,29 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         intlCurrencySymbol = currency.getCurrencyCode();
         currencySymbol = currency.getSymbol(locale);
     }
-
-
-
     public char getMonetaryDecimalSeparator()
     {
         return monetarySeparator;
     }
-
-
     public void setMonetaryDecimalSeparator(char sep)
     {
         monetarySeparator = sep;
     }
-
     //------------------------------------------------------------
     // BEGIN   Package Private methods ... to be made public later
     //------------------------------------------------------------
-
-
     char getExponentialSymbol()
     {
         return exponential;
     }
-
     public String getExponentSeparator()
     {
         return exponentialSeparator;
     }
-
-
     void setExponentialSymbol(char exp)
     {
         exponential = exp;
     }
-
-
     public void setExponentSeparator(String exp)
     {
         if (exp == null) {
@@ -248,13 +165,9 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         }
         exponentialSeparator = exp;
      }
-
-
     //------------------------------------------------------------
     // END     Package Private methods ... to be made public later
     //------------------------------------------------------------
-
-
     @Override
     public Object clone() {
         try {
@@ -264,8 +177,6 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
             throw new InternalError(e);
         }
     }
-
-
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;
@@ -289,8 +200,6 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         exponentialSeparator.equals(other.exponentialSeparator) &&
         locale.equals(other.locale));
     }
-
-
     @Override
     public int hashCode() {
             int result = zeroDigit;
@@ -298,11 +207,8 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
             result = result * 37 + decimalSeparator;
             return result;
     }
-
-
     private void initialize( Locale locale ) {
         this.locale = locale;
-
         // get resource bundle data
         LocaleProviderAdapter adapter = LocaleProviderAdapter.getAdapter(DecimalFormatSymbolsProvider.class, locale);
         // Avoid potential recursions
@@ -311,7 +217,6 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         }
         Object[] data = adapter.getLocaleResources(locale).getDecimalFormatSymbolsData();
         String[] numberElements = (String[]) data[0];
-
         decimalSeparator = numberElements[0].charAt(0);
         groupingSeparator = numberElements[1].charAt(0);
         patternSeparator = numberElements[2].charAt(0);
@@ -324,7 +229,6 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         perMill = numberElements[8].charAt(0);
         infinity  = numberElements[9];
         NaN = numberElements[10];
-
         // Try to obtain the currency used in the locale's country.
         // Check for empty country string separately because it's a valid
         // country ID for Locale (and used for the C locale), but not a valid
@@ -359,8 +263,6 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
         // If that changes, add a new entry to NumberElements.
         monetarySeparator = decimalSeparator;
     }
-
-
     private void readObject(ObjectInputStream stream)
             throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
@@ -379,7 +281,6 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
             exponentialSeparator = Character.toString(exponential);
         }
         serialVersionOnStream = currentSerialVersion;
-
         if (intlCurrencySymbol != null) {
             try {
                  currency = Currency.getInstance(intlCurrencySymbol);
@@ -387,61 +288,26 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
             }
         }
     }
-
-
     private  char    zeroDigit;
-
-
     private  char    groupingSeparator;
-
-
     private  char    decimalSeparator;
-
-
     private  char    perMill;
-
-
     private  char    percent;
-
-
     private  char    digit;
-
-
     private  char    patternSeparator;
-
-
     private  String  infinity;
-
-
     private  String  NaN;
-
-
     private  char    minusSign;
-
-
     private  String  currencySymbol;
-
-
     private  String  intlCurrencySymbol;
-
-
     private  char    monetarySeparator; // Field new in JDK 1.1.6
-
-
     private  char    exponential;       // Field new in JDK 1.1.6
-
-
     private  String    exponentialSeparator;       // Field new in JDK 1.6
-
-
     private Locale locale;
-
     // currency; only the ISO code is serialized.
     private transient Currency currency;
-
     // Proclaim JDK 1.1 FCS compatibility
     static final long serialVersionUID = 5772796243397350300L;
-
     // The internal serial version which says which version was written
     // - 0 (default) for version up to JDK 1.1.5
     // - 1 for version from JDK 1.1.6, which includes two new fields:
@@ -449,7 +315,5 @@ public class DecimalFormatSymbols implements Cloneable, Serializable {
     // - 2 for version from J2SE 1.4, which includes locale field.
     // - 3 for version from J2SE 1.6, which includes exponentialSeparator field.
     private static final int currentSerialVersion = 3;
-
-
     private int serialVersionOnStream = currentSerialVersion;
 }

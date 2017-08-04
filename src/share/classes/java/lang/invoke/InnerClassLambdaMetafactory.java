@@ -1,12 +1,8 @@
-
-
 package java.lang.invoke;
-
 import jdk.internal.org.objectweb.asm.*;
 import sun.invoke.util.BytecodeDescriptor;
 import sun.misc.Unsafe;
 import sun.security.action.GetPropertyAction;
-
 import java.io.FilePermission;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -16,19 +12,14 @@ import java.util.LinkedHashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.PropertyPermission;
 import java.util.Set;
-
 import static jdk.internal.org.objectweb.asm.Opcodes.*;
-
-
  final class InnerClassLambdaMetafactory extends AbstractValidatingLambdaMetafactory {
     private static final Unsafe UNSAFE = Unsafe.getUnsafe();
-
     private static final int CLASSFILE_VERSION = 52;
     private static final String METHOD_DESCRIPTOR_VOID = Type.getMethodDescriptor(Type.VOID_TYPE);
     private static final String JAVA_LANG_OBJECT = "java/lang/Object";
     private static final String NAME_CTOR = "<init>";
     private static final String NAME_FACTORY = "get$Lambda";
-
     //Serialization support
     private static final String NAME_SERIALIZED_LAMBDA = "java/lang/invoke/SerializedLambda";
     private static final String NAME_NOT_SERIALIZABLE_EXCEPTION = "java/io/NotSerializableException";
@@ -48,16 +39,11 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
     private static final String DESCR_CTOR_NOT_SERIALIZABLE_EXCEPTION
             = MethodType.methodType(void.class, String.class).toMethodDescriptorString();
     private static final String[] SER_HOSTILE_EXCEPTIONS = new String[] {NAME_NOT_SERIALIZABLE_EXCEPTION};
-
-
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
-
     // Used to ensure that each spun class name is unique
     private static final AtomicInteger counter = new AtomicInteger(0);
-
     // For dumping generated classes to disk, for debugging purposes
     private static final ProxyClassesDumper dumper;
-
     static {
         final String key = "jdk.internal.lambda.dumpProxyClasses";
         String path = AccessController.doPrivileged(
@@ -65,7 +51,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
                 new PropertyPermission(key , "read"));
         dumper = (null == path) ? null : ProxyClassesDumper.getInstance(path);
     }
-
     // See context values in AbstractValidatingLambdaMetafactory
     private final String implMethodClassName;        // Name of type containing implementation "CC"
     private final String implMethodName;             // Name of implementation method "impl"
@@ -76,8 +61,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
     private final String[] argNames;                 // Generated names for the constructor arguments
     private final String[] argDescs;                 // Type descriptors for the constructor arguments
     private final String lambdaClassName;            // Generated name for the generated class "X$$Lambda$1"
-
-
     public InnerClassLambdaMetafactory(MethodHandles.Lookup caller,
                                        MethodType invokedType,
                                        String samMethodName,
@@ -112,8 +95,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
             argNames = argDescs = EMPTY_STRING_ARRAY;
         }
     }
-
-
     @Override
     CallSite buildCallSite() throws LambdaConversionException {
         final Class<?> innerClass = spinInnerClass();
@@ -135,7 +116,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
                 throw new LambdaConversionException("Expected one lambda constructor for "
                         + innerClass.getCanonicalName() + ", got " + ctrs.length);
             }
-
             try {
                 Object inst = ctrs[0].newInstance();
                 return new ConstantCallSite(MethodHandles.constant(samBase, inst));
@@ -155,8 +135,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
             }
         }
     }
-
-
     private Class<?> spinInnerClass() throws LambdaConversionException {
         String[] interfaces;
         String samIntf = samBase.getName().replace('.', '/');
@@ -173,11 +151,9 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
             }
             interfaces = itfs.toArray(new String[itfs.size()]);
         }
-
         cw.visit(CLASSFILE_VERSION, ACC_SUPER + ACC_FINAL + ACC_SYNTHETIC,
                  lambdaClassName, null,
                  JAVA_LANG_OBJECT, interfaces);
-
         // Generate final fields to be filled in by constructor
         for (int i = 0; i < argDescs.length; i++) {
             FieldVisitor fv = cw.visitField(ACC_PRIVATE + ACC_FINAL,
@@ -186,19 +162,15 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
                                             null, null);
             fv.visitEnd();
         }
-
         generateConstructor();
-
         if (invokedType.parameterCount() != 0) {
             generateFactory();
         }
-
         // Forward the SAM method
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, samMethodName,
                                           samMethodType.toMethodDescriptorString(), null, null);
         mv.visitAnnotation("Ljava/lang/invoke/LambdaForm$Hidden;", true);
         new ForwardingMethodGenerator(mv).generate(samMethodType);
-
         // Forward the bridges
         if (additionalBridges != null) {
             for (MethodType mt : additionalBridges) {
@@ -208,18 +180,13 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
                 new ForwardingMethodGenerator(mv).generate(mt);
             }
         }
-
         if (isSerializable)
             generateSerializationFriendlyMethods();
         else if (accidentallySerializable)
             generateSerializationHostileMethods();
-
         cw.visitEnd();
-
         // Define the generated class in this VM.
-
         final byte[] classBytes = cw.toByteArray();
-
         // If requested, dump out to a file for debugging purposes
         if (dumper != null) {
             AccessController.doPrivileged(new PrivilegedAction<Void>() {
@@ -233,11 +200,8 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
             // createDirectories may need it
             new PropertyPermission("user.dir", "read"));
         }
-
         return UNSAFE.defineAnonymousClass(targetClass, classBytes, null);
     }
-
-
     private void generateFactory() {
         MethodVisitor m = cw.visitMethod(ACC_PRIVATE | ACC_STATIC, NAME_FACTORY, invokedType.toMethodDescriptorString(), null, null);
         m.visitCode();
@@ -254,8 +218,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         m.visitMaxs(-1, -1);
         m.visitEnd();
     }
-
-
     private void generateConstructor() {
         // Generate constructor
         MethodVisitor ctor = cw.visitMethod(ACC_PRIVATE, NAME_CTOR,
@@ -277,15 +239,12 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         ctor.visitMaxs(-1, -1);
         ctor.visitEnd();
     }
-
-
     private void generateSerializationFriendlyMethods() {
         TypeConvertingMethodAdapter mv
                 = new TypeConvertingMethodAdapter(
                     cw.visitMethod(ACC_PRIVATE + ACC_FINAL,
                     NAME_METHOD_WRITE_REPLACE, DESCR_METHOD_WRITE_REPLACE,
                     null, null));
-
         mv.visitCode();
         mv.visitTypeInsn(NEW, NAME_SERIALIZED_LAMBDA);
         mv.visitInsn(DUP);
@@ -315,8 +274,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         mv.visitMaxs(-1, -1);
         mv.visitEnd();
     }
-
-
     private void generateSerializationHostileMethods() {
         MethodVisitor mv = cw.visitMethod(ACC_PRIVATE + ACC_FINAL,
                                           NAME_METHOD_WRITE_OBJECT, DESCR_METHOD_WRITE_OBJECT,
@@ -330,7 +287,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         mv.visitInsn(ATHROW);
         mv.visitMaxs(-1, -1);
         mv.visitEnd();
-
         mv = cw.visitMethod(ACC_PRIVATE + ACC_FINAL,
                             NAME_METHOD_READ_OBJECT, DESCR_METHOD_READ_OBJECT,
                             null, SER_HOSTILE_EXCEPTIONS);
@@ -344,17 +300,12 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         mv.visitMaxs(-1, -1);
         mv.visitEnd();
     }
-
-
     private class ForwardingMethodGenerator extends TypeConvertingMethodAdapter {
-
         ForwardingMethodGenerator(MethodVisitor mv) {
             super(mv);
         }
-
         void generate(MethodType methodType) {
             visitCode();
-
             if (implKind == MethodHandleInfo.REF_newInvokeSpecial) {
                 visitTypeInsn(NEW, implMethodClassName);
                 visitInsn(DUP);
@@ -363,14 +314,11 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
                 visitVarInsn(ALOAD, 0);
                 visitFieldInsn(GETFIELD, lambdaClassName, argNames[i], argDescs[i]);
             }
-
             convertArgumentTypes(methodType);
-
             // Invoke the method we want to forward to
             visitMethodInsn(invocationOpcode(), implMethodClassName,
                             implMethodName, implMethodDesc,
                             implDefiningClass.isInterface());
-
             // Convert the return value (if any) and return it
             // Note: if adapting from non-void to void, the 'return'
             // instruction will pop the unneeded result
@@ -381,7 +329,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
             visitMaxs(-1, -1);
             visitEnd();
         }
-
         private void convertArgumentTypes(MethodType samType) {
             int lvIndex = 0;
             boolean samIncludesReceiver = implIsInstanceMethod &&
@@ -403,7 +350,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
                 convertType(argType, implMethodType.parameterType(argOffset + i), instantiatedMethodType.parameterType(i));
             }
         }
-
         private int invocationOpcode() throws InternalError {
             switch (implKind) {
                 case MethodHandleInfo.REF_invokeStatic:
@@ -421,7 +367,6 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
             }
         }
     }
-
     static int getParameterSize(Class<?> c) {
         if (c == Void.TYPE) {
             return 0;
@@ -430,21 +375,18 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
         }
         return 1;
     }
-
     static int getLoadOpcode(Class<?> c) {
         if(c == Void.TYPE) {
             throw new InternalError("Unexpected void type of load opcode");
         }
         return ILOAD + getOpcodeOffset(c);
     }
-
     static int getReturnOpcode(Class<?> c) {
         if(c == Void.TYPE) {
             return RETURN;
         }
         return IRETURN + getOpcodeOffset(c);
     }
-
     private static int getOpcodeOffset(Class<?> c) {
         if (c.isPrimitive()) {
             if (c == Long.TYPE) {
@@ -459,5 +401,4 @@ import static jdk.internal.org.objectweb.asm.Opcodes.*;
             return 4;
         }
     }
-
 }

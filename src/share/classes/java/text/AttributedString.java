@@ -1,21 +1,12 @@
-
-
 package java.text;
-
 import java.util.*;
 import java.text.AttributedCharacterIterator.Attribute;
-
-
-
 public class AttributedString {
-
     // since there are no vectors of int, we have to use arrays.
     // We allocate them in chunks of 10 elements so we don't have to allocate all the time.
     private static final int ARRAY_SIZE_INCREMENT = 10;
-
     // field holding the text
     String text;
-
     // fields holding run attribute information
     // run attributes are organized by run
     int runArraySize;               // current size of the arrays
@@ -23,8 +14,6 @@ public class AttributedString {
     int runStarts[];                // start index for each run
     Vector<Attribute> runAttributes[];         // vector of attribute keys for each run
     Vector<Object> runAttributeValues[];    // parallel vector of attribute values for each run
-
-
     AttributedString(AttributedCharacterIterator[] iterators) {
         if (iterators == null) {
             throw new NullPointerException("Iterators must not be null");
@@ -38,26 +27,20 @@ public class AttributedString {
             for (int counter = 0; counter < iterators.length; counter++) {
                 appendContents(buffer, iterators[counter]);
             }
-
             text = buffer.toString();
-
             if (text.length() > 0) {
                 // Determine the runs, creating a new run when the attributes
                 // differ.
                 int offset = 0;
                 Map<Attribute,Object> last = null;
-
                 for (int counter = 0; counter < iterators.length; counter++) {
                     AttributedCharacterIterator iterator = iterators[counter];
                     int start = iterator.getBeginIndex();
                     int end = iterator.getEndIndex();
                     int index = start;
-
                     while (index < end) {
                         iterator.setIndex(index);
-
                         Map<Attribute,Object> attrs = iterator.getAttributes();
-
                         if (mapsDiffer(last, attrs)) {
                             setAttributes(attrs, index - start + offset);
                         }
@@ -69,16 +52,12 @@ public class AttributedString {
             }
         }
     }
-
-
     public AttributedString(String text) {
         if (text == null) {
             throw new NullPointerException();
         }
         this.text = text;
     }
-
-
     public AttributedString(String text,
                             Map<? extends Attribute, ?> attributes)
     {
@@ -86,13 +65,11 @@ public class AttributedString {
             throw new NullPointerException();
         }
         this.text = text;
-
         if (text.length() == 0) {
             if (attributes.isEmpty())
                 return;
             throw new IllegalArgumentException("Can't add attribute to 0-length text");
         }
-
         int attributeCount = attributes.size();
         if (attributeCount > 0) {
             createRunAttributeDataVectors();
@@ -100,7 +77,6 @@ public class AttributedString {
             Vector<Object> newRunAttributeValues = new Vector<>(attributeCount);
             runAttributes[0] = newRunAttributes;
             runAttributeValues[0] = newRunAttributeValues;
-
             Iterator<? extends Map.Entry<? extends Attribute, ?>> iterator = attributes.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry<? extends Attribute, ?> entry = iterator.next();
@@ -109,23 +85,17 @@ public class AttributedString {
             }
         }
     }
-
-
     public AttributedString(AttributedCharacterIterator text) {
         // If performance is critical, this constructor should be
         // implemented here rather than invoking the constructor for a
         // subrange. We can avoid some range checking in the loops.
         this(text, text.getBeginIndex(), text.getEndIndex(), null);
     }
-
-
     public AttributedString(AttributedCharacterIterator text,
                             int beginIndex,
                             int endIndex) {
         this(text, beginIndex, endIndex, null);
     }
-
-
     public AttributedString(AttributedCharacterIterator text,
                             int beginIndex,
                             int endIndex,
@@ -133,23 +103,19 @@ public class AttributedString {
         if (text == null) {
             throw new NullPointerException();
         }
-
         // Validate the given subrange
         int textBeginIndex = text.getBeginIndex();
         int textEndIndex = text.getEndIndex();
         if (beginIndex < textBeginIndex || endIndex > textEndIndex || beginIndex > endIndex)
             throw new IllegalArgumentException("Invalid substring range");
-
         // Copy the given string
         StringBuffer textBuffer = new StringBuffer();
         text.setIndex(beginIndex);
         for (char c = text.current(); text.getIndex() < endIndex; c = text.next())
             textBuffer.append(c);
         this.text = textBuffer.toString();
-
         if (beginIndex == endIndex)
             return;
-
         // Select attribute keys to be taken care of
         HashSet<Attribute> keys = new HashSet<>();
         if (attributes == null) {
@@ -161,7 +127,6 @@ public class AttributedString {
         }
         if (keys.isEmpty())
             return;
-
         // Get and set attribute runs for each attribute name. Need to
         // scan from the top of the text so that we can discard any
         // Annotation that is no longer applied to a subset text segment.
@@ -173,7 +138,6 @@ public class AttributedString {
                 int start = text.getRunStart(attributeKey);
                 int limit = text.getRunLimit(attributeKey);
                 Object value = text.getAttribute(attributeKey);
-
                 if (value != null) {
                     if (value instanceof Annotation) {
                         if (start >= beginIndex && limit <= endIndex) {
@@ -203,45 +167,32 @@ public class AttributedString {
             }
         }
     }
-
-
     public void addAttribute(Attribute attribute, Object value) {
-
         if (attribute == null) {
             throw new NullPointerException();
         }
-
         int len = length();
         if (len == 0) {
             throw new IllegalArgumentException("Can't add attribute to 0-length text");
         }
-
         addAttributeImpl(attribute, value, 0, len);
     }
-
-
     public void addAttribute(Attribute attribute, Object value,
             int beginIndex, int endIndex) {
-
         if (attribute == null) {
             throw new NullPointerException();
         }
-
         if (beginIndex < 0 || endIndex > length() || beginIndex >= endIndex) {
             throw new IllegalArgumentException("Invalid substring range");
         }
-
         addAttributeImpl(attribute, value, beginIndex, endIndex);
     }
-
-
     public void addAttributes(Map<? extends Attribute, ?> attributes,
                               int beginIndex, int endIndex)
     {
         if (attributes == null) {
             throw new NullPointerException();
         }
-
         if (beginIndex < 0 || endIndex > length() || beginIndex > endIndex) {
             throw new IllegalArgumentException("Invalid substring range");
         }
@@ -250,16 +201,13 @@ public class AttributedString {
                 return;
             throw new IllegalArgumentException("Can't add attribute to 0-length text");
         }
-
         // make sure we have run attribute data vectors
         if (runCount == 0) {
             createRunAttributeDataVectors();
         }
-
         // break up runs if necessary
         int beginRunIndex = ensureRunBreak(beginIndex);
         int endRunIndex = ensureRunBreak(endIndex);
-
         Iterator<? extends Map.Entry<? extends Attribute, ?>> iterator =
             attributes.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -267,73 +215,56 @@ public class AttributedString {
             addAttributeRunData(entry.getKey(), entry.getValue(), beginRunIndex, endRunIndex);
         }
     }
-
     private synchronized void addAttributeImpl(Attribute attribute, Object value,
             int beginIndex, int endIndex) {
-
         // make sure we have run attribute data vectors
         if (runCount == 0) {
             createRunAttributeDataVectors();
         }
-
         // break up runs if necessary
         int beginRunIndex = ensureRunBreak(beginIndex);
         int endRunIndex = ensureRunBreak(endIndex);
-
         addAttributeRunData(attribute, value, beginRunIndex, endRunIndex);
     }
-
     private final void createRunAttributeDataVectors() {
         // use temporary variables so things remain consistent in case of an exception
         int newRunStarts[] = new int[ARRAY_SIZE_INCREMENT];
-
         @SuppressWarnings("unchecked")
         Vector<Attribute> newRunAttributes[] = (Vector<Attribute>[]) new Vector<?>[ARRAY_SIZE_INCREMENT];
-
         @SuppressWarnings("unchecked")
         Vector<Object> newRunAttributeValues[] = (Vector<Object>[]) new Vector<?>[ARRAY_SIZE_INCREMENT];
-
         runStarts = newRunStarts;
         runAttributes = newRunAttributes;
         runAttributeValues = newRunAttributeValues;
         runArraySize = ARRAY_SIZE_INCREMENT;
         runCount = 1; // assume initial run starting at index 0
     }
-
     // ensure there's a run break at offset, return the index of the run
     private final int ensureRunBreak(int offset) {
         return ensureRunBreak(offset, true);
     }
-
-
     private final int ensureRunBreak(int offset, boolean copyAttrs) {
         if (offset == length()) {
             return runCount;
         }
-
         // search for the run index where this offset should be
         int runIndex = 0;
         while (runIndex < runCount && runStarts[runIndex] < offset) {
             runIndex++;
         }
-
         // if the offset is at a run start already, we're done
         if (runIndex < runCount && runStarts[runIndex] == offset) {
             return runIndex;
         }
-
         // we'll have to break up a run
         // first, make sure we have enough space in our arrays
         if (runCount == runArraySize) {
             int newArraySize = runArraySize + ARRAY_SIZE_INCREMENT;
             int newRunStarts[] = new int[newArraySize];
-
             @SuppressWarnings("unchecked")
             Vector<Attribute> newRunAttributes[] = (Vector<Attribute>[]) new Vector<?>[newArraySize];
-
             @SuppressWarnings("unchecked")
             Vector<Object> newRunAttributeValues[] = (Vector<Object>[]) new Vector<?>[newArraySize];
-
             for (int i = 0; i < runArraySize; i++) {
                 newRunStarts[i] = runStarts[i];
                 newRunAttributes[i] = runAttributes[i];
@@ -344,12 +275,10 @@ public class AttributedString {
             runAttributeValues = newRunAttributeValues;
             runArraySize = newArraySize;
         }
-
         // make copies of the attribute information of the old run that the new one used to be part of
         // use temporary variables so things remain consistent in case of an exception
         Vector<Attribute> newRunAttributes = null;
         Vector<Object> newRunAttributeValues = null;
-
         if (copyAttrs) {
             Vector<Attribute> oldRunAttributes = runAttributes[runIndex - 1];
             Vector<Object> oldRunAttributeValues = runAttributeValues[runIndex - 1];
@@ -360,7 +289,6 @@ public class AttributedString {
                 newRunAttributeValues =  new Vector<>(oldRunAttributeValues);
             }
         }
-
         // now actually break up the run
         runCount++;
         for (int i = runCount - 1; i > runIndex; i--) {
@@ -371,14 +299,11 @@ public class AttributedString {
         runStarts[runIndex] = offset;
         runAttributes[runIndex] = newRunAttributes;
         runAttributeValues[runIndex] = newRunAttributeValues;
-
         return runIndex;
     }
-
     // add the attribute attribute/value to all runs where beginRunIndex <= runIndex < endRunIndex
     private void addAttributeRunData(Attribute attribute, Object value,
             int beginRunIndex, int endRunIndex) {
-
         for (int i = beginRunIndex; i < endRunIndex; i++) {
             int keyValueIndex = -1; // index of key and value in our vectors; assume we don't have an entry yet
             if (runAttributes[i] == null) {
@@ -390,7 +315,6 @@ public class AttributedString {
                 // check whether we have an entry already
                 keyValueIndex = runAttributes[i].indexOf(attribute);
             }
-
             if (keyValueIndex == -1) {
                 // create new entry
                 int oldSize = runAttributes[i].size();
@@ -408,35 +332,25 @@ public class AttributedString {
             }
         }
     }
-
-
     public AttributedCharacterIterator getIterator() {
         return getIterator(null, 0, length());
     }
-
-
     public AttributedCharacterIterator getIterator(Attribute[] attributes) {
         return getIterator(attributes, 0, length());
     }
-
-
     public AttributedCharacterIterator getIterator(Attribute[] attributes, int beginIndex, int endIndex) {
         return new AttributedStringIterator(attributes, beginIndex, endIndex);
     }
-
     // all (with the exception of length) reading operations are private,
     // since AttributedString instances are accessed through iterators.
-
     // length is package private so that CharacterIteratorFieldDelegate can
     // access it without creating an AttributedCharacterIterator.
     int length() {
         return text.length();
     }
-
     private char charAt(int index) {
         return text.charAt(index);
     }
-
     private synchronized Object getAttribute(Attribute attribute, int runIndex) {
         Vector<Attribute> currentRunAttributes = runAttributes[runIndex];
         Vector<Object> currentRunAttributeValues = runAttributeValues[runIndex];
@@ -451,7 +365,6 @@ public class AttributedString {
             return null;
         }
     }
-
     // gets an attribute value, but returns an annotation only if it's range does not extend outside the range beginIndex..endIndex
     private Object getAttributeCheckRange(Attribute attribute, int runIndex, int beginIndex, int endIndex) {
         Object value = getAttribute(attribute, runIndex);
@@ -489,7 +402,6 @@ public class AttributedString {
         }
         return value;
     }
-
     // returns whether all specified attributes have equal values in the runs with the given indices
     private boolean attributeValuesMatch(Set<? extends Attribute> attributes, int runIndex1, int runIndex2) {
         Iterator<? extends Attribute> iterator = attributes.iterator();
@@ -501,7 +413,6 @@ public class AttributedString {
         }
         return true;
     }
-
     // returns whether the two objects are either both null or equal
     private final static boolean valuesMatch(Object value1, Object value2) {
         if (value1 == null) {
@@ -510,36 +421,27 @@ public class AttributedString {
             return value1.equals(value2);
         }
     }
-
-
     private final void appendContents(StringBuffer buf,
                                       CharacterIterator iterator) {
         int index = iterator.getBeginIndex();
         int end = iterator.getEndIndex();
-
         while (index < end) {
             iterator.setIndex(index++);
             buf.append(iterator.current());
         }
     }
-
-
     private void setAttributes(Map<Attribute, Object> attrs, int offset) {
         if (runCount == 0) {
             createRunAttributeDataVectors();
         }
-
         int index = ensureRunBreak(offset, false);
         int size;
-
         if (attrs != null && (size = attrs.size()) > 0) {
             Vector<Attribute> runAttrs = new Vector<>(size);
             Vector<Object> runValues = new Vector<>(size);
             Iterator<Map.Entry<Attribute, Object>> iterator = attrs.entrySet().iterator();
-
             while (iterator.hasNext()) {
                 Map.Entry<Attribute, Object> entry = iterator.next();
-
                 runAttrs.add(entry.getKey());
                 runValues.add(entry.getValue());
             }
@@ -547,47 +449,34 @@ public class AttributedString {
             runAttributeValues[index] = runValues;
         }
     }
-
-
     private static <K,V> boolean mapsDiffer(Map<K, V> last, Map<K, V> attrs) {
         if (last == null) {
             return (attrs != null && attrs.size() > 0);
         }
         return (!last.equals(attrs));
     }
-
-
     // the iterator class associated with this string class
-
     final private class AttributedStringIterator implements AttributedCharacterIterator {
-
         // note on synchronization:
         // we don't synchronize on the iterator, assuming that an iterator is only used in one thread.
         // we do synchronize access to the AttributedString however, since it's more likely to be shared between threads.
-
         // start and end index for our iteration
         private int beginIndex;
         private int endIndex;
-
         // attributes that our client is interested in
         private Attribute[] relevantAttributes;
-
         // the current index for our iteration
         // invariant: beginIndex <= currentIndex <= endIndex
         private int currentIndex;
-
         // information about the run that includes currentIndex
         private int currentRunIndex;
         private int currentRunStart;
         private int currentRunLimit;
-
         // constructor
         AttributedStringIterator(Attribute[] attributes, int beginIndex, int endIndex) {
-
             if (beginIndex < 0 || beginIndex > endIndex || endIndex > length()) {
                 throw new IllegalArgumentException("Invalid substring range");
             }
-
             this.beginIndex = beginIndex;
             this.endIndex = endIndex;
             this.currentIndex = beginIndex;
@@ -596,9 +485,7 @@ public class AttributedString {
                 relevantAttributes = attributes.clone();
             }
         }
-
         // Object methods. See documentation in that class.
-
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
@@ -606,20 +493,16 @@ public class AttributedString {
             if (!(obj instanceof AttributedStringIterator)) {
                 return false;
             }
-
             AttributedStringIterator that = (AttributedStringIterator) obj;
-
             if (AttributedString.this != that.getString())
                 return false;
             if (currentIndex != that.currentIndex || beginIndex != that.beginIndex || endIndex != that.endIndex)
                 return false;
             return true;
         }
-
         public int hashCode() {
             return text.hashCode() ^ currentIndex ^ beginIndex ^ endIndex;
         }
-
         public Object clone() {
             try {
                 AttributedStringIterator other = (AttributedStringIterator) super.clone();
@@ -629,13 +512,10 @@ public class AttributedString {
                 throw new InternalError(e);
             }
         }
-
         // CharacterIterator methods. See documentation in that interface.
-
         public char first() {
             return internalSetIndex(beginIndex);
         }
-
         public char last() {
             if (endIndex == beginIndex) {
                 return internalSetIndex(endIndex);
@@ -643,7 +523,6 @@ public class AttributedString {
                 return internalSetIndex(endIndex - 1);
             }
         }
-
         public char current() {
             if (currentIndex == endIndex) {
                 return DONE;
@@ -651,7 +530,6 @@ public class AttributedString {
                 return charAt(currentIndex);
             }
         }
-
         public char next() {
             if (currentIndex < endIndex) {
                 return internalSetIndex(currentIndex + 1);
@@ -660,7 +538,6 @@ public class AttributedString {
                 return DONE;
             }
         }
-
         public char previous() {
             if (currentIndex > beginIndex) {
                 return internalSetIndex(currentIndex - 1);
@@ -669,31 +546,24 @@ public class AttributedString {
                 return DONE;
             }
         }
-
         public char setIndex(int position) {
             if (position < beginIndex || position > endIndex)
                 throw new IllegalArgumentException("Invalid index");
             return internalSetIndex(position);
         }
-
         public int getBeginIndex() {
             return beginIndex;
         }
-
         public int getEndIndex() {
             return endIndex;
         }
-
         public int getIndex() {
             return currentIndex;
         }
-
         // AttributedCharacterIterator methods. See documentation in that interface.
-
         public int getRunStart() {
             return currentRunStart;
         }
-
         public int getRunStart(Attribute attribute) {
             if (currentRunStart == beginIndex || currentRunIndex == -1) {
                 return currentRunStart;
@@ -712,7 +582,6 @@ public class AttributedString {
                 return runStart;
             }
         }
-
         public int getRunStart(Set<? extends Attribute> attributes) {
             if (currentRunStart == beginIndex || currentRunIndex == -1) {
                 return currentRunStart;
@@ -730,11 +599,9 @@ public class AttributedString {
                 return runStart;
             }
         }
-
         public int getRunLimit() {
             return currentRunLimit;
         }
-
         public int getRunLimit(Attribute attribute) {
             if (currentRunLimit == endIndex || currentRunIndex == -1) {
                 return currentRunLimit;
@@ -753,7 +620,6 @@ public class AttributedString {
                 return runLimit;
             }
         }
-
         public int getRunLimit(Set<? extends Attribute> attributes) {
             if (currentRunLimit == endIndex || currentRunIndex == -1) {
                 return currentRunLimit;
@@ -771,7 +637,6 @@ public class AttributedString {
                 return runLimit;
             }
         }
-
         public Map<Attribute,Object> getAttributes() {
             if (runAttributes == null || currentRunIndex == -1 || runAttributes[currentRunIndex] == null) {
                 // ??? would be nice to return null, but current spec doesn't allow it
@@ -780,7 +645,6 @@ public class AttributedString {
             }
             return new AttributeMap(currentRunIndex, beginIndex, endIndex);
         }
-
         public Set<Attribute> getAllAttributeKeys() {
             // ??? This should screen out attribute keys that aren't relevant to the client
             if (runAttributes == null) {
@@ -808,7 +672,6 @@ public class AttributedString {
                 return keys;
             }
         }
-
         public Object getAttribute(Attribute attribute) {
             int runIndex = currentRunIndex;
             if (runIndex < 0) {
@@ -816,13 +679,10 @@ public class AttributedString {
             }
             return AttributedString.this.getAttributeCheckRange(attribute, runIndex, beginIndex, endIndex);
         }
-
         // internally used methods
-
         private AttributedString getString() {
             return AttributedString.this;
         }
-
         // set the current index, update information about the current run if necessary,
         // return the character at the current index
         private char internalSetIndex(int position) {
@@ -836,7 +696,6 @@ public class AttributedString {
                 return charAt(position);
             }
         }
-
         // update the information about the current run
         private void updateRunInfo() {
             if (currentIndex == endIndex) {
@@ -867,23 +726,17 @@ public class AttributedString {
                 }
             }
         }
-
     }
-
     // the map class associated with this string class, giving access to the attributes of one run
-
     final private class AttributeMap extends AbstractMap<Attribute,Object> {
-
         int runIndex;
         int beginIndex;
         int endIndex;
-
         AttributeMap(int runIndex, int beginIndex, int endIndex) {
             this.runIndex = runIndex;
             this.beginIndex = beginIndex;
             this.endIndex = endIndex;
         }
-
         public Set<Map.Entry<Attribute, Object>> entrySet() {
             HashSet<Map.Entry<Attribute, Object>> set = new HashSet<>();
             synchronized (AttributedString.this) {
@@ -898,30 +751,24 @@ public class AttributedString {
                             continue;
                         }
                     }
-
                     Map.Entry<Attribute, Object> entry = new AttributeEntry(key, value);
                     set.add(entry);
                 }
             }
             return set;
         }
-
         public Object get(Object key) {
             return AttributedString.this.getAttributeCheckRange((Attribute) key, runIndex, beginIndex, endIndex);
         }
     }
 }
-
 class AttributeEntry implements Map.Entry<Attribute,Object> {
-
     private Attribute key;
     private Object value;
-
     AttributeEntry(Attribute key, Object value) {
         this.key = key;
         this.value = value;
     }
-
     public boolean equals(Object o) {
         if (!(o instanceof AttributeEntry)) {
             return false;
@@ -930,23 +777,18 @@ class AttributeEntry implements Map.Entry<Attribute,Object> {
         return other.key.equals(key) &&
             (value == null ? other.value == null : other.value.equals(value));
     }
-
     public Attribute getKey() {
         return key;
     }
-
     public Object getValue() {
         return value;
     }
-
     public Object setValue(Object newValue) {
         throw new UnsupportedOperationException();
     }
-
     public int hashCode() {
         return key.hashCode() ^ (value==null ? 0 : value.hashCode());
     }
-
     public String toString() {
         return key.toString()+"="+value.toString();
     }

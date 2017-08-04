@@ -1,7 +1,4 @@
-
-
 package java.util.prefs;
-
 import java.util.*;
 import java.io.*;
 import javax.xml.parsers.*;
@@ -10,31 +7,23 @@ import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
 import org.xml.sax.*;
 import org.w3c.dom.*;
-
-
 class XmlSupport {
     // The required DTD URI for exported preferences
     private static final String PREFS_DTD_URI =
         "http://java.sun.com/dtd/preferences.dtd";
-
     // The actual DTD corresponding to the URI
     private static final String PREFS_DTD =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-
         "<!-- DTD for preferences -->"               +
-
         "<!ELEMENT preferences (root) >"             +
         "<!ATTLIST preferences"                      +
         " EXTERNAL_XML_VERSION CDATA \"0.0\"  >"     +
-
         "<!ELEMENT root (map, node*) >"              +
         "<!ATTLIST root"                             +
         "          type (system|user) #REQUIRED >"   +
-
         "<!ELEMENT node (map, node*) >"              +
         "<!ATTLIST node"                             +
         "          name CDATA #REQUIRED >"           +
-
         "<!ELEMENT map (entry*) >"                   +
         "<!ATTLIST map"                              +
         "  MAP_XML_VERSION CDATA \"0.0\"  >"         +
@@ -42,13 +31,8 @@ class XmlSupport {
         "<!ATTLIST entry"                            +
         "          key CDATA #REQUIRED"              +
         "          value CDATA #REQUIRED >"          ;
-
     private static final String EXTERNAL_XML_VERSION = "1.0";
-
-
     private static final String MAP_XML_VERSION = "1.0";
-
-
     static void export(OutputStream os, final Preferences p, boolean subTree)
         throws IOException, BackingStoreException {
         if (((AbstractPreferences)p).isRemoved())
@@ -59,10 +43,8 @@ class XmlSupport {
         Element xmlRoot =  (Element)
         preferences.appendChild(doc.createElement("root"));
         xmlRoot.setAttribute("type", (p.isUserNode() ? "user" : "system"));
-
         // Get bottom-up list of nodes from p to root, excluding root
         List<Preferences> ancestors = new ArrayList<>();
-
         for (Preferences kid = p, dad = kid.parent(); dad != null;
                                    kid = dad, dad = kid.parent()) {
             ancestors.add(kid);
@@ -74,17 +56,13 @@ class XmlSupport {
             e.setAttribute("name", ancestors.get(i).name());
         }
         putPreferencesInXml(e, doc, p, subTree);
-
         writeDoc(doc, os);
     }
-
-
     private static void putPreferencesInXml(Element elt, Document doc,
                Preferences prefs, boolean subTree) throws BackingStoreException
     {
         Preferences[] kidsCopy = null;
         String[] kidNames = null;
-
         // Node is locked to export its contents and get a
         // copy of children, then lock is released,
         // and, if subTree = true, recursive calls are made on children
@@ -107,7 +85,6 @@ class XmlSupport {
             }
             // Recurse if appropriate
             if (subTree) {
-
                 kidNames = prefs.childrenNames();
                 kidsCopy = new Preferences[kidNames.length];
                 for (int i = 0; i <  kidNames.length; i++)
@@ -115,7 +92,6 @@ class XmlSupport {
             }
             // release lock
         }
-
         if (subTree) {
             for (int i=0; i < kidNames.length; i++) {
                 Element xmlKid = (Element)
@@ -125,8 +101,6 @@ class XmlSupport {
             }
         }
     }
-
-
     static void importPreferences(InputStream is)
         throws IOException, InvalidPreferencesFormatException
     {
@@ -140,7 +114,6 @@ class XmlSupport {
                 " is not supported. This java installation can read" +
                 " versions " + EXTERNAL_XML_VERSION + " or older. You may need" +
                 " to install a newer version of JDK.");
-
             Element xmlRoot = (Element) doc.getDocumentElement().
                                                getChildNodes().item(0);
             Preferences prefsRoot =
@@ -151,8 +124,6 @@ class XmlSupport {
             throw new InvalidPreferencesFormatException(e);
         }
     }
-
-
     private static Document createPrefsDoc( String qname ) {
         try {
             DOMImplementation di = DocumentBuilderFactory.newInstance().
@@ -163,8 +134,6 @@ class XmlSupport {
             throw new AssertionError(e);
         }
     }
-
-
     private static Document loadPrefsDoc(InputStream in)
         throws SAXException, IOException
     {
@@ -182,8 +151,6 @@ class XmlSupport {
             throw new AssertionError(e);
         }
     }
-
-
     private static final void writeDoc(Document doc, OutputStream out)
         throws IOException
     {
@@ -207,24 +174,18 @@ class XmlSupport {
             throw new AssertionError(e);
         }
     }
-
-
     private static void ImportSubtree(Preferences prefsNode, Element xmlNode) {
         NodeList xmlKids = xmlNode.getChildNodes();
         int numXmlKids = xmlKids.getLength();
-
         Preferences[] prefsKids;
-
         synchronized (((AbstractPreferences)prefsNode).lock) {
             //If removed, return silently
             if (((AbstractPreferences)prefsNode).isRemoved())
                 return;
-
             // Import any preferences at this node
             Element firstXmlKid = (Element) xmlKids.item(0);
             ImportPrefs(prefsNode, firstXmlKid);
             prefsKids = new Preferences[numXmlKids - 1];
-
             // Get involved children
             for (int i=1; i < numXmlKids; i++) {
                 Element xmlKid = (Element) xmlKids.item(i);
@@ -235,8 +196,6 @@ class XmlSupport {
         for (int i=1; i < numXmlKids; i++)
             ImportSubtree(prefsKids[i-1], (Element)xmlKids.item(i));
     }
-
-
     private static void ImportPrefs(Preferences prefsNode, Element map) {
         NodeList entries = map.getChildNodes();
         for (int i=0, numEntries = entries.getLength(); i < numEntries; i++) {
@@ -245,13 +204,10 @@ class XmlSupport {
                           entry.getAttribute("value"));
         }
     }
-
-
     static void exportMap(OutputStream os, Map<String, String> map) throws IOException {
         Document doc = createPrefsDoc("map");
         Element xmlMap = doc.getDocumentElement( ) ;
         xmlMap.setAttribute("MAP_XML_VERSION", MAP_XML_VERSION);
-
         for (Iterator<Map.Entry<String, String>> i = map.entrySet().iterator(); i.hasNext(); ) {
             Map.Entry<String, String> e = i.next();
             Element xe = (Element)
@@ -259,11 +215,8 @@ class XmlSupport {
             xe.setAttribute("key",   e.getKey());
             xe.setAttribute("value", e.getValue());
         }
-
         writeDoc(doc, os);
     }
-
-
     static void importMap(InputStream is, Map<String, String> m)
         throws IOException, InvalidPreferencesFormatException
     {
@@ -278,7 +231,6 @@ class XmlSupport {
                 " is not supported. This java installation can read" +
                 " versions " + MAP_XML_VERSION + " or older. You may need" +
                 " to install a newer version of JDK.");
-
             NodeList entries = xmlMap.getChildNodes();
             for (int i=0, numEntries=entries.getLength(); i<numEntries; i++) {
                 Element entry = (Element) entries.item(i);
@@ -288,7 +240,6 @@ class XmlSupport {
             throw new InvalidPreferencesFormatException(e);
         }
     }
-
     private static class Resolver implements EntityResolver {
         public InputSource resolveEntity(String pid, String sid)
             throws SAXException
@@ -302,7 +253,6 @@ class XmlSupport {
             throw new SAXException("Invalid system identifier: " + sid);
         }
     }
-
     private static class EH implements ErrorHandler {
         public void error(SAXParseException x) throws SAXException {
             throw x;

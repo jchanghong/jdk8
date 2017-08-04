@@ -1,42 +1,24 @@
-
-
 package java.net;
-
 import java.io.IOException;
 import java.nio.channels.DatagramChannel;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
-
-
 public
 class DatagramSocket implements java.io.Closeable {
-
     private boolean created = false;
     private boolean bound = false;
     private boolean closed = false;
     private Object closeLock = new Object();
-
-
     DatagramSocketImpl impl;
-
-
     boolean oldImpl = false;
-
-
     private boolean explicitFilter = false;
     private int bytesLeftToFilter;
-
     static final int ST_NOT_CONNECTED = 0;
     static final int ST_CONNECTED = 1;
     static final int ST_CONNECTED_NO_IMPL = 2;
-
     int connectState = ST_NOT_CONNECTED;
-
-
     InetAddress connectedAddress = null;
     int connectedPort = -1;
-
-
     private synchronized void connectInternal(InetAddress address, int port) throws SocketException {
         if (port < 0 || port > 0xFFFF) {
             throw new IllegalArgumentException("connect: " + port);
@@ -56,10 +38,8 @@ class DatagramSocket implements java.io.Closeable {
                 security.checkAccept(address.getHostAddress(), port);
             }
         }
-
         if (!isBound())
           bind(new InetSocketAddress(0));
-
         // old impls do not support connect/disconnect
         if (oldImpl || (impl instanceof AbstractPlainDatagramSocketImpl &&
              ((AbstractPlainDatagramSocketImpl)impl).nativeConnectDisabled())) {
@@ -67,7 +47,6 @@ class DatagramSocket implements java.io.Closeable {
         } else {
             try {
                 getImpl().connect(address, port);
-
                 // socket is now connected by the impl
                 connectState = ST_CONNECTED;
                 // Do we need to filter some packets?
@@ -80,31 +59,22 @@ class DatagramSocket implements java.io.Closeable {
                     bytesLeftToFilter = getReceiveBufferSize();
                 }
             } catch (SocketException se) {
-
                 // connection will be emulated by DatagramSocket
                 connectState = ST_CONNECTED_NO_IMPL;
             }
         }
-
         connectedAddress = address;
         connectedPort = port;
     }
-
-
-
     public DatagramSocket() throws SocketException {
         this(new InetSocketAddress(0));
     }
-
-
     protected DatagramSocket(DatagramSocketImpl impl) {
         if (impl == null)
             throw new NullPointerException();
         this.impl = impl;
         checkOldImpl();
     }
-
-
     public DatagramSocket(SocketAddress bindaddr) throws SocketException {
         // create a datagram socket.
         createImpl();
@@ -117,17 +87,12 @@ class DatagramSocket implements java.io.Closeable {
             }
         }
     }
-
-
     public DatagramSocket(int port) throws SocketException {
         this(port, null);
     }
-
-
     public DatagramSocket(int port, InetAddress laddr) throws SocketException {
         this(new InetSocketAddress(laddr, port));
     }
-
     private void checkOldImpl() {
         if (impl == null)
             return;
@@ -147,9 +112,7 @@ class DatagramSocket implements java.io.Closeable {
             oldImpl = true;
         }
     }
-
     static Class<?> implClass = null;
-
     void createImpl() throws SocketException {
         if (impl == null) {
             if (factory != null) {
@@ -158,7 +121,6 @@ class DatagramSocket implements java.io.Closeable {
             } else {
                 boolean isMulticast = (this instanceof MulticastSocket) ? true : false;
                 impl = DefaultDatagramSocketImplFactory.createDatagramSocketImpl(isMulticast);
-
                 checkOldImpl();
             }
         }
@@ -167,15 +129,11 @@ class DatagramSocket implements java.io.Closeable {
         impl.setDatagramSocket(this);
         created = true;
     }
-
-
     DatagramSocketImpl getImpl() throws SocketException {
         if (!created)
             createImpl();
         return impl;
     }
-
-
     public synchronized void bind(SocketAddress addr) throws SocketException {
         if (isClosed())
             throw new SocketException("Socket is closed");
@@ -203,7 +161,6 @@ class DatagramSocket implements java.io.Closeable {
         }
         bound = true;
     }
-
     void checkAddress (InetAddress addr, String op) {
         if (addr == null) {
             return;
@@ -212,8 +169,6 @@ class DatagramSocket implements java.io.Closeable {
             throw new IllegalArgumentException(op + ": invalid address type");
         }
     }
-
-
     public void connect(InetAddress address, int port) {
         try {
             connectInternal(address, port);
@@ -221,8 +176,6 @@ class DatagramSocket implements java.io.Closeable {
             throw new Error("connect failed", se);
         }
     }
-
-
     public void connect(SocketAddress addr) throws SocketException {
         if (addr == null)
             throw new IllegalArgumentException("Address can't be null");
@@ -233,8 +186,6 @@ class DatagramSocket implements java.io.Closeable {
             throw new SocketException("Unresolved address");
         connectInternal(epoint.getAddress(), epoint.getPort());
     }
-
-
     public void disconnect() {
         synchronized (this) {
             if (isClosed())
@@ -248,36 +199,23 @@ class DatagramSocket implements java.io.Closeable {
             explicitFilter = false;
         }
     }
-
-
     public boolean isBound() {
         return bound;
     }
-
-
     public boolean isConnected() {
         return connectState != ST_NOT_CONNECTED;
     }
-
-
     public InetAddress getInetAddress() {
         return connectedAddress;
     }
-
-
     public int getPort() {
         return connectedPort;
     }
-
-
     public SocketAddress getRemoteSocketAddress() {
         if (!isConnected())
             return null;
         return new InetSocketAddress(getInetAddress(), getPort());
     }
-
-
-
     public SocketAddress getLocalSocketAddress() {
         if (isClosed())
             return null;
@@ -285,8 +223,6 @@ class DatagramSocket implements java.io.Closeable {
             return null;
         return new InetSocketAddress(getLocalAddress(), getLocalPort());
     }
-
-
     public void send(DatagramPacket p) throws IOException  {
         InetAddress packetAddress = null;
         synchronized (p) {
@@ -296,7 +232,6 @@ class DatagramSocket implements java.io.Closeable {
             if (connectState == ST_NOT_CONNECTED) {
                 // check the address is ok wiht the security manager on every send.
                 SecurityManager security = System.getSecurityManager();
-
                 // The reason you want to synchronize on datagram packet
                 // is because you don't want an applet to change the address
                 // while you are trying to send the packet for example
@@ -329,8 +264,6 @@ class DatagramSocket implements java.io.Closeable {
             getImpl().send(p);
         }
     }
-
-
     public synchronized void receive(DatagramPacket p) throws IOException {
         synchronized (p) {
             if (!isBound())
@@ -363,7 +296,6 @@ class DatagramSocket implements java.io.Closeable {
                             // it in a tmp buffer.
                             DatagramPacket tmp = new DatagramPacket(new byte[1], 1);
                             getImpl().receive(tmp);
-
                             // silently discard the offending packet
                             // and continue: unknown/malicious
                             // entities on nets should not make
@@ -422,7 +354,6 @@ class DatagramSocket implements java.io.Closeable {
             }
         }
     }
-
     private boolean checkFiltering(DatagramPacket p) throws SocketException {
         bytesLeftToFilter -= p.getLength();
         if (bytesLeftToFilter <= 0 || getImpl().dataAvailable() <= 0) {
@@ -431,8 +362,6 @@ class DatagramSocket implements java.io.Closeable {
         }
         return false;
     }
-
-
     public InetAddress getLocalAddress() {
         if (isClosed())
             return null;
@@ -451,8 +380,6 @@ class DatagramSocket implements java.io.Closeable {
         }
         return in;
     }
-
-
     public int getLocalPort() {
         if (isClosed())
             return -1;
@@ -462,30 +389,23 @@ class DatagramSocket implements java.io.Closeable {
             return 0;
         }
     }
-
-
     public synchronized void setSoTimeout(int timeout) throws SocketException {
         if (isClosed())
             throw new SocketException("Socket is closed");
         getImpl().setOption(SocketOptions.SO_TIMEOUT, new Integer(timeout));
     }
-
-
     public synchronized int getSoTimeout() throws SocketException {
         if (isClosed())
             throw new SocketException("Socket is closed");
         if (getImpl() == null)
             return 0;
         Object o = getImpl().getOption(SocketOptions.SO_TIMEOUT);
-
         if (o instanceof Integer) {
             return ((Integer) o).intValue();
         } else {
             return 0;
         }
     }
-
-
     public synchronized void setSendBufferSize(int size)
     throws SocketException{
         if (!(size > 0)) {
@@ -495,8 +415,6 @@ class DatagramSocket implements java.io.Closeable {
             throw new SocketException("Socket is closed");
         getImpl().setOption(SocketOptions.SO_SNDBUF, new Integer(size));
     }
-
-
     public synchronized int getSendBufferSize() throws SocketException {
         if (isClosed())
             throw new SocketException("Socket is closed");
@@ -507,8 +425,6 @@ class DatagramSocket implements java.io.Closeable {
         }
         return result;
     }
-
-
     public synchronized void setReceiveBufferSize(int size)
     throws SocketException{
         if (size <= 0) {
@@ -518,8 +434,6 @@ class DatagramSocket implements java.io.Closeable {
             throw new SocketException("Socket is closed");
         getImpl().setOption(SocketOptions.SO_RCVBUF, new Integer(size));
     }
-
-
     public synchronized int getReceiveBufferSize()
     throws SocketException{
         if (isClosed())
@@ -531,8 +445,6 @@ class DatagramSocket implements java.io.Closeable {
         }
         return result;
     }
-
-
     public synchronized void setReuseAddress(boolean on) throws SocketException {
         if (isClosed())
             throw new SocketException("Socket is closed");
@@ -542,34 +454,25 @@ class DatagramSocket implements java.io.Closeable {
         else
             getImpl().setOption(SocketOptions.SO_REUSEADDR, Boolean.valueOf(on));
     }
-
-
     public synchronized boolean getReuseAddress() throws SocketException {
         if (isClosed())
             throw new SocketException("Socket is closed");
         Object o = getImpl().getOption(SocketOptions.SO_REUSEADDR);
         return ((Boolean)o).booleanValue();
     }
-
-
     public synchronized void setBroadcast(boolean on) throws SocketException {
         if (isClosed())
             throw new SocketException("Socket is closed");
         getImpl().setOption(SocketOptions.SO_BROADCAST, Boolean.valueOf(on));
     }
-
-
     public synchronized boolean getBroadcast() throws SocketException {
         if (isClosed())
             throw new SocketException("Socket is closed");
         return ((Boolean)(getImpl().getOption(SocketOptions.SO_BROADCAST))).booleanValue();
     }
-
-
     public synchronized void setTrafficClass(int tc) throws SocketException {
         if (tc < 0 || tc > 255)
             throw new IllegalArgumentException("tc is not in range 0 -- 255");
-
         if (isClosed())
             throw new SocketException("Socket is closed");
         try {
@@ -581,15 +484,11 @@ class DatagramSocket implements java.io.Closeable {
                 throw se;
         }
     }
-
-
     public synchronized int getTrafficClass() throws SocketException {
         if (isClosed())
             throw new SocketException("Socket is closed");
         return ((Integer)(getImpl().getOption(SocketOptions.IP_TOS))).intValue();
     }
-
-
     public void close() {
         synchronized(closeLock) {
             if (isClosed())
@@ -598,23 +497,15 @@ class DatagramSocket implements java.io.Closeable {
             closed = true;
         }
     }
-
-
     public boolean isClosed() {
         synchronized(closeLock) {
             return closed;
         }
     }
-
-
     public DatagramChannel getChannel() {
         return null;
     }
-
-
     static DatagramSocketImplFactory factory;
-
-
     public static synchronized void
     setDatagramSocketImplFactory(DatagramSocketImplFactory fac)
        throws IOException

@@ -1,25 +1,16 @@
-
-
 package java.awt;
-
 import java.util.LinkedList;
 import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
-
-
 class SequencedEvent extends AWTEvent implements ActiveEvent {
-
     private static final long serialVersionUID = 547742659238625067L;
-
     private static final int ID =
         java.awt.event.FocusEvent.FOCUS_LAST + 1;
     private static final LinkedList<SequencedEvent> list = new LinkedList<>();
-
     private final AWTEvent nested;
     private AppContext appContext;
     private boolean disposed;
-
     static {
         AWTAccessor.setSequencedEventAccessor(new AWTAccessor.SequencedEventAccessor() {
             public AWTEvent getNested(AWTEvent sequencedEvent) {
@@ -30,8 +21,6 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
             }
         });
     }
-
-
     public SequencedEvent(AWTEvent nested) {
         super(nested.getSource(), ID);
         this.nested = nested;
@@ -42,12 +31,9 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
             list.add(this);
         }
     }
-
-
     public final void dispatch() {
         try {
             appContext = AppContext.getAppContext();
-
             if (getFirst() != this) {
                 if (EventQueue.isDispatchThread()) {
                     EventDispatchThread edt = (EventDispatchThread)
@@ -69,7 +55,6 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
                     }
                 }
             }
-
             if (!disposed) {
                 KeyboardFocusManager.getCurrentKeyboardFocusManager().
                     setCurrentSequencedEvent(this);
@@ -79,8 +64,6 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
             dispose();
         }
     }
-
-
     private final static boolean isOwnerAppContextDisposed(SequencedEvent se) {
         if (se != null) {
             Object target = se.nested.getSource();
@@ -90,8 +73,6 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
         }
         return false;
     }
-
-
     public final boolean isFirstOrDisposed() {
         if (disposed) {
             return true;
@@ -99,12 +80,9 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
         // getFirstWithContext can dispose this
         return this == getFirstWithContext() || disposed;
     }
-
     private final synchronized static SequencedEvent getFirst() {
         return (SequencedEvent)list.getFirst();
     }
-
-
     private final static SequencedEvent getFirstWithContext() {
         SequencedEvent first = getFirst();
         while(isOwnerAppContextDisposed(first)) {
@@ -113,8 +91,6 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
         }
         return first;
     }
-
-
     final void dispose() {
       synchronized (SequencedEvent.class) {
             if (disposed) {
@@ -131,15 +107,11 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
         if (appContext != null) {
             SunToolkit.postEvent(appContext, new SentEvent());
         }
-
         SequencedEvent next = null;
-
         synchronized (SequencedEvent.class) {
           SequencedEvent.class.notifyAll();
-
           if (list.getFirst() == this) {
               list.removeFirst();
-
               if (!list.isEmpty()) {
                     next = (SequencedEvent)list.getFirst();
               }

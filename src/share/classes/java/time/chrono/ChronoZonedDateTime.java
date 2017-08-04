@@ -1,13 +1,8 @@
-
-
-
 package java.time.chrono;
-
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import static java.time.temporal.ChronoField.OFFSET_SECONDS;
 import static java.time.temporal.ChronoUnit.FOREVER;
 import static java.time.temporal.ChronoUnit.NANOS;
-
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalTime;
@@ -29,18 +24,12 @@ import java.time.temporal.UnsupportedTemporalTypeException;
 import java.time.temporal.ValueRange;
 import java.util.Comparator;
 import java.util.Objects;
-
-
 public interface ChronoZonedDateTime<D extends ChronoLocalDate>
         extends Temporal, Comparable<ChronoZonedDateTime<?>> {
-
-
     static Comparator<ChronoZonedDateTime<?>> timeLineOrder() {
         return AbstractChronology.INSTANT_ORDER;
     }
-
     //-----------------------------------------------------------------------
-
     static ChronoZonedDateTime<?> from(TemporalAccessor temporal) {
         if (temporal instanceof ChronoZonedDateTime) {
             return (ChronoZonedDateTime<?>) temporal;
@@ -52,7 +41,6 @@ public interface ChronoZonedDateTime<D extends ChronoLocalDate>
         }
         return chrono.zonedDateTime(temporal);
     }
-
     //-----------------------------------------------------------------------
     @Override
     default ValueRange range(TemporalField field) {
@@ -64,7 +52,6 @@ public interface ChronoZonedDateTime<D extends ChronoLocalDate>
         }
         return field.rangeRefinedBy(this);
     }
-
     @Override
     default int get(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -78,7 +65,6 @@ public interface ChronoZonedDateTime<D extends ChronoLocalDate>
         }
         return Temporal.super.get(field);
     }
-
     @Override
     default long getLong(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -90,49 +76,25 @@ public interface ChronoZonedDateTime<D extends ChronoLocalDate>
         }
         return field.getFrom(this);
     }
-
-
     default D toLocalDate() {
         return toLocalDateTime().toLocalDate();
     }
-
-
     default LocalTime toLocalTime() {
         return toLocalDateTime().toLocalTime();
     }
-
-
     ChronoLocalDateTime<D> toLocalDateTime();
-
-
     default Chronology getChronology() {
         return toLocalDate().getChronology();
     }
-
-
     ZoneOffset getOffset();
-
-
     ZoneId getZone();
-
     //-----------------------------------------------------------------------
-
     ChronoZonedDateTime<D> withEarlierOffsetAtOverlap();
-
-
     ChronoZonedDateTime<D> withLaterOffsetAtOverlap();
-
-
     ChronoZonedDateTime<D> withZoneSameLocal(ZoneId zone);
-
-
     ChronoZonedDateTime<D> withZoneSameInstant(ZoneId zone);
-
-
     @Override
     boolean isSupported(TemporalField field);
-
-
     @Override
     default boolean isSupported(TemporalUnit unit) {
         if (unit instanceof ChronoUnit) {
@@ -140,43 +102,29 @@ public interface ChronoZonedDateTime<D extends ChronoLocalDate>
         }
         return unit != null && unit.isSupportedBy(this);
     }
-
     //-----------------------------------------------------------------------
     // override for covariant return type
-
     @Override
     default ChronoZonedDateTime<D> with(TemporalAdjuster adjuster) {
         return ChronoZonedDateTimeImpl.ensureValid(getChronology(), Temporal.super.with(adjuster));
     }
-
-
     @Override
     ChronoZonedDateTime<D> with(TemporalField field, long newValue);
-
-
     @Override
     default ChronoZonedDateTime<D> plus(TemporalAmount amount) {
         return ChronoZonedDateTimeImpl.ensureValid(getChronology(), Temporal.super.plus(amount));
     }
-
-
     @Override
     ChronoZonedDateTime<D> plus(long amountToAdd, TemporalUnit unit);
-
-
     @Override
     default ChronoZonedDateTime<D> minus(TemporalAmount amount) {
         return ChronoZonedDateTimeImpl.ensureValid(getChronology(), Temporal.super.minus(amount));
     }
-
-
     @Override
     default ChronoZonedDateTime<D> minus(long amountToSubtract, TemporalUnit unit) {
         return ChronoZonedDateTimeImpl.ensureValid(getChronology(), Temporal.super.minus(amountToSubtract, unit));
     }
-
     //-----------------------------------------------------------------------
-
     @SuppressWarnings("unchecked")
     @Override
     default <R> R query(TemporalQuery<R> query) {
@@ -195,29 +143,21 @@ public interface ChronoZonedDateTime<D extends ChronoLocalDate>
         // non-JDK classes are not permitted to make this optimization
         return query.queryFrom(this);
     }
-
-
     default String format(DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         return formatter.format(this);
     }
-
     //-----------------------------------------------------------------------
-
     default Instant toInstant() {
         return Instant.ofEpochSecond(toEpochSecond(), toLocalTime().getNano());
     }
-
-
     default long toEpochSecond() {
         long epochDay = toLocalDate().toEpochDay();
         long secs = epochDay * 86400 + toLocalTime().toSecondOfDay();
         secs -= getOffset().getTotalSeconds();
         return secs;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     default int compareTo(ChronoZonedDateTime<?> other) {
         int cmp = Long.compare(toEpochSecond(), other.toEpochSecond());
@@ -235,41 +175,28 @@ public interface ChronoZonedDateTime<D extends ChronoLocalDate>
         }
         return cmp;
     }
-
-
     default boolean isBefore(ChronoZonedDateTime<?> other) {
         long thisEpochSec = toEpochSecond();
         long otherEpochSec = other.toEpochSecond();
         return thisEpochSec < otherEpochSec ||
             (thisEpochSec == otherEpochSec && toLocalTime().getNano() < other.toLocalTime().getNano());
     }
-
-
     default boolean isAfter(ChronoZonedDateTime<?> other) {
         long thisEpochSec = toEpochSecond();
         long otherEpochSec = other.toEpochSecond();
         return thisEpochSec > otherEpochSec ||
             (thisEpochSec == otherEpochSec && toLocalTime().getNano() > other.toLocalTime().getNano());
     }
-
-
     default boolean isEqual(ChronoZonedDateTime<?> other) {
         return toEpochSecond() == other.toEpochSecond() &&
                 toLocalTime().getNano() == other.toLocalTime().getNano();
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     boolean equals(Object obj);
-
-
     @Override
     int hashCode();
-
     //-----------------------------------------------------------------------
-
     @Override
     String toString();
-
 }

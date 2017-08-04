@@ -1,6 +1,4 @@
-
 package java.util.stream;
-
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Objects;
@@ -9,25 +7,12 @@ import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-
 public interface Collector<T, A, R> {
-
     Supplier<A> supplier();
-
-
     BiConsumer<A, T> accumulator();
-
-
     BinaryOperator<A> combiner();
-
-
     Function<A, R> finisher();
-
-
     Set<Characteristics> characteristics();
-
-
     public static<T, R> Collector<T, R, R> of(Supplier<R> supplier,
                                               BiConsumer<R, T> accumulator,
                                               BinaryOperator<R> combiner,
@@ -42,8 +27,6 @@ public interface Collector<T, A, R> {
                                                                            characteristics));
         return new Collectors.CollectorImpl<>(supplier, accumulator, combiner, cs);
     }
-
-
     public static<T, A, R> Collector<T, A, R> of(Supplier<A> supplier,
                                                  BiConsumer<A, T> accumulator,
                                                  BinaryOperator<A> combiner,
@@ -62,16 +45,9 @@ public interface Collector<T, A, R> {
         }
         return new Collectors.CollectorImpl<>(supplier, accumulator, combiner, finisher, cs);
     }
-
-
     enum Characteristics {
-
         CONCURRENT,
-
-
         UNORDERED,
-
-
         IDENTITY_FINISH
     }
 }

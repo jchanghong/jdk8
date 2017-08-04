@@ -1,60 +1,36 @@
-
-
-
-
 package java.text;
-
 import java.lang.Character;
-
-
-
 class PatternEntry {
-
     public void appendQuotedExtension(StringBuffer toAddTo) {
         appendQuoted(extension,toAddTo);
     }
-
-
     public void appendQuotedChars(StringBuffer toAddTo) {
         appendQuoted(chars,toAddTo);
     }
-
-
     public boolean equals(Object obj) {
         if (obj == null) return false;
         PatternEntry other = (PatternEntry) obj;
         boolean result = chars.equals(other.chars);
         return result;
     }
-
     public int hashCode() {
         return chars.hashCode();
     }
-
-
     public String toString() {
         StringBuffer result = new StringBuffer();
         addToBuffer(result, true, false, null);
         return result.toString();
     }
-
-
     final int getStrength() {
         return strength;
     }
-
-
     final String getExtension() {
         return extension;
     }
-
-
     final String getChars() {
         return chars;
     }
-
     // ===== privates =====
-
     void addToBuffer(StringBuffer toAddTo,
                      boolean showExtension,
                      boolean showWhiteSpace,
@@ -90,7 +66,6 @@ class PatternEntry {
             appendQuoted(extension,toAddTo);
         }
     }
-
     static void appendQuoted(String chars, StringBuffer toAddTo) {
         boolean inQuote = false;
         char ch = chars.charAt(0);
@@ -124,11 +99,9 @@ class PatternEntry {
         if (inQuote)
             toAddTo.append('\'');
     }
-
     //========================================================================
     // Parsing a pattern into a list of PatternEntries....
     //========================================================================
-
     PatternEntry(int strength,
                  StringBuffer chars,
                  StringBuffer extension)
@@ -138,22 +111,17 @@ class PatternEntry {
         this.extension = (extension.length() > 0) ? extension.toString()
                                                   : "";
     }
-
     static class Parser {
         private String pattern;
         private int i;
-
         public Parser(String pattern) {
             this.pattern = pattern;
             this.i = 0;
         }
-
         public PatternEntry next() throws ParseException {
             int newStrength = UNSET;
-
             newChars.setLength(0);
             newExtension.setLength(0);
-
             boolean inChars = true;
             boolean inQuote = false;
         mainLoop:
@@ -222,16 +190,12 @@ class PatternEntry {
                            i+10 : pattern.length()),
                      i);
             }
-
             return new PatternEntry(newStrength, newChars, newExtension);
         }
-
         // We re-use these objects in order to improve performance
         private StringBuffer newChars = new StringBuffer();
         private StringBuffer newExtension = new StringBuffer();
-
     }
-
     static boolean isSpecialChar(char ch) {
         return ((ch == '\u0020') ||
                 ((ch <= '\u002F') && (ch >= '\u0022')) ||
@@ -239,11 +203,8 @@ class PatternEntry {
                 ((ch <= '\u0060') && (ch >= '\u005B')) ||
                 ((ch <= '\u007E') && (ch >= '\u007B')));
     }
-
-
     static final int RESET = -2;
     static final int UNSET = -1;
-
     int strength = UNSET;
     String chars = "";
     String extension = "";

@@ -1,6 +1,4 @@
-
 package java.awt;
-
 import java.io.IOException;
 import java.awt.image.*;
 import java.net.URL;
@@ -8,15 +6,10 @@ import java.net.URLConnection;
 import java.io.File;
 import sun.util.logging.PlatformLogger;
 import sun.awt.image.SunWritableRaster;
-
-
 public final class SplashScreen {
-
     SplashScreen(long ptr) { // non-public constructor
         splashPtr = ptr;
     }
-
-
     public static  SplashScreen getSplashScreen() {
         synchronized (SplashScreen.class) {
             if (GraphicsEnvironment.isHeadless()) {
@@ -39,8 +32,6 @@ public final class SplashScreen {
             return theInstance;
         }
     }
-
-
     public void setImageURL(URL imageURL) throws NullPointerException, IOException, IllegalStateException {
         checkVisible();
         URLConnection connection = imageURL.openConnection();
@@ -83,13 +74,11 @@ public final class SplashScreen {
             this.imageURL = imageURL;
         }
     }
-
     private void checkVisible() {
         if (!isVisible()) {
             throw new IllegalStateException("no splash screen available");
         }
     }
-
     public URL getImageURL() throws IllegalStateException {
         synchronized (SplashScreen.class) {
             checkVisible();
@@ -114,8 +103,6 @@ public final class SplashScreen {
             return imageURL;
         }
     }
-
-
     public Rectangle getBounds() throws IllegalStateException {
         synchronized (SplashScreen.class) {
             checkVisible();
@@ -129,13 +116,9 @@ public final class SplashScreen {
             return bounds;
         }
     }
-
-
     public Dimension getSize() throws IllegalStateException {
         return getBounds().getSize();
     }
-
-
     public Graphics2D createGraphics() throws IllegalStateException {
         synchronized (SplashScreen.class) {
             checkVisible();
@@ -155,8 +138,6 @@ public final class SplashScreen {
             return g;
         }
     }
-
-
     public void update() throws IllegalStateException {
         BufferedImage image;
         synchronized (SplashScreen.class) {
@@ -188,8 +169,6 @@ public final class SplashScreen {
             _update(splashPtr, data, rect.x, rect.y, rect.width, rect.height, scanlineStride);
         }
     }
-
-
     public void close() throws IllegalStateException {
         synchronized (SplashScreen.class) {
             checkVisible();
@@ -198,34 +177,23 @@ public final class SplashScreen {
             SplashScreen.markClosed();
         }
     }
-
     static void markClosed() {
         synchronized (SplashScreen.class) {
             wasClosed = true;
             theInstance = null;
         }
     }
-
-
-
     public boolean isVisible() {
         synchronized (SplashScreen.class) {
             return !wasClosed && _isVisible(splashPtr);
         }
     }
-
     private BufferedImage image; // overlay image
-
     private final long splashPtr; // pointer to native Splash structure
     private static boolean wasClosed = false;
-
     private URL imageURL;
-
-
     private static SplashScreen theInstance = null;
-
     private static final PlatformLogger log = PlatformLogger.getLogger("java.awt.SplashScreen");
-
     private native static void _update(long splashPtr, int[] data, int x, int y, int width, int height, int scanlineStride);
     private native static boolean _isVisible(long splashPtr);
     private native static Rectangle _getBounds(long splashPtr);
@@ -235,5 +203,4 @@ public final class SplashScreen {
     private native static String _getImageJarName(long SplashPtr);
     private native static boolean _setImageData(long SplashPtr, byte[] data);
     private native static float _getScaleFactor(long SplashPtr);
-
 }

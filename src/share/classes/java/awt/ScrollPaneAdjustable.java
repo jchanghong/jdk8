@@ -1,54 +1,23 @@
-
 package java.awt;
-
 import sun.awt.AWTAccessor;
-
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.peer.ScrollPanePeer;
 import java.io.Serializable;
-
-
-
 public class ScrollPaneAdjustable implements Adjustable, Serializable {
-
-
     private ScrollPane sp;
-
-
     private int orientation;
-
-
     private int value;
-
-
     private int minimum;
-
-
     private int maximum;
-
-
     private int visibleAmount;
-
-
     private transient boolean isAdjusting;
-
-
     private int unitIncrement  = 1;
-
-
     private int blockIncrement = 1;
-
     private AdjustmentListener adjustmentListener;
-
-
     private static final String SCROLLPANE_ONLY =
         "Can be set by scrollpane only";
-
-
-
     private static native void initIDs();
-
     static {
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
@@ -61,19 +30,12 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
             }
         });
     }
-
-
     private static final long serialVersionUID = -3359745691033257079L;
-
-
-
     ScrollPaneAdjustable(ScrollPane sp, AdjustmentListener l, int orientation) {
         this.sp = sp;
         this.orientation = orientation;
         addAdjustmentListener(l);
     }
-
-
     void setSpan(int min, int max, int visible) {
         // adjust the values to be reasonable
         minimum = min;
@@ -83,32 +45,23 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
         blockIncrement = Math.max((int)(visible * .90), 1);
         setValue(value);
     }
-
-
     public int getOrientation() {
         return orientation;
     }
-
-
     public void setMinimum(int min) {
         throw new AWTError(SCROLLPANE_ONLY);
     }
-
     public int getMinimum() {
         // XXX: This relies on setSpan always being called with 0 for
         // the minimum (which is currently true).
         return 0;
     }
-
-
     public void setMaximum(int max) {
         throw new AWTError(SCROLLPANE_ONLY);
     }
-
     public int getMaximum() {
         return maximum;
     }
-
     public synchronized void setUnitIncrement(int u) {
         if (u != unitIncrement) {
             unitIncrement = u;
@@ -118,30 +71,21 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
             }
         }
     }
-
     public int getUnitIncrement() {
         return unitIncrement;
     }
-
     public synchronized void setBlockIncrement(int b) {
         blockIncrement = b;
     }
-
     public int getBlockIncrement() {
         return blockIncrement;
     }
-
-
     public void setVisibleAmount(int v) {
         throw new AWTError(SCROLLPANE_ONLY);
     }
-
     public int getVisibleAmount() {
         return visibleAmount;
     }
-
-
-
     public void setValueIsAdjusting(boolean b) {
         if (isAdjusting != b) {
             isAdjusting = b;
@@ -152,22 +96,15 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
             adjustmentListener.adjustmentValueChanged(e);
         }
     }
-
-
     public boolean getValueIsAdjusting() {
         return isAdjusting;
     }
-
-
     public void setValue(int v) {
         setTypedValue(v, AdjustmentEvent.TRACK);
     }
-
-
     private void setTypedValue(int v, int type) {
         v = Math.max(v, minimum);
         v = Math.min(v, maximum - visibleAmount);
-
         if (v != value) {
             value = v;
             // Synchronously notify the listeners so that they are
@@ -180,40 +117,29 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
             adjustmentListener.adjustmentValueChanged(e);
         }
     }
-
     public int getValue() {
         return value;
     }
-
-
     public synchronized void addAdjustmentListener(AdjustmentListener l) {
         if (l == null) {
             return;
         }
         adjustmentListener = AWTEventMulticaster.add(adjustmentListener, l);
     }
-
-
     public synchronized void removeAdjustmentListener(AdjustmentListener l){
         if (l == null) {
             return;
         }
         adjustmentListener = AWTEventMulticaster.remove(adjustmentListener, l);
     }
-
-
     public synchronized AdjustmentListener[] getAdjustmentListeners() {
         return (AdjustmentListener[])(AWTEventMulticaster.getListeners(
                                       adjustmentListener,
                                       AdjustmentListener.class));
     }
-
-
     public String toString() {
         return getClass().getName() + "[" + paramString() + "]";
     }
-
-
     public String paramString() {
         return ((orientation == Adjustable.VERTICAL ? "vertical,"
                                                     :"horizontal,")

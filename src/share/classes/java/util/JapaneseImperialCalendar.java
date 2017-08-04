@@ -1,7 +1,4 @@
-
-
 package java.util;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import sun.util.locale.provider.CalendarDataUtility;
@@ -13,29 +10,14 @@ import sun.util.calendar.Era;
 import sun.util.calendar.Gregorian;
 import sun.util.calendar.LocalGregorianCalendar;
 import sun.util.calendar.ZoneInfo;
-
-
 class JapaneseImperialCalendar extends Calendar {
-
-
-
     public static final int BEFORE_MEIJI = 0;
-
-
     public static final int MEIJI = 1;
-
-
     public static final int TAISHO = 2;
-
-
     public static final int SHOWA = 3;
-
-
     public static final int HEISEI = 4;
-
     private static final int EPOCH_OFFSET   = 719163; // Fixed date of January 1, 1970 (Gregorian)
     private static final int EPOCH_YEAR     = 1970;
-
     // Useful millisecond constants.  Although ONE_DAY and ONE_WEEK can fit
     // into ints, they must be longs in order to prevent arithmetic overflow
     // when performing (bug 4173516).
@@ -44,28 +26,21 @@ class JapaneseImperialCalendar extends Calendar {
     private static final int  ONE_HOUR   = 60*ONE_MINUTE;
     private static final long ONE_DAY    = 24*ONE_HOUR;
     private static final long ONE_WEEK   = 7*ONE_DAY;
-
     // Reference to the sun.util.calendar.LocalGregorianCalendar instance (singleton).
     private static final LocalGregorianCalendar jcal
         = (LocalGregorianCalendar) CalendarSystem.forName("japanese");
-
     // Gregorian calendar instance. This is required because era
     // transition dates are given in Gregorian dates.
     private static final Gregorian gcal = CalendarSystem.getGregorianCalendar();
-
     // The Era instance representing "before Meiji".
     private static final Era BEFORE_MEIJI_ERA = new Era("BeforeMeiji", "BM", Long.MIN_VALUE, false);
-
     // Imperial eras. The sun.util.calendar.LocalGregorianCalendar
     // doesn't have an Era representing before Meiji, which is
     // inconvenient for a Calendar. So, era[0] is a reference to
     // BEFORE_MEIJI_ERA.
     private static final Era[] eras;
-
     // Fixed date of the first date of each era.
     private static final long[] sinceFixedDates;
-
-
     static final int MIN_VALUES[] = {
         0,              // ERA
         -292275055,     // YEAR
@@ -123,16 +98,13 @@ class JapaneseImperialCalendar extends Calendar {
         14*ONE_HOUR,    // ZONE_OFFSET
         2*ONE_HOUR      // DST_OFFSET (double summer time)
     };
-
     // Proclaim serialization compatibility with JDK 1.6
     private static final long serialVersionUID = -3364572813905467929L;
-
     static {
         Era[] es = jcal.getEras();
         int length = es.length + 1;
         eras = new Era[length];
         sinceFixedDates = new long[length];
-
         // eras[BEFORE_MEIJI] and sinceFixedDate[BEFORE_MEIJI] are the
         // same as Gregorian.
         int index = BEFORE_MEIJI;
@@ -143,9 +115,7 @@ class JapaneseImperialCalendar extends Calendar {
             sinceFixedDates[index] = gcal.getFixedDate(d);
             eras[index++] = e;
         }
-
         LEAST_MAX_VALUES[ERA] = MAX_VALUES[ERA] = eras.length - 1;
-
         // Calculate the least maximum year and least day of Year
         // values. The following code assumes that there's at most one
         // era transition in a Gregorian year.
@@ -179,61 +149,40 @@ class JapaneseImperialCalendar extends Calendar {
         LEAST_MAX_VALUES[YEAR] = year; // Max year could be smaller than this value.
         LEAST_MAX_VALUES[DAY_OF_YEAR] = dayOfYear;
     }
-
-
     private transient LocalGregorianCalendar.Date jdate;
-
-
     private transient int[] zoneOffsets;
-
-
     private transient int[] originalFields;
-
-
     JapaneseImperialCalendar(TimeZone zone, Locale aLocale) {
         super(zone, aLocale);
         jdate = jcal.newCalendarDate(zone);
         setTimeInMillis(System.currentTimeMillis());
     }
-
-
     JapaneseImperialCalendar(TimeZone zone, Locale aLocale, boolean flag) {
         super(zone, aLocale);
         jdate = jcal.newCalendarDate(zone);
     }
-
-
     @Override
     public String getCalendarType() {
         return "japanese";
     }
-
-
     public boolean equals(Object obj) {
         return obj instanceof JapaneseImperialCalendar &&
             super.equals(obj);
     }
-
-
     public int hashCode() {
         return super.hashCode() ^ jdate.hashCode();
     }
-
-
     public void add(int field, int amount) {
         // If amount == 0, do nothing even the given field is out of
         // range. This is tested by JCK.
         if (amount == 0) {
             return;   // Do nothing!
         }
-
         if (field < 0 || field >= ZONE_OFFSET) {
             throw new IllegalArgumentException();
         }
-
         // Sync the time and calendar fields.
         complete();
-
         if (field == YEAR) {
             LocalGregorianCalendar.Date d = (LocalGregorianCalendar.Date) jdate.clone();
             d.addYear(amount);
@@ -268,18 +217,14 @@ class JapaneseImperialCalendar extends Calendar {
             case HOUR_OF_DAY:
                 delta *= 60 * 60 * 1000;        // hours to milliseconds
                 break;
-
             case MINUTE:
                 delta *= 60 * 1000;             // minutes to milliseconds
                 break;
-
             case SECOND:
                 delta *= 1000;                  // seconds to milliseconds
                 break;
-
             case MILLISECOND:
                 break;
-
             // Handle week, day and AM_PM fields which involves
             // time zone offset change adjustment. Convert the
             // given amount to the number of days.
@@ -288,12 +233,10 @@ class JapaneseImperialCalendar extends Calendar {
             case DAY_OF_WEEK_IN_MONTH:
                 delta *= 7;
                 break;
-
             case DAY_OF_MONTH: // synonym of DATE
             case DAY_OF_YEAR:
             case DAY_OF_WEEK:
                 break;
-
             case AM_PM:
                 // Convert the amount to the number of days (delta)
                 // and +12 or -12 hours (timeOfDay).
@@ -301,18 +244,15 @@ class JapaneseImperialCalendar extends Calendar {
                 timeOfDay = 12 * (amount % 2);
                 break;
             }
-
             // The time fields don't require time zone offset change
             // adjustment.
             if (field >= HOUR) {
                 setTimeInMillis(time + delta);
                 return;
             }
-
             // The rest of the fields (week, day or AM_PM fields)
             // require time zone offset (both GMT and DST) change
             // adjustment.
-
             // Translate the current time to the fixed date and time
             // of the day.
             long fd = cachedFixedDate;
@@ -330,7 +270,6 @@ class JapaneseImperialCalendar extends Calendar {
                 fd--;
                 timeOfDay += ONE_DAY;
             }
-
             fd += delta; // fd is the expected fixed date after the calculation
             int zoneOffset = internalGet(ZONE_OFFSET) + internalGet(DST_OFFSET);
             setTimeInMillis((fd - EPOCH_OFFSET) * ONE_DAY + timeOfDay - zoneOffset);
@@ -347,29 +286,22 @@ class JapaneseImperialCalendar extends Calendar {
             }
         }
     }
-
     public void roll(int field, boolean up) {
         roll(field, up ? +1 : -1);
     }
-
-
     public void roll(int field, int amount) {
         // If amount == 0, do nothing even the given field is out of
         // range. This is tested by JCK.
         if (amount == 0) {
             return;
         }
-
         if (field < 0 || field >= ZONE_OFFSET) {
             throw new IllegalArgumentException();
         }
-
         // Sync the time and calendar fields.
         complete();
-
         int min = getMinimum(field);
         int max = getMaximum(field);
-
         switch (field) {
         case ERA:
         case AM_PM:
@@ -381,7 +313,6 @@ class JapaneseImperialCalendar extends Calendar {
             // the range within they must roll varies depending on the
             // date, a time zone and the era transitions.
             break;
-
         case HOUR:
         case HOUR_OF_DAY:
             {
@@ -392,7 +323,6 @@ class JapaneseImperialCalendar extends Calendar {
                     nh += unit;
                 }
                 time += ONE_HOUR * (nh - h);
-
                 // The day might have changed, which could happen if
                 // the daylight saving time transition brings it to
                 // the next day, although it's very unlikely. But we
@@ -417,7 +347,6 @@ class JapaneseImperialCalendar extends Calendar {
                     internalSet(AM_PM, hourOfDay / 12);
                     internalSet(HOUR, hourOfDay % 12);
                 }
-
                 // Time zone offset and/or daylight saving might have changed.
                 int zoneOffset = d.getZoneOffset();
                 int saving = d.getDaylightSaving();
@@ -425,12 +354,10 @@ class JapaneseImperialCalendar extends Calendar {
                 internalSet(DST_OFFSET, saving);
                 return;
             }
-
         case YEAR:
             min = getActualMinimum(field);
             max = getActualMaximum(field);
             break;
-
         case MONTH:
             // Rolling the month involves both pinning the final value to [0, 11]
             // and adjusting the DAY_OF_MONTH if necessary.  We only adjust the
@@ -493,7 +420,6 @@ class JapaneseImperialCalendar extends Calendar {
                             mon += 12;
                         }
                         set(MONTH, mon);
-
                         // Keep the day of month in the range.  We
                         // don't want to spill over into the next
                         // month; e.g., we don't want jan31 + 1 mo ->
@@ -520,7 +446,6 @@ class JapaneseImperialCalendar extends Calendar {
                             }
                         }
                     }
-
                     if (min == max) {
                         // The year has only one month. No need to
                         // process further. (Showa Gan-nen (year 1)
@@ -545,7 +470,6 @@ class JapaneseImperialCalendar extends Calendar {
                 }
                 return;
             }
-
         case WEEK_OF_YEAR:
             {
                 int y = jdate.getNormalizedYear();
@@ -564,7 +488,6 @@ class JapaneseImperialCalendar extends Calendar {
                             set(WEEK_OF_YEAR, value);
                             return;
                         }
-
                     }
                     // If the new value is in between min and max
                     // (exclusive), then we can use the value.
@@ -585,7 +508,6 @@ class JapaneseImperialCalendar extends Calendar {
                             min++;
                         }
                     }
-
                     // Make sure the same thing for the max week
                     fd += 7 * (max - internalGet(WEEK_OF_YEAR));
                     if (gcal.getYearFromFixedDate(fd) != y) {
@@ -593,7 +515,6 @@ class JapaneseImperialCalendar extends Calendar {
                     }
                     break;
                 }
-
                 // Handle transition here.
                 long fd = cachedFixedDate;
                 long day1 = fd - (7 * (woy - min));
@@ -602,7 +523,6 @@ class JapaneseImperialCalendar extends Calendar {
                 if (!(d.getEra() == jdate.getEra() && d.getYear() == jdate.getYear())) {
                     min++;
                 }
-
                 // Make sure the same thing for the max week
                 fd += 7 * (max - woy);
                 jcal.getCalendarDateFromFixedDate(d, fd);
@@ -617,7 +537,6 @@ class JapaneseImperialCalendar extends Calendar {
                 set(DAY_OF_MONTH, d.getDayOfMonth());
                 return;
             }
-
         case WEEK_OF_MONTH:
             {
                 boolean isTransitionYear = isTransitionYear(jdate.getNormalizedYear());
@@ -626,7 +545,6 @@ class JapaneseImperialCalendar extends Calendar {
                 if (dow < 0) {
                     dow += 7;
                 }
-
                 long fd = cachedFixedDate;
                 long month1;     // fixed date of the first day (usually 1) of the month
                 int monthLength; // actual month length
@@ -637,7 +555,6 @@ class JapaneseImperialCalendar extends Calendar {
                     month1 = fd - internalGet(DAY_OF_MONTH) + 1;
                     monthLength = jcal.getMonthLength(jdate);
                 }
-
                 // the first day of week of the month.
                 long monthDay1st = LocalGregorianCalendar.getDayOfWeekDateOnOrBefore(month1 + 6,
                                                                                      getFirstDayOfWeek());
@@ -647,13 +564,10 @@ class JapaneseImperialCalendar extends Calendar {
                     monthDay1st -= 7;
                 }
                 max = getActualMaximum(field);
-
                 // value: the new WEEK_OF_MONTH value
                 int value = getRolledValue(internalGet(field), amount, 1, max) - 1;
-
                 // nfd: fixed date of the rolled date
                 long nfd = monthDay1st + value * 7 + dow;
-
                 // Unlike WEEK_OF_YEAR, we need to change day of week if the
                 // nfd is out of the month.
                 if (nfd < month1) {
@@ -664,20 +578,16 @@ class JapaneseImperialCalendar extends Calendar {
                 set(DAY_OF_MONTH, (int)(nfd - month1) + 1);
                 return;
             }
-
         case DAY_OF_MONTH:
             {
                 if (!isTransitionYear(jdate.getNormalizedYear())) {
                     max = jcal.getMonthLength(jdate);
                     break;
                 }
-
                 // TODO: Need to change the spec to be usable DAY_OF_MONTH rolling...
-
                 // Transition handling. We can't change year and era
                 // values here due to the Calendar roll spec!
                 long month1 = getFixedDateMonth1(jdate, cachedFixedDate);
-
                 // It may not be a regular month. Convert the date and range to
                 // the relative values, perform the roll, and
                 // convert the result back to the rolled date.
@@ -689,14 +599,12 @@ class JapaneseImperialCalendar extends Calendar {
                 set(DAY_OF_MONTH, d.getDayOfMonth());
                 return;
             }
-
         case DAY_OF_YEAR:
             {
                 max = getActualMaximum(field);
                 if (!isTransitionYear(jdate.getNormalizedYear())) {
                     break;
                 }
-
                 // Handle transition. We can't change year and era values
                 // here due to the Calendar roll spec.
                 int value = getRolledValue(internalGet(DAY_OF_YEAR), amount, min, max);
@@ -707,7 +615,6 @@ class JapaneseImperialCalendar extends Calendar {
                 set(DAY_OF_MONTH, d.getDayOfMonth());
                 return;
             }
-
         case DAY_OF_WEEK:
             {
                 int normalizedYear = jdate.getNormalizedYear();
@@ -721,7 +628,6 @@ class JapaneseImperialCalendar extends Calendar {
                         break;
                     }
                 }
-
                 // We need to handle it in a different way around year
                 // boundaries and in the transition year. Note that
                 // changing era and year values violates the roll
@@ -743,7 +649,6 @@ class JapaneseImperialCalendar extends Calendar {
                 set(d.getYear(), d.getMonth() - 1, d.getDayOfMonth());
                 return;
             }
-
         case DAY_OF_WEEK_IN_MONTH:
             {
                 min = 1; // after having normalized, min should be 1.
@@ -759,7 +664,6 @@ class JapaneseImperialCalendar extends Calendar {
                     set(DAY_OF_WEEK, internalGet(DAY_OF_WEEK));
                     break;
                 }
-
                 // Transition year handling.
                 long fd = cachedFixedDate;
                 long month1 = getFixedDateMonth1(jdate, fd);
@@ -777,25 +681,20 @@ class JapaneseImperialCalendar extends Calendar {
                 return;
             }
         }
-
         set(field, getRolledValue(internalGet(field), amount, min, max));
     }
-
     @Override
     public String getDisplayName(int field, int style, Locale locale) {
         if (!checkDisplayNameParams(field, style, SHORT, NARROW_FORMAT, locale,
                                     ERA_MASK|YEAR_MASK|MONTH_MASK|DAY_OF_WEEK_MASK|AM_PM_MASK)) {
             return null;
         }
-
         int fieldValue = get(field);
-
         // "GanNen" is supported only in the LONG style.
         if (field == YEAR
             && (getBaseStyle(style) != LONG || fieldValue != 1 || get(ERA) == 0)) {
             return null;
         }
-
         String name = CalendarDataUtility.retrieveFieldValueName(getCalendarType(), field,
                                                                  fieldValue, style, locale);
         // If the ERA value is null, then
@@ -806,7 +705,6 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return name;
     }
-
     @Override
     public Map<String,Integer> getDisplayNames(int field, int style, Locale locale) {
         if (!checkDisplayNameParams(field, style, ALL_STYLES, NARROW_FORMAT, locale,
@@ -844,13 +742,9 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return names;
     }
-
-
     public int getMinimum(int field) {
         return MIN_VALUES[field];
     }
-
-
     public int getMaximum(int field) {
         switch (field) {
         case YEAR:
@@ -863,13 +757,9 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return MAX_VALUES[field];
     }
-
-
     public int getGreatestMinimum(int field) {
         return field == YEAR ? 1 : MIN_VALUES[field];
     }
-
-
     public int getLeastMaximum(int field) {
         switch (field) {
         case YEAR:
@@ -879,13 +769,10 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return LEAST_MAX_VALUES[field];
     }
-
-
     public int getActualMinimum(int field) {
         if (!isFieldSet(YEAR_MASK|MONTH_MASK|WEEK_OF_YEAR_MASK, field)) {
             return getMinimum(field);
         }
-
         int value = 0;
         JapaneseImperialCalendar jc = getNormalizedCalendar();
         // Get a local date which includes time of day and time zone,
@@ -927,7 +814,6 @@ class JapaneseImperialCalendar extends Calendar {
                 }
             }
             break;
-
         case MONTH:
             {
                 // In Before Meiji and Meiji, January is the first month.
@@ -941,7 +827,6 @@ class JapaneseImperialCalendar extends Calendar {
                 }
             }
             break;
-
         case WEEK_OF_YEAR:
             {
                 value = 1;
@@ -952,7 +837,6 @@ class JapaneseImperialCalendar extends Calendar {
                 jd.setEra(d.getEra());
                 jd.setYear(d.getYear());
                 jcal.normalize(jd);
-
                 long jan1 = jcal.getFixedDate(d);
                 long fd = jcal.getFixedDate(jd);
                 int woy = getWeekNumber(jan1, fd);
@@ -967,8 +851,6 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return value;
     }
-
-
     public int getActualMaximum(int field) {
         final int fieldsForFixedMax = ERA_MASK|DAY_OF_WEEK_MASK|HOUR_MASK|AM_PM_MASK|
             HOUR_OF_DAY_MASK|MINUTE_MASK|SECOND_MASK|MILLISECOND_MASK|
@@ -976,11 +858,9 @@ class JapaneseImperialCalendar extends Calendar {
         if ((fieldsForFixedMax & (1<<field)) != 0) {
             return getMaximum(field);
         }
-
         JapaneseImperialCalendar jc = getNormalizedCalendar();
         LocalGregorianCalendar.Date date = jc.jdate;
         int normalizedYear = date.getNormalizedYear();
-
         int value = -1;
         switch (field) {
         case MONTH:
@@ -1010,11 +890,9 @@ class JapaneseImperialCalendar extends Calendar {
                 }
             }
             break;
-
         case DAY_OF_MONTH:
             value = jcal.getMonthLength(date);
             break;
-
         case DAY_OF_YEAR:
             {
                 if (isTransitionYear(date.getNormalizedYear())) {
@@ -1056,7 +934,6 @@ class JapaneseImperialCalendar extends Calendar {
                 }
             }
             break;
-
         case WEEK_OF_YEAR:
             {
                 if (!isTransitionYear(date.getNormalizedYear())) {
@@ -1102,7 +979,6 @@ class JapaneseImperialCalendar extends Calendar {
                     }
                     break;
                 }
-
                 if (jc == this) {
                     jc = (JapaneseImperialCalendar) jc.clone();
                 }
@@ -1115,7 +991,6 @@ class JapaneseImperialCalendar extends Calendar {
                 }
             }
             break;
-
         case WEEK_OF_MONTH:
             {
                 LocalGregorianCalendar.Date jd = jcal.getCalendarDate(Long.MAX_VALUE,
@@ -1148,7 +1023,6 @@ class JapaneseImperialCalendar extends Calendar {
                 }
             }
             break;
-
         case DAY_OF_WEEK_IN_MONTH:
             {
                 int ndays, dow1;
@@ -1166,7 +1040,6 @@ class JapaneseImperialCalendar extends Calendar {
                 value = (ndays + 6) / 7;
             }
             break;
-
         case YEAR:
             {
                 CalendarDate jd = jcal.getCalendarDate(jc.getTimeInMillis(), getZone());
@@ -1194,45 +1067,34 @@ class JapaneseImperialCalendar extends Calendar {
                 }
             }
             break;
-
         default:
             throw new ArrayIndexOutOfBoundsException(field);
         }
         return value;
     }
-
-
     private long getYearOffsetInMillis(CalendarDate date) {
         long t = (jcal.getDayOfYear(date) - 1) * ONE_DAY;
         return t + date.getTimeOfDay() - date.getZoneOffset();
     }
-
     public Object clone() {
         JapaneseImperialCalendar other = (JapaneseImperialCalendar) super.clone();
-
         other.jdate = (LocalGregorianCalendar.Date) jdate.clone();
         other.originalFields = null;
         other.zoneOffsets = null;
         return other;
     }
-
     public TimeZone getTimeZone() {
         TimeZone zone = super.getTimeZone();
         // To share the zone by the CalendarDate
         jdate.setZone(zone);
         return zone;
     }
-
     public void setTimeZone(TimeZone zone) {
         super.setTimeZone(zone);
         // To share the zone by the CalendarDate
         jdate.setZone(zone);
     }
-
-
     transient private long cachedFixedDate = Long.MIN_VALUE;
-
-
     protected void computeFields() {
         int mask = 0;
         if (isPartiallyNormalized()) {
@@ -1252,8 +1114,6 @@ class JapaneseImperialCalendar extends Calendar {
         // After computing all the fields, set the field state to `COMPUTED'.
         setFieldsComputed(mask);
     }
-
-
     private int computeFields(int fieldMask, int tzMask) {
         int zoneOffset = 0;
         TimeZone tz = getZone();
@@ -1278,7 +1138,6 @@ class JapaneseImperialCalendar extends Calendar {
             }
             zoneOffset = zoneOffsets[0] + zoneOffsets[1];
         }
-
         // By computing time and zoneOffset separately, we can take
         // the wider range of time+zoneOffset than the previous
         // implementation.
@@ -1296,7 +1155,6 @@ class JapaneseImperialCalendar extends Calendar {
             }
         }
         fixedDate += EPOCH_OFFSET;
-
         // See if we can use jdate to avoid date calculation.
         if (fixedDate != cachedFixedDate || fixedDate < 0) {
             jcal.getCalendarDateFromFixedDate(jdate, fixedDate);
@@ -1304,15 +1162,12 @@ class JapaneseImperialCalendar extends Calendar {
         }
         int era = getEraIndex(jdate);
         int year = jdate.getYear();
-
         // Always set the ERA and YEAR values.
         internalSet(ERA, era);
         internalSet(YEAR, year);
         int mask = fieldMask | (ERA_MASK|YEAR_MASK);
-
         int month =  jdate.getMonth() - 1; // 0-based
         int dayOfMonth = jdate.getDayOfMonth();
-
         // Set the basic date fields.
         if ((fieldMask & (MONTH_MASK|DAY_OF_MONTH_MASK|DAY_OF_WEEK_MASK))
             != 0) {
@@ -1321,7 +1176,6 @@ class JapaneseImperialCalendar extends Calendar {
             internalSet(DAY_OF_WEEK, jdate.getDayOfWeek());
             mask |= MONTH_MASK|DAY_OF_MONTH_MASK|DAY_OF_WEEK_MASK;
         }
-
         if ((fieldMask & (HOUR_OF_DAY_MASK|AM_PM_MASK|HOUR_MASK
                           |MINUTE_MASK|SECOND_MASK|MILLISECOND_MASK)) != 0) {
             if (timeOfDay != 0) {
@@ -1345,13 +1199,11 @@ class JapaneseImperialCalendar extends Calendar {
             mask |= (HOUR_OF_DAY_MASK|AM_PM_MASK|HOUR_MASK
                      |MINUTE_MASK|SECOND_MASK|MILLISECOND_MASK);
         }
-
         if ((fieldMask & (ZONE_OFFSET_MASK|DST_OFFSET_MASK)) != 0) {
             internalSet(ZONE_OFFSET, zoneOffsets[0]);
             internalSet(DST_OFFSET, zoneOffsets[1]);
             mask |= (ZONE_OFFSET_MASK|DST_OFFSET_MASK);
         }
-
         if ((fieldMask & (DAY_OF_YEAR_MASK|WEEK_OF_YEAR_MASK
                           |WEEK_OF_MONTH_MASK|DAY_OF_WEEK_IN_MONTH_MASK)) != 0) {
             int normalizedYear = jdate.getNormalizedYear();
@@ -1373,12 +1225,9 @@ class JapaneseImperialCalendar extends Calendar {
             }
             long fixedDateMonth1 = transitionYear ?
                 getFixedDateMonth1(jdate, fixedDate) : fixedDate - dayOfMonth + 1;
-
             internalSet(DAY_OF_YEAR, dayOfYear);
             internalSet(DAY_OF_WEEK_IN_MONTH, (dayOfMonth - 1) / 7 + 1);
-
             int weekOfYear = getWeekNumber(fixedDateJan1, fixedDate);
-
             // The spec is to calculate WEEK_OF_YEAR in the
             // ISO8601-style. This creates problems, though.
             if (weekOfYear == 0) {
@@ -1473,8 +1322,6 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return mask;
     }
-
-
     private int getWeekNumber(long fixedDay1, long fixedDate) {
         // We can always use `jcal' since Julian and Gregorian are the
         // same thing for this calculation.
@@ -1491,8 +1338,6 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return CalendarUtils.floorDivide(normalizedDayOfPeriod, 7) + 1;
     }
-
-
     protected void computeTime() {
         // In non-lenient mode, perform brief checking of calendar
         // fields which have been set externally. Through this
@@ -1513,14 +1358,11 @@ class JapaneseImperialCalendar extends Calendar {
                 originalFields[field] = value;
             }
         }
-
         // Let the super class determine which calendar fields to be
         // used to calculate the time.
         int fieldMask = selectFields();
-
         int year;
         int era;
-
         if (isSet(ERA)) {
             era = internalGet(ERA);
             year = isSet(YEAR) ? internalGet(YEAR) : 1;
@@ -1534,7 +1376,6 @@ class JapaneseImperialCalendar extends Calendar {
                 year = 45;
             }
         }
-
         // Calculate the time of day. We rely on the convention that
         // an UNSET field has 0.
         long timeOfDay = 0;
@@ -1553,7 +1394,6 @@ class JapaneseImperialCalendar extends Calendar {
         timeOfDay += internalGet(SECOND);
         timeOfDay *= 1000;
         timeOfDay += internalGet(MILLISECOND);
-
         // Convert the time of day to the number of days and the
         // millisecond offset from midnight.
         long fixedDate = timeOfDay / ONE_DAY;
@@ -1562,13 +1402,10 @@ class JapaneseImperialCalendar extends Calendar {
             timeOfDay += ONE_DAY;
             --fixedDate;
         }
-
         // Calculate the fixed date since January 1, 1 (Gregorian).
         fixedDate += getFixedDate(era, year, fieldMask);
-
         // millis represents local wall-clock time in milliseconds.
         long millis = (fixedDate - EPOCH_OFFSET) * ONE_DAY + timeOfDay;
-
         // Compute the time zone offset and DST offset.  There are two potential
         // ambiguities here.  We'll assume a 2:00 am (wall time) switchover time
         // for discussion purposes here.
@@ -1602,15 +1439,11 @@ class JapaneseImperialCalendar extends Calendar {
                 zoneOffsets[1] = internalGet(DST_OFFSET);
             }
         }
-
         // Adjust the time zone offset values to get the UTC time.
         millis -= zoneOffsets[0] + zoneOffsets[1];
-
         // Set this calendar's time in milliseconds
         time = millis;
-
         int mask = computeFields(fieldMask | getSetStateFields(), tzMask);
-
         if (!isLenient()) {
             for (int field = 0; field < FIELD_COUNT; field++) {
                 if (!isExternallySet(field)) {
@@ -1627,8 +1460,6 @@ class JapaneseImperialCalendar extends Calendar {
         }
         setFieldsNormalized(mask);
     }
-
-
     private long getFixedDate(int era, int year, int fieldMask) {
         int month = JANUARY;
         int firstDayOfMonth = 1;
@@ -1636,7 +1467,6 @@ class JapaneseImperialCalendar extends Calendar {
             // No need to check if MONTH has been set (no isSet(MONTH)
             // call) since its unset value happens to be JANUARY (0).
             month = internalGet(MONTH);
-
             // If the month is out of range, adjust it into range.
             if (month > DECEMBER) {
                 year += month / 12;
@@ -1653,7 +1483,6 @@ class JapaneseImperialCalendar extends Calendar {
                 firstDayOfMonth = d.getDayOfMonth();
             }
         }
-
         // Adjust the base date if year is the minimum value.
         if (year == MIN_VALUES[YEAR]) {
             CalendarDate dx = jcal.getCalendarDate(Long.MIN_VALUE, getZone());
@@ -1665,16 +1494,13 @@ class JapaneseImperialCalendar extends Calendar {
                 firstDayOfMonth = dx.getDayOfMonth();
             }
         }
-
         LocalGregorianCalendar.Date date = jcal.newCalendarDate(TimeZone.NO_TIMEZONE);
         date.setEra(era > 0 ? eras[era] : null);
         date.setDate(year, month + 1, firstDayOfMonth);
         jcal.normalize(date);
-
         // Get the fixed date since Jan 1, 1 (Gregorian). We are on
         // the first day of either `month' or January in 'year'.
         long fixedDate = jcal.getFixedDate(date);
-
         if (isFieldSet(fieldMask, MONTH)) {
             // Month-based calculations
             if (isFieldSet(fieldMask, DAY_OF_MONTH)) {
@@ -1765,8 +1591,6 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return fixedDate;
     }
-
-
     private long getFixedDateJan1(LocalGregorianCalendar.Date date, long fixedDate) {
         Era era = date.getEra();
         if (date.getEra() != null && date.getYear() == 1) {
@@ -1784,8 +1608,6 @@ class JapaneseImperialCalendar extends Calendar {
         d.setDate(date.getNormalizedYear(), Gregorian.JANUARY, 1);
         return gcal.getFixedDate(d);
     }
-
-
     private long getFixedDateMonth1(LocalGregorianCalendar.Date date,
                                           long fixedDate) {
         int eraIndex = getTransitionEraIndex(date);
@@ -1797,31 +1619,23 @@ class JapaneseImperialCalendar extends Calendar {
                 return transition;
             }
         }
-
         // Otherwise, we can use the 1st day of the month.
         return fixedDate - date.getDayOfMonth() + 1;
     }
-
-
     private static LocalGregorianCalendar.Date getCalendarDate(long fd) {
         LocalGregorianCalendar.Date d = jcal.newCalendarDate(TimeZone.NO_TIMEZONE);
         jcal.getCalendarDateFromFixedDate(d, fd);
         return d;
     }
-
-
     private int monthLength(int month, int gregorianYear) {
         return CalendarUtils.isGregorianLeapYear(gregorianYear) ?
             GregorianCalendar.LEAP_MONTH_LENGTH[month] : GregorianCalendar.MONTH_LENGTH[month];
     }
-
-
     private int monthLength(int month) {
         assert jdate.isNormalized();
         return jdate.isLeapYear() ?
             GregorianCalendar.LEAP_MONTH_LENGTH[month] : GregorianCalendar.MONTH_LENGTH[month];
     }
-
     private int actualMonthLength() {
         int length = jcal.getMonthLength(jdate);
         int eraIndex = getTransitionEraIndex(jdate);
@@ -1836,8 +1650,6 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return length;
     }
-
-
     private static int getTransitionEraIndex(LocalGregorianCalendar.Date date) {
         int eraIndex = getEraIndex(date);
         CalendarDate transitionDate = eras[eraIndex].getSinceDate();
@@ -1854,7 +1666,6 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return -1;
     }
-
     private boolean isTransitionYear(int normalizedYear) {
         for (int i = eras.length - 1; i > 0; i--) {
             int transitionYear = eras[i].getSinceDate().getYear();
@@ -1867,7 +1678,6 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return false;
     }
-
     private static int getEraIndex(LocalGregorianCalendar.Date date) {
         Era era = date.getEra();
         for (int i = eras.length - 1; i > 0; i--) {
@@ -1877,8 +1687,6 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return 0;
     }
-
-
     private JapaneseImperialCalendar getNormalizedCalendar() {
         JapaneseImperialCalendar jc;
         if (isFullyNormalized()) {
@@ -1891,8 +1699,6 @@ class JapaneseImperialCalendar extends Calendar {
         }
         return jc;
     }
-
-
     private void pinDayOfMonth(LocalGregorianCalendar.Date date) {
         int year = date.getYear();
         int dom = date.getDayOfMonth();
@@ -1933,8 +1739,6 @@ class JapaneseImperialCalendar extends Calendar {
             // Don't normalize date here so as not to cause underflow.
         }
     }
-
-
     private static int getRolledValue(int value, int amount, int min, int max) {
         assert value >= min && value <= max;
         int range = max - min + 1;
@@ -1948,13 +1752,9 @@ class JapaneseImperialCalendar extends Calendar {
         assert n >= min && n <= max;
         return n;
     }
-
-
     private int internalGetEra() {
         return isSet(ERA) ? internalGet(ERA) : eras.length - 1;
     }
-
-
     private void readObject(ObjectInputStream stream)
             throws IOException, ClassNotFoundException {
         stream.defaultReadObject();

@@ -1,7 +1,4 @@
-
-
 package java.lang.invoke;
-
 import java.lang.reflect.*;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -11,13 +8,8 @@ import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
 import sun.reflect.misc.ReflectUtil;
 import static java.lang.invoke.MethodHandleStatics.*;
-
-
 public class MethodHandleProxies {
-
     private MethodHandleProxies() { }  // do not instantiate
-
-
     // Other notes to implementors:
     // <p>
     // No stable mapping is promised between the single-method interface and
@@ -87,7 +79,6 @@ public class MethodHandleProxies {
                     throw newInternalError("bad proxy method: "+method);
                 }
             };
-
         final Object proxy;
         if (System.getSecurityManager() != null) {
             // sun.invoke.WrapperInstance is a restricted interface not accessible
@@ -108,7 +99,6 @@ public class MethodHandleProxies {
         }
         return intfc.cast(proxy);
     }
-
     private static MethodHandle bindCaller(MethodHandle target, Class<?> hostClass) {
         MethodHandle cbmh = MethodHandleImpl.bindCaller(target, hostClass);
         if (target.isVarargsCollector()) {
@@ -118,13 +108,10 @@ public class MethodHandleProxies {
         }
         return cbmh;
     }
-
-
     public static
     boolean isWrapperInstance(Object x) {
         return x instanceof WrapperInstance;
     }
-
     private static WrapperInstance asWrapperInstance(Object x) {
         try {
             if (x != null)
@@ -133,19 +120,14 @@ public class MethodHandleProxies {
         }
         throw newIllegalArgumentException("not a wrapper instance");
     }
-
-
     public static
     MethodHandle wrapperInstanceTarget(Object x) {
         return asWrapperInstance(x).getWrapperInstanceTarget();
     }
-
-
     public static
     Class<?> wrapperInstanceType(Object x) {
         return asWrapperInstance(x).getWrapperInstanceType();
     }
-
     private static
     boolean isObjectMethod(Method m) {
         switch (m.getName()) {
@@ -162,7 +144,6 @@ public class MethodHandleProxies {
         }
         return false;
     }
-
     private static
     Object callObjectMethod(Object self, Method m, Object[] args) {
         assert(isObjectMethod(m)) : m;
@@ -176,7 +157,6 @@ public class MethodHandleProxies {
         }
         return null;
     }
-
     private static
     Method[] getSingleNameMethods(Class<?> intfc) {
         ArrayList<Method> methods = new ArrayList<Method>();

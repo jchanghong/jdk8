@@ -1,15 +1,9 @@
-
-
 package java.awt.geom;
-
 import java.util.*;
-
-
 class RectIterator implements PathIterator {
     double x, y, w, h;
     AffineTransform affine;
     int index;
-
     RectIterator(Rectangle2D r, AffineTransform at) {
         this.x = r.getX();
         this.y = r.getY();
@@ -20,23 +14,15 @@ class RectIterator implements PathIterator {
             index = 6;
         }
     }
-
-
     public int getWindingRule() {
         return WIND_NON_ZERO;
     }
-
-
     public boolean isDone() {
         return index > 5;
     }
-
-
     public void next() {
         index++;
     }
-
-
     public int currentSegment(float[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("rect iterator out of bounds");
@@ -57,8 +43,6 @@ class RectIterator implements PathIterator {
         }
         return (index == 0 ? SEG_MOVETO : SEG_LINETO);
     }
-
-
     public int currentSegment(double[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("rect iterator out of bounds");

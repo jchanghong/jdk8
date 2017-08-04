@@ -1,8 +1,4 @@
-
-
-
 package java.time;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -13,18 +9,10 @@ import java.time.zone.ZoneRules;
 import java.time.zone.ZoneRulesException;
 import java.time.zone.ZoneRulesProvider;
 import java.util.Objects;
-
-
 final class ZoneRegion extends ZoneId implements Serializable {
-
-
     private static final long serialVersionUID = 8386373296231747096L;
-
     private final String id;
-
     private final transient ZoneRules rules;
-
-
     static ZoneRegion ofId(String zoneId, boolean checkAvailable) {
         Objects.requireNonNull(zoneId, "zoneId");
         checkName(zoneId);
@@ -39,8 +27,6 @@ final class ZoneRegion extends ZoneId implements Serializable {
         }
         return new ZoneRegion(zoneId, rules);
     }
-
-
     private static void checkName(String zoneId) {
         int n = zoneId.length();
         if (n < 2) {
@@ -60,51 +46,39 @@ final class ZoneRegion extends ZoneId implements Serializable {
             throw new DateTimeException("Invalid ID for region-based ZoneId, invalid format: " + zoneId);
         }
     }
-
     //-------------------------------------------------------------------------
-
     ZoneRegion(String id, ZoneRules rules) {
         this.id = id;
         this.rules = rules;
     }
-
     //-----------------------------------------------------------------------
     @Override
     public String getId() {
         return id;
     }
-
     @Override
     public ZoneRules getRules() {
         // additional query for group provider when null allows for possibility
         // that the provider was updated after the ZoneId was created
         return (rules != null ? rules : ZoneRulesProvider.getRules(id, false));
     }
-
     //-----------------------------------------------------------------------
-
     private Object writeReplace() {
         return new Ser(Ser.ZONE_REGION_TYPE, this);
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
     @Override
     void write(DataOutput out) throws IOException {
         out.writeByte(Ser.ZONE_REGION_TYPE);
         writeExternal(out);
     }
-
     void writeExternal(DataOutput out) throws IOException {
         out.writeUTF(id);
     }
-
     static ZoneId readExternal(DataInput in) throws IOException {
         String id = in.readUTF();
         return ZoneId.of(id, false);
     }
-
 }

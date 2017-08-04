@@ -1,18 +1,10 @@
-
-
 package java.awt.image;
-
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
-
-
-
 public abstract class PackedColorModel extends ColorModel {
     int[] maskArray;
     int[] maskOffsets;
     float[] scaleFactors;
-
-
     public PackedColorModel (ColorSpace space, int bits,
                              int[] colorMaskArray, int alphaMask,
                              boolean isAlphaPremultiplied,
@@ -28,7 +20,6 @@ public abstract class PackedColorModel extends ColorModel {
         maskArray   = new int[numComponents];
         maskOffsets = new int[numComponents];
         scaleFactors = new float[numComponents];
-
         for (int i=0; i < numColorComponents; i++) {
             // Get the mask offset and #bits
             DecomposeMask(colorMaskArray[i], i, space.getName(i));
@@ -40,8 +31,6 @@ public abstract class PackedColorModel extends ColorModel {
             }
         }
     }
-
-
     public PackedColorModel(ColorSpace space, int bits, int rmask, int gmask,
                             int bmask, int amask,
                             boolean isAlphaPremultiplied,
@@ -50,20 +39,15 @@ public abstract class PackedColorModel extends ColorModel {
                                                       amask),
                space, (amask == 0 ? false : true),
                isAlphaPremultiplied, trans, transferType);
-
         if (space.getType() != ColorSpace.TYPE_RGB) {
             throw new IllegalArgumentException("ColorSpace must be TYPE_RGB.");
         }
         maskArray = new int[numComponents];
         maskOffsets = new int[numComponents];
         scaleFactors = new float[numComponents];
-
         DecomposeMask(rmask, 0, "red");
-
         DecomposeMask(gmask, 1, "green");
-
         DecomposeMask(bmask, 2, "blue");
-
         if (amask != 0) {
             DecomposeMask(amask, 3, "alpha");
             if (nBits[3] == 1) {
@@ -71,25 +55,17 @@ public abstract class PackedColorModel extends ColorModel {
             }
         }
     }
-
-
     final public int getMask(int index) {
         return maskArray[index];
     }
-
-
     final public int[] getMasks() {
         return (int[]) maskArray.clone();
     }
-
-
     private void DecomposeMask(int mask,  int idx, String componentName) {
         int off = 0;
         int count = nBits[idx];
-
         // Store the mask
         maskArray[idx]   = mask;
-
         // Now find the shift
         if (mask != 0) {
             while ((mask & 1) == 0) {
@@ -97,14 +73,12 @@ public abstract class PackedColorModel extends ColorModel {
                 off++;
             }
         }
-
         if (off + count > pixel_bits) {
             throw new IllegalArgumentException(componentName + " mask "+
                                         Integer.toHexString(maskArray[idx])+
                                                " overflows pixel (expecting "+
                                                pixel_bits+" bits");
         }
-
         maskOffsets[idx] = off;
         if (count == 0) {
             // High enough to scale any 0-ff value down to 0.0, but not
@@ -113,55 +87,41 @@ public abstract class PackedColorModel extends ColorModel {
         } else {
             scaleFactors[idx] = 255.0f / ((1 << count) - 1);
         }
-
     }
-
-
     public SampleModel createCompatibleSampleModel(int w, int h) {
         return new SinglePixelPackedSampleModel(transferType, w, h,
                                                 maskArray);
     }
-
-
     public boolean isCompatibleSampleModel(SampleModel sm) {
         if (! (sm instanceof SinglePixelPackedSampleModel)) {
             return false;
         }
-
         // Must have the same number of components
         if (numComponents != sm.getNumBands()) {
             return false;
         }
-
         // Transfer type must be the same
         if (sm.getTransferType() != transferType) {
             return false;
         }
-
         SinglePixelPackedSampleModel sppsm = (SinglePixelPackedSampleModel) sm;
         // Now compare the specific masks
         int[] bitMasks = sppsm.getBitMasks();
         if (bitMasks.length != maskArray.length) {
             return false;
         }
-
-
         int maxMask = (int)((1L << DataBuffer.getDataTypeSize(transferType)) - 1);
         for (int i=0; i < bitMasks.length; i++) {
             if ((maxMask & bitMasks[i]) != (maxMask & maskArray[i])) {
                 return false;
             }
         }
-
         return true;
     }
-
-
     public WritableRaster getAlphaRaster(WritableRaster raster) {
         if (hasAlpha() == false) {
             return null;
         }
-
         int x = raster.getMinX();
         int y = raster.getMinY();
         int[] band = new int[1];
@@ -170,17 +130,13 @@ public abstract class PackedColorModel extends ColorModel {
                                           raster.getHeight(), x, y,
                                           band);
     }
-
-
     public boolean equals(Object obj) {
         if (!(obj instanceof PackedColorModel)) {
             return false;
         }
-
         if (!super.equals(obj)) {
             return false;
         }
-
         PackedColorModel cm = (PackedColorModel) obj;
         int numC = cm.getNumComponents();
         if (numC != numComponents) {
@@ -193,7 +149,6 @@ public abstract class PackedColorModel extends ColorModel {
         }
         return true;
     }
-
     private final static int[] createBitsArray(int[]colorMaskArray,
                                                int alphaMask) {
         int numColors = colorMaskArray.length;
@@ -216,7 +171,6 @@ public abstract class PackedColorModel extends ColorModel {
         }
         return arr;
     }
-
     private final static int[] createBitsArray(int rmask, int gmask, int bmask,
                                          int amask) {
         int[] arr = new int[3 + (amask == 0 ? 0 : 1)];
@@ -244,7 +198,6 @@ public abstract class PackedColorModel extends ColorModel {
         }
         return arr;
     }
-
     private final static int countBits(int mask) {
         int count = 0;
         if (mask != 0) {
@@ -261,5 +214,4 @@ public abstract class PackedColorModel extends ColorModel {
         }
         return count;
     }
-
 }

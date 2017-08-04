@@ -1,8 +1,4 @@
-
-
-
 package java.time.format;
-
 import static java.time.temporal.ChronoField.AMPM_OF_DAY;
 import static java.time.temporal.ChronoField.CLOCK_HOUR_OF_AMPM;
 import static java.time.temporal.ChronoField.CLOCK_HOUR_OF_DAY;
@@ -20,7 +16,6 @@ import static java.time.temporal.ChronoField.NANO_OF_SECOND;
 import static java.time.temporal.ChronoField.OFFSET_SECONDS;
 import static java.time.temporal.ChronoField.SECOND_OF_DAY;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
-
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -44,33 +39,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-
-
 final class Parsed implements TemporalAccessor {
     // some fields are accessed using package scope from DateTimeParseContext
-
-
     final Map<TemporalField, Long> fieldValues = new HashMap<>();
-
     ZoneId zone;
-
     Chronology chrono;
-
     boolean leapSecond;
-
     private ResolverStyle resolverStyle;
-
     private ChronoLocalDate date;
-
     private LocalTime time;
-
     Period excessDays = Period.ZERO;
-
-
     Parsed() {
     }
-
-
     Parsed copy() {
         // only copy fields used in parsing stage
         Parsed cloned = new Parsed();
@@ -80,7 +60,6 @@ final class Parsed implements TemporalAccessor {
         cloned.leapSecond = this.leapSecond;
         return cloned;
     }
-
     //-----------------------------------------------------------------------
     @Override
     public boolean isSupported(TemporalField field) {
@@ -91,7 +70,6 @@ final class Parsed implements TemporalAccessor {
         }
         return field != null && (field instanceof ChronoField == false) && field.isSupportedBy(this);
     }
-
     @Override
     public long getLong(TemporalField field) {
         Objects.requireNonNull(field, "field");
@@ -110,7 +88,6 @@ final class Parsed implements TemporalAccessor {
         }
         return field.getFrom(this);
     }
-
     @SuppressWarnings("unchecked")
     @Override
     public <R> R query(TemporalQuery<R> query) {
@@ -131,9 +108,7 @@ final class Parsed implements TemporalAccessor {
         // non-JDK classes are not permitted to make this optimization
         return query.queryFrom(this);
     }
-
     //-----------------------------------------------------------------------
-
     TemporalAccessor resolve(ResolverStyle resolverStyle, Set<TemporalField> resolverFields) {
         if (resolverFields != null) {
             fieldValues.keySet().retainAll(resolverFields);
@@ -147,14 +122,12 @@ final class Parsed implements TemporalAccessor {
         resolveInstant();
         return this;
     }
-
     //-----------------------------------------------------------------------
     private void resolveFields() {
         // resolve ChronoField
         resolveInstantFields();
         resolveDateFields();
         resolveTimeFields();
-
         // if any other fields, handle them
         // any lenient date resolution should return epoch-day
         if (fieldValues.size() > 0) {
@@ -211,7 +184,6 @@ final class Parsed implements TemporalAccessor {
             }
         }
     }
-
     private void updateCheckConflict(TemporalField targetField, TemporalField changeField, Long changeValue) {
         Long old = fieldValues.put(changeField, changeValue);
         if (old != null && old.longValue() != changeValue.longValue()) {
@@ -220,7 +192,6 @@ final class Parsed implements TemporalAccessor {
                     " while resolving  " + targetField);
         }
     }
-
     //-----------------------------------------------------------------------
     private void resolveInstantFields() {
         // resolve parsed instant seconds to date and time if zone available
@@ -236,19 +207,16 @@ final class Parsed implements TemporalAccessor {
             }
         }
     }
-
     private void resolveInstantFields0(ZoneId selectedZone) {
         Instant instant = Instant.ofEpochSecond(fieldValues.remove(INSTANT_SECONDS));
         ChronoZonedDateTime<?> zdt = chrono.zonedDateTime(instant, selectedZone);
         updateCheckConflict(zdt.toLocalDate());
         updateCheckConflict(INSTANT_SECONDS, SECOND_OF_DAY, (long) zdt.toLocalTime().toSecondOfDay());
     }
-
     //-----------------------------------------------------------------------
     private void resolveDateFields() {
         updateCheckConflict(chrono.resolveDate(fieldValues, resolverStyle));
     }
-
     private void updateCheckConflict(ChronoLocalDate cld) {
         if (date != null) {
             if (cld != null && date.equals(cld) == false) {
@@ -261,7 +229,6 @@ final class Parsed implements TemporalAccessor {
             date = cld;
         }
     }
-
     //-----------------------------------------------------------------------
     private void resolveTimeFields() {
         // simplify fields
@@ -335,7 +302,6 @@ final class Parsed implements TemporalAccessor {
             updateCheckConflict(MINUTE_OF_DAY, HOUR_OF_DAY, mod / 60);
             updateCheckConflict(MINUTE_OF_DAY, MINUTE_OF_HOUR, mod % 60);
         }
-
         // combine partial second fields strictly, leaving lenient expansion to later
         if (fieldValues.containsKey(NANO_OF_SECOND)) {
             long nos = fieldValues.get(NANO_OF_SECOND);
@@ -358,7 +324,6 @@ final class Parsed implements TemporalAccessor {
                 updateCheckConflict(MILLI_OF_SECOND, NANO_OF_SECOND, los * 1_000_000L + (nos % 1_000_000L));
             }
         }
-
         // convert to time if all four fields available (optimization)
         if (fieldValues.containsKey(HOUR_OF_DAY) && fieldValues.containsKey(MINUTE_OF_HOUR) &&
                 fieldValues.containsKey(SECOND_OF_MINUTE) && fieldValues.containsKey(NANO_OF_SECOND)) {
@@ -369,12 +334,10 @@ final class Parsed implements TemporalAccessor {
             resolveTime(hod, moh, som, nos);
         }
     }
-
     private void resolveTimeLenient() {
         // leniently create a time from incomplete information
         // done after everything else as it creates information from nothing
         // which would break updateCheckConflict(field)
-
         if (time == null) {
             // NANO_OF_SECOND merged with MILLI/MICRO above
             if (fieldValues.containsKey(MILLI_OF_SECOND)) {
@@ -394,20 +357,17 @@ final class Parsed implements TemporalAccessor {
                 long cos = fieldValues.remove(MICRO_OF_SECOND);
                 fieldValues.put(NANO_OF_SECOND, cos * 1_000L);
             }
-
             // merge hour/minute/second/nano leniently
             Long hod = fieldValues.get(HOUR_OF_DAY);
             if (hod != null) {
                 Long moh = fieldValues.get(MINUTE_OF_HOUR);
                 Long som = fieldValues.get(SECOND_OF_MINUTE);
                 Long nos = fieldValues.get(NANO_OF_SECOND);
-
                 // check for invalid combinations that cannot be defaulted
                 if ((moh == null && (som != null || nos != null)) ||
                         (moh != null && som == null && nos != null)) {
                     return;
                 }
-
                 // default as necessary and build time
                 long mohVal = (moh != null ? moh : 0);
                 long somVal = (som != null ? som : 0);
@@ -419,7 +379,6 @@ final class Parsed implements TemporalAccessor {
                 fieldValues.remove(NANO_OF_SECOND);
             }
         }
-
         // validate remaining
         if (resolverStyle != ResolverStyle.LENIENT && fieldValues.size() > 0) {
             for (Entry<TemporalField, Long> entry : fieldValues.entrySet()) {
@@ -430,7 +389,6 @@ final class Parsed implements TemporalAccessor {
             }
         }
     }
-
     private void resolveTime(long hod, long moh, long som, long nos) {
         if (resolverStyle == ResolverStyle.LENIENT) {
             long totalNanos = Math.multiplyExact(hod, 3600_000_000_000L);
@@ -453,7 +411,6 @@ final class Parsed implements TemporalAccessor {
             }
         }
     }
-
     private void resolvePeriod() {
         // add whole days if we have both date and time
         if (date != null && time != null && excessDays.isZero() == false) {
@@ -461,7 +418,6 @@ final class Parsed implements TemporalAccessor {
             excessDays = Period.ZERO;
         }
     }
-
     private void resolveFractional() {
         // ensure fractional seconds available as ChronoField requires
         // resolveTimeLenient() will have merged MICRO_OF_SECOND/MILLI_OF_SECOND to NANO_OF_SECOND
@@ -480,7 +436,6 @@ final class Parsed implements TemporalAccessor {
             }
         }
     }
-
     private void resolveInstant() {
         // add instant seconds if we have date, time and zone
         if (date != null && time != null) {
@@ -497,7 +452,6 @@ final class Parsed implements TemporalAccessor {
             }
         }
     }
-
     private void updateCheckConflict(LocalTime timeToSet, Period periodToSet) {
         if (time != null) {
             if (time.equals(timeToSet) == false) {
@@ -513,7 +467,6 @@ final class Parsed implements TemporalAccessor {
             excessDays = periodToSet;
         }
     }
-
     //-----------------------------------------------------------------------
     private void crossCheck() {
         // only cross-check date, time and date-time
@@ -528,7 +481,6 @@ final class Parsed implements TemporalAccessor {
             }
         }
     }
-
     private void crossCheck(TemporalAccessor target) {
         for (Iterator<Entry<TemporalField, Long>> it = fieldValues.entrySet().iterator(); it.hasNext(); ) {
             Entry<TemporalField, Long> entry = it.next();
@@ -549,7 +501,6 @@ final class Parsed implements TemporalAccessor {
             }
         }
     }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
@@ -571,5 +522,4 @@ final class Parsed implements TemporalAccessor {
         }
         return buf.toString();
     }
-
 }

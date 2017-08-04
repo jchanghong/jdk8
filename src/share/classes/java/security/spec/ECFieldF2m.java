@@ -1,17 +1,10 @@
-
 package java.security.spec;
-
 import java.math.BigInteger;
 import java.util.Arrays;
-
-
 public class ECFieldF2m implements ECField {
-
     private int m;
     private int[] ks;
     private BigInteger rp;
-
-
     public ECFieldF2m(int m) {
         if (m <= 0) {
             throw new IllegalArgumentException("m is not positive");
@@ -20,8 +13,6 @@ public class ECFieldF2m implements ECField {
         this.ks = null;
         this.rp = null;
     }
-
-
     public ECFieldF2m(int m, BigInteger rp) {
         // check m and rp
         this.m = m;
@@ -44,8 +35,6 @@ public class ECFieldF2m implements ECField {
             temp = temp.clearBit(index);
         }
     }
-
-
     public ECFieldF2m(int m, int[] ks) {
         // check m and ks
         this.m = m;
@@ -74,23 +63,15 @@ public class ECFieldF2m implements ECField {
             rp = rp.setBit(this.ks[j]);
         }
     }
-
-
     public int getFieldSize() {
         return m;
     }
-
-
     public int getM() {
         return m;
     }
-
-
     public BigInteger getReductionPolynomial() {
         return rp;
     }
-
-
     public int[] getMidTermsOfReductionPolynomial() {
         if (ks == null) {
             return null;
@@ -98,8 +79,6 @@ public class ECFieldF2m implements ECField {
             return ks.clone();
         }
     }
-
-
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj instanceof ECFieldF2m) {
@@ -110,8 +89,6 @@ public class ECFieldF2m implements ECField {
         }
         return false;
     }
-
-
     public int hashCode() {
         int value = m << 5;
         value += (rp==null? 0:rp.hashCode());

@@ -1,28 +1,15 @@
-
-
 package java.security.spec;
-
 import java.math.BigInteger;
 import java.security.spec.MGF1ParameterSpec;
-
-
-
 public class PSSParameterSpec implements AlgorithmParameterSpec {
-
     private String mdName = "SHA-1";
     private String mgfName = "MGF1";
     private AlgorithmParameterSpec mgfSpec = MGF1ParameterSpec.SHA1;
     private int saltLen = 20;
     private int trailerField = 1;
-
-
     public static final PSSParameterSpec DEFAULT = new PSSParameterSpec();
-
-
     private PSSParameterSpec() {
     }
-
-
     public PSSParameterSpec(String mdName, String mgfName,
                             AlgorithmParameterSpec mgfSpec,
                             int saltLen, int trailerField) {
@@ -47,8 +34,6 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
         this.saltLen = saltLen;
         this.trailerField = trailerField;
     }
-
-
     public PSSParameterSpec(int saltLen) {
         if (saltLen < 0) {
             throw new IllegalArgumentException("negative saltLen value: " +
@@ -56,28 +41,18 @@ public class PSSParameterSpec implements AlgorithmParameterSpec {
         }
         this.saltLen = saltLen;
     }
-
-
     public String getDigestAlgorithm() {
         return mdName;
     }
-
-
     public String getMGFAlgorithm() {
         return mgfName;
     }
-
-
     public AlgorithmParameterSpec getMGFParameters() {
         return mgfSpec;
     }
-
-
     public int getSaltLength() {
         return saltLen;
     }
-
-
     public int getTrailerField() {
         return trailerField;
     }

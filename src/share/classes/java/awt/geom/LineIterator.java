@@ -1,36 +1,22 @@
-
-
 package java.awt.geom;
-
 import java.util.*;
-
-
 class LineIterator implements PathIterator {
     Line2D line;
     AffineTransform affine;
     int index;
-
     LineIterator(Line2D l, AffineTransform at) {
         this.line = l;
         this.affine = at;
     }
-
-
     public int getWindingRule() {
         return WIND_NON_ZERO;
     }
-
-
     public boolean isDone() {
         return (index > 1);
     }
-
-
     public void next() {
         index++;
     }
-
-
     public int currentSegment(float[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("line iterator out of bounds");
@@ -50,8 +36,6 @@ class LineIterator implements PathIterator {
         }
         return type;
     }
-
-
     public int currentSegment(double[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("line iterator out of bounds");

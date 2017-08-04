@@ -1,42 +1,16 @@
-
-
-
-
 package java.util.concurrent;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
-
-
 public class Exchanger<V> {
-
-
-
-
     private static final int ASHIFT = 7;
-
-
     private static final int MMASK = 0xff;
-
-
     private static final int SEQ = MMASK + 1;
-
-
     private static final int NCPU = Runtime.getRuntime().availableProcessors();
-
-
     static final int FULL = (NCPU >= (MMASK << 1)) ? MMASK : NCPU >>> 1;
-
-
     private static final int SPINS = 1 << 10;
-
-
     private static final Object NULL_ITEM = new Object();
-
-
     private static final Object TIMED_OUT = new Object();
-
-
     @sun.misc.Contended static final class Node {
         int index;              // Arena index
         int bound;              // Last recorded value of Exchanger.bound
@@ -46,25 +20,13 @@ public class Exchanger<V> {
         volatile Object match;  // Item provided by releasing thread
         volatile Thread parked; // Set to this thread when parked, else null
     }
-
-
     static final class Participant extends ThreadLocal<Node> {
         public Node initialValue() { return new Node(); }
     }
-
-
     private final Participant participant;
-
-
     private volatile Node[] arena;
-
-
     private volatile Node slot;
-
-
     private volatile int bound;
-
-
     private final Object arenaExchange(Object item, boolean timed, long ns) {
         Node[] a = arena;
         Node p = participant.get();
@@ -147,14 +109,11 @@ public class Exchanger<V> {
             }
         }
     }
-
-
     private final Object slotExchange(Object item, boolean timed, long ns) {
         Node p = participant.get();
         Thread t = Thread.currentThread();
         if (t.isInterrupted()) // preserve interrupt status so caller can recheck
             return null;
-
         for (Node q;;) {
             if ((q = slot) != null) {
                 if (U.compareAndSwapObject(this, SLOT, q, null)) {
@@ -179,7 +138,6 @@ public class Exchanger<V> {
                 p.item = null;
             }
         }
-
         // await release
         int h = p.hash;
         long end = timed ? System.nanoTime() + ns : 0L;
@@ -214,13 +172,9 @@ public class Exchanger<V> {
         p.hash = h;
         return v;
     }
-
-
     public Exchanger() {
         participant = new Participant();
     }
-
-
     @SuppressWarnings("unchecked")
     public V exchange(V x) throws InterruptedException {
         Object v;
@@ -232,8 +186,6 @@ public class Exchanger<V> {
             throw new InterruptedException();
         return (v == NULL_ITEM) ? null : (V)v;
     }
-
-
     @SuppressWarnings("unchecked")
     public V exchange(V x, long timeout, TimeUnit unit)
         throws InterruptedException, TimeoutException {
@@ -249,7 +201,6 @@ public class Exchanger<V> {
             throw new TimeoutException();
         return (v == NULL_ITEM) ? null : (V)v;
     }
-
     // Unsafe mechanics
     private static final sun.misc.Unsafe U;
     private static final long BOUND;
@@ -276,12 +227,10 @@ public class Exchanger<V> {
             s = U.arrayIndexScale(ak);
             // ABASE absorbs padding in front of element 0
             ABASE = U.arrayBaseOffset(ak) + (1 << ASHIFT);
-
         } catch (Exception e) {
             throw new Error(e);
         }
         if ((s & (s-1)) != 0 || s > (1 << ASHIFT))
             throw new Error("Unsupported array scale");
     }
-
 }

@@ -1,19 +1,10 @@
-
-
 package java.net;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.List;
 import sun.security.util.SecurityConstants;
-
-
 public abstract class ResponseCache {
-
-
     private static ResponseCache theResponseCache;
-
-
     public synchronized  static ResponseCache getDefault() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -21,8 +12,6 @@ public abstract class ResponseCache {
         }
         return theResponseCache;
     }
-
-
     public synchronized static void setDefault(ResponseCache responseCache) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -30,12 +19,8 @@ public abstract class ResponseCache {
         }
         theResponseCache = responseCache;
     }
-
-
     public abstract CacheResponse
         get(URI uri, String rqstMethod, Map<String, List<String>> rqstHeaders)
         throws IOException;
-
-
     public abstract CacheRequest put(URI uri, URLConnection conn)  throws IOException;
 }

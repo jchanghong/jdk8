@@ -1,64 +1,25 @@
-
-
 package java.awt.event;
-
 import java.awt.Window;
 import java.lang.annotation.Native;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
-
-
 public class WindowEvent extends ComponentEvent {
-
-
     public static final int WINDOW_FIRST        = 200;
-
-
     @Native public static final int WINDOW_OPENED       = WINDOW_FIRST; // 200
-
-
     @Native public static final int WINDOW_CLOSING      = 1 + WINDOW_FIRST; //Event.WINDOW_DESTROY
-
-
     @Native public static final int WINDOW_CLOSED       = 2 + WINDOW_FIRST;
-
-
     @Native public static final int WINDOW_ICONIFIED    = 3 + WINDOW_FIRST; //Event.WINDOW_ICONIFY
-
-
     @Native public static final int WINDOW_DEICONIFIED  = 4 + WINDOW_FIRST; //Event.WINDOW_DEICONIFY
-
-
     @Native public static final int WINDOW_ACTIVATED    = 5 + WINDOW_FIRST;
-
-
     @Native public static final int WINDOW_DEACTIVATED  = 6 + WINDOW_FIRST;
-
-
     @Native public static final int WINDOW_GAINED_FOCUS = 7 + WINDOW_FIRST;
-
-
     @Native public static final int WINDOW_LOST_FOCUS   = 8 + WINDOW_FIRST;
-
-
     @Native public static final int WINDOW_STATE_CHANGED = 9 + WINDOW_FIRST;
-
-
     public static final int WINDOW_LAST         = WINDOW_STATE_CHANGED;
-
-
     transient Window opposite;
-
-
     int oldState;
     int newState;
-
-
-
     private static final long serialVersionUID = -1567959133147912127L;
-
-
-
     public WindowEvent(Window source, int id, Window opposite,
                        int oldState, int newState)
     {
@@ -67,50 +28,33 @@ public class WindowEvent extends ComponentEvent {
         this.oldState = oldState;
         this.newState = newState;
     }
-
-
     public WindowEvent(Window source, int id, Window opposite) {
         this(source, id, opposite, 0, 0);
     }
-
-
     public WindowEvent(Window source, int id, int oldState, int newState) {
         this(source, id, null, oldState, newState);
     }
-
-
     public WindowEvent(Window source, int id) {
         this(source, id, null, 0, 0);
     }
-
-
     public Window getWindow() {
         return (source instanceof Window) ? (Window)source : null;
     }
-
-
     public Window getOppositeWindow() {
         if (opposite == null) {
             return null;
         }
-
         return (SunToolkit.targetToAppContext(opposite) ==
                 AppContext.getAppContext())
             ? opposite
             : null;
     }
-
-
     public int getOldState() {
         return oldState;
     }
-
-
     public int getNewState() {
         return newState;
     }
-
-
     public String paramString() {
         String typeStr;
         switch(id) {
@@ -149,7 +93,6 @@ public class WindowEvent extends ComponentEvent {
         }
         typeStr += ",opposite=" + getOppositeWindow()
             + ",oldState=" + oldState + ",newState=" + newState;
-
         return typeStr;
     }
 }

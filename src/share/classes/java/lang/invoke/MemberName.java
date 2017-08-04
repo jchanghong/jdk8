@@ -1,10 +1,6 @@
-
-
 package java.lang.invoke;
-
 import sun.invoke.util.BytecodeDescriptor;
 import sun.invoke.util.VerifyAccess;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -18,8 +14,6 @@ import java.util.List;
 import static java.lang.invoke.MethodHandleNatives.Constants.*;
 import static java.lang.invoke.MethodHandleStatics.*;
 import java.util.Objects;
-
-
  final class MemberName implements Member, Cloneable {
     private Class<?> clazz;       // class in which the method is defined
     private String   name;        // may be null if not yet materialized
@@ -28,18 +22,12 @@ import java.util.Objects;
     //@Injected JVM_Method* vmtarget;
     //@Injected int         vmindex;
     private Object   resolution;  // if null, this guy is resolved
-
-
     public Class<?> getDeclaringClass() {
         return clazz;
     }
-
-
     public ClassLoader getClassLoader() {
         return clazz.getClassLoader();
     }
-
-
     public String getName() {
         if (name == null) {
             expandFromVM();
@@ -49,7 +37,6 @@ import java.util.Objects;
         }
         return name;
     }
-
     public MethodType getMethodOrFieldType() {
         if (isInvocable())
             return getMethodType();
@@ -59,8 +46,6 @@ import java.util.Objects;
             return MethodType.methodType(void.class, getFieldType());
         throw new InternalError("not a method or field: "+this);
     }
-
-
     public MethodType getMethodType() {
         if (type == null) {
             expandFromVM();
@@ -71,7 +56,6 @@ import java.util.Objects;
         if (!isInvocable()) {
             throw newIllegalArgumentException("not invocable, no method type");
         }
-
         {
             // Get a snapshot of type which doesn't get changed by racing threads.
             final Object type = this.type;
@@ -79,7 +63,6 @@ import java.util.Objects;
                 return (MethodType) type;
             }
         }
-
         // type is not a MethodType yet.  Convert it thread-safely.
         synchronized (this) {
             if (type instanceof String) {
@@ -98,8 +81,6 @@ import java.util.Objects;
         }
         return (MethodType) type;
     }
-
-
     public MethodType getInvocationType() {
         MethodType itype = getMethodOrFieldType();
         if (isConstructor() && getReferenceKind() == REF_newInvokeSpecial)
@@ -108,18 +89,12 @@ import java.util.Objects;
             return itype.insertParameterTypes(0, clazz);
         return itype;
     }
-
-
     public Class<?>[] getParameterTypes() {
         return getMethodType().parameterArray();
     }
-
-
     public Class<?> getReturnType() {
         return getMethodType().returnType();
     }
-
-
     public Class<?> getFieldType() {
         if (type == null) {
             expandFromVM();
@@ -130,7 +105,6 @@ import java.util.Objects;
         if (isInvocable()) {
             throw newIllegalArgumentException("not a field or nested class, no simple type");
         }
-
         {
             // Get a snapshot of type which doesn't get changed by racing threads.
             final Object type = this.type;
@@ -138,7 +112,6 @@ import java.util.Objects;
                 return (Class<?>) type;
             }
         }
-
         // type is not a Class yet.  Convert it thread-safely.
         synchronized (this) {
             if (type instanceof String) {
@@ -152,13 +125,9 @@ import java.util.Objects;
         }
         return (Class<?>) type;
     }
-
-
     public Object getType() {
         return (isInvocable() ? getMethodType() : getFieldType());
     }
-
-
     public String getSignature() {
         if (type == null) {
             expandFromVM();
@@ -171,13 +140,9 @@ import java.util.Objects;
         else
             return BytecodeDescriptor.unparse(getFieldType());
     }
-
-
     public int getModifiers() {
         return (flags & RECOGNIZED_MODIFIERS);
     }
-
-
     public byte getReferenceKind() {
         return (byte) ((flags >>> MN_REFERENCE_KIND_SHIFT) & MN_REFERENCE_KIND_MASK);
     }
@@ -254,14 +219,12 @@ import java.util.Objects;
         }
         return true;
     }
-
     private MemberName changeReferenceKind(byte refKind, byte oldKind) {
         assert(getReferenceKind() == oldKind);
         assert(MethodHandleNatives.refKindIsValid(refKind));
         flags += (((int)refKind - oldKind) << MN_REFERENCE_KIND_SHIFT);
         return this;
     }
-
     private boolean testFlags(int mask, int value) {
         return (flags & mask) == value;
     }
@@ -271,8 +234,6 @@ import java.util.Objects;
     private boolean testAnyFlags(int mask) {
         return !testFlags(mask, 0);
     }
-
-
     public boolean isMethodHandleInvoke() {
         final int bits = MH_INVOKE_MODS &~ Modifier.PUBLIC;
         final int negs = Modifier.STATIC;
@@ -292,69 +253,52 @@ import java.util.Objects;
         }
     }
     private static final int MH_INVOKE_MODS = Modifier.NATIVE | Modifier.FINAL | Modifier.PUBLIC;
-
-
     public boolean isStatic() {
         return Modifier.isStatic(flags);
     }
-
     public boolean isPublic() {
         return Modifier.isPublic(flags);
     }
-
     public boolean isPrivate() {
         return Modifier.isPrivate(flags);
     }
-
     public boolean isProtected() {
         return Modifier.isProtected(flags);
     }
-
     public boolean isFinal() {
         return Modifier.isFinal(flags);
     }
-
     public boolean canBeStaticallyBound() {
         return Modifier.isFinal(flags | clazz.getModifiers());
     }
-
     public boolean isVolatile() {
         return Modifier.isVolatile(flags);
     }
-
     public boolean isAbstract() {
         return Modifier.isAbstract(flags);
     }
-
     public boolean isNative() {
         return Modifier.isNative(flags);
     }
     // let the rest (native, volatile, transient, etc.) be tested via Modifier.isFoo
-
     // unofficial modifier flags, used by HotSpot:
     static final int BRIDGE    = 0x00000040;
     static final int VARARGS   = 0x00000080;
     static final int SYNTHETIC = 0x00001000;
     static final int ANNOTATION= 0x00002000;
     static final int ENUM      = 0x00004000;
-
     public boolean isBridge() {
         return testAllFlags(IS_METHOD | BRIDGE);
     }
-
     public boolean isVarargs() {
         return testAllFlags(VARARGS) && isInvocable();
     }
-
     public boolean isSynthetic() {
         return testAllFlags(SYNTHETIC);
     }
-
     static final String CONSTRUCTOR_NAME = "<init>";  // the ever-popular
-
     // modifiers exported by the JVM:
     static final int RECOGNIZED_MODIFIERS = 0xFFFF;
-
     // private flags, not part of RECOGNIZED_MODIFIERS:
     static final int
             IS_METHOD        = MN_IS_METHOD,        // method (not constructor)
@@ -362,53 +306,39 @@ import java.util.Objects;
             IS_FIELD         = MN_IS_FIELD,         // field
             IS_TYPE          = MN_IS_TYPE,          // nested type
             CALLER_SENSITIVE = MN_CALLER_SENSITIVE; // @CallerSensitive annotation detected
-
     static final int ALL_ACCESS = Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED;
     static final int ALL_KINDS = IS_METHOD | IS_CONSTRUCTOR | IS_FIELD | IS_TYPE;
     static final int IS_INVOCABLE = IS_METHOD | IS_CONSTRUCTOR;
     static final int IS_FIELD_OR_METHOD = IS_METHOD | IS_FIELD;
     static final int SEARCH_ALL_SUPERS = MN_SEARCH_SUPERCLASSES | MN_SEARCH_INTERFACES;
-
-
     public boolean isInvocable() {
         return testAnyFlags(IS_INVOCABLE);
     }
-
     public boolean isFieldOrMethod() {
         return testAnyFlags(IS_FIELD_OR_METHOD);
     }
-
     public boolean isMethod() {
         return testAllFlags(IS_METHOD);
     }
-
     public boolean isConstructor() {
         return testAllFlags(IS_CONSTRUCTOR);
     }
-
     public boolean isField() {
         return testAllFlags(IS_FIELD);
     }
-
     public boolean isType() {
         return testAllFlags(IS_TYPE);
     }
-
     public boolean isPackage() {
         return !testAnyFlags(ALL_ACCESS);
     }
-
     public boolean isCallerSensitive() {
         return testAllFlags(CALLER_SENSITIVE);
     }
-
-
     public boolean isAccessibleFrom(Class<?> lookupClass) {
         return VerifyAccess.isMemberAccessible(this.getDeclaringClass(), this.getDeclaringClass(), flags,
                                                lookupClass, ALL_ACCESS|MethodHandles.Lookup.PACKAGE);
     }
-
-
     private void init(Class<?> defClass, String name, Object type, int flags) {
         // defining class is allowed to be null (for a naked name/type pair)
         //name.toString();  // null check
@@ -422,8 +352,6 @@ import java.util.Objects;
         assert(this.resolution == null);  // nobody should have touched this yet
         //assert(referenceKindIsConsistent());  // do this after resolution
     }
-
-
     private void expandFromVM() {
         if (type != null) {
             return;
@@ -433,7 +361,6 @@ import java.util.Objects;
         }
         MethodHandleNatives.expand(this);
     }
-
     // Capturing information from the Core Reflection API:
     private static int flagsMods(int flags, int mods, byte refKind) {
         assert((flags & RECOGNIZED_MODIFIERS) == 0);
@@ -441,7 +368,6 @@ import java.util.Objects;
         assert((refKind & ~MN_REFERENCE_KIND_MASK) == 0);
         return flags | mods | (refKind << MN_REFERENCE_KIND_SHIFT);
     }
-
     public MemberName(Method m) {
         this(m, false);
     }
@@ -487,7 +413,6 @@ import java.util.Objects;
         }
         throw new IllegalArgumentException(this.toString());
     }
-
     public MemberName asConstructor() {
         switch (getReferenceKind()) {
         case REF_invokeSpecial:     return clone().changeReferenceKind(REF_newInvokeSpecial, REF_invokeSpecial);
@@ -495,7 +420,6 @@ import java.util.Objects;
         }
         throw new IllegalArgumentException(this.toString());
     }
-
     public MemberName asNormalOriginal() {
         byte normalVirtual = clazz.isInterface() ? REF_invokeInterface : REF_invokeVirtual;
         byte refKind = getReferenceKind();
@@ -514,7 +438,6 @@ import java.util.Objects;
         assert(this.referenceKindIsConsistentWith(result.getReferenceKind()));
         return result;
     }
-
     @SuppressWarnings("LeakingThisInConstructor")
     public MemberName(Constructor<?> ctor) {
         ctor.getClass();  // NPE check
@@ -525,7 +448,6 @@ import java.util.Objects;
         if (this.type == null)
             this.type = new Object[] { void.class, ctor.getParameterTypes() };
     }
-
     public MemberName(Field fld) {
         this(fld, false);
     }
@@ -557,14 +479,11 @@ import java.util.Objects;
         byte setterRefKind = (byte)(refKind + (REF_putField - REF_getField));
         return clone().changeReferenceKind(setterRefKind, refKind);
     }
-
     public MemberName(Class<?> type) {
         init(type.getDeclaringClass(), type.getSimpleName(), type,
                 flagsMods(IS_TYPE, type.getModifiers(), REF_NONE));
         initResolved(true);
     }
-
-
     static MemberName makeMethodHandleInvoke(String name, MethodType type) {
         return makeMethodHandleInvoke(name, type, MH_INVOKE_MODS | SYNTHETIC);
     }
@@ -574,10 +493,8 @@ import java.util.Objects;
         assert(mem.isMethodHandleInvoke()) : mem;
         return mem;
     }
-
     // bare-bones constructor; the JVM will fill it in
     MemberName() { }
-
     // locally useful cloner
     @Override protected MemberName clone() {
         try {
@@ -586,8 +503,6 @@ import java.util.Objects;
             throw newInternalError(ex);
         }
      }
-
-
     public MemberName getDefinition() {
         if (!isResolved())  throw new IllegalStateException("must be resolved: "+this);
         if (isType())  return this;
@@ -600,7 +515,6 @@ import java.util.Objects;
         assert(res.getName().equals(this.getName()));
         return res;
     }
-
     @Override
     public int hashCode() {
         return Objects.hash(clazz, getReferenceKind(), name, getType());
@@ -609,8 +523,6 @@ import java.util.Objects;
     public boolean equals(Object that) {
         return (that instanceof MemberName && this.equals((MemberName)that));
     }
-
-
     public boolean equals(MemberName that) {
         if (this == that)  return true;
         if (that == null)  return false;
@@ -619,20 +531,16 @@ import java.util.Objects;
                 && Objects.equals(this.name, that.name)
                 && Objects.equals(this.getType(), that.getType());
     }
-
     // Construction from symbolic parts, for queries:
-
     public MemberName(Class<?> defClass, String name, Class<?> type, byte refKind) {
         init(defClass, name, type, flagsMods(IS_FIELD, 0, refKind));
         initResolved(false);
     }
-
     public MemberName(Class<?> defClass, String name, MethodType type, byte refKind) {
         int initFlags = (name != null && name.equals(CONSTRUCTOR_NAME) ? IS_CONSTRUCTOR : IS_METHOD);
         init(defClass, name, type, flagsMods(initFlags, 0, refKind));
         initResolved(false);
     }
-
     public MemberName(byte refKind, Class<?> defClass, String name, Object type) {
         int kindFlags;
         if (MethodHandleNatives.refKindIsField(refKind)) {
@@ -654,23 +562,18 @@ import java.util.Objects;
         init(defClass, name, type, flagsMods(kindFlags, 0, refKind));
         initResolved(false);
     }
-
     public boolean hasReceiverTypeDispatch() {
         return MethodHandleNatives.refKindDoesDispatch(getReferenceKind());
     }
-
-
     public boolean isResolved() {
         return resolution == null;
     }
-
     private void initResolved(boolean isResolved) {
         assert(this.resolution == null);  // not initialized yet!
         if (!isResolved)
             this.resolution = this;
         assert(isResolved() == isResolved);
     }
-
     void checkForTypeAlias(Class<?> refc) {
         if (isInvocable()) {
             MethodType type;
@@ -691,9 +594,6 @@ import java.util.Objects;
             throw new LinkageError("bad field type alias: "+type+" not visible from "+refc);
         }
     }
-
-
-
     @SuppressWarnings("LocalVariableHidesMemberVariable")
     @Override
     public String toString() {
@@ -727,7 +627,6 @@ import java.util.Objects;
             return ((Class<?>)obj).getName();
         return String.valueOf(obj);
     }
-
     public IllegalAccessException makeAccessException(String message, Object from) {
         message = message + ": "+ toString();
         if (from != null)  message += ", from " + from;
@@ -759,18 +658,13 @@ import java.util.Objects;
             ex.initCause((Throwable) resolution);
         return ex;
     }
-
-
      static Factory getFactory() {
         return Factory.INSTANCE;
     }
-
      static class Factory {
         private Factory() { } // singleton pattern
         static Factory INSTANCE = new Factory();
-
         private static int ALLOWED_FLAGS = ALL_KINDS;
-
         /// Queries
         List<MemberName> getMembers(Class<?> defc,
                 String matchName, Object matchType,
@@ -829,7 +723,6 @@ import java.util.Objects;
             }
             return result;
         }
-
         private MemberName resolve(byte refKind, MemberName ref, Class<?> lookupClass) {
             MemberName m = ref.clone();  // JVM will side-effect the ref
             assert(refKind == m.getReferenceKind());
@@ -863,7 +756,6 @@ import java.util.Objects;
             assert(m.vminfoIsConsistent());
             return m;
         }
-
         public
         <NoSuchMemberException extends ReflectiveOperationException>
         MemberName resolveOrFail(byte refKind, MemberName m, Class<?> lookupClass,
@@ -876,7 +768,6 @@ import java.util.Objects;
             if (ex instanceof IllegalAccessException)  throw (IllegalAccessException) ex;
             throw nsmClass.cast(ex);
         }
-
         public
         MemberName resolveOrNull(byte refKind, MemberName m, Class<?> lookupClass) {
             MemberName result = resolve(refKind, m, lookupClass);
@@ -884,33 +775,27 @@ import java.util.Objects;
                 return result;
             return null;
         }
-
         public List<MemberName> getMethods(Class<?> defc, boolean searchSupers,
                 Class<?> lookupClass) {
             return getMethods(defc, searchSupers, null, null, lookupClass);
         }
-
         public List<MemberName> getMethods(Class<?> defc, boolean searchSupers,
                 String name, MethodType type, Class<?> lookupClass) {
             int matchFlags = IS_METHOD | (searchSupers ? SEARCH_ALL_SUPERS : 0);
             return getMembers(defc, name, type, matchFlags, lookupClass);
         }
-
         public List<MemberName> getConstructors(Class<?> defc, Class<?> lookupClass) {
             return getMembers(defc, null, null, IS_CONSTRUCTOR, lookupClass);
         }
-
         public List<MemberName> getFields(Class<?> defc, boolean searchSupers,
                 Class<?> lookupClass) {
             return getFields(defc, searchSupers, null, null, lookupClass);
         }
-
         public List<MemberName> getFields(Class<?> defc, boolean searchSupers,
                 String name, Class<?> type, Class<?> lookupClass) {
             int matchFlags = IS_FIELD | (searchSupers ? SEARCH_ALL_SUPERS : 0);
             return getMembers(defc, name, type, matchFlags, lookupClass);
         }
-
         public List<MemberName> getNestedTypes(Class<?> defc, boolean searchSupers,
                 Class<?> lookupClass) {
             int matchFlags = IS_TYPE | (searchSupers ? SEARCH_ALL_SUPERS : 0);
@@ -924,7 +809,6 @@ import java.util.Objects;
             return buf;
         }
     }
-
 //    static {
 //        System.out.println("Hello world!  My methods are:");
 //        System.out.println(Factory.INSTANCE.getMethods(MemberName.class, true, null));

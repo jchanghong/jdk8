@@ -1,42 +1,19 @@
-
-
 package java.awt;
-
 import java.beans.ConstructorProperties;
-
 import java.lang.annotation.Native;
-
-
 public class BasicStroke implements Stroke {
-
-
     @Native public final static int JOIN_MITER = 0;
-
-
     @Native public final static int JOIN_ROUND = 1;
-
-
     @Native public final static int JOIN_BEVEL = 2;
-
-
     @Native public final static int CAP_BUTT = 0;
-
-
     @Native public final static int CAP_ROUND = 1;
-
-
     @Native public final static int CAP_SQUARE = 2;
-
     float width;
-
     int join;
     int cap;
     float miterlimit;
-
     float dash[];
     float dash_phase;
-
-
     @ConstructorProperties({ "lineWidth", "endCap", "lineJoin", "miterLimit", "dashArray", "dashPhase" })
     public BasicStroke(float width, int cap, int join, float miterlimit,
                        float dash[], float dash_phase) {
@@ -79,71 +56,45 @@ public class BasicStroke implements Stroke {
         }
         this.dash_phase = dash_phase;
     }
-
-
     public BasicStroke(float width, int cap, int join, float miterlimit) {
         this(width, cap, join, miterlimit, null, 0.0f);
     }
-
-
     public BasicStroke(float width, int cap, int join) {
         this(width, cap, join, 10.0f, null, 0.0f);
     }
-
-
     public BasicStroke(float width) {
         this(width, CAP_SQUARE, JOIN_MITER, 10.0f, null, 0.0f);
     }
-
-
     public BasicStroke() {
         this(1.0f, CAP_SQUARE, JOIN_MITER, 10.0f, null, 0.0f);
     }
-
-
-
     public Shape createStrokedShape(Shape s) {
         sun.java2d.pipe.RenderingEngine re =
             sun.java2d.pipe.RenderingEngine.getInstance();
         return re.createStrokedShape(s, width, cap, join, miterlimit,
                                      dash, dash_phase);
     }
-
-
     public float getLineWidth() {
         return width;
     }
-
-
     public int getEndCap() {
         return cap;
     }
-
-
     public int getLineJoin() {
         return join;
     }
-
-
     public float getMiterLimit() {
         return miterlimit;
     }
-
-
     public float[] getDashArray() {
         if (dash == null) {
             return null;
         }
-
         return (float[]) dash.clone();
     }
-
-
     public float getDashPhase() {
         return dash_phase;
     }
-
-
     public int hashCode() {
         int hash = Float.floatToIntBits(width);
         hash = hash * 31 + join;
@@ -157,36 +108,27 @@ public class BasicStroke implements Stroke {
         }
         return hash;
     }
-
-
-
     public boolean equals(Object obj) {
         if (!(obj instanceof BasicStroke)) {
             return false;
         }
-
         BasicStroke bs = (BasicStroke) obj;
         if (width != bs.width) {
             return false;
         }
-
         if (join != bs.join) {
             return false;
         }
-
         if (cap != bs.cap) {
             return false;
         }
-
         if (miterlimit != bs.miterlimit) {
             return false;
         }
-
         if (dash != null) {
             if (dash_phase != bs.dash_phase) {
                 return false;
             }
-
             if (!java.util.Arrays.equals(dash, bs.dash)) {
                 return false;
             }
@@ -194,7 +136,6 @@ public class BasicStroke implements Stroke {
         else if (bs.dash != null) {
             return false;
         }
-
         return true;
     }
 }

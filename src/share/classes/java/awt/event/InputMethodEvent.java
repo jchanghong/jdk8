@@ -1,11 +1,7 @@
-
-
 package java.awt.event;
-
 import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
-
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -15,35 +11,18 @@ import java.io.ObjectInputStream;
 import java.text.AttributedCharacterIterator;
 import java.text.CharacterIterator;
 import java.lang.annotation.Native;
-
-
 public class InputMethodEvent extends AWTEvent {
-
-
     private static final long serialVersionUID = 4727190874778922661L;
-
-
     @Native public static final int INPUT_METHOD_FIRST = 1100;
-
-
     @Native public static final int INPUT_METHOD_TEXT_CHANGED = INPUT_METHOD_FIRST;
-
-
     @Native public static final int CARET_POSITION_CHANGED = INPUT_METHOD_FIRST + 1;
-
-
     @Native public static final int INPUT_METHOD_LAST = INPUT_METHOD_FIRST + 1;
-
-
     long when;
-
     // Text object
     private transient AttributedCharacterIterator text;
     private transient int committedCharacterCount;
     private transient TextHitInfo caret;
     private transient TextHitInfo visiblePosition;
-
-
     public InputMethodEvent(Component source, int id, long when,
             AttributedCharacterIterator text, int committedCharacterCount,
             TextHitInfo caret, TextHitInfo visiblePosition) {
@@ -51,28 +30,22 @@ public class InputMethodEvent extends AWTEvent {
         if (id < INPUT_METHOD_FIRST || id > INPUT_METHOD_LAST) {
             throw new IllegalArgumentException("id outside of valid range");
         }
-
         if (id == CARET_POSITION_CHANGED && text != null) {
             throw new IllegalArgumentException("text must be null for CARET_POSITION_CHANGED");
         }
-
         this.when = when;
         this.text = text;
         int textLength = 0;
         if (text != null) {
             textLength = text.getEndIndex() - text.getBeginIndex();
         }
-
         if (committedCharacterCount < 0 || committedCharacterCount > textLength) {
             throw new IllegalArgumentException("committedCharacterCount outside of valid range");
         }
         this.committedCharacterCount = committedCharacterCount;
-
         this.caret = caret;
         this.visiblePosition = visiblePosition;
    }
-
-
     public InputMethodEvent(Component source, int id,
             AttributedCharacterIterator text, int committedCharacterCount,
             TextHitInfo caret, TextHitInfo visiblePosition) {
@@ -81,51 +54,33 @@ public class InputMethodEvent extends AWTEvent {
                 text, committedCharacterCount,
                 caret, visiblePosition);
     }
-
-
     public InputMethodEvent(Component source, int id, TextHitInfo caret,
             TextHitInfo visiblePosition) {
         this(source, id,
                 getMostRecentEventTimeForSource(source),
                 null, 0, caret, visiblePosition);
     }
-
-
     public AttributedCharacterIterator getText() {
         return text;
     }
-
-
     public int getCommittedCharacterCount() {
         return committedCharacterCount;
     }
-
-
     public TextHitInfo getCaret() {
         return caret;
     }
-
-
     public TextHitInfo getVisiblePosition() {
         return visiblePosition;
     }
-
-
     public void consume() {
         consumed = true;
     }
-
-
     public boolean isConsumed() {
         return consumed;
     }
-
-
     public long getWhen() {
       return when;
     }
-
-
     public String paramString() {
         String typeStr;
         switch(id) {
@@ -138,7 +93,6 @@ public class InputMethodEvent extends AWTEvent {
           default:
               typeStr = "unknown type";
         }
-
         String textString;
         if (text == null) {
             textString = "no text";
@@ -158,27 +112,21 @@ public class InputMethodEvent extends AWTEvent {
             textBuffer.append("\"");
             textString = textBuffer.toString();
         }
-
         String countString = committedCharacterCount + " characters committed";
-
         String caretString;
         if (caret == null) {
             caretString = "no caret";
         } else {
             caretString = "caret: " + caret.toString();
         }
-
         String visiblePositionString;
         if (visiblePosition == null) {
             visiblePositionString = "no visible position";
         } else {
             visiblePositionString = "visible position: " + visiblePosition.toString();
         }
-
         return typeStr + ", " + textString + ", " + countString + ", " + caretString + ", " + visiblePositionString;
     }
-
-
     private void readObject(ObjectInputStream s) throws ClassNotFoundException, IOException {
         s.defaultReadObject();
         if (when == 0) {
@@ -186,8 +134,6 @@ public class InputMethodEvent extends AWTEvent {
             when = EventQueue.getMostRecentEventTime();
         }
     }
-
-
     private static long getMostRecentEventTimeForSource(Object source) {
         if (source == null) {
             // throw the IllegalArgumentException to conform to EventObject spec

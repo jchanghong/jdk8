@@ -1,18 +1,8 @@
-
-
 package java.awt.image;
-
-
-
 public abstract class LookupTable extends Object{
-
-
-
     int  numComponents;
     int  offset;
     int  numEntries;
-
-
     protected LookupTable(int offset, int numComponents) {
         if (offset < 0) {
             throw new
@@ -25,18 +15,11 @@ public abstract class LookupTable extends Object{
         this.numComponents = numComponents;
         this.offset = offset;
     }
-
-
     public int getNumComponents() {
         return numComponents;
     }
-
-
     public int getOffset() {
         return offset;
     }
-
-
     public abstract int[] lookupPixel(int[] src, int[] dest);
-
 }

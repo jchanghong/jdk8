@@ -1,13 +1,8 @@
-
-
 package java.util.jar;
-
 import java.util.zip.*;
 import java.io.*;
 import sun.security.util.ManifestEntryVerifier;
 import sun.misc.JarIndex;
-
-
 public
 class JarInputStream extends ZipInputStream {
     private Manifest man;
@@ -16,17 +11,12 @@ class JarInputStream extends ZipInputStream {
     private ManifestEntryVerifier mev;
     private final boolean doVerify;
     private boolean tryManifest;
-
-
     public JarInputStream(InputStream in) throws IOException {
         this(in, true);
     }
-
-
     public JarInputStream(InputStream in, boolean verify) throws IOException {
         super(in);
         this.doVerify = verify;
-
         // This implementation assumes the META-INF/MANIFEST.MF entry
         // should be either the first or the second entry (when preceded
         // by the dir META-INF/). It skips the META-INF/ and then
@@ -36,7 +26,6 @@ class JarInputStream extends ZipInputStream {
             e = (JarEntry)super.getNextEntry();
         first = checkManifest(e);
     }
-
     private JarEntry checkManifest(JarEntry e)
         throws IOException
     {
@@ -53,7 +42,6 @@ class JarInputStream extends ZipInputStream {
         }
         return e;
     }
-
     private byte[] getBytes(InputStream is)
         throws IOException
     {
@@ -65,13 +53,9 @@ class JarInputStream extends ZipInputStream {
         }
         return baos.toByteArray();
     }
-
-
     public Manifest getManifest() {
         return man;
     }
-
-
     public ZipEntry getNextEntry() throws IOException {
         JarEntry e;
         if (first == null) {
@@ -99,13 +83,9 @@ class JarInputStream extends ZipInputStream {
         }
         return e;
     }
-
-
     public JarEntry getNextJarEntry() throws IOException {
         return (JarEntry)getNextEntry();
     }
-
-
     public int read(byte[] b, int off, int len) throws IOException {
         int n;
         if (first == null) {
@@ -118,8 +98,6 @@ class JarInputStream extends ZipInputStream {
         }
         return n;
     }
-
-
     protected ZipEntry createZipEntry(String name) {
         JarEntry e = new JarEntry(name);
         if (man != null) {

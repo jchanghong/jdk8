@@ -1,9 +1,4 @@
-
-
-
-
 package java.nio.channels.spi;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
@@ -11,21 +6,12 @@ import java.nio.channels.*;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import sun.nio.ch.Interruptible;
-
-
-
-
 public abstract class AbstractInterruptibleChannel
     implements Channel, InterruptibleChannel
 {
-
     private final Object closeLock = new Object();
     private volatile boolean open = true;
-
-
     protected AbstractInterruptibleChannel() { }
-
-
     public final void close() throws IOException {
         synchronized (closeLock) {
             if (!open)
@@ -34,21 +20,13 @@ public abstract class AbstractInterruptibleChannel
             implCloseChannel();
         }
     }
-
-
     protected abstract void implCloseChannel() throws IOException;
-
     public final boolean isOpen() {
         return open;
     }
-
-
     // -- Interruption machinery --
-
     private Interruptible interruptor;
     private volatile Thread interrupted;
-
-
     protected final void begin() {
         if (interruptor == null) {
             interruptor = new Interruptible() {
@@ -69,8 +47,6 @@ public abstract class AbstractInterruptibleChannel
         if (me.isInterrupted())
             interruptor.interrupt(me);
     }
-
-
     protected final void end(boolean completed)
         throws AsynchronousCloseException
     {
@@ -83,8 +59,6 @@ public abstract class AbstractInterruptibleChannel
         if (!completed && !open)
             throw new AsynchronousCloseException();
     }
-
-
     // -- sun.misc.SharedSecrets --
     static void blockedOn(Interruptible intr) {         // package-private
         sun.misc.SharedSecrets.getJavaLangAccess().blockedOn(Thread.currentThread(),

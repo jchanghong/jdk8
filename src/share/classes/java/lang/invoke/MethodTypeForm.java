@@ -1,19 +1,13 @@
-
-
 package java.lang.invoke;
-
 import sun.invoke.util.Wrapper;
 import java.lang.ref.SoftReference;
 import static java.lang.invoke.MethodHandleStatics.*;
-
-
 final class MethodTypeForm {
     final int[] argToSlotTable, slotToArgTable;
     final long argCounts;               // packed slot & value counts
     final long primCounts;              // packed prim & double counts
     final MethodType erasedType;        // the canonical erasure
     final MethodType basicType;         // the canonical erasure, with primitives simplified
-
     // Cached adapter information:
     @Stable final SoftReference<MethodHandle>[] methodHandles;
     // Indexes into methodHandles:
@@ -22,7 +16,6 @@ final class MethodTypeForm {
             MH_NF_INV         =  1,  // cached helper for LF.NamedFunction
             MH_UNINIT_CS      =  2,  // uninitialized call site
             MH_LIMIT          =  3;
-
     // Cached lambda form information, for basic types only:
     final @Stable SoftReference<LambdaForm>[] lambdaForms;
     // Indexes into lambdaForms:
@@ -46,30 +39,23 @@ final class MethodTypeForm {
             LF_GWC                     = 16,  // guardWithCatch (catchException)
             LF_GWT                     = 17,  // guardWithTest
             LF_LIMIT                   = 18;
-
-
     public MethodType erasedType() {
         return erasedType;
     }
-
-
     public MethodType basicType() {
         return basicType;
     }
-
     private boolean assertIsBasicType() {
         // primitives must be flattened also
         assert(erasedType == basicType)
                 : "erasedType: " + erasedType + " != basicType: " + basicType;
         return true;
     }
-
     public MethodHandle cachedMethodHandle(int which) {
         assert(assertIsBasicType());
         SoftReference<MethodHandle> entry = methodHandles[which];
         return (entry != null) ? entry.get() : null;
     }
-
     synchronized public MethodHandle setCachedMethodHandle(int which, MethodHandle mh) {
         // Simulate a CAS, to avoid racy duplication of results.
         SoftReference<MethodHandle> entry = methodHandles[which];
@@ -82,13 +68,11 @@ final class MethodTypeForm {
         methodHandles[which] = new SoftReference<>(mh);
         return mh;
     }
-
     public LambdaForm cachedLambdaForm(int which) {
         assert(assertIsBasicType());
         SoftReference<LambdaForm> entry = lambdaForms[which];
         return (entry != null) ? entry.get() : null;
     }
-
     synchronized public LambdaForm setCachedLambdaForm(int which, LambdaForm form) {
         // Simulate a CAS, to avoid racy duplication of results.
         SoftReference<LambdaForm> entry = lambdaForms[which];
@@ -101,20 +85,15 @@ final class MethodTypeForm {
         lambdaForms[which] = new SoftReference<>(form);
         return form;
     }
-
-
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected MethodTypeForm(MethodType erasedType) {
         this.erasedType = erasedType;
-
         Class<?>[] ptypes = erasedType.ptypes();
         int ptypeCount = ptypes.length;
         int pslotCount = ptypeCount;            // temp. estimate
         int rtypeCount = 1;                     // temp. estimate
         int rslotCount = 1;                     // temp. estimate
-
         int[] argToSlotTab = null, slotToArgTab = null;
-
         // Walk the argument types, looking for primitives.
         int pac = 0, lac = 0, prc = 0, lrc = 0;
         Class<?>[] epts = ptypes;
@@ -198,15 +177,12 @@ final class MethodTypeForm {
         this.argCounts = pack(rslotCount, rtypeCount, pslotCount, ptypeCount);
         this.argToSlotTable = argToSlotTab;
         this.slotToArgTable = slotToArgTab;
-
         if (pslotCount >= 256)  throw newIllegalArgumentException("too many arguments");
-
         // Initialize caches, but only for basic types
         assert(basicType == erasedType);
         this.lambdaForms   = new SoftReference[LF_LIMIT];
         this.methodHandles = new SoftReference[MH_LIMIT];
     }
-
     private static long pack(int a, int b, int c, int d) {
         assert(((a|b|c|d) & ~0xFFFF) == 0);
         long hw = ((a << 16) | b), lw = ((c << 16) | d);
@@ -216,7 +192,6 @@ final class MethodTypeForm {
         assert(word <= 3);
         return (char)(packed >> ((3-word) * 16));
     }
-
     public int parameterCount() {                      // # outgoing values
         return unpack(argCounts, 3);
     }
@@ -261,7 +236,6 @@ final class MethodTypeForm {
         // We return -1 the caller to mean an empty slot.
         return slotToArgTable[argSlot] - 1;
     }
-
     static MethodTypeForm findForm(MethodType mt) {
         MethodType erased = canonicalize(mt, ERASE, ERASE);
         if (erased == null) {
@@ -272,11 +246,7 @@ final class MethodTypeForm {
             return erased.form();
         }
     }
-
-
     public static final int NO_CHANGE = 0, ERASE = 1, WRAP = 2, UNWRAP = 3, INTS = 4, LONGS = 5, RAW_RETURN = 6;
-
-
     public static MethodType canonicalize(MethodType mt, int howRet, int howArgs) {
         Class<?>[] ptypes = mt.ptypes();
         Class<?>[] ptc = MethodTypeForm.canonicalizeAll(ptypes, howArgs);
@@ -291,8 +261,6 @@ final class MethodTypeForm {
         if (ptc == null)  ptc = ptypes;
         return MethodType.makeImpl(rtc, ptc, true);
     }
-
-
     static Class<?> canonicalize(Class<?> t, int how) {
         Class<?> ct;
         if (t == Object.class) {
@@ -341,8 +309,6 @@ final class MethodTypeForm {
         // no change; return null to signify
         return null;
     }
-
-
     static Class<?>[] canonicalizeAll(Class<?>[] ts, int how) {
         Class<?>[] cs = null;
         for (int imax = ts.length, i = 0; i < imax; i++) {
@@ -357,7 +323,6 @@ final class MethodTypeForm {
         }
         return cs;
     }
-
     @Override
     public String toString() {
         return "Form"+erasedType;

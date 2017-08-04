@@ -1,24 +1,16 @@
-
-
 package java.security;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 import sun.security.util.*;
-
-
 public final class PKCS12Attribute implements KeyStore.Entry.Attribute {
-
     private static final Pattern COLON_SEPARATED_HEX_PAIRS =
         Pattern.compile("^[0-9a-fA-F]{2}(:[0-9a-fA-F]{2})+$");
     private String name;
     private String value;
     private byte[] encoded;
     private int hashValue = -1;
-
-
     public PKCS12Attribute(String name, String value) {
         if (name == null || value == null) {
             throw new NullPointerException();
@@ -31,7 +23,6 @@ public final class PKCS12Attribute implements KeyStore.Entry.Attribute {
             throw new IllegalArgumentException("Incorrect format: name", e);
         }
         this.name = name;
-
         // Validate value
         int length = value.length();
         String[] values;
@@ -41,46 +32,34 @@ public final class PKCS12Attribute implements KeyStore.Entry.Attribute {
             values = new String[]{ value };
         }
         this.value = value;
-
         try {
             this.encoded = encode(type, values);
         } catch (IOException e) {
             throw new IllegalArgumentException("Incorrect format: value", e);
         }
     }
-
-
     public PKCS12Attribute(byte[] encoded) {
         if (encoded == null) {
             throw new NullPointerException();
         }
         this.encoded = encoded.clone();
-
         try {
             parse(encoded);
         } catch (IOException e) {
             throw new IllegalArgumentException("Incorrect format: encoded", e);
         }
     }
-
-
     @Override
     public String getName() {
         return name;
     }
-
-
     @Override
     public String getValue() {
         return value;
     }
-
-
     public byte[] getEncoded() {
         return encoded.clone();
     }
-
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -91,8 +70,6 @@ public final class PKCS12Attribute implements KeyStore.Entry.Attribute {
         }
         return Arrays.equals(encoded, ((PKCS12Attribute) obj).getEncoded());
     }
-
-
     @Override
     public int hashCode() {
         if (hashValue == -1) {
@@ -100,13 +77,10 @@ public final class PKCS12Attribute implements KeyStore.Entry.Attribute {
         }
         return hashValue;
     }
-
-
     @Override
     public String toString() {
         return (name + "=" + value);
     }
-
     private byte[] encode(ObjectIdentifier type, String[] values)
             throws IOException {
         DerOutputStream attribute = new DerOutputStream();
@@ -127,10 +101,8 @@ public final class PKCS12Attribute implements KeyStore.Entry.Attribute {
         attribute.write(DerValue.tag_Set, attrContent);
         DerOutputStream attributeValue = new DerOutputStream();
         attributeValue.write(DerValue.tag_Sequence, attribute);
-
         return attributeValue.toByteArray();
     }
-
     private void parse(byte[] encoded) throws IOException {
         DerInputStream attributeValue = new DerInputStream(encoded);
         DerValue[] attrSeq = attributeValue.getSequence(2);
@@ -160,7 +132,6 @@ public final class PKCS12Attribute implements KeyStore.Entry.Attribute {
                 values[i] = Debug.toString(attrValueSet[i].getDataBytes());
             }
         }
-
         this.name = type.toString();
         this.value = values.length == 1 ? values[0] : Arrays.toString(values);
     }

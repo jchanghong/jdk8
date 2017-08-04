@@ -1,9 +1,4 @@
-
-
-
-
 package java.util.concurrent;
-
 import java.util.AbstractQueue;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,41 +8,28 @@ import java.util.Queue;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
-
-
 public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
         implements Queue<E>, java.io.Serializable {
     private static final long serialVersionUID = 196745693267521676L;
-
-
-
     private static class Node<E> {
         volatile E item;
         volatile Node<E> next;
-
-
         Node(E item) {
             UNSAFE.putObject(this, itemOffset, item);
         }
-
         boolean casItem(E cmp, E val) {
             return UNSAFE.compareAndSwapObject(this, itemOffset, cmp, val);
         }
-
         void lazySetNext(Node<E> val) {
             UNSAFE.putOrderedObject(this, nextOffset, val);
         }
-
         boolean casNext(Node<E> cmp, Node<E> val) {
             return UNSAFE.compareAndSwapObject(this, nextOffset, cmp, val);
         }
-
         // Unsafe mechanics
-
         private static final sun.misc.Unsafe UNSAFE;
         private static final long itemOffset;
         private static final long nextOffset;
-
         static {
             try {
                 UNSAFE = sun.misc.Unsafe.getUnsafe();
@@ -61,19 +43,11 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
             }
         }
     }
-
-
     private transient volatile Node<E> head;
-
-
     private transient volatile Node<E> tail;
-
-
     public ConcurrentLinkedQueue() {
         head = tail = new Node<E>(null);
     }
-
-
     public ConcurrentLinkedQueue(Collection<? extends E> c) {
         Node<E> h = null, t = null;
         for (E e : c) {
@@ -91,31 +65,21 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
         head = h;
         tail = t;
     }
-
     // Have to override just to update the javadoc
-
-
     public boolean add(E e) {
         return offer(e);
     }
-
-
     final void updateHead(Node<E> h, Node<E> p) {
         if (h != p && casHead(h, p))
             h.lazySetNext(h);
     }
-
-
     final Node<E> succ(Node<E> p) {
         Node<E> next = p.next;
         return (p == next) ? head : next;
     }
-
-
     public boolean offer(E e) {
         checkNotNull(e);
         final Node<E> newNode = new Node<E>(e);
-
         for (Node<E> t = tail, p = t;;) {
             Node<E> q = p.next;
             if (q == null) {
@@ -141,13 +105,11 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
                 p = (p != t && t != (t = tail)) ? t : q;
         }
     }
-
     public E poll() {
         restartFromHead:
         for (;;) {
             for (Node<E> h = head, p = h, q;;) {
                 E item = p.item;
-
                 if (item != null && p.casItem(item, null)) {
                     // Successful CAS is the linearization point
                     // for item to be removed from this queue.
@@ -166,7 +128,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
             }
         }
     }
-
     public E peek() {
         restartFromHead:
         for (;;) {
@@ -183,8 +144,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
             }
         }
     }
-
-
     Node<E> first() {
         restartFromHead:
         for (;;) {
@@ -201,13 +160,9 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
             }
         }
     }
-
-
     public boolean isEmpty() {
         return first() == null;
     }
-
-
     public int size() {
         int count = 0;
         for (Node<E> p = first(); p != null; p = succ(p))
@@ -217,8 +172,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
                     break;
         return count;
     }
-
-
     public boolean contains(Object o) {
         if (o == null) return false;
         for (Node<E> p = first(); p != null; p = succ(p)) {
@@ -228,8 +181,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
         }
         return false;
     }
-
-
     public boolean remove(Object o) {
         if (o != null) {
             Node<E> next, pred = null;
@@ -243,7 +194,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
                     }
                     removed = p.casItem(item, null);
                 }
-
                 next = succ(p);
                 if (pred != null && next != null) // unlink
                     pred.casNext(p, next);
@@ -253,13 +203,10 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
         }
         return false;
     }
-
-
     public boolean addAll(Collection<? extends E> c) {
         if (c == this)
             // As historically specified in AbstractQueue#addAll
             throw new IllegalArgumentException();
-
         // Copy c into a private chain of Nodes
         Node<E> beginningOfTheEnd = null, last = null;
         for (E e : c) {
@@ -274,7 +221,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
         }
         if (beginningOfTheEnd == null)
             return false;
-
         // Atomically append the chain at the tail of this collection
         for (Node<E> t = tail, p = t;;) {
             Node<E> q = p.next;
@@ -305,8 +251,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
                 p = (p != t && t != (t = tail)) ? t : q;
         }
     }
-
-
     public Object[] toArray() {
         // Use ArrayList to deal with resizing.
         ArrayList<E> al = new ArrayList<E>();
@@ -317,8 +261,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
         }
         return al.toArray();
     }
-
-
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
         // try to use sent-in array
@@ -334,7 +276,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
                 a[k] = null;
             return a;
         }
-
         // If won't fit, use ArrayList version
         ArrayList<E> al = new ArrayList<E>();
         for (Node<E> q = first(); q != null; q = succ(q)) {
@@ -344,31 +285,19 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
         }
         return al.toArray(a);
     }
-
-
     public Iterator<E> iterator() {
         return new Itr();
     }
-
     private class Itr implements Iterator<E> {
-
         private Node<E> nextNode;
-
-
         private E nextItem;
-
-
         private Node<E> lastRet;
-
         Itr() {
             advance();
         }
-
-
         private E advance() {
             lastRet = nextNode;
             E x = nextItem;
-
             Node<E> pred, p;
             if (nextNode == null) {
                 p = first();
@@ -377,7 +306,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
                 pred = nextNode;
                 p = succ(nextNode);
             }
-
             for (;;) {
                 if (p == null) {
                     nextNode = null;
@@ -398,16 +326,13 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
                 }
             }
         }
-
         public boolean hasNext() {
             return nextNode != null;
         }
-
         public E next() {
             if (nextNode == null) throw new NoSuchElementException();
             return advance();
         }
-
         public void remove() {
             Node<E> l = lastRet;
             if (l == null) throw new IllegalStateException();
@@ -416,30 +341,22 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
             lastRet = null;
         }
     }
-
-
     private void writeObject(java.io.ObjectOutputStream s)
         throws java.io.IOException {
-
         // Write out any hidden stuff
         s.defaultWriteObject();
-
         // Write out all elements in the proper order.
         for (Node<E> p = first(); p != null; p = succ(p)) {
             Object item = p.item;
             if (item != null)
                 s.writeObject(item);
         }
-
         // Use trailing null as sentinel
         s.writeObject(null);
     }
-
-
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {
         s.defaultReadObject();
-
         // Read in elements until trailing null sentinel found
         Node<E> h = null, t = null;
         Object item;
@@ -458,8 +375,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
         head = h;
         tail = t;
     }
-
-
     static final class CLQSpliterator<E> implements Spliterator<E> {
         static final int MAX_BATCH = 1 << 25;  // max batch array size;
         final ConcurrentLinkedQueue<E> queue;
@@ -469,7 +384,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
         CLQSpliterator(ConcurrentLinkedQueue<E> queue) {
             this.queue = queue;
         }
-
         public Spliterator<E> trySplit() {
             Node<E> p;
             final ConcurrentLinkedQueue<E> q = this.queue;
@@ -497,7 +411,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
             }
             return null;
         }
-
         public void forEachRemaining(Consumer<? super E> action) {
             Node<E> p;
             if (action == null) throw new NullPointerException();
@@ -514,7 +427,6 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
                 } while (p != null);
             }
         }
-
         public boolean tryAdvance(Consumer<? super E> action) {
             Node<E> p;
             if (action == null) throw new NullPointerException();
@@ -536,37 +448,27 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
             }
             return false;
         }
-
         public long estimateSize() { return Long.MAX_VALUE; }
-
         public int characteristics() {
             return Spliterator.ORDERED | Spliterator.NONNULL |
                 Spliterator.CONCURRENT;
         }
     }
-
-
     @Override
     public Spliterator<E> spliterator() {
         return new CLQSpliterator<E>(this);
     }
-
-
     private static void checkNotNull(Object v) {
         if (v == null)
             throw new NullPointerException();
     }
-
     private boolean casTail(Node<E> cmp, Node<E> val) {
         return UNSAFE.compareAndSwapObject(this, tailOffset, cmp, val);
     }
-
     private boolean casHead(Node<E> cmp, Node<E> val) {
         return UNSAFE.compareAndSwapObject(this, headOffset, cmp, val);
     }
-
     // Unsafe mechanics
-
     private static final sun.misc.Unsafe UNSAFE;
     private static final long headOffset;
     private static final long tailOffset;

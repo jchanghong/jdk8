@@ -1,21 +1,11 @@
-
-
 package java.lang.invoke;
-
-
 import java.util.*;
-
 import static java.lang.invoke.MethodHandleStatics.*;
-
-
 public abstract class MethodHandle {
     static { MethodHandleImpl.initStatics(); }
-
-
     @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD})
     @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
     @interface PolymorphicSignature { }
-
     private final MethodType type;
      final LambdaForm form;
     // form is not private so that invokers can easily fetch it
@@ -23,56 +13,31 @@ public abstract class MethodHandle {
     // asTypeCache is not private so that invokers can easily fetch it
      byte customizationCount;
     // customizationCount should be accessible from invokers
-
-
     public MethodType type() {
         return type;
     }
-
-
     // @param type type (permanently assigned) of the new method handle
      MethodHandle(MethodType type, LambdaForm form) {
         type.getClass();  // explicit NPE
         form.getClass();  // explicit NPE
         this.type = type;
         this.form = form.uncustomize();
-
         this.form.prepare();  // TO DO:  Try to delay this step until just before invocation.
     }
-
-
     public final native @PolymorphicSignature Object invokeExact(Object... args) throws Throwable;
-
-
     public final native @PolymorphicSignature Object invoke(Object... args) throws Throwable;
-
-
      final native @PolymorphicSignature Object invokeBasic(Object... args) throws Throwable;
-
-
      static native @PolymorphicSignature Object linkToVirtual(Object... args) throws Throwable;
-
-
      static native @PolymorphicSignature Object linkToStatic(Object... args) throws Throwable;
-
-
      static native @PolymorphicSignature Object linkToSpecial(Object... args) throws Throwable;
-
-
      static native @PolymorphicSignature Object linkToInterface(Object... args) throws Throwable;
-
-
     public Object invokeWithArguments(Object... arguments) throws Throwable {
         MethodType invocationType = MethodType.genericMethodType(arguments == null ? 0 : arguments.length);
         return invocationType.invokers().spreadInvoker(0).invokeExact(asType(invocationType), arguments);
     }
-
-
     public Object invokeWithArguments(java.util.List<?> arguments) throws Throwable {
         return invokeWithArguments(arguments.toArray());
     }
-
-
     public MethodHandle asType(MethodType newType) {
         // Fast path alternative to a heavyweight {@code asType} call.
         // Return 'this' if the conversion will be a no-op.
@@ -86,7 +51,6 @@ public abstract class MethodHandle {
         }
         return asTypeUncached(newType);
     }
-
     private MethodHandle asTypeCached(MethodType newType) {
         MethodHandle atc = asTypeCache;
         if (atc != null && newType == atc.type) {
@@ -94,15 +58,11 @@ public abstract class MethodHandle {
         }
         return null;
     }
-
-
      MethodHandle asTypeUncached(MethodType newType) {
         if (!type.isConvertibleTo(newType))
             throw new WrongMethodTypeException("cannot convert "+this+" to "+newType);
         return asTypeCache = MethodHandleImpl.makePairwiseConvert(this, newType, true);
     }
-
-
     public MethodHandle asSpreader(Class<?> arrayType, int arrayLength) {
         MethodType postSpreadType = asSpreaderChecks(arrayType, arrayLength);
         int arity = type().parameterCount();
@@ -113,8 +73,6 @@ public abstract class MethodHandle {
         MethodType preSpreadType = postSpreadType.replaceParameterTypes(spreadArgPos, arity, arrayType);
         return mh.copyWith(preSpreadType, lform);
     }
-
-
     private MethodType asSpreaderChecks(Class<?> arrayType, int arrayLength) {
         spreadArrayChecks(arrayType, arrayLength);
         int nargs = type().parameterCount();
@@ -140,7 +98,6 @@ public abstract class MethodHandle {
         this.asType(needType);
         throw newInternalError("should not return", null);
     }
-
     private void spreadArrayChecks(Class<?> arrayType, int arrayLength) {
         Class<?> arrayElement = arrayType.getComponentType();
         if (arrayElement == null)
@@ -154,8 +111,6 @@ public abstract class MethodHandle {
                 throw newIllegalArgumentException("array length is not legal for long[] or double[]", arrayLength);
         }
     }
-
-
     public MethodHandle asCollector(Class<?> arrayType, int arrayLength) {
         asCollectorChecks(arrayType, arrayLength);
         int collectArgPos = type().parameterCount() - 1;
@@ -169,8 +124,6 @@ public abstract class MethodHandle {
         lform = mh.editor().collectArgumentsForm(1 + collectArgPos, newArray.type().basicType());
         return mh.copyWithExtendL(resultType, lform, newArray);
     }
-
-
      boolean asCollectorChecks(Class<?> arrayType, int arrayLength) {
         spreadArrayChecks(arrayType, arrayLength);
         int nargs = type().parameterCount();
@@ -181,8 +134,6 @@ public abstract class MethodHandle {
         }
         throw newIllegalArgumentException("array type not assignable to trailing argument", this, arrayType);
     }
-
-
     public MethodHandle asVarargsCollector(Class<?> arrayType) {
         arrayType.getClass(); // explicit NPE
         boolean lastMatch = asCollectorChecks(arrayType, 0);
@@ -190,25 +141,17 @@ public abstract class MethodHandle {
             return this;
         return MethodHandleImpl.makeVarargsCollector(this, arrayType);
     }
-
-
     public boolean isVarargsCollector() {
         return false;
     }
-
-
     public MethodHandle asFixedArity() {
         assert(!isVarargsCollector());
         return this;
     }
-
-
     public MethodHandle bindTo(Object x) {
         x = type.leadingReferenceParameter().cast(x);  // throw CCE if needed
         return bindArgumentL(0, x);
     }
-
-
     @Override
     public String toString() {
         if (DEBUG_METHOD_HANDLE_NAMES)  return "MethodHandle"+debugString();
@@ -217,22 +160,16 @@ public abstract class MethodHandle {
     String standardString() {
         return "MethodHandle"+type;
     }
-
     String debugString() {
         return type+" : "+internalForm()+internalProperties();
     }
-
     //// Implementation methods.
     //// Sub-classes can override these default implementations.
     //// All these methods assume arguments are already validated.
-
     // Other transforms to do:  convert, explicitCast, permute, drop, filter, fold, GWT, catch
-
     BoundMethodHandle bindArgumentL(int pos, Object value) {
         return rebind().bindArgumentL(pos, value);
     }
-
-
     MethodHandle setVarargs(MemberName member) throws IllegalAccessException {
         if (!member.isVarargs())  return this;
         Class<?> arrayType = type().lastParameterType();
@@ -241,8 +178,6 @@ public abstract class MethodHandle {
         }
         throw member.makeAccessException("cannot make variable arity", null);
     }
-
-
     MethodHandle viewAsType(MethodType newType, boolean strict) {
         // No actual conversions, just a new view of the same method.
         // Note that this operation must not produce a DirectMethodHandle,
@@ -253,8 +188,6 @@ public abstract class MethodHandle {
         assert(!((MethodHandle)mh instanceof DirectMethodHandle));
         return mh.copyWith(newType, mh.form);
     }
-
-
     boolean viewAsTypeChecks(MethodType newType, boolean strict) {
         if (strict) {
             assert(type().isViewableAs(newType, true))
@@ -265,31 +198,20 @@ public abstract class MethodHandle {
         }
         return true;
     }
-
     // Decoding
-
-
     LambdaForm internalForm() {
         return form;
     }
-
-
     MemberName internalMemberName() {
         return null;  // DMH returns DMH.member
     }
-
-
     Class<?> internalCallerClass() {
         return null;  // caller-bound MH for @CallerSensitive method returns caller
     }
-
-
     MethodHandleImpl.Intrinsic intrinsicName() {
         // no special intrinsic meaning to most MHs
         return MethodHandleImpl.Intrinsic.NONE;
     }
-
-
     MethodHandle withInternalMemberName(MemberName member, boolean isInvokeSpecial) {
         if (member != null) {
             return MethodHandleImpl.makeWrappedMember(this, member, isInvokeSpecial);
@@ -303,35 +225,21 @@ public abstract class MethodHandle {
             return result;
         }
     }
-
-
     boolean isInvokeSpecial() {
         return false;  // DMH.Special returns true
     }
-
-
     Object internalValues() {
         return null;
     }
-
-
     Object internalProperties() {
         // Override to something to follow this.form, like "\n& FOO=bar"
         return "";
     }
-
     //// Method handle implementation methods.
     //// Sub-classes can override these default implementations.
     //// All these methods assume arguments are already validated.
-
-
     abstract MethodHandle copyWith(MethodType mt, LambdaForm lf);
-
-
     abstract BoundMethodHandle rebind();
-
-
-
     void updateForm(LambdaForm newForm) {
         assert(newForm.customized == null || newForm.customized == this);
         if (form == newForm)  return;
@@ -339,9 +247,6 @@ public abstract class MethodHandle {
         UNSAFE.putObject(this, FORM_OFFSET, newForm);
         UNSAFE.fullFence();
     }
-
-
-
     void customize() {
         if (form.customized == null) {
             LambdaForm newForm = form.customize(this);
@@ -350,7 +255,6 @@ public abstract class MethodHandle {
             assert(form.customized == this);
         }
     }
-
     private static final long FORM_OFFSET;
     static {
         try {

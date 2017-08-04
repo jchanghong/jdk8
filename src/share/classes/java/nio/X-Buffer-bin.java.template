@@ -1,26 +1,10 @@
-
-
 #warn This file is preprocessed before being compiled
-
 class XXX {
-
 #begin
-
-
     public abstract $type$ get$Type$();
-
-
     public abstract ByteBuffer put$Type$($type$ value);
-
-
     public abstract $type$ get$Type$(int index);
-
-
     public abstract ByteBuffer put$Type$(int index, $type$ value);
-
-
     public abstract $Type$Buffer as$Type$Buffer();
-
 #end
-
 }

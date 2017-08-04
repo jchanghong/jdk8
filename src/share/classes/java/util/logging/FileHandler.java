@@ -1,11 +1,7 @@
-
-
 package java.util.logging;
-
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.WRITE;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,9 +19,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.Set;
-
-
-
 public class FileHandler extends StreamHandler {
     private MeteredStream meter;
     private boolean append;
@@ -37,46 +30,37 @@ public class FileHandler extends StreamHandler {
     private File files[];
     private static final int MAX_LOCKS = 100;
     private static final Set<String> locks = new HashSet<>();
-
-
     private class MeteredStream extends OutputStream {
         final OutputStream out;
         int written;
-
         MeteredStream(OutputStream out, int written) {
             this.out = out;
             this.written = written;
         }
-
         @Override
         public void write(int b) throws IOException {
             out.write(b);
             written++;
         }
-
         @Override
         public void write(byte buff[]) throws IOException {
             out.write(buff);
             written += buff.length;
         }
-
         @Override
         public void write(byte buff[], int off, int len) throws IOException {
             out.write(buff,off,len);
             written += len;
         }
-
         @Override
         public void flush() throws IOException {
             out.flush();
         }
-
         @Override
         public void close() throws IOException {
             out.close();
         }
     }
-
     private void open(File fname, boolean append) throws IOException {
         int len = 0;
         if (append) {
@@ -87,13 +71,9 @@ public class FileHandler extends StreamHandler {
         meter = new MeteredStream(bout, len);
         setOutputStream(meter);
     }
-
-
     private void configure() {
         LogManager manager = LogManager.getLogManager();
-
         String cname = getClass().getName();
-
         pattern = manager.getStringProperty(cname + ".pattern", "%h/java%u.log");
         limit = manager.getIntProperty(cname + ".limit", 0);
         if (limit < 0) {
@@ -118,16 +98,11 @@ public class FileHandler extends StreamHandler {
             }
         }
     }
-
-
-
     public FileHandler() throws IOException, SecurityException {
         checkPermission();
         configure();
         openFiles();
     }
-
-
     public FileHandler(String pattern) throws IOException, SecurityException {
         if (pattern.length() < 1 ) {
             throw new IllegalArgumentException();
@@ -139,8 +114,6 @@ public class FileHandler extends StreamHandler {
         this.count = 1;
         openFiles();
     }
-
-
     public FileHandler(String pattern, boolean append) throws IOException,
             SecurityException {
         if (pattern.length() < 1 ) {
@@ -154,8 +127,6 @@ public class FileHandler extends StreamHandler {
         this.append = append;
         openFiles();
     }
-
-
     public FileHandler(String pattern, int limit, int count)
                                         throws IOException, SecurityException {
         if (limit < 0 || count < 1 || pattern.length() < 1) {
@@ -168,8 +139,6 @@ public class FileHandler extends StreamHandler {
         this.count = count;
         openFiles();
     }
-
-
     public FileHandler(String pattern, int limit, int count, boolean append)
                                         throws IOException, SecurityException {
         if (limit < 0 || count < 1 || pattern.length() < 1) {
@@ -183,7 +152,6 @@ public class FileHandler extends StreamHandler {
         this.append = append;
         openFiles();
     }
-
     private  boolean isParentWritable(Path path) {
         Path parent = path.getParent();
         if (parent == null) {
@@ -191,8 +159,6 @@ public class FileHandler extends StreamHandler {
         }
         return parent != null && Files.isWritable(parent);
     }
-
-
     private void openFiles() throws IOException {
         LogManager manager = LogManager.getLogManager();
         manager.checkPermission();
@@ -202,12 +168,10 @@ public class FileHandler extends StreamHandler {
         if (limit < 0) {
             limit = 0;
         }
-
         // We register our own ErrorManager during initialization
         // so we can record exceptions.
         InitializationErrorManager em = new InitializationErrorManager();
         setErrorManager(em);
-
         // Create a lock file.  This grants us exclusive access
         // to our set of output files, as long as we are alive.
         int unique = -1;
@@ -228,7 +192,6 @@ public class FileHandler extends StreamHandler {
                     // object.  Try again.
                     continue;
                 }
-
                 final Path lockFilePath = Paths.get(lockFileName);
                 FileChannel channel = null;
                 int retries = -1;
@@ -266,10 +229,8 @@ public class FileHandler extends StreamHandler {
                         }
                     }
                 }
-
                 if (channel == null) continue; // try the next name;
                 lockFileChannel = channel;
-
                 boolean available;
                 try {
                     available = lockFileChannel.tryLock() != null;
@@ -299,24 +260,20 @@ public class FileHandler extends StreamHandler {
                     locks.add(lockFileName);
                     break;
                 }
-
                 // We failed to get the lock.  Try next file.
                 lockFileChannel.close();
             }
         }
-
         files = new File[count];
         for (int i = 0; i < count; i++) {
             files[i] = generate(pattern, i, unique);
         }
-
         // Create the initial log file.
         if (append) {
             open(files[0], true);
         } else {
             rotate();
         }
-
         // Did we detect any exceptions during initialization?
         Exception ex = em.lastException;
         if (ex != null) {
@@ -328,12 +285,9 @@ public class FileHandler extends StreamHandler {
                 throw new IOException("Exception: " + ex);
             }
         }
-
         // Install the normal default ErrorManager.
         setErrorManager(new ErrorManager());
     }
-
-
     private File generate(String pattern, int generation, int unique)
             throws IOException {
         File file = null;
@@ -409,12 +363,9 @@ public class FileHandler extends StreamHandler {
         }
         return file;
     }
-
-
     private synchronized void rotate() {
         Level oldLevel = getLevel();
         setLevel(Level.OFF);
-
         super.close();
         for (int i = count-2; i >= 0; i--) {
             File f1 = files[i];
@@ -432,12 +383,9 @@ public class FileHandler extends StreamHandler {
             // We don't want to throw an exception here, but we
             // report the exception to any registered ErrorManager.
             reportError(null, ix, ErrorManager.OPEN_FAILURE);
-
         }
         setLevel(oldLevel);
     }
-
-
     @Override
     public synchronized void publish(LogRecord record) {
         if (!isLoggable(record)) {
@@ -460,8 +408,6 @@ public class FileHandler extends StreamHandler {
             });
         }
     }
-
-
     @Override
     public synchronized void close() throws SecurityException {
         super.close();
@@ -482,7 +428,6 @@ public class FileHandler extends StreamHandler {
         lockFileName = null;
         lockFileChannel = null;
     }
-
     private static class InitializationErrorManager extends ErrorManager {
         Exception lastException;
         @Override
@@ -490,7 +435,5 @@ public class FileHandler extends StreamHandler {
             lastException = ex;
         }
     }
-
-
     private static native boolean isSetUID();
 }

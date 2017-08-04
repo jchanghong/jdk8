@@ -1,16 +1,9 @@
-
-
 package java.net;
-
 import java.io.IOException;
 import java.util.List;
 import sun.security.util.SecurityConstants;
-
-
 public abstract class ProxySelector {
-
     private static ProxySelector theProxySelector;
-
     static {
         try {
             Class<?> c = Class.forName("sun.net.spi.DefaultProxySelector");
@@ -21,8 +14,6 @@ public abstract class ProxySelector {
             theProxySelector = null;
         }
     }
-
-
     public static ProxySelector getDefault() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -30,8 +21,6 @@ public abstract class ProxySelector {
         }
         return theProxySelector;
     }
-
-
     public static void setDefault(ProxySelector ps) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -39,10 +28,6 @@ public abstract class ProxySelector {
         }
         theProxySelector = ps;
     }
-
-
     public abstract List<Proxy> select(URI uri);
-
-
     public abstract void connectFailed(URI uri, SocketAddress sa, IOException ioe);
 }

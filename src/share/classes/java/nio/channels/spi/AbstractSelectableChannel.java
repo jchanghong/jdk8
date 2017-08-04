@@ -1,49 +1,30 @@
-
-
 package java.nio.channels.spi;
-
 import java.io.IOException;
 import java.nio.channels.*;
-
-
-
-
 public abstract class AbstractSelectableChannel
     extends SelectableChannel
 {
-
     // The provider that created this channel
     private final SelectorProvider provider;
-
     // Keys that have been created by registering this channel with selectors.
     // They are saved because if this channel is closed the keys must be
     // deregistered.  Protected by keyLock.
     //
     private SelectionKey[] keys = null;
     private int keyCount = 0;
-
     // Lock for key set and count
     private final Object keyLock = new Object();
-
     // Lock for registration and configureBlocking operations
     private final Object regLock = new Object();
-
     // Blocking mode, protected by regLock
     boolean blocking = true;
-
-
     protected AbstractSelectableChannel(SelectorProvider provider) {
         this.provider = provider;
     }
-
-
     public final SelectorProvider provider() {
         return provider;
     }
-
-
     // -- Utility methods for the key set --
-
     private void addKey(SelectionKey k) {
         assert Thread.holdsLock(keyLock);
         int i = 0;
@@ -66,7 +47,6 @@ public abstract class AbstractSelectableChannel
         keys[i] = k;
         keyCount++;
     }
-
     private SelectionKey findKey(Selector sel) {
         synchronized (keyLock) {
             if (keys == null)
@@ -77,7 +57,6 @@ public abstract class AbstractSelectableChannel
             return null;
         }
     }
-
     void removeKey(SelectionKey k) {                    // package-private
         synchronized (keyLock) {
             for (int i = 0; i < keys.length; i++)
@@ -88,7 +67,6 @@ public abstract class AbstractSelectableChannel
             ((AbstractSelectionKey)k).invalidate();
         }
     }
-
     private boolean haveValidKeys() {
         synchronized (keyLock) {
             if (keyCount == 0)
@@ -100,21 +78,15 @@ public abstract class AbstractSelectableChannel
             return false;
         }
     }
-
-
     // -- Registration --
-
     public final boolean isRegistered() {
         synchronized (keyLock) {
             return keyCount != 0;
         }
     }
-
     public final SelectionKey keyFor(Selector sel) {
         return findKey(sel);
     }
-
-
     public final SelectionKey register(Selector sel, int ops,
                                        Object att)
         throws ClosedChannelException
@@ -143,11 +115,7 @@ public abstract class AbstractSelectableChannel
             return k;
         }
     }
-
-
     // -- Closing --
-
-
     protected final void implCloseChannel() throws IOException {
         implCloseSelectableChannel();
         synchronized (keyLock) {
@@ -159,24 +127,16 @@ public abstract class AbstractSelectableChannel
             }
         }
     }
-
-
     protected abstract void implCloseSelectableChannel() throws IOException;
-
-
     // -- Blocking --
-
     public final boolean isBlocking() {
         synchronized (regLock) {
             return blocking;
         }
     }
-
     public final Object blockingLock() {
         return regLock;
     }
-
-
     public final SelectableChannel configureBlocking(boolean block)
         throws IOException
     {
@@ -192,9 +152,6 @@ public abstract class AbstractSelectableChannel
         }
         return this;
     }
-
-
     protected abstract void implConfigureBlocking(boolean block)
         throws IOException;
-
 }

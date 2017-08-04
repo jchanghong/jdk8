@@ -1,35 +1,19 @@
-
-
 package java.lang.invoke;
-
 import sun.invoke.empty.Empty;
 import static java.lang.invoke.MethodHandleStatics.*;
 import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
-
-
 abstract
 public class CallSite {
     static { MethodHandleImpl.initStatics(); }
-
     // The actual payload of this call site:
-
     MethodHandle target;    // Note: This field is known to the JVM.  Do not change.
-
-
-
     CallSite(MethodType type) {
         target = makeUninitializedCallSite(type);
     }
-
-
-
     CallSite(MethodHandle target) {
         target.type();  // null check
         this.target = target;
     }
-
-
-
     CallSite(MethodType targetType, MethodHandle createTargetHook) throws Throwable {
         this(targetType);
         ConstantCallSite selfCCS = (ConstantCallSite) this;
@@ -37,39 +21,27 @@ public class CallSite {
         checkTargetChange(this.target, boundTarget);
         this.target = boundTarget;
     }
-
-
     public MethodType type() {
         // warning:  do not call getTarget here, because CCS.getTarget can throw IllegalStateException
         return target.type();
     }
-
-
     public abstract MethodHandle getTarget();
-
-
     public abstract void setTarget(MethodHandle newTarget);
-
     void checkTargetChange(MethodHandle oldTarget, MethodHandle newTarget) {
         MethodType oldType = oldTarget.type();
         MethodType newType = newTarget.type();  // null check!
         if (!newType.equals(oldType))
             throw wrongTargetType(newTarget, oldType);
     }
-
     private static WrongMethodTypeException wrongTargetType(MethodHandle target, MethodType type) {
         return new WrongMethodTypeException(String.valueOf(target)+" should be of type "+type);
     }
-
-
     public abstract MethodHandle dynamicInvoker();
-
      MethodHandle makeDynamicInvoker() {
         MethodHandle getTarget = GET_TARGET.bindArgumentL(0, this);
         MethodHandle invoker = MethodHandles.exactInvoker(this.type());
         return MethodHandles.foldArguments(invoker, getTarget);
     }
-
     private static final MethodHandle GET_TARGET;
     private static final MethodHandle THROW_UCS;
     static {
@@ -82,12 +54,9 @@ public class CallSite {
             throw newInternalError(e);
         }
     }
-
-
     private static Object uninitializedCallSite(Object... ignore) {
         throw new IllegalStateException("uninitialized call site");
     }
-
     private MethodHandle makeUninitializedCallSite(MethodType targetType) {
         MethodType basicType = targetType.basicType();
         MethodHandle invoker = basicType.form().cachedMethodHandle(MethodTypeForm.MH_UNINIT_CS);
@@ -98,7 +67,6 @@ public class CallSite {
         // unchecked view is OK since no values will be received or returned
         return invoker.viewAsType(targetType, false);
     }
-
     // unsafe stuff:
     private static final long TARGET_OFFSET;
     static {
@@ -106,20 +74,15 @@ public class CallSite {
             TARGET_OFFSET = UNSAFE.objectFieldOffset(CallSite.class.getDeclaredField("target"));
         } catch (Exception ex) { throw new Error(ex); }
     }
-
-
     void setTargetNormal(MethodHandle newTarget) {
         MethodHandleNatives.setCallSiteTargetNormal(this, newTarget);
     }
-
     MethodHandle getTargetVolatile() {
         return (MethodHandle) UNSAFE.getObjectVolatile(this, TARGET_OFFSET);
     }
-
     void setTargetVolatile(MethodHandle newTarget) {
         MethodHandleNatives.setCallSiteTargetVolatile(this, newTarget);
     }
-
     // this implements the upcall from the JVM, MethodHandleNatives.makeDynamicCallSite:
     static CallSite makeSite(MethodHandle bootstrapMethod,
                              // Callee information:
@@ -197,7 +160,6 @@ public class CallSite {
         }
         return site;
     }
-
     private static Object maybeReBox(Object x) {
         if (x instanceof Integer) {
             int xi = (int) x;

@@ -1,27 +1,14 @@
-
-
 package javax.sql.rowset.spi;
-
 import java.sql.SQLException;
 import javax.sql.rowset.*;
-
-
 public class SyncProviderException extends java.sql.SQLException {
-
-
      private SyncResolver syncResolver = null;
-
-
     public SyncProviderException() {
         super();
     }
-
-
     public SyncProviderException(String msg)  {
         super(msg);
     }
-
-
     public SyncProviderException(SyncResolver syncResolver)  {
         if (syncResolver == null) {
             throw new IllegalArgumentException("Cannot instantiate a SyncProviderException " +
@@ -30,8 +17,6 @@ public class SyncProviderException extends java.sql.SQLException {
             this.syncResolver = syncResolver;
         }
     }
-
-
     public SyncResolver getSyncResolver() {
         if (syncResolver != null) {
             return syncResolver;
@@ -43,8 +28,6 @@ public class SyncProviderException extends java.sql.SQLException {
             return syncResolver;
         }
     }
-
-
     public void setSyncResolver(SyncResolver syncResolver) {
         if (syncResolver == null) {
             throw new IllegalArgumentException("Cannot set a null SyncResolver " +
@@ -53,7 +36,5 @@ public class SyncProviderException extends java.sql.SQLException {
             this.syncResolver = syncResolver;
         }
     }
-
     static final long serialVersionUID = -939908523620640692L;
-
 }

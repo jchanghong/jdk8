@@ -1,18 +1,11 @@
-
-
 package java.net;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-
-
  class HttpConnectSocketImpl extends PlainSocketImpl {
-
     private static final String httpURLClazzStr =
                                   "sun.net.www.protocol.http.HttpURLConnection";
     private static final String netClientClazzStr = "sun.net.NetworkClient";
@@ -20,11 +13,9 @@ import java.util.Set;
     private static final Field httpField;
     private static final Field serverSocketField;
     private static final Method doTunneling;
-
     private final String server;
     private InetSocketAddress external_address;
     private HashMap<Integer, Object> optionsMap = new HashMap<>();
-
     static  {
         try {
             Class<?> httpClazz = Class.forName(httpURLClazzStr, true, null);
@@ -32,7 +23,6 @@ import java.util.Set;
             doTunneling = httpClazz.getDeclaredMethod(doTunnelingStr);
             Class<?> netClientClazz = Class.forName(netClientClazzStr, true, null);
             serverSocketField = netClientClazz.getDeclaredField("serverSocket");
-
             java.security.AccessController.doPrivileged(
                 new java.security.PrivilegedAction<Void>() {
                     public Void run() {
@@ -45,22 +35,18 @@ import java.util.Set;
             throw new InternalError("Should not reach here", x);
         }
     }
-
     HttpConnectSocketImpl(String server, int port) {
         this.server = server;
         this.port = port;
     }
-
     HttpConnectSocketImpl(Proxy proxy) {
         SocketAddress a = proxy.address();
         if ( !(a instanceof InetSocketAddress) )
             throw new IllegalArgumentException("Unsupported address type");
-
         InetSocketAddress ad = (InetSocketAddress) a;
         server = ad.getHostString();
         port = ad.getPort();
     }
-
     @Override
     protected void connect(SocketAddress endpoint, int timeout)
         throws IOException
@@ -71,25 +57,19 @@ import java.util.Set;
         final String destHost = epoint.isUnresolved() ? epoint.getHostName()
                                                       : epoint.getAddress().getHostAddress();
         final int destPort = epoint.getPort();
-
         SecurityManager security = System.getSecurityManager();
         if (security != null)
             security.checkConnect(destHost, destPort);
-
         // Connect to the HTTP proxy server
         String urlString = "http://" + destHost + ":" + destPort;
         Socket httpSocket = privilegedDoTunnel(urlString, timeout);
-
         // Success!
         external_address = epoint;
-
         // close the original socket impl and release its descriptor
         close();
-
         // update the Sockets impl to the impl from the http Socket
         AbstractPlainSocketImpl psi = (AbstractPlainSocketImpl) httpSocket.impl;
         this.getSocket().impl = psi;
-
         // best effort is made to try and reset options previously set
         Set<Map.Entry<Integer,Object>> options = optionsMap.entrySet();
         try {
@@ -98,18 +78,14 @@ import java.util.Set;
             }
         } catch (IOException x) {    }
     }
-
     @Override
     public void setOption(int opt, Object val) throws SocketException {
         super.setOption(opt, val);
-
         if (external_address != null)
             return;  // we're connected, just return
-
         // store options so that they can be re-applied to the impl after connect
         optionsMap.put(opt, val);
     }
-
     private Socket privilegedDoTunnel(final String urlString,
                                       final int timeout)
         throws IOException
@@ -125,7 +101,6 @@ import java.util.Set;
             throw (IOException) pae.getException();
         }
     }
-
     private Socket doTunnel(String urlString, int connectTimeout)
         throws IOException
     {
@@ -143,7 +118,6 @@ import java.util.Set;
             throw new InternalError("Should not reach here", x);
         }
     }
-
     private void doTunneling(HttpURLConnection conn) {
         try {
             doTunneling.invoke(conn);
@@ -151,7 +125,6 @@ import java.util.Set;
             throw new InternalError("Should not reach here", x);
         }
     }
-
     @Override
     protected InetAddress getInetAddress() {
         if (external_address != null)
@@ -159,7 +132,6 @@ import java.util.Set;
         else
             return super.getInetAddress();
     }
-
     @Override
     protected int getPort() {
         if (external_address != null)
@@ -167,7 +139,6 @@ import java.util.Set;
         else
             return super.getPort();
     }
-
     @Override
     protected int getLocalPort() {
         if (socket != null)

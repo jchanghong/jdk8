@@ -1,51 +1,27 @@
-
-
 package java.util.zip;
-
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
-
-
 public class InflaterOutputStream extends FilterOutputStream {
-
     protected final Inflater inf;
-
-
     protected final byte[] buf;
-
-
     private final byte[] wbuf = new byte[1];
-
-
     private boolean usesDefaultInflater = false;
-
-
     private boolean closed = false;
-
-
     private void ensureOpen() throws IOException {
         if (closed) {
             throw new IOException("Stream closed");
         }
     }
-
-
     public InflaterOutputStream(OutputStream out) {
         this(out, new Inflater());
         usesDefaultInflater = true;
     }
-
-
     public InflaterOutputStream(OutputStream out, Inflater infl) {
         this(out, infl, 512);
     }
-
-
     public InflaterOutputStream(OutputStream out, Inflater infl, int bufLen) {
         super(out);
-
         // Sanity checks
         if (out == null)
             throw new NullPointerException("Null output");
@@ -53,13 +29,10 @@ public class InflaterOutputStream extends FilterOutputStream {
             throw new NullPointerException("Null inflater");
         if (bufLen <= 0)
             throw new IllegalArgumentException("Buffer size < 1");
-
         // Initialize
         inf = infl;
         buf = new byte[bufLen];
     }
-
-
     public void close() throws IOException {
         if (!closed) {
             // Complete the uncompressed output
@@ -71,23 +44,18 @@ public class InflaterOutputStream extends FilterOutputStream {
             }
         }
     }
-
-
     public void flush() throws IOException {
         ensureOpen();
-
         // Finish decompressing and writing pending output data
         if (!inf.finished()) {
             try {
                 while (!inf.finished()  &&  !inf.needsInput()) {
                     int n;
-
                     // Decompress pending output data
                     n = inf.inflate(buf, 0, buf.length);
                     if (n < 1) {
                         break;
                     }
-
                     // Write the uncompressed output data block
                     out.write(buf, 0, n);
                 }
@@ -102,26 +70,19 @@ public class InflaterOutputStream extends FilterOutputStream {
             }
         }
     }
-
-
     public void finish() throws IOException {
         ensureOpen();
-
         // Finish decompressing and writing pending output data
         flush();
         if (usesDefaultInflater) {
             inf.end();
         }
     }
-
-
     public void write(int b) throws IOException {
         // Write a single byte of data
         wbuf[0] = (byte) b;
         write(wbuf, 0, 1);
     }
-
-
     public void write(byte[] b, int off, int len) throws IOException {
         // Sanity checks
         ensureOpen();
@@ -132,26 +93,21 @@ public class InflaterOutputStream extends FilterOutputStream {
         } else if (len == 0) {
             return;
         }
-
         // Write uncompressed data to the output stream
         try {
             for (;;) {
                 int n;
-
                 // Fill the decompressor buffer with output data
                 if (inf.needsInput()) {
                     int part;
-
                     if (len < 1) {
                         break;
                     }
-
                     part = (len < 512 ? len : 512);
                     inf.setInput(b, off, part);
                     off += part;
                     len -= part;
                 }
-
                 // Decompress and write blocks of output data
                 do {
                     n = inf.inflate(buf, 0, buf.length);
@@ -159,7 +115,6 @@ public class InflaterOutputStream extends FilterOutputStream {
                         out.write(buf, 0, n);
                     }
                 } while (n > 0);
-
                 // Check the decompressor
                 if (inf.finished()) {
                     break;

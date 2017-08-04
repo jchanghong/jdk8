@@ -1,24 +1,13 @@
-
-
-
-
 package java.awt.font;
-
-
-
 class TextJustifier {
     private GlyphJustificationInfo[] info;
     private int start;
     private int limit;
-
     static boolean DEBUG = false;
-
-
     TextJustifier(GlyphJustificationInfo[] info, int start, int limit) {
         this.info = info;
         this.start = start;
         this.limit = limit;
-
         if (DEBUG) {
             System.out.println("start: " + start + ", limit: " + limit);
             for (int i = start; i < limit; i++) {
@@ -30,27 +19,19 @@ class TextJustifier {
             }
         }
     }
-
     public static final int MAX_PRIORITY = 3;
-
-
     public float[] justify(float delta) {
         float[] deltas = new float[info.length * 2];
-
         boolean grow = delta > 0;
-
         if (DEBUG)
             System.out.println("delta: " + delta);
-
         // make separate passes through glyphs in order of decreasing priority
         // until justifyDelta is zero or we run out of priorities.
         int fallbackPriority = -1;
         for (int p = 0; delta != 0; p++) {
-
             boolean lastPass = p > MAX_PRIORITY;
             if (lastPass)
                 p = fallbackPriority;
-
             // pass through glyphs, first collecting weights and limits
             float weight = 0;
             float gslimit = 0;
@@ -61,7 +42,6 @@ class TextJustifier {
                     if (fallbackPriority == -1) {
                         fallbackPriority = p;
                     }
-
                     if (i != start) { // ignore left of first character
                         weight += gi.weight;
                         if (grow) {
@@ -76,7 +56,6 @@ class TextJustifier {
                             }
                         }
                     }
-
                     if (i + 1 != limit) { // ignore right of last character
                         weight += gi.weight;
                         if (grow) {
@@ -93,22 +72,18 @@ class TextJustifier {
                     }
                 }
             }
-
             // did we hit the limit?
             if (!grow) {
                 gslimit = -gslimit; // negative for negative deltas
             }
             boolean hitLimit = (weight == 0) || (!lastPass && ((delta < 0) == (delta < gslimit)));
             boolean absorbing = hitLimit && absorbweight > 0;
-
             // predivide delta by weight
             float weightedDelta = delta / weight; // not used if weight == 0
-
             float weightedAbsorb = 0;
             if (hitLimit && absorbweight > 0) {
                 weightedAbsorb = (delta - gslimit) / absorbweight;
             }
-
             if (DEBUG) {
                 System.out.println("pass: " + p +
                     ", d: " + delta +
@@ -119,7 +94,6 @@ class TextJustifier {
                     ", wa: " + weightedAbsorb +
                     ", hit: " + (hitLimit ? "y" : "n"));
             }
-
             // now allocate this based on ratio of weight to total weight
             int n = start * 2;
             for (int i = start; i < limit; i++) {
@@ -138,11 +112,9 @@ class TextJustifier {
                             // sign factored in already
                             d = gi.weight * weightedDelta;
                         }
-
                         deltas[n] += d;
                     }
                     n++;
-
                     if (i + 1 != limit) { // ignore right
                         float d;
                         if (hitLimit) {
@@ -153,7 +125,6 @@ class TextJustifier {
                         } else {
                             d = gi.weight * weightedDelta;
                         }
-
                         deltas[n] += d;
                     }
                     n++;
@@ -161,14 +132,12 @@ class TextJustifier {
                     n += 2;
                 }
             }
-
             if (!lastPass && hitLimit && !absorbing) {
                 delta -= gslimit;
             } else {
                 delta = 0; // stop iteration
             }
         }
-
         if (DEBUG) {
             float total = 0;
             for (int i = 0; i < deltas.length; i++) {
@@ -181,7 +150,6 @@ class TextJustifier {
             System.out.println("\ntotal: " + total);
             System.out.println();
         }
-
         return deltas;
     }
 }

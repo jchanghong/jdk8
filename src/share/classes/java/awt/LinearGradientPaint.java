@@ -1,20 +1,11 @@
-
-
 package java.awt;
-
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
 import java.beans.ConstructorProperties;
-
-
 public final class LinearGradientPaint extends MultipleGradientPaint {
-
-
     private final Point2D start, end;
-
-
     public LinearGradientPaint(float startX, float startY,
                                float endX, float endY,
                                float[] fractions, Color[] colors)
@@ -25,8 +16,6 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
              colors,
              CycleMethod.NO_CYCLE);
     }
-
-
     public LinearGradientPaint(float startX, float startY,
                                float endX, float endY,
                                float[] fractions, Color[] colors,
@@ -38,8 +27,6 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
              colors,
              cycleMethod);
     }
-
-
     public LinearGradientPaint(Point2D start, Point2D end,
                                float[] fractions, Color[] colors)
     {
@@ -47,8 +34,6 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
              fractions, colors,
              CycleMethod.NO_CYCLE);
     }
-
-
     public LinearGradientPaint(Point2D start, Point2D end,
                                float[] fractions, Color[] colors,
                                CycleMethod cycleMethod)
@@ -59,8 +44,6 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
              ColorSpaceType.SRGB,
              new AffineTransform());
     }
-
-
     @ConstructorProperties({ "startPoint", "endPoint", "fractions", "colors", "cycleMethod", "colorSpace", "transform" })
     public LinearGradientPaint(Point2D start, Point2D end,
                                float[] fractions, Color[] colors,
@@ -69,24 +52,19 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
                                AffineTransform gradientTransform)
     {
         super(fractions, colors, cycleMethod, colorSpace, gradientTransform);
-
         // check input parameters
         if (start == null || end == null) {
             throw new NullPointerException("Start and end points must be" +
                                            "non-null");
         }
-
         if (start.equals(end)) {
             throw new IllegalArgumentException("Start point cannot equal" +
                                                "endpoint");
         }
-
         // copy the points...
         this.start = new Point2D.Double(start.getX(), start.getY());
         this.end = new Point2D.Double(end.getX(), end.getY());
     }
-
-
     public PaintContext createContext(ColorModel cm,
                                       Rectangle deviceBounds,
                                       Rectangle2D userBounds,
@@ -97,7 +75,6 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
         transform = new AffineTransform(transform);
         // incorporate the gradient transform
         transform.concatenate(gradientTransform);
-
         if ((fractions.length == 2) &&
             (cycleMethod != CycleMethod.REPEAT) &&
             (colorSpace == ColorSpaceType.SRGB))
@@ -118,13 +95,9 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
                                                   cycleMethod, colorSpace);
         }
     }
-
-
     public Point2D getStartPoint() {
         return new Point2D.Double(start.getX(), start.getY());
     }
-
-
     public Point2D getEndPoint() {
         return new Point2D.Double(end.getX(), end.getY());
     }

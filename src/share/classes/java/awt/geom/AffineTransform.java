@@ -1,92 +1,37 @@
-
-
 package java.awt.geom;
-
 import java.awt.Shape;
 import java.beans.ConstructorProperties;
-
-
 public class AffineTransform implements Cloneable, java.io.Serializable {
-
-
     private static final int TYPE_UNKNOWN = -1;
-
-
     public static final int TYPE_IDENTITY = 0;
-
-
     public static final int TYPE_TRANSLATION = 1;
-
-
     public static final int TYPE_UNIFORM_SCALE = 2;
-
-
     public static final int TYPE_GENERAL_SCALE = 4;
-
-
     public static final int TYPE_MASK_SCALE = (TYPE_UNIFORM_SCALE |
                                                TYPE_GENERAL_SCALE);
-
-
     public static final int TYPE_FLIP = 64;
-
-
-
     public static final int TYPE_QUADRANT_ROTATION = 8;
-
-
     public static final int TYPE_GENERAL_ROTATION = 16;
-
-
     public static final int TYPE_MASK_ROTATION = (TYPE_QUADRANT_ROTATION |
                                                   TYPE_GENERAL_ROTATION);
-
-
     public static final int TYPE_GENERAL_TRANSFORM = 32;
-
-
     static final int APPLY_IDENTITY = 0;
-
-
     static final int APPLY_TRANSLATE = 1;
-
-
     static final int APPLY_SCALE = 2;
-
-
     static final int APPLY_SHEAR = 4;
-
-
     private static final int HI_SHIFT = 3;
     private static final int HI_IDENTITY = APPLY_IDENTITY << HI_SHIFT;
     private static final int HI_TRANSLATE = APPLY_TRANSLATE << HI_SHIFT;
     private static final int HI_SCALE = APPLY_SCALE << HI_SHIFT;
     private static final int HI_SHEAR = APPLY_SHEAR << HI_SHIFT;
-
-
     double m00;
-
-
      double m10;
-
-
      double m01;
-
-
      double m11;
-
-
      double m02;
-
-
      double m12;
-
-
     transient int state;
-
-
     private transient int type;
-
     private AffineTransform(double m00, double m10,
                             double m01, double m11,
                             double m02, double m12,
@@ -100,16 +45,12 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         this.state = state;
         this.type = TYPE_UNKNOWN;
     }
-
-
     public AffineTransform() {
         m00 = m11 = 1.0;
         // m01 = m10 = m02 = m12 = 0.0;
         // state = APPLY_IDENTITY;
         // type = TYPE_IDENTITY;
     }
-
-
     public AffineTransform(AffineTransform Tx) {
         this.m00 = Tx.m00;
         this.m10 = Tx.m10;
@@ -120,8 +61,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         this.state = Tx.state;
         this.type = Tx.type;
     }
-
-
     @ConstructorProperties({ "scaleX", "shearY", "shearX", "scaleY", "translateX", "translateY" })
     public AffineTransform(float m00, float m10,
                            float m01, float m11,
@@ -134,8 +73,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         this.m12 = m12;
         updateState();
     }
-
-
     public AffineTransform(float[] flatmatrix) {
         m00 = flatmatrix[0];
         m10 = flatmatrix[1];
@@ -147,8 +84,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         }
         updateState();
     }
-
-
     public AffineTransform(double m00, double m10,
                            double m01, double m11,
                            double m02, double m12) {
@@ -160,8 +95,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         this.m12 = m12;
         updateState();
     }
-
-
     public AffineTransform(double[] flatmatrix) {
         m00 = flatmatrix[0];
         m10 = flatmatrix[1];
@@ -173,22 +106,16 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         }
         updateState();
     }
-
-
     public static AffineTransform getTranslateInstance(double tx, double ty) {
         AffineTransform Tx = new AffineTransform();
         Tx.setToTranslation(tx, ty);
         return Tx;
     }
-
-
     public static AffineTransform getRotateInstance(double theta) {
         AffineTransform Tx = new AffineTransform();
         Tx.setToRotation(theta);
         return Tx;
     }
-
-
     public static AffineTransform getRotateInstance(double theta,
                                                     double anchorx,
                                                     double anchory)
@@ -197,15 +124,11 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         Tx.setToRotation(theta, anchorx, anchory);
         return Tx;
     }
-
-
     public static AffineTransform getRotateInstance(double vecx, double vecy) {
         AffineTransform Tx = new AffineTransform();
         Tx.setToRotation(vecx, vecy);
         return Tx;
     }
-
-
     public static AffineTransform getRotateInstance(double vecx,
                                                     double vecy,
                                                     double anchorx,
@@ -215,15 +138,11 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         Tx.setToRotation(vecx, vecy, anchorx, anchory);
         return Tx;
     }
-
-
     public static AffineTransform getQuadrantRotateInstance(int numquadrants) {
         AffineTransform Tx = new AffineTransform();
         Tx.setToQuadrantRotation(numquadrants);
         return Tx;
     }
-
-
     public static AffineTransform getQuadrantRotateInstance(int numquadrants,
                                                             double anchorx,
                                                             double anchory)
@@ -232,30 +151,22 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         Tx.setToQuadrantRotation(numquadrants, anchorx, anchory);
         return Tx;
     }
-
-
     public static AffineTransform getScaleInstance(double sx, double sy) {
         AffineTransform Tx = new AffineTransform();
         Tx.setToScale(sx, sy);
         return Tx;
     }
-
-
     public static AffineTransform getShearInstance(double shx, double shy) {
         AffineTransform Tx = new AffineTransform();
         Tx.setToShear(shx, shy);
         return Tx;
     }
-
-
     public int getType() {
         if (type == TYPE_UNKNOWN) {
             calculateType();
         }
         return type;
     }
-
-
     @SuppressWarnings("fallthrough")
     private void calculateType() {
         int ret = TYPE_IDENTITY;
@@ -265,10 +176,8 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             ret = TYPE_TRANSLATION;
-
         case (APPLY_SHEAR | APPLY_SCALE):
             if ((M0 = m00) * (M2 = m01) + (M3 = m10) * (M1 = m11) != 0) {
                 // Transformed unit vectors are not perpendicular...
@@ -305,7 +214,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             break;
         case (APPLY_SHEAR | APPLY_TRANSLATE):
             ret = TYPE_TRANSLATION;
-
         case (APPLY_SHEAR):
             sgn0 = ((M0 = m01) >= 0.0);
             sgn1 = ((M1 = m10) >= 0.0);
@@ -333,7 +241,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             break;
         case (APPLY_SCALE | APPLY_TRANSLATE):
             ret = TYPE_TRANSLATION;
-
         case (APPLY_SCALE):
             sgn0 = ((M0 = m00) >= 0.0);
             sgn1 = ((M1 = m11) >= 0.0);
@@ -377,14 +284,11 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         }
         this.type = ret;
     }
-
-
     @SuppressWarnings("fallthrough")
     public double getDeterminant() {
         switch (state) {
         default:
             stateError();
-
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (APPLY_SHEAR | APPLY_SCALE):
             return m00 * m11 - m01 * m10;
@@ -399,8 +303,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             return 1.0;
         }
     }
-
-
     void updateState() {
         if (m01 == 0.0 && m10 == 0.0) {
             if (m00 == 1.0 && m11 == 1.0) {
@@ -440,13 +342,9 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             }
         }
     }
-
-
     private void stateError() {
         throw new InternalError("missing case in transform state switch");
     }
-
-
     public void getMatrix(double[] flatmatrix) {
         flatmatrix[0] = m00;
         flatmatrix[1] = m10;
@@ -457,43 +355,28 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             flatmatrix[5] = m12;
         }
     }
-
-
     public double getScaleX() {
         return m00;
     }
-
-
     public double getScaleY() {
         return m11;
     }
-
-
     public double getShearX() {
         return m01;
     }
-
-
     public double getShearY() {
         return m10;
     }
-
-
     public double getTranslateX() {
         return m02;
     }
-
-
     public double getTranslateY() {
         return m12;
     }
-
-
     public void translate(double tx, double ty) {
         switch (state) {
         default:
             stateError();
-
             return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             m02 = tx * m00 + ty * m01 + m02;
@@ -567,7 +450,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             return;
         }
     }
-
     // Utility methods to optimize rotate methods.
     // These tables translate the flags during predictable quadrant
     // rotations where the shear and scale values are swapped and negated.
@@ -633,8 +515,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         this.state = state;
         type = TYPE_UNKNOWN;
     }
-
-
     public void rotate(double theta) {
         double sin = Math.sin(theta);
         if (sin == 1.0) {
@@ -659,16 +539,12 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             }
         }
     }
-
-
     public void rotate(double theta, double anchorx, double anchory) {
         // REMIND: Simple for now - optimize later
         translate(anchorx, anchory);
         rotate(theta);
         translate(-anchorx, -anchory);
     }
-
-
     public void rotate(double vecx, double vecy) {
         if (vecy == 0.0) {
             if (vecx < 0.0) {
@@ -698,8 +574,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             updateState();
         }
     }
-
-
     public void rotate(double vecx, double vecy,
                        double anchorx, double anchory)
     {
@@ -708,8 +582,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         rotate(vecx, vecy);
         translate(-anchorx, -anchory);
     }
-
-
     public void quadrantRotate(int numquadrants) {
         switch (numquadrants & 3) {
         case 0:
@@ -725,8 +597,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             break;
         }
     }
-
-
     public void quadrantRotate(int numquadrants,
                                double anchorx, double anchory)
     {
@@ -755,20 +625,16 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             state |= APPLY_TRANSLATE;
         }
     }
-
-
     @SuppressWarnings("fallthrough")
     public void scale(double sx, double sy) {
         int state = this.state;
         switch (state) {
         default:
             stateError();
-
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (APPLY_SHEAR | APPLY_SCALE):
             m00 *= sx;
             m11 *= sy;
-
         case (APPLY_SHEAR | APPLY_TRANSLATE):
         case (APPLY_SHEAR):
             m01 *= sy;
@@ -810,14 +676,11 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             return;
         }
     }
-
-
     public void shear(double shx, double shy) {
         int state = this.state;
         switch (state) {
         default:
             stateError();
-
             return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (APPLY_SHEAR | APPLY_SCALE):
@@ -826,7 +689,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             M1 = m01;
             m00 = M0 + M1 * shy;
             m01 = M0 * shx + M1;
-
             M0 = m10;
             M1 = m11;
             m10 = M0 + M1 * shy;
@@ -862,16 +724,12 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             return;
         }
     }
-
-
     public void setToIdentity() {
         m00 = m11 = 1.0;
         m10 = m01 = m02 = m12 = 0.0;
         state = APPLY_IDENTITY;
         type = TYPE_IDENTITY;
     }
-
-
     public void setToTranslation(double tx, double ty) {
         m00 = 1.0;
         m10 = 0.0;
@@ -887,8 +745,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             type = TYPE_IDENTITY;
         }
     }
-
-
     public void setToRotation(double theta) {
         double sin = Math.sin(theta);
         double cos;
@@ -918,8 +774,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         m02 =  0.0;
         m12 =  0.0;
     }
-
-
     public void setToRotation(double theta, double anchorx, double anchory) {
         setToRotation(theta);
         double sin = m10;
@@ -931,8 +785,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             type |= TYPE_TRANSLATION;
         }
     }
-
-
     public void setToRotation(double vecx, double vecy) {
         double sin, cos;
         if (vecy == 0) {
@@ -965,8 +817,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         m02 =  0.0;
         m12 =  0.0;
     }
-
-
     public void setToRotation(double vecx, double vecy,
                               double anchorx, double anchory)
     {
@@ -980,8 +830,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             type |= TYPE_TRANSLATION;
         }
     }
-
-
     public void setToQuadrantRotation(int numquadrants) {
         switch (numquadrants & 3) {
         case 0:
@@ -1026,8 +874,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             break;
         }
     }
-
-
     public void setToQuadrantRotation(int numquadrants,
                                       double anchorx, double anchory)
     {
@@ -1089,8 +935,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             break;
         }
     }
-
-
     public void setToScale(double sx, double sy) {
         m00 = sx;
         m10 = 0.0;
@@ -1106,8 +950,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             type = TYPE_IDENTITY;
         }
     }
-
-
     public void setToShear(double shx, double shy) {
         m00 = 1.0;
         m01 = shx;
@@ -1123,8 +965,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             type = TYPE_IDENTITY;
         }
     }
-
-
     public void setTransform(AffineTransform Tx) {
         this.m00 = Tx.m00;
         this.m10 = Tx.m10;
@@ -1135,8 +975,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         this.state = Tx.state;
         this.type = Tx.type;
     }
-
-
     public void setTransform(double m00, double m10,
                              double m01, double m11,
                              double m02, double m12) {
@@ -1148,8 +986,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         this.m12 = m12;
         updateState();
     }
-
-
     @SuppressWarnings("fallthrough")
     public void concatenate(AffineTransform Tx) {
         double M0, M1;
@@ -1158,8 +994,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         int mystate = state;
         int txstate = Tx.state;
         switch ((txstate << HI_SHIFT) | mystate) {
-
-
         case (HI_IDENTITY | APPLY_IDENTITY):
         case (HI_IDENTITY | APPLY_TRANSLATE):
         case (HI_IDENTITY | APPLY_SCALE):
@@ -1169,16 +1003,12 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         case (HI_IDENTITY | APPLY_SHEAR | APPLY_SCALE):
         case (HI_IDENTITY | APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             return;
-
-
         case (HI_SHEAR | HI_SCALE | HI_TRANSLATE | APPLY_IDENTITY):
             m01 = Tx.m01;
             m10 = Tx.m10;
-
         case (HI_SCALE | HI_TRANSLATE | APPLY_IDENTITY):
             m00 = Tx.m00;
             m11 = Tx.m11;
-
         case (HI_TRANSLATE | APPLY_IDENTITY):
             m02 = Tx.m02;
             m12 = Tx.m12;
@@ -1188,7 +1018,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         case (HI_SHEAR | HI_SCALE | APPLY_IDENTITY):
             m01 = Tx.m01;
             m10 = Tx.m10;
-
         case (HI_SCALE | APPLY_IDENTITY):
             m00 = Tx.m00;
             m11 = Tx.m11;
@@ -1198,7 +1027,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         case (HI_SHEAR | HI_TRANSLATE | APPLY_IDENTITY):
             m02 = Tx.m02;
             m12 = Tx.m12;
-
         case (HI_SHEAR | APPLY_IDENTITY):
             m01 = Tx.m01;
             m10 = Tx.m10;
@@ -1206,8 +1034,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             state = txstate;
             type = Tx.type;
             return;
-
-
         case (HI_TRANSLATE | APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (HI_TRANSLATE | APPLY_SHEAR | APPLY_SCALE):
         case (HI_TRANSLATE | APPLY_SHEAR | APPLY_TRANSLATE):
@@ -1217,8 +1043,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         case (HI_TRANSLATE | APPLY_TRANSLATE):
             translate(Tx.m02, Tx.m12);
             return;
-
-
         case (HI_SCALE | APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (HI_SCALE | APPLY_SHEAR | APPLY_SCALE):
         case (HI_SCALE | APPLY_SHEAR | APPLY_TRANSLATE):
@@ -1228,8 +1052,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         case (HI_SCALE | APPLY_TRANSLATE):
             scale(Tx.m00, Tx.m11);
             return;
-
-
         case (HI_SHEAR | APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (HI_SHEAR | APPLY_SHEAR | APPLY_SCALE):
             T01 = Tx.m01; T10 = Tx.m10;
@@ -1275,17 +1097,14 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (mystate) {
         default:
             stateError();
-
         case (APPLY_SHEAR | APPLY_SCALE):
             state = mystate | txstate;
-
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M0 = m00;
             M1 = m01;
             m00  = T00 * M0 + T10 * M1;
             m01  = T01 * M0 + T11 * M1;
             m02 += T02 * M0 + T12 * M1;
-
             M0 = m10;
             M1 = m11;
             m10  = T00 * M0 + T10 * M1;
@@ -1293,38 +1112,32 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             m12 += T02 * M0 + T12 * M1;
             type = TYPE_UNKNOWN;
             return;
-
         case (APPLY_SHEAR | APPLY_TRANSLATE):
         case (APPLY_SHEAR):
             M0 = m01;
             m00  = T10 * M0;
             m01  = T11 * M0;
             m02 += T12 * M0;
-
             M0 = m10;
             m10  = T00 * M0;
             m11  = T01 * M0;
             m12 += T02 * M0;
             break;
-
         case (APPLY_SCALE | APPLY_TRANSLATE):
         case (APPLY_SCALE):
             M0 = m00;
             m00  = T00 * M0;
             m01  = T01 * M0;
             m02 += T02 * M0;
-
             M0 = m11;
             m10  = T10 * M0;
             m11  = T11 * M0;
             m12 += T12 * M0;
             break;
-
         case (APPLY_TRANSLATE):
             m00  = T00;
             m01  = T01;
             m02 += T02;
-
             m10  = T10;
             m11  = T11;
             m12 += T12;
@@ -1334,8 +1147,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         }
         updateState();
     }
-
-
     @SuppressWarnings("fallthrough")
     public void preConcatenate(AffineTransform Tx) {
         double M0, M1;
@@ -1354,7 +1165,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         case (HI_IDENTITY | APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             // Tx is IDENTITY...
             return;
-
         case (HI_TRANSLATE | APPLY_IDENTITY):
         case (HI_TRANSLATE | APPLY_SCALE):
         case (HI_TRANSLATE | APPLY_SHEAR):
@@ -1365,7 +1175,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             state = mystate | APPLY_TRANSLATE;
             type |= TYPE_TRANSLATION;
             return;
-
         case (HI_TRANSLATE | APPLY_TRANSLATE):
         case (HI_TRANSLATE | APPLY_SCALE | APPLY_TRANSLATE):
         case (HI_TRANSLATE | APPLY_SHEAR | APPLY_TRANSLATE):
@@ -1374,12 +1183,10 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             m02 = m02 + Tx.m02;
             m12 = m12 + Tx.m12;
             return;
-
         case (HI_SCALE | APPLY_TRANSLATE):
         case (HI_SCALE | APPLY_IDENTITY):
             // Only these two existing states need a new state
             state = mystate | APPLY_SCALE;
-
         case (HI_SCALE | APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (HI_SCALE | APPLY_SHEAR | APPLY_SCALE):
         case (HI_SCALE | APPLY_SHEAR | APPLY_TRANSLATE):
@@ -1409,27 +1216,22 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         case (HI_SHEAR | APPLY_SHEAR | APPLY_TRANSLATE):
         case (HI_SHEAR | APPLY_SHEAR):
             mystate = mystate | APPLY_SCALE;
-
         case (HI_SHEAR | APPLY_TRANSLATE):
         case (HI_SHEAR | APPLY_IDENTITY):
         case (HI_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (HI_SHEAR | APPLY_SCALE):
             state = mystate ^ APPLY_SHEAR;
-
         case (HI_SHEAR | APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (HI_SHEAR | APPLY_SHEAR | APPLY_SCALE):
             // Tx is SHEAR, this is anything
             T01 = Tx.m01;
             T10 = Tx.m10;
-
             M0 = m00;
             m00 = m10 * T01;
             m10 = M0 * T10;
-
             M0 = m01;
             m01 = m11 * T01;
             m11 = M0 * T10;
-
             M0 = m02;
             m02 = m12 * T01;
             m12 = M0 * T10;
@@ -1443,94 +1245,71 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (mystate) {
         default:
             stateError();
-
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M0 = m02;
             M1 = m12;
             T02 += M0 * T00 + M1 * T01;
             T12 += M0 * T10 + M1 * T11;
-
-
         case (APPLY_SHEAR | APPLY_SCALE):
             m02 = T02;
             m12 = T12;
-
             M0 = m00;
             M1 = m10;
             m00 = M0 * T00 + M1 * T01;
             m10 = M0 * T10 + M1 * T11;
-
             M0 = m01;
             M1 = m11;
             m01 = M0 * T00 + M1 * T01;
             m11 = M0 * T10 + M1 * T11;
             break;
-
         case (APPLY_SHEAR | APPLY_TRANSLATE):
             M0 = m02;
             M1 = m12;
             T02 += M0 * T00 + M1 * T01;
             T12 += M0 * T10 + M1 * T11;
-
-
         case (APPLY_SHEAR):
             m02 = T02;
             m12 = T12;
-
             M0 = m10;
             m00 = M0 * T01;
             m10 = M0 * T11;
-
             M0 = m01;
             m01 = M0 * T00;
             m11 = M0 * T10;
             break;
-
         case (APPLY_SCALE | APPLY_TRANSLATE):
             M0 = m02;
             M1 = m12;
             T02 += M0 * T00 + M1 * T01;
             T12 += M0 * T10 + M1 * T11;
-
-
         case (APPLY_SCALE):
             m02 = T02;
             m12 = T12;
-
             M0 = m00;
             m00 = M0 * T00;
             m10 = M0 * T10;
-
             M0 = m11;
             m01 = M0 * T01;
             m11 = M0 * T11;
             break;
-
         case (APPLY_TRANSLATE):
             M0 = m02;
             M1 = m12;
             T02 += M0 * T00 + M1 * T01;
             T12 += M0 * T10 + M1 * T11;
-
-
         case (APPLY_IDENTITY):
             m02 = T02;
             m12 = T12;
-
             m00 = T00;
             m10 = T10;
-
             m01 = T01;
             m11 = T11;
-
             state = mystate | txstate;
             type = TYPE_UNKNOWN;
             return;
         }
         updateState();
     }
-
-
     public AffineTransform createInverse()
         throws NoninvertibleTransformException
     {
@@ -1538,7 +1317,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
             return null;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             det = m00 * m11 - m01 * m10;
@@ -1603,11 +1381,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         case (APPLY_IDENTITY):
             return new AffineTransform();
         }
-
-
     }
-
-
     public void invert()
         throws NoninvertibleTransformException
     {
@@ -1617,7 +1391,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
             return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
@@ -1719,8 +1492,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             break;
         }
     }
-
-
     public Point2D transform(Point2D ptSrc, Point2D ptDst) {
         if (ptDst == null) {
             if (ptSrc instanceof Point2D.Double) {
@@ -1735,7 +1506,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
             return null;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             ptDst.setLocation(x * m00 + y * m01 + m02,
@@ -1763,11 +1533,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             ptDst.setLocation(x, y);
             return ptDst;
         }
-
-
     }
-
-
     public void transform(Point2D[] ptSrc, int srcOff,
                           Point2D[] ptDst, int dstOff,
                           int numPts) {
@@ -1789,7 +1555,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             switch (state) {
             default:
                 stateError();
-
                 return;
             case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
                 dst.setLocation(x * m00 + y * m01 + m02,
@@ -1818,11 +1583,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
                 break;
             }
         }
-
-
     }
-
-
     public void transform(float[] srcPts, int srcOff,
                           float[] dstPts, int dstOff,
                           int numPts) {
@@ -1845,7 +1606,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
             return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
@@ -1913,11 +1673,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             }
             return;
         }
-
-
     }
-
-
     public void transform(double[] srcPts, int srcOff,
                           double[] dstPts, int dstOff,
                           int numPts) {
@@ -1940,7 +1696,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
             return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
@@ -2008,11 +1763,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             }
             return;
         }
-
-
     }
-
-
     public void transform(float[] srcPts, int srcOff,
                           double[] dstPts, int dstOff,
                           int numPts) {
@@ -2020,7 +1771,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
             return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
@@ -2088,11 +1838,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             }
             return;
         }
-
-
     }
-
-
     public void transform(double[] srcPts, int srcOff,
                           float[] dstPts, int dstOff,
                           int numPts) {
@@ -2100,7 +1846,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
             return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
@@ -2168,11 +1913,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             }
             return;
         }
-
-
     }
-
-
     @SuppressWarnings("fallthrough")
     public Point2D inverseTransform(Point2D ptSrc, Point2D ptDst)
         throws NoninvertibleTransformException
@@ -2190,11 +1931,9 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             x -= m02;
             y -= m12;
-
         case (APPLY_SHEAR | APPLY_SCALE):
             double det = m00 * m11 - m01 * m10;
             if (Math.abs(det) <= Double.MIN_VALUE) {
@@ -2207,7 +1946,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         case (APPLY_SHEAR | APPLY_TRANSLATE):
             x -= m02;
             y -= m12;
-
         case (APPLY_SHEAR):
             if (m01 == 0.0 || m10 == 0.0) {
                 throw new NoninvertibleTransformException("Determinant is 0");
@@ -2217,7 +1955,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         case (APPLY_SCALE | APPLY_TRANSLATE):
             x -= m02;
             y -= m12;
-
         case (APPLY_SCALE):
             if (m00 == 0.0 || m11 == 0.0) {
                 throw new NoninvertibleTransformException("Determinant is 0");
@@ -2231,11 +1968,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             ptDst.setLocation(x, y);
             return ptDst;
         }
-
-
     }
-
-
     public void inverseTransform(double[] srcPts, int srcOff,
                                  double[] dstPts, int dstOff,
                                  int numPts)
@@ -2261,7 +1994,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
             return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
             M00 = m00; M01 = m01; M02 = m02;
@@ -2351,11 +2083,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             }
             return;
         }
-
-
     }
-
-
     public Point2D deltaTransform(Point2D ptSrc, Point2D ptDst) {
         if (ptDst == null) {
             if (ptSrc instanceof Point2D.Double) {
@@ -2370,7 +2098,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
             return null;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (APPLY_SHEAR | APPLY_SCALE):
@@ -2389,11 +2116,7 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             ptDst.setLocation(x, y);
             return ptDst;
         }
-
-
     }
-
-
     public void deltaTransform(double[] srcPts, int srcOff,
                                double[] dstPts, int dstOff,
                                int numPts) {
@@ -2416,7 +2139,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         switch (state) {
         default:
             stateError();
-
             return;
         case (APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE):
         case (APPLY_SHEAR | APPLY_SCALE):
@@ -2454,25 +2176,18 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             }
             return;
         }
-
-
     }
-
-
     public Shape createTransformedShape(Shape pSrc) {
         if (pSrc == null) {
             return null;
         }
         return new Path2D.Double(pSrc, this);
     }
-
     // Round values to sane precision for printing
     // Note that Math.sin(Math.PI) has an error of about 10^-16
     private static double _matround(double matval) {
         return Math.rint(matval * 1E15) / 1E15;
     }
-
-
     public String toString() {
         return ("AffineTransform[["
                 + _matround(m00) + ", "
@@ -2482,13 +2197,9 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
                 + _matround(m11) + ", "
                 + _matround(m12) + "]]");
     }
-
-
     public boolean isIdentity() {
         return (state == APPLY_IDENTITY || (getType() == TYPE_IDENTITY));
     }
-
-
     public Object clone() {
         try {
             return super.clone();
@@ -2497,8 +2208,6 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
             throw new InternalError(e);
         }
     }
-
-
     public int hashCode() {
         long bits = Double.doubleToLongBits(m00);
         bits = bits * 31 + Double.doubleToLongBits(m01);
@@ -2508,30 +2217,20 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
         bits = bits * 31 + Double.doubleToLongBits(m12);
         return (((int) bits) ^ ((int) (bits >> 32)));
     }
-
-
     public boolean equals(Object obj) {
         if (!(obj instanceof AffineTransform)) {
             return false;
         }
-
         AffineTransform a = (AffineTransform)obj;
-
         return ((m00 == a.m00) && (m01 == a.m01) && (m02 == a.m02) &&
                 (m10 == a.m10) && (m11 == a.m11) && (m12 == a.m12));
     }
-
-
-
-
     private static final long serialVersionUID = 1330973210523860834L;
-
     private void writeObject(java.io.ObjectOutputStream s)
         throws java.lang.ClassNotFoundException, java.io.IOException
     {
         s.defaultWriteObject();
     }
-
     private void readObject(java.io.ObjectInputStream s)
         throws java.lang.ClassNotFoundException, java.io.IOException
     {

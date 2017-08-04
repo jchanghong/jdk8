@@ -1,14 +1,8 @@
-
-
 package java.lang.management;
-
 import javax.management.openmbean.CompositeData;
 import sun.management.ManagementFactoryHelper;
 import sun.management.ThreadInfoCompositeData;
 import static java.lang.Thread.State.*;
-
-
-
 public class ThreadInfo {
     private String       threadName;
     private long         threadId;
@@ -26,11 +20,8 @@ public class ThreadInfo {
     private StackTraceElement[] stackTrace;
     private MonitorInfo[]       lockedMonitors;
     private LockInfo[]          lockedSynchronizers;
-
     private static MonitorInfo[] EMPTY_MONITORS = new MonitorInfo[0];
     private static LockInfo[] EMPTY_SYNCS = new LockInfo[0];
-
-
     private ThreadInfo(Thread t, int state, Object lockObj, Thread lockOwner,
                        long blockedCount, long blockedTime,
                        long waitedCount, long waitedTime,
@@ -40,8 +31,6 @@ public class ThreadInfo {
                    waitedCount, waitedTime, stackTrace,
                    EMPTY_MONITORS, EMPTY_SYNCS);
     }
-
-
     private ThreadInfo(Thread t, int state, Object lockObj, Thread lockOwner,
                        long blockedCount, long blockedTime,
                        long waitedCount, long waitedTime,
@@ -68,7 +57,6 @@ public class ThreadInfo {
                                                     ste);
             }
         }
-
         int numSyncs = (synchronizers == null ? 0 : synchronizers.length);
         LockInfo[] lockedSynchronizers;
         if (numSyncs == 0) {
@@ -83,14 +71,11 @@ public class ThreadInfo {
                                                       identityHashCode);
             }
         }
-
         initialize(t, state, lockObj, lockOwner,
                    blockedCount, blockedTime,
                    waitedCount, waitedTime, stackTrace,
                    lockedMonitors, lockedSynchronizers);
     }
-
-
     private void initialize(Thread t, int state, Object lockObj, Thread lockOwner,
                             long blockedCount, long blockedTime,
                             long waitedCount, long waitedTime,
@@ -106,7 +91,6 @@ public class ThreadInfo {
         this.blockedTime = blockedTime;
         this.waitedCount = waitedCount;
         this.waitedTime = waitedTime;
-
         if (lockObj == null) {
             this.lock = null;
             this.lockName = null;
@@ -131,11 +115,8 @@ public class ThreadInfo {
         this.lockedMonitors = lockedMonitors;
         this.lockedSynchronizers = lockedSynchronizers;
     }
-
-
     private ThreadInfo(CompositeData cd) {
         ThreadInfoCompositeData ticd = ThreadInfoCompositeData.getInstance(cd);
-
         threadId = ticd.threadId();
         threadName = ticd.threadName();
         blockedTime = ticd.blockedTime();
@@ -149,7 +130,6 @@ public class ThreadInfo {
         suspended = ticd.suspended();
         inNative = ticd.inNative();
         stackTrace = ticd.stackTrace();
-
         // 6.0 attributes
         if (ticd.isCurrentVersion()) {
             lock = ticd.lockInfo();
@@ -175,78 +155,48 @@ public class ThreadInfo {
             lockedSynchronizers = EMPTY_SYNCS;
         }
     }
-
-
     public long getThreadId() {
         return threadId;
     }
-
-
     public String getThreadName() {
         return threadName;
     }
-
-
     public Thread.State getThreadState() {
          return threadState;
     }
-
-
     public long getBlockedTime() {
         return blockedTime;
     }
-
-
     public long getBlockedCount() {
         return blockedCount;
     }
-
-
     public long getWaitedTime() {
         return waitedTime;
     }
-
-
     public long getWaitedCount() {
         return waitedCount;
     }
-
-
     public LockInfo getLockInfo() {
         return lock;
     }
-
-
     public String getLockName() {
         return lockName;
     }
-
-
     public long getLockOwnerId() {
         return lockOwnerId;
     }
-
-
     public String getLockOwnerName() {
         return lockOwnerName;
     }
-
-
     public StackTraceElement[] getStackTrace() {
         return stackTrace;
     }
-
-
     public boolean isSuspended() {
          return suspended;
     }
-
-
     public boolean isInNative() {
          return inNative;
     }
-
-
     public String toString() {
         StringBuilder sb = new StringBuilder("\"" + getThreadName() + "\"" +
                                              " Id=" + getThreadId() + " " +
@@ -288,7 +238,6 @@ public class ThreadInfo {
                     default:
                 }
             }
-
             for (MonitorInfo mi : lockedMonitors) {
                 if (mi.getLockedStackDepth() == i) {
                     sb.append("\t-  locked " + mi);
@@ -300,7 +249,6 @@ public class ThreadInfo {
            sb.append("\t...");
            sb.append('\n');
        }
-
        LockInfo[] locks = getLockedSynchronizers();
        if (locks.length > 0) {
            sb.append("\n\tNumber of locked synchronizers = " + locks.length);
@@ -314,30 +262,22 @@ public class ThreadInfo {
        return sb.toString();
     }
     private static final int MAX_FRAMES = 8;
-
-
     public static ThreadInfo from(CompositeData cd) {
         if (cd == null) {
             return null;
         }
-
         if (cd instanceof ThreadInfoCompositeData) {
             return ((ThreadInfoCompositeData) cd).getThreadInfo();
         } else {
             return new ThreadInfo(cd);
         }
     }
-
-
     public MonitorInfo[] getLockedMonitors() {
         return lockedMonitors;
     }
-
-
     public LockInfo[] getLockedSynchronizers() {
         return lockedSynchronizers;
     }
-
     private static final StackTraceElement[] NO_STACK_TRACE =
         new StackTraceElement[0];
 }

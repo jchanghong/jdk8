@@ -1,12 +1,7 @@
-
-
-
 package java.time;
-
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.YEARS;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -31,59 +26,35 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-
 public final class Period
         implements ChronoPeriod, Serializable {
-
-
     public static final Period ZERO = new Period(0, 0, 0);
-
     private static final long serialVersionUID = -3587258372562876L;
-
     private static final Pattern PATTERN =
             Pattern.compile("([-+]?)P(?:([-+]?[0-9]+)Y)?(?:([-+]?[0-9]+)M)?(?:([-+]?[0-9]+)W)?(?:([-+]?[0-9]+)D)?", Pattern.CASE_INSENSITIVE);
-
-
     private static final List<TemporalUnit> SUPPORTED_UNITS =
             Collections.unmodifiableList(Arrays.<TemporalUnit>asList(YEARS, MONTHS, DAYS));
-
-
     private final int years;
-
     private final int months;
-
     private final int days;
-
     //-----------------------------------------------------------------------
-
     public static Period ofYears(int years) {
         return create(years, 0, 0);
     }
-
-
     public static Period ofMonths(int months) {
         return create(0, months, 0);
     }
-
-
     public static Period ofWeeks(int weeks) {
         return create(0, 0, Math.multiplyExact(weeks, 7));
     }
-
-
     public static Period ofDays(int days) {
         return create(0, 0, days);
     }
-
     //-----------------------------------------------------------------------
-
     public static Period of(int years, int months, int days) {
         return create(years, months, days);
     }
-
     //-----------------------------------------------------------------------
-
     public static Period from(TemporalAmount amount) {
         if (amount instanceof Period) {
             return (Period) amount;
@@ -111,9 +82,7 @@ public final class Period
         }
         return create(years, months, days);
     }
-
     //-----------------------------------------------------------------------
-
     public static Period parse(CharSequence text) {
         Objects.requireNonNull(text, "text");
         Matcher matcher = PATTERN.matcher(text);
@@ -138,7 +107,6 @@ public final class Period
         }
         throw new DateTimeParseException("Text cannot be parsed to a Period", text, 0);
     }
-
     private static int parseNumber(CharSequence text, String str, int negate) {
         if (str == null) {
             return 0;
@@ -150,31 +118,23 @@ public final class Period
             throw new DateTimeParseException("Text cannot be parsed to a Period", text, 0, ex);
         }
     }
-
     //-----------------------------------------------------------------------
-
     public static Period between(LocalDate startDateInclusive, LocalDate endDateExclusive) {
         return startDateInclusive.until(endDateExclusive);
     }
-
     //-----------------------------------------------------------------------
-
     private static Period create(int years, int months, int days) {
         if ((years | months | days) == 0) {
             return ZERO;
         }
         return new Period(years, months, days);
     }
-
-
     private Period(int years, int months, int days) {
         this.years = years;
         this.months = months;
         this.days = days;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public long get(TemporalUnit unit) {
         if (unit == ChronoUnit.YEARS) {
@@ -187,73 +147,51 @@ public final class Period
             throw new UnsupportedTemporalTypeException("Unsupported unit: " + unit);
         }
     }
-
-
     @Override
     public List<TemporalUnit> getUnits() {
         return SUPPORTED_UNITS;
     }
-
-
     @Override
     public IsoChronology getChronology() {
         return IsoChronology.INSTANCE;
     }
-
     //-----------------------------------------------------------------------
-
     public boolean isZero() {
         return (this == ZERO);
     }
-
-
     public boolean isNegative() {
         return years < 0 || months < 0 || days < 0;
     }
-
     //-----------------------------------------------------------------------
-
     public int getYears() {
         return years;
     }
-
-
     public int getMonths() {
         return months;
     }
-
-
     public int getDays() {
         return days;
     }
-
     //-----------------------------------------------------------------------
-
     public Period withYears(int years) {
         if (years == this.years) {
             return this;
         }
         return create(years, months, days);
     }
-
-
     public Period withMonths(int months) {
         if (months == this.months) {
             return this;
         }
         return create(years, months, days);
     }
-
-
     public Period withDays(int days) {
         if (days == this.days) {
             return this;
         }
         return create(years, months, days);
     }
-
     //-----------------------------------------------------------------------
-
     public Period plus(TemporalAmount amountToAdd) {
         Period isoAmount = Period.from(amountToAdd);
         return create(
@@ -261,33 +199,25 @@ public final class Period
                 Math.addExact(months, isoAmount.months),
                 Math.addExact(days, isoAmount.days));
     }
-
-
     public Period plusYears(long yearsToAdd) {
         if (yearsToAdd == 0) {
             return this;
         }
         return create(Math.toIntExact(Math.addExact(years, yearsToAdd)), months, days);
     }
-
-
     public Period plusMonths(long monthsToAdd) {
         if (monthsToAdd == 0) {
             return this;
         }
         return create(years, Math.toIntExact(Math.addExact(months, monthsToAdd)), days);
     }
-
-
     public Period plusDays(long daysToAdd) {
         if (daysToAdd == 0) {
             return this;
         }
         return create(years, months, Math.toIntExact(Math.addExact(days, daysToAdd)));
     }
-
     //-----------------------------------------------------------------------
-
     public Period minus(TemporalAmount amountToSubtract) {
         Period isoAmount = Period.from(amountToSubtract);
         return create(
@@ -295,24 +225,16 @@ public final class Period
                 Math.subtractExact(months, isoAmount.months),
                 Math.subtractExact(days, isoAmount.days));
     }
-
-
     public Period minusYears(long yearsToSubtract) {
         return (yearsToSubtract == Long.MIN_VALUE ? plusYears(Long.MAX_VALUE).plusYears(1) : plusYears(-yearsToSubtract));
     }
-
-
     public Period minusMonths(long monthsToSubtract) {
         return (monthsToSubtract == Long.MIN_VALUE ? plusMonths(Long.MAX_VALUE).plusMonths(1) : plusMonths(-monthsToSubtract));
     }
-
-
     public Period minusDays(long daysToSubtract) {
         return (daysToSubtract == Long.MIN_VALUE ? plusDays(Long.MAX_VALUE).plusDays(1) : plusDays(-daysToSubtract));
     }
-
     //-----------------------------------------------------------------------
-
     public Period multipliedBy(int scalar) {
         if (this == ZERO || scalar == 1) {
             return this;
@@ -322,14 +244,10 @@ public final class Period
                 Math.multiplyExact(months, scalar),
                 Math.multiplyExact(days, scalar));
     }
-
-
     public Period negated() {
         return multipliedBy(-1);
     }
-
     //-----------------------------------------------------------------------
-
     public Period normalized() {
         long totalMonths = toTotalMonths();
         long splitYears = totalMonths / 12;
@@ -339,14 +257,10 @@ public final class Period
         }
         return create(Math.toIntExact(splitYears), splitMonths, days);
     }
-
-
     public long toTotalMonths() {
         return years * 12L + months;  // no overflow
     }
-
     //-------------------------------------------------------------------------
-
     @Override
     public Temporal addTo(Temporal temporal) {
         validateChrono(temporal);
@@ -365,8 +279,6 @@ public final class Period
         }
         return temporal;
     }
-
-
     @Override
     public Temporal subtractFrom(Temporal temporal) {
         validateChrono(temporal);
@@ -385,8 +297,6 @@ public final class Period
         }
         return temporal;
     }
-
-
     private void validateChrono(TemporalAccessor temporal) {
         Objects.requireNonNull(temporal, "temporal");
         Chronology temporalChrono = temporal.query(TemporalQueries.chronology());
@@ -394,9 +304,7 @@ public final class Period
             throw new DateTimeException("Chronology mismatch, expected: ISO, actual: " + temporalChrono.getId());
         }
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -410,15 +318,11 @@ public final class Period
         }
         return false;
     }
-
-
     @Override
     public int hashCode() {
         return years + Integer.rotateLeft(months, 8) + Integer.rotateLeft(days, 16);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public String toString() {
         if (this == ZERO) {
@@ -438,29 +342,22 @@ public final class Period
             return buf.toString();
         }
     }
-
     //-----------------------------------------------------------------------
-
     private Object writeReplace() {
         return new Ser(Ser.PERIOD_TYPE, this);
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
     void writeExternal(DataOutput out) throws IOException {
         out.writeInt(years);
         out.writeInt(months);
         out.writeInt(days);
     }
-
     static Period readExternal(DataInput in) throws IOException {
         int years = in.readInt();
         int months = in.readInt();
         int days = in.readInt();
         return Period.of(years, months, days);
     }
-
 }

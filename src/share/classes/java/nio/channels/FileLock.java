@@ -1,19 +1,10 @@
-
-
 package java.nio.channels;
-
 import java.io.IOException;
-
-
-
 public abstract class FileLock implements AutoCloseable {
-
     private final Channel channel;
     private final long position;
     private final long size;
     private final boolean shared;
-
-
     protected FileLock(FileChannel channel,
                        long position, long size, boolean shared)
     {
@@ -28,8 +19,6 @@ public abstract class FileLock implements AutoCloseable {
         this.size = size;
         this.shared = shared;
     }
-
-
     protected FileLock(AsynchronousFileChannel channel,
                        long position, long size, boolean shared)
     {
@@ -44,33 +33,21 @@ public abstract class FileLock implements AutoCloseable {
         this.size = size;
         this.shared = shared;
     }
-
-
     public final FileChannel channel() {
         return (channel instanceof FileChannel) ? (FileChannel)channel : null;
     }
-
-
     public Channel acquiredBy() {
         return channel;
     }
-
-
     public final long position() {
         return position;
     }
-
-
     public final long size() {
         return size;
     }
-
-
     public final boolean isShared() {
         return shared;
     }
-
-
     public final boolean overlaps(long position, long size) {
         if (position + size <= this.position)
             return false;               // That is below this
@@ -78,19 +55,11 @@ public abstract class FileLock implements AutoCloseable {
             return false;               // This is below that
         return true;
     }
-
-
     public abstract boolean isValid();
-
-
     public abstract void release() throws IOException;
-
-
     public final void close() throws IOException {
         release();
     }
-
-
     public final String toString() {
         return (this.getClass().getName()
                 + "[" + position
@@ -99,5 +68,4 @@ public abstract class FileLock implements AutoCloseable {
                 + " " + (isValid() ? "valid" : "invalid")
                 + "]");
     }
-
 }

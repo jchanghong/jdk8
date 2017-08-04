@@ -1,7 +1,4 @@
-
-
 package java.net;
-
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.NoSuchElementException;
@@ -12,15 +9,11 @@ import java.util.GregorianCalendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
-
-
 public final class HttpCookie implements Cloneable {
     // ---------------- Fields --------------
-
     // The value of the cookie itself.
     private final String name;  // NAME= ... "$Name" style is reserved
     private String value;       // value of NAME
-
     // Attributes encoded in the header's cookie fields.
     private String comment;     // Comment=VALUE ... describes cookie's use
     private String commentURL;  // CommentURL="http URL" ... describes cookie's use
@@ -32,19 +25,15 @@ public final class HttpCookie implements Cloneable {
     private boolean secure;     // Secure ... e.g. use SSL
     private boolean httpOnly;   // HttpOnly ... i.e. not accessible to scripts
     private int version = 1;    // Version=1 ... RFC 2965 style
-
     // The original header this cookie was consructed from, if it was
     // constructed by parsing a header, otherwise null.
     private final String header;
-
     // Hold the creation time (in seconds) of the http cookie for later
     // expiration calculation
     private final long whenCreated;
-
     // Since the positive and zero max-age have their meanings,
     // this value serves as a hint as 'not specify max-age'
     private final static long MAX_AGE_UNSPECIFIED = -1;
-
     // date formats used by Netscape's cookie draft
     // as well as formats seen on various sites
     private final static String[] COOKIE_DATE_FORMATS = {
@@ -55,54 +44,41 @@ public final class HttpCookie implements Cloneable {
         "EEE',' dd MMM yy HH:mm:ss 'GMT'",
         "EEE MMM dd yy HH:mm:ss 'GMT'Z"
     };
-
     // constant strings represent set-cookie header token
     private final static String SET_COOKIE = "set-cookie:";
     private final static String SET_COOKIE2 = "set-cookie2:";
-
     // ---------------- Ctors --------------
-
-
     public HttpCookie(String name, String value) {
         this(name, value, null );
     }
-
     private HttpCookie(String name, String value, String header) {
         name = name.trim();
         if (name.length() == 0 || !isToken(name) || name.charAt(0) == '$') {
             throw new IllegalArgumentException("Illegal cookie name");
         }
-
         this.name = name;
         this.value = value;
         toDiscard = false;
         secure = false;
-
         whenCreated = System.currentTimeMillis();
         portlist = null;
         this.header = header;
     }
-
-
     public static List<HttpCookie> parse(String header) {
         return parse(header, false);
     }
-
     // Private version of parse() that will store the original header used to
     // create the cookie, in the cookie itself. This can be useful for filtering
     // Set-Cookie[2] headers, using the internal parsing logic defined in this
     // class.
     private static List<HttpCookie> parse(String header, boolean retainHeader) {
-
         int version = guessCookieVersion(header);
-
         // if header start with set-cookie or set-cookie2, strip it off
         if (startsWithIgnoreCase(header, SET_COOKIE2)) {
             header = header.substring(SET_COOKIE2.length());
         } else if (startsWithIgnoreCase(header, SET_COOKIE)) {
             header = header.substring(SET_COOKIE.length());
         }
-
         List<HttpCookie> cookies = new java.util.ArrayList<>();
         // The Netscape cookie may have a comma in its expires attribute, while
         // the comma is the delimiter in rfc 2965/2109 cookie header string.
@@ -123,155 +99,99 @@ public final class HttpCookie implements Cloneable {
                 cookies.add(cookie);
             }
         }
-
         return cookies;
     }
-
     // ---------------- Public operations --------------
-
-
     public boolean hasExpired() {
         if (maxAge == 0) return true;
-
         // if not specify max-age, this cookie should be
         // discarded when user agent is to be closed, but
         // it is not expired.
         if (maxAge == MAX_AGE_UNSPECIFIED) return false;
-
         long deltaSecond = (System.currentTimeMillis() - whenCreated) / 1000;
         if (deltaSecond > maxAge)
             return true;
         else
             return false;
     }
-
-
     public void setComment(String purpose) {
         comment = purpose;
     }
-
-
     public String getComment() {
         return comment;
     }
-
-
     public void setCommentURL(String purpose) {
         commentURL = purpose;
     }
-
-
     public String getCommentURL() {
         return commentURL;
     }
-
-
     public void setDiscard(boolean discard) {
         toDiscard = discard;
     }
-
-
     public boolean getDiscard() {
         return toDiscard;
     }
-
-
     public void setPortlist(String ports) {
         portlist = ports;
     }
-
-
     public String getPortlist() {
         return portlist;
     }
-
-
     public void setDomain(String pattern) {
         if (pattern != null)
             domain = pattern.toLowerCase();
         else
             domain = pattern;
     }
-
-
     public String getDomain() {
         return domain;
     }
-
-
     public void setMaxAge(long expiry) {
         maxAge = expiry;
     }
-
-
     public long getMaxAge() {
         return maxAge;
     }
-
-
     public void setPath(String uri) {
         path = uri;
     }
-
-
     public String getPath() {
         return path;
     }
-
-
     public void setSecure(boolean flag) {
         secure = flag;
     }
-
-
     public boolean getSecure() {
         return secure;
     }
-
-
     public String getName() {
         return name;
     }
-
-
     public void setValue(String newValue) {
         value = newValue;
     }
-
-
     public String getValue() {
         return value;
     }
-
-
     public int getVersion() {
         return version;
     }
-
-
     public void setVersion(int v) {
         if (v != 0 && v != 1) {
             throw new IllegalArgumentException("cookie version should be 0 or 1");
         }
-
         version = v;
     }
-
-
     public boolean isHttpOnly() {
         return httpOnly;
     }
-
-
     public void setHttpOnly(boolean httpOnly) {
         this.httpOnly = httpOnly;
     }
-
-
     public static boolean domainMatches(String domain, String host) {
         if (domain == null || host == null)
             return false;
-
         // if there's no embedded dot in domain and domain is not .local
         boolean isLocalDomain = ".local".equalsIgnoreCase(domain);
         int embeddedDotInDomain = domain.indexOf('.');
@@ -281,7 +201,6 @@ public final class HttpCookie implements Cloneable {
             && (embeddedDotInDomain == -1 ||
                 embeddedDotInDomain == domain.length() - 1))
             return false;
-
         // if the host name contains no dot and the domain name
         // is .local or host.local
         int firstDotInHost = host.indexOf('.');
@@ -290,7 +209,6 @@ public final class HttpCookie implements Cloneable {
              domain.equalsIgnoreCase(host + ".local"))) {
             return true;
         }
-
         int domainLength = domain.length();
         int lengthDiff = host.length() - domainLength;
         if (lengthDiff == 0) {
@@ -301,7 +219,6 @@ public final class HttpCookie implements Cloneable {
             // need to check H & D component
             String H = host.substring(0, lengthDiff);
             String D = host.substring(lengthDiff);
-
             return (H.indexOf('.') == -1 && D.equalsIgnoreCase(domain));
         }
         else if (lengthDiff == -1) {
@@ -309,11 +226,8 @@ public final class HttpCookie implements Cloneable {
             return (domain.charAt(0) == '.' &&
                         host.equalsIgnoreCase(domain.substring(1)));
         }
-
         return false;
     }
-
-
     @Override
     public String toString() {
         if (getVersion() > 0) {
@@ -322,8 +236,6 @@ public final class HttpCookie implements Cloneable {
             return toNetscapeHeaderString();
         }
     }
-
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this)
@@ -331,7 +243,6 @@ public final class HttpCookie implements Cloneable {
         if (!(obj instanceof HttpCookie))
             return false;
         HttpCookie other = (HttpCookie)obj;
-
         // One http cookie equals to another cookie (RFC 2965 sec. 3.3.3) if:
         //   1. they come from same domain (case-insensitive),
         //   2. have same name (case-insensitive),
@@ -340,18 +251,13 @@ public final class HttpCookie implements Cloneable {
                equalsIgnoreCase(getDomain(), other.getDomain()) &&
                Objects.equals(getPath(), other.getPath());
     }
-
-
     @Override
     public int hashCode() {
         int h1 = name.toLowerCase().hashCode();
         int h2 = (domain!=null) ? domain.toLowerCase().hashCode() : 0;
         int h3 = (path!=null) ? path.hashCode() : 0;
-
         return h1 + h2 + h3;
     }
-
-
     @Override
     public Object clone() {
         try {
@@ -360,37 +266,27 @@ public final class HttpCookie implements Cloneable {
             throw new RuntimeException(e.getMessage());
         }
     }
-
     // ---------------- Private operations --------------
-
     // Note -- disabled for now to allow full Netscape compatibility
     // from RFC 2068, token special case characters
     //
     // private static final String tspecials = "()<>@,;:\\\"/[]?={} \t";
     private static final String tspecials = ",; ";  // deliberately includes space
-
-
     private static boolean isToken(String value) {
         int len = value.length();
-
         for (int i = 0; i < len; i++) {
             char c = value.charAt(i);
-
             if (c < 0x20 || c >= 0x7f || tspecials.indexOf(c) != -1)
                 return false;
         }
         return true;
     }
-
-
     private static HttpCookie parseInternal(String header,
                                             boolean retainHeader)
     {
         HttpCookie cookie = null;
         String namevaluePair = null;
-
         StringTokenizer tokenizer = new StringTokenizer(header, ";");
-
         // there should always have at least on name-value pair;
         // it's cookie's name
         try {
@@ -413,7 +309,6 @@ public final class HttpCookie implements Cloneable {
         } catch (NoSuchElementException ignored) {
             throw new IllegalArgumentException("Empty cookie header string");
         }
-
         // remaining name-value pairs are cookie's attributes
         while (tokenizer.hasMoreTokens()) {
             namevaluePair = tokenizer.nextToken();
@@ -426,15 +321,11 @@ public final class HttpCookie implements Cloneable {
                 name = namevaluePair.trim();
                 value = null;
             }
-
             // assign attribute to cookie
             assignAttribute(cookie, name, value);
         }
-
         return cookie;
     }
-
-
     static interface CookieAttributeAssignor {
             public void assign(HttpCookie cookie,
                                String attrName,
@@ -546,7 +437,6 @@ public final class HttpCookie implements Cloneable {
     {
         // strip off the surrounding "-sign if there's any
         attrValue = stripOffSurroundingQuote(attrValue);
-
         CookieAttributeAssignor assignor = assignors.get(attrName.toLowerCase());
         if (assignor != null) {
             assignor.assign(cookie, attrName, attrValue);
@@ -554,35 +444,26 @@ public final class HttpCookie implements Cloneable {
             // Ignore the attribute as per RFC 2965
         }
     }
-
     static {
         sun.misc.SharedSecrets.setJavaNetHttpCookieAccess(
             new sun.misc.JavaNetHttpCookieAccess() {
                 public List<HttpCookie> parse(String header) {
                     return HttpCookie.parse(header, true);
                 }
-
                 public String header(HttpCookie cookie) {
                     return cookie.header;
                 }
             }
         );
     }
-
-
     private String header() {
         return header;
     }
-
-
     private String toNetscapeHeaderString() {
         return getName() + "=" + getValue();
     }
-
-
     private String toRFC2965HeaderString() {
         StringBuilder sb = new StringBuilder();
-
         sb.append(getName()).append("=\"").append(getValue()).append('"');
         if (getPath() != null)
             sb.append(";$Path=\"").append(getPath()).append('"');
@@ -590,13 +471,9 @@ public final class HttpCookie implements Cloneable {
             sb.append(";$Domain=\"").append(getDomain()).append('"');
         if (getPortlist() != null)
             sb.append(";$Port=\"").append(getPortlist()).append('"');
-
         return sb.toString();
     }
-
     static final TimeZone GMT = TimeZone.getTimeZone("GMT");
-
-
     private long expiryDate2DeltaSeconds(String dateString) {
         Calendar cal = new GregorianCalendar(GMT);
         for (int i = 0; i < COOKIE_DATE_FORMATS.length; i++) {
@@ -627,11 +504,8 @@ public final class HttpCookie implements Cloneable {
         }
         return 0;
     }
-
-
     private static int guessCookieVersion(String header) {
         int version = 0;
-
         header = header.toLowerCase();
         if (header.indexOf("expires=") != -1) {
             // only netscape cookie using 'expires'
@@ -646,10 +520,8 @@ public final class HttpCookie implements Cloneable {
             // only rfc 2965 cookie starts with 'set-cookie2'
             version = 1;
         }
-
         return version;
     }
-
     private static String stripOffSurroundingQuote(String str) {
         if (str != null && str.length() > 2 &&
             str.charAt(0) == '"' && str.charAt(str.length() - 1) == '"') {
@@ -661,7 +533,6 @@ public final class HttpCookie implements Cloneable {
         }
         return str;
     }
-
     private static boolean equalsIgnoreCase(String s, String t) {
         if (s == t) return true;
         if ((s != null) && (t != null)) {
@@ -669,24 +540,18 @@ public final class HttpCookie implements Cloneable {
         }
         return false;
     }
-
     private static boolean startsWithIgnoreCase(String s, String start) {
         if (s == null || start == null) return false;
-
         if (s.length() >= start.length() &&
                 start.equalsIgnoreCase(s.substring(0, start.length()))) {
             return true;
         }
-
         return false;
     }
-
-
     private static List<String> splitMultiCookies(String header) {
         List<String> cookies = new java.util.ArrayList<String>();
         int quoteCount = 0;
         int p, q;
-
         for (p = 0, q = 0; p < header.length(); p++) {
             char c = header.charAt(p);
             if (c == '"') quoteCount++;
@@ -696,9 +561,7 @@ public final class HttpCookie implements Cloneable {
                 q = p + 1;
             }
         }
-
         cookies.add(header.substring(q));
-
         return cookies;
     }
 }

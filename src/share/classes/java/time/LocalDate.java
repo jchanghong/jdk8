@@ -1,8 +1,4 @@
-
-
-
 package java.time;
-
 import static java.time.LocalTime.SECONDS_PER_DAY;
 import static java.time.temporal.ChronoField.ALIGNED_DAY_OF_WEEK_IN_MONTH;
 import static java.time.temporal.ChronoField.ALIGNED_DAY_OF_WEEK_IN_YEAR;
@@ -15,7 +11,6 @@ import static java.time.temporal.ChronoField.ERA;
 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import static java.time.temporal.ChronoField.PROLEPTIC_MONTH;
 import static java.time.temporal.ChronoField.YEAR;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -42,42 +37,23 @@ import java.time.temporal.ValueRange;
 import java.time.zone.ZoneOffsetTransition;
 import java.time.zone.ZoneRules;
 import java.util.Objects;
-
-
 public final class LocalDate
         implements Temporal, TemporalAdjuster, ChronoLocalDate, Serializable {
-
-
     public static final LocalDate MIN = LocalDate.of(Year.MIN_VALUE, 1, 1);
-
     public static final LocalDate MAX = LocalDate.of(Year.MAX_VALUE, 12, 31);
-
-
     private static final long serialVersionUID = 2942565459149668126L;
-
     private static final int DAYS_PER_CYCLE = 146097;
-
     static final long DAYS_0000_TO_1970 = (DAYS_PER_CYCLE * 5L) - (30L * 365L + 7L);
-
-
     private final int year;
-
     private final short month;
-
     private final short day;
-
     //-----------------------------------------------------------------------
-
     public static LocalDate now() {
         return now(Clock.systemDefaultZone());
     }
-
-
     public static LocalDate now(ZoneId zone) {
         return now(Clock.system(zone));
     }
-
-
     public static LocalDate now(Clock clock) {
         Objects.requireNonNull(clock, "clock");
         // inline to avoid creating object and Instant checks
@@ -87,26 +63,20 @@ public final class LocalDate
         long epochDay = Math.floorDiv(epochSec, SECONDS_PER_DAY);
         return LocalDate.ofEpochDay(epochDay);
     }
-
     //-----------------------------------------------------------------------
-
     public static LocalDate of(int year, Month month, int dayOfMonth) {
         YEAR.checkValidValue(year);
         Objects.requireNonNull(month, "month");
         DAY_OF_MONTH.checkValidValue(dayOfMonth);
         return create(year, month.getValue(), dayOfMonth);
     }
-
-
     public static LocalDate of(int year, int month, int dayOfMonth) {
         YEAR.checkValidValue(year);
         MONTH_OF_YEAR.checkValidValue(month);
         DAY_OF_MONTH.checkValidValue(dayOfMonth);
         return create(year, month, dayOfMonth);
     }
-
     //-----------------------------------------------------------------------
-
     public static LocalDate ofYearDay(int year, int dayOfYear) {
         YEAR.checkValidValue(year);
         DAY_OF_YEAR.checkValidValue(dayOfYear);
@@ -122,9 +92,7 @@ public final class LocalDate
         int dom = dayOfYear - moy.firstDayOfYear(leap) + 1;
         return new LocalDate(year, moy.getValue(), dom);
     }
-
     //-----------------------------------------------------------------------
-
     public static LocalDate ofEpochDay(long epochDay) {
         long zeroDay = epochDay + DAYS_0000_TO_1970;
         // find the march-based year
@@ -145,20 +113,16 @@ public final class LocalDate
         }
         yearEst += adjust;  // reset any negative year
         int marchDoy0 = (int) doyEst;
-
         // convert march-based values back to january-based
         int marchMonth0 = (marchDoy0 * 5 + 2) / 153;
         int month = (marchMonth0 + 2) % 12 + 1;
         int dom = marchDoy0 - (marchMonth0 * 306 + 5) / 10 + 1;
         yearEst += marchMonth0 / 10;
-
         // check year now we are certain it is correct
         int year = YEAR.checkValidIntValue(yearEst);
         return new LocalDate(year, month, dom);
     }
-
     //-----------------------------------------------------------------------
-
     public static LocalDate from(TemporalAccessor temporal) {
         Objects.requireNonNull(temporal, "temporal");
         LocalDate date = temporal.query(TemporalQueries.localDate());
@@ -168,21 +132,15 @@ public final class LocalDate
         }
         return date;
     }
-
     //-----------------------------------------------------------------------
-
     public static LocalDate parse(CharSequence text) {
         return parse(text, DateTimeFormatter.ISO_LOCAL_DATE);
     }
-
-
     public static LocalDate parse(CharSequence text, DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         return formatter.parse(text, LocalDate::from);
     }
-
     //-----------------------------------------------------------------------
-
     private static LocalDate create(int year, int month, int dayOfMonth) {
         if (dayOfMonth > 28) {
             int dom = 31;
@@ -207,8 +165,6 @@ public final class LocalDate
         }
         return new LocalDate(year, month, dayOfMonth);
     }
-
-
     private static LocalDate resolvePreviousValid(int year, int month, int day) {
         switch (month) {
             case 2:
@@ -223,29 +179,21 @@ public final class LocalDate
         }
         return new LocalDate(year, month, day);
     }
-
-
     private LocalDate(int year, int month, int dayOfMonth) {
         this.year = year;
         this.month = (short) month;
         this.day = (short) dayOfMonth;
     }
-
     //-----------------------------------------------------------------------
-
     @Override  // override for Javadoc
     public boolean isSupported(TemporalField field) {
         return ChronoLocalDate.super.isSupported(field);
     }
-
-
     @Override  // override for Javadoc
     public boolean isSupported(TemporalUnit unit) {
         return ChronoLocalDate.super.isSupported(unit);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public ValueRange range(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -264,8 +212,6 @@ public final class LocalDate
         }
         return field.rangeRefinedBy(this);
     }
-
-
     @Override  // override for Javadoc and performance
     public int get(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -273,8 +219,6 @@ public final class LocalDate
         }
         return ChronoLocalDate.super.get(field);
     }
-
-
     @Override
     public long getLong(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -288,7 +232,6 @@ public final class LocalDate
         }
         return field.getFrom(this);
     }
-
     private int get0(TemporalField field) {
         switch ((ChronoField) field) {
             case DAY_OF_WEEK: return getDayOfWeek().getValue();
@@ -307,63 +250,42 @@ public final class LocalDate
         }
         throw new UnsupportedTemporalTypeException("Unsupported field: " + field);
     }
-
     private long getProlepticMonth() {
         return (year * 12L + month - 1);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public IsoChronology getChronology() {
         return IsoChronology.INSTANCE;
     }
-
-
     @Override // override for Javadoc
     public Era getEra() {
         return ChronoLocalDate.super.getEra();
     }
-
-
     public int getYear() {
         return year;
     }
-
-
     public int getMonthValue() {
         return month;
     }
-
-
     public Month getMonth() {
         return Month.of(month);
     }
-
-
     public int getDayOfMonth() {
         return day;
     }
-
-
     public int getDayOfYear() {
         return getMonth().firstDayOfYear(isLeapYear()) + day - 1;
     }
-
-
     public DayOfWeek getDayOfWeek() {
         int dow0 = (int)Math.floorMod(toEpochDay() + 3, 7);
         return DayOfWeek.of(dow0 + 1);
     }
-
     //-----------------------------------------------------------------------
-
     @Override // override for Javadoc and performance
     public boolean isLeapYear() {
         return IsoChronology.INSTANCE.isLeapYear(year);
     }
-
-
     @Override
     public int lengthOfMonth() {
         switch (month) {
@@ -378,15 +300,11 @@ public final class LocalDate
                 return 31;
         }
     }
-
-
     @Override // override for Javadoc and performance
     public int lengthOfYear() {
         return (isLeapYear() ? 366 : 365);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public LocalDate with(TemporalAdjuster adjuster) {
         // optimizations
@@ -395,8 +313,6 @@ public final class LocalDate
         }
         return (LocalDate) adjuster.adjustInto(this);
     }
-
-
     @Override
     public LocalDate with(TemporalField field, long newValue) {
         if (field instanceof ChronoField) {
@@ -421,9 +337,7 @@ public final class LocalDate
         }
         return field.adjustInto(this, newValue);
     }
-
     //-----------------------------------------------------------------------
-
     public LocalDate withYear(int year) {
         if (this.year == year) {
             return this;
@@ -431,8 +345,6 @@ public final class LocalDate
         YEAR.checkValidValue(year);
         return resolvePreviousValid(year, month, day);
     }
-
-
     public LocalDate withMonth(int month) {
         if (this.month == month) {
             return this;
@@ -440,25 +352,19 @@ public final class LocalDate
         MONTH_OF_YEAR.checkValidValue(month);
         return resolvePreviousValid(year, month, day);
     }
-
-
     public LocalDate withDayOfMonth(int dayOfMonth) {
         if (this.day == dayOfMonth) {
             return this;
         }
         return of(year, month, dayOfMonth);
     }
-
-
     public LocalDate withDayOfYear(int dayOfYear) {
         if (this.getDayOfYear() == dayOfYear) {
             return this;
         }
         return ofYearDay(year, dayOfYear);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public LocalDate plus(TemporalAmount amountToAdd) {
         if (amountToAdd instanceof Period) {
@@ -468,8 +374,6 @@ public final class LocalDate
         Objects.requireNonNull(amountToAdd, "amountToAdd");
         return (LocalDate) amountToAdd.addTo(this);
     }
-
-
     @Override
     public LocalDate plus(long amountToAdd, TemporalUnit unit) {
         if (unit instanceof ChronoUnit) {
@@ -488,9 +392,7 @@ public final class LocalDate
         }
         return unit.addTo(this, amountToAdd);
     }
-
     //-----------------------------------------------------------------------
-
     public LocalDate plusYears(long yearsToAdd) {
         if (yearsToAdd == 0) {
             return this;
@@ -498,8 +400,6 @@ public final class LocalDate
         int newYear = YEAR.checkValidIntValue(year + yearsToAdd);  // safe overflow
         return resolvePreviousValid(newYear, month, day);
     }
-
-
     public LocalDate plusMonths(long monthsToAdd) {
         if (monthsToAdd == 0) {
             return this;
@@ -510,13 +410,9 @@ public final class LocalDate
         int newMonth = (int)Math.floorMod(calcMonths, 12) + 1;
         return resolvePreviousValid(newYear, newMonth, day);
     }
-
-
     public LocalDate plusWeeks(long weeksToAdd) {
         return plusDays(Math.multiplyExact(weeksToAdd, 7));
     }
-
-
     public LocalDate plusDays(long daysToAdd) {
         if (daysToAdd == 0) {
             return this;
@@ -524,9 +420,7 @@ public final class LocalDate
         long mjDay = Math.addExact(toEpochDay(), daysToAdd);
         return LocalDate.ofEpochDay(mjDay);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public LocalDate minus(TemporalAmount amountToSubtract) {
         if (amountToSubtract instanceof Period) {
@@ -536,36 +430,24 @@ public final class LocalDate
         Objects.requireNonNull(amountToSubtract, "amountToSubtract");
         return (LocalDate) amountToSubtract.subtractFrom(this);
     }
-
-
     @Override
     public LocalDate minus(long amountToSubtract, TemporalUnit unit) {
         return (amountToSubtract == Long.MIN_VALUE ? plus(Long.MAX_VALUE, unit).plus(1, unit) : plus(-amountToSubtract, unit));
     }
-
     //-----------------------------------------------------------------------
-
     public LocalDate minusYears(long yearsToSubtract) {
         return (yearsToSubtract == Long.MIN_VALUE ? plusYears(Long.MAX_VALUE).plusYears(1) : plusYears(-yearsToSubtract));
     }
-
-
     public LocalDate minusMonths(long monthsToSubtract) {
         return (monthsToSubtract == Long.MIN_VALUE ? plusMonths(Long.MAX_VALUE).plusMonths(1) : plusMonths(-monthsToSubtract));
     }
-
-
     public LocalDate minusWeeks(long weeksToSubtract) {
         return (weeksToSubtract == Long.MIN_VALUE ? plusWeeks(Long.MAX_VALUE).plusWeeks(1) : plusWeeks(-weeksToSubtract));
     }
-
-
     public LocalDate minusDays(long daysToSubtract) {
         return (daysToSubtract == Long.MIN_VALUE ? plusDays(Long.MAX_VALUE).plusDays(1) : plusDays(-daysToSubtract));
     }
-
     //-----------------------------------------------------------------------
-
     @SuppressWarnings("unchecked")
     @Override
     public <R> R query(TemporalQuery<R> query) {
@@ -574,14 +456,10 @@ public final class LocalDate
         }
         return ChronoLocalDate.super.query(query);
     }
-
-
     @Override  // override for Javadoc
     public Temporal adjustInto(Temporal temporal) {
         return ChronoLocalDate.super.adjustInto(temporal);
     }
-
-
     @Override
     public long until(Temporal endExclusive, TemporalUnit unit) {
         LocalDate end = LocalDate.from(endExclusive);
@@ -600,18 +478,14 @@ public final class LocalDate
         }
         return unit.between(this, end);
     }
-
     long daysUntil(LocalDate end) {
         return end.toEpochDay() - toEpochDay();  // no overflow
     }
-
     private long monthsUntil(LocalDate end) {
         long packed1 = getProlepticMonth() * 32L + getDayOfMonth();  // no overflow
         long packed2 = end.getProlepticMonth() * 32L + end.getDayOfMonth();  // no overflow
         return (packed2 - packed1) / 32;
     }
-
-
     @Override
     public Period until(ChronoLocalDate endDateExclusive) {
         LocalDate end = LocalDate.from(endDateExclusive);
@@ -629,47 +503,31 @@ public final class LocalDate
         int months = (int) (totalMonths % 12);  // safe
         return Period.of(Math.toIntExact(years), months, days);
     }
-
-
     @Override  // override for Javadoc and performance
     public String format(DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         return formatter.format(this);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public LocalDateTime atTime(LocalTime time) {
         return LocalDateTime.of(this, time);
     }
-
-
     public LocalDateTime atTime(int hour, int minute) {
         return atTime(LocalTime.of(hour, minute));
     }
-
-
     public LocalDateTime atTime(int hour, int minute, int second) {
         return atTime(LocalTime.of(hour, minute, second));
     }
-
-
     public LocalDateTime atTime(int hour, int minute, int second, int nanoOfSecond) {
         return atTime(LocalTime.of(hour, minute, second, nanoOfSecond));
     }
-
-
     public OffsetDateTime atTime(OffsetTime time) {
         return OffsetDateTime.of(LocalDateTime.of(this, time.toLocalTime()), time.getOffset());
     }
-
-
     public LocalDateTime atStartOfDay() {
         return LocalDateTime.of(this, LocalTime.MIDNIGHT);
     }
-
-
     public ZonedDateTime atStartOfDay(ZoneId zone) {
         Objects.requireNonNull(zone, "zone");
         // need to handle case where there is a gap from 11:30 to 00:30
@@ -684,7 +542,6 @@ public final class LocalDate
         }
         return ZonedDateTime.of(ldt, zone);
     }
-
     //-----------------------------------------------------------------------
     @Override
     public long toEpochDay() {
@@ -707,9 +564,7 @@ public final class LocalDate
         }
         return total - DAYS_0000_TO_1970;
     }
-
     //-----------------------------------------------------------------------
-
     @Override  // override for Javadoc and performance
     public int compareTo(ChronoLocalDate other) {
         if (other instanceof LocalDate) {
@@ -717,7 +572,6 @@ public final class LocalDate
         }
         return ChronoLocalDate.super.compareTo(other);
     }
-
     int compareTo0(LocalDate otherDate) {
         int cmp = (year - otherDate.year);
         if (cmp == 0) {
@@ -728,8 +582,6 @@ public final class LocalDate
         }
         return cmp;
     }
-
-
     @Override  // override for Javadoc and performance
     public boolean isAfter(ChronoLocalDate other) {
         if (other instanceof LocalDate) {
@@ -737,8 +589,6 @@ public final class LocalDate
         }
         return ChronoLocalDate.super.isAfter(other);
     }
-
-
     @Override  // override for Javadoc and performance
     public boolean isBefore(ChronoLocalDate other) {
         if (other instanceof LocalDate) {
@@ -746,8 +596,6 @@ public final class LocalDate
         }
         return ChronoLocalDate.super.isBefore(other);
     }
-
-
     @Override  // override for Javadoc and performance
     public boolean isEqual(ChronoLocalDate other) {
         if (other instanceof LocalDate) {
@@ -755,9 +603,7 @@ public final class LocalDate
         }
         return ChronoLocalDate.super.isEqual(other);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -768,8 +614,6 @@ public final class LocalDate
         }
         return false;
     }
-
-
     @Override
     public int hashCode() {
         int yearValue = year;
@@ -777,9 +621,7 @@ public final class LocalDate
         int dayValue = day;
         return (yearValue & 0xFFFFF800) ^ ((yearValue << 11) + (monthValue << 6) + (dayValue));
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public String toString() {
         int yearValue = year;
@@ -805,29 +647,22 @@ public final class LocalDate
             .append(dayValue)
             .toString();
     }
-
     //-----------------------------------------------------------------------
-
     private Object writeReplace() {
         return new Ser(Ser.LOCAL_DATE_TYPE, this);
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
     void writeExternal(DataOutput out) throws IOException {
         out.writeInt(year);
         out.writeByte(month);
         out.writeByte(day);
     }
-
     static LocalDate readExternal(DataInput in) throws IOException {
         int year = in.readInt();
         int month = in.readByte();
         int dayOfMonth = in.readByte();
         return LocalDate.of(year, month, dayOfMonth);
     }
-
 }

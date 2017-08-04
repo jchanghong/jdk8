@@ -1,8 +1,4 @@
-
-
-
 package java.time.zone;
-
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.time.ZoneId;
@@ -19,15 +15,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-
 public abstract class ZoneRulesProvider {
-
-
     private static final CopyOnWriteArrayList<ZoneRulesProvider> PROVIDERS = new CopyOnWriteArrayList<>();
-
     private static final ConcurrentMap<String, ZoneRulesProvider> ZONES = new ConcurrentHashMap<>(512, 0.75f, 2);
-
     static {
         // if the property java.time.zone.DefaultZoneRulesProvider is
         // set then its value is the class name of the default provider
@@ -50,7 +40,6 @@ public abstract class ZoneRulesProvider {
                 return null;
             }
         });
-
         ServiceLoader<ZoneRulesProvider> sl = ServiceLoader.load(ZoneRulesProvider.class, ClassLoader.getSystemClassLoader());
         Iterator<ZoneRulesProvider> it = sl.iterator();
         while (it.hasNext()) {
@@ -77,26 +66,18 @@ public abstract class ZoneRulesProvider {
         // CopyOnWriteList could be slow if lots of providers and each added individually
         PROVIDERS.addAll(loaded);
     }
-
     //-------------------------------------------------------------------------
-
     public static Set<String> getAvailableZoneIds() {
         return new HashSet<>(ZONES.keySet());
     }
-
-
     public static ZoneRules getRules(String zoneId, boolean forCaching) {
         Objects.requireNonNull(zoneId, "zoneId");
         return getProvider(zoneId).provideRules(zoneId, forCaching);
     }
-
-
     public static NavigableMap<String, ZoneRules> getVersions(String zoneId) {
         Objects.requireNonNull(zoneId, "zoneId");
         return getProvider(zoneId).provideVersions(zoneId);
     }
-
-
     private static ZoneRulesProvider getProvider(String zoneId) {
         ZoneRulesProvider provider = ZONES.get(zoneId);
         if (provider == null) {
@@ -107,16 +88,12 @@ public abstract class ZoneRulesProvider {
         }
         return provider;
     }
-
     //-------------------------------------------------------------------------
-
     public static void registerProvider(ZoneRulesProvider provider) {
         Objects.requireNonNull(provider, "provider");
         registerProvider0(provider);
         PROVIDERS.add(provider);
     }
-
-
     private static void registerProvider0(ZoneRulesProvider provider) {
         for (String zoneId : provider.provideZoneIds()) {
             Objects.requireNonNull(zoneId, "zoneId");
@@ -128,8 +105,6 @@ public abstract class ZoneRulesProvider {
             }
         }
     }
-
-
     public static boolean refresh() {
         boolean changed = false;
         for (ZoneRulesProvider provider : PROVIDERS) {
@@ -137,24 +112,13 @@ public abstract class ZoneRulesProvider {
         }
         return changed;
     }
-
-
     protected ZoneRulesProvider() {
     }
-
     //-----------------------------------------------------------------------
-
     protected abstract Set<String> provideZoneIds();
-
-
     protected abstract ZoneRules provideRules(String zoneId, boolean forCaching);
-
-
     protected abstract NavigableMap<String, ZoneRules> provideVersions(String zoneId);
-
-
     protected boolean provideRefresh() {
         return false;
     }
-
 }

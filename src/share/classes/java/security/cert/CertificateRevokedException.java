@@ -1,7 +1,4 @@
-
-
 package java.security.cert;
-
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
@@ -10,25 +7,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.security.auth.x500.X500Principal;
-
 import sun.security.util.ObjectIdentifier;
 import sun.security.x509.InvalidityDateExtension;
-
-
 public class CertificateRevokedException extends CertificateException {
-
     private static final long serialVersionUID = 7839996631571608627L;
-
-
     private Date revocationDate;
-
     private final CRLReason reason;
-
     private final X500Principal authority;
-
     private transient Map<String, Extension> extensions;
-
-
     public CertificateRevokedException(Date revocationDate, CRLReason reason,
         X500Principal authority, Map<String, Extension> extensions) {
         if (revocationDate == null || reason == null || authority == null ||
@@ -43,23 +29,15 @@ public class CertificateRevokedException extends CertificateException {
                                                  String.class, Extension.class);
         this.extensions.putAll(extensions);
     }
-
-
     public Date getRevocationDate() {
         return (Date) revocationDate.clone();
     }
-
-
     public CRLReason getRevocationReason() {
         return reason;
     }
-
-
     public X500Principal getAuthorityName() {
         return authority;
     }
-
-
     public Date getInvalidityDate() {
         Extension ext = getExtensions().get("2.5.29.24");
         if (ext == null) {
@@ -73,12 +51,9 @@ public class CertificateRevokedException extends CertificateException {
             }
         }
     }
-
-
     public Map<String, Extension> getExtensions() {
         return Collections.unmodifiableMap(extensions);
     }
-
     @Override
     public String getMessage() {
         return "Certificate has been revoked, reason: "
@@ -86,16 +61,12 @@ public class CertificateRevokedException extends CertificateException {
                + ", authority: " + authority + ", extension OIDs: "
                + extensions.keySet();
     }
-
-
     private void writeObject(ObjectOutputStream oos) throws IOException {
         // Write out the non-transient fields
         // (revocationDate, reason, authority)
         oos.defaultWriteObject();
-
         // Write out the size (number of mappings) of the extensions map
         oos.writeInt(extensions.size());
-
         // For each extension in the map, the following are emitted (in order):
         // the OID String (Object), the criticality flag (boolean), the length
         // of the encoded extension value byte array (int), and the encoded
@@ -110,17 +81,13 @@ public class CertificateRevokedException extends CertificateException {
             oos.write(extVal);
         }
     }
-
-
     private void readObject(ObjectInputStream ois)
         throws IOException, ClassNotFoundException {
         // Read in the non-transient fields
         // (revocationDate, reason, authority)
         ois.defaultReadObject();
-
         // Defensively copy the revocation date
         revocationDate = new Date(revocationDate.getTime());
-
         // Read in the size (number of mappings) of the extensions map
         // and create the extensions map
         int size = ois.readInt();
@@ -129,7 +96,6 @@ public class CertificateRevokedException extends CertificateException {
         } else {
             extensions = new HashMap<String, Extension>(size);
         }
-
         // Read in the extensions and put the mappings in the extensions map
         for (int i = 0; i < size; i++) {
             String oid = (String) ois.readObject();

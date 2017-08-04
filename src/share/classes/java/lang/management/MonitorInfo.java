@@ -1,17 +1,9 @@
-
-
 package java.lang.management;
-
 import javax.management.openmbean.CompositeData;
 import sun.management.MonitorInfoCompositeData;
-
-
 public class MonitorInfo extends LockInfo {
-
     private int    stackDepth;
     private StackTraceElement stackFrame;
-
-
     public MonitorInfo(String className,
                        int identityHashCode,
                        int stackDepth,
@@ -28,23 +20,16 @@ public class MonitorInfo extends LockInfo {
         this.stackDepth = stackDepth;
         this.stackFrame = stackFrame;
     }
-
-
     public int getLockedStackDepth() {
         return stackDepth;
     }
-
-
     public StackTraceElement getLockedStackFrame() {
         return stackFrame;
     }
-
-
     public static MonitorInfo from(CompositeData cd) {
         if (cd == null) {
             return null;
         }
-
         if (cd instanceof MonitorInfoCompositeData) {
             return ((MonitorInfoCompositeData) cd).getMonitorInfo();
         } else {
@@ -59,5 +44,4 @@ public class MonitorInfo extends LockInfo {
                                    stackFrame);
         }
     }
-
 }

@@ -1,7 +1,4 @@
-
-
 package java.util.zip;
-
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -13,11 +10,7 @@ import java.nio.charset.CodingErrorAction;
 import java.util.Arrays;
 import sun.nio.cs.ArrayDecoder;
 import sun.nio.cs.ArrayEncoder;
-
-
-
 final class ZipCoder {
-
     String toString(byte[] ba, int length) {
         CharsetDecoder cd = decoder().reset();
         int len = (int)(length * cd.maxCharsPerByte());
@@ -43,11 +36,9 @@ final class ZipCoder {
             throw new IllegalArgumentException(cr.toString());
         return new String(ca, 0, cb.position());
     }
-
     String toString(byte[] ba) {
         return toString(ba, ba.length);
     }
-
     byte[] getBytes(String s) {
         CharsetEncoder ce = encoder().reset();
         char[] ca = s.toCharArray();
@@ -76,7 +67,6 @@ final class ZipCoder {
         else
             return Arrays.copyOf(ba, bb.position());
     }
-
     // assume invoked only if "this" is not utf8
     byte[] getBytesUTF8(String s) {
         if (isUTF8)
@@ -85,8 +75,6 @@ final class ZipCoder {
             utf8 = new ZipCoder(StandardCharsets.UTF_8);
         return utf8.getBytes(s);
     }
-
-
     String toStringUTF8(byte[] ba, int len) {
         if (isUTF8)
             return toString(ba, len);
@@ -94,26 +82,21 @@ final class ZipCoder {
             utf8 = new ZipCoder(StandardCharsets.UTF_8);
         return utf8.toString(ba, len);
     }
-
     boolean isUTF8() {
         return isUTF8;
     }
-
     private Charset cs;
     private CharsetDecoder dec;
     private CharsetEncoder enc;
     private boolean isUTF8;
     private ZipCoder utf8;
-
     private ZipCoder(Charset cs) {
         this.cs = cs;
         this.isUTF8 = cs.name().equals(StandardCharsets.UTF_8.name());
     }
-
     static ZipCoder get(Charset charset) {
         return new ZipCoder(charset);
     }
-
     private CharsetDecoder decoder() {
         if (dec == null) {
             dec = cs.newDecoder()
@@ -122,7 +105,6 @@ final class ZipCoder {
         }
         return dec;
     }
-
     private CharsetEncoder encoder() {
         if (enc == null) {
             enc = cs.newEncoder()

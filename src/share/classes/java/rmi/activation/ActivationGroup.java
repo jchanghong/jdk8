@@ -1,7 +1,4 @@
-
-
 package java.rmi.activation;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.MarshalledObject;
@@ -14,34 +11,18 @@ import java.rmi.server.RMIClassLoader;
 import java.rmi.server.UnicastRemoteObject;
 import java.security.AccessController;
 import sun.security.action.GetIntegerAction;
-
-
 public abstract class ActivationGroup
         extends UnicastRemoteObject
         implements ActivationInstantiator
 {
-
     private ActivationGroupID groupID;
-
-
     private ActivationMonitor monitor;
-
-
     private long incarnation;
-
-
     private static ActivationGroup currGroup;
-
     private static ActivationGroupID currGroupID;
-
     private static ActivationSystem currSystem;
-
     private static boolean canCreate = true;
-
-
     private static final long serialVersionUID = -7696947875314805420L;
-
-
     protected ActivationGroup(ActivationGroupID groupID)
         throws RemoteException
     {
@@ -49,20 +30,14 @@ public abstract class ActivationGroup
         super();
         this.groupID = groupID;
     }
-
-
     public boolean inactiveObject(ActivationID id)
         throws ActivationException, UnknownObjectException, RemoteException
     {
         getMonitor().inactiveObject(id);
         return true;
     }
-
-
     public abstract void activeObject(ActivationID id, Remote obj)
         throws ActivationException, UnknownObjectException, RemoteException;
-
-
     public static synchronized
         ActivationGroup createGroup(ActivationGroupID id,
                                     final ActivationGroupDesc desc,
@@ -72,14 +47,11 @@ public abstract class ActivationGroup
         SecurityManager security = System.getSecurityManager();
         if (security != null)
             security.checkSetFactory();
-
         if (currGroup != null)
             throw new ActivationException("group already exists");
-
         if (canCreate == false)
             throw new ActivationException("group deactivated and " +
                                           "cannot be recreated");
-
         try {
             // load group's class
             String groupClassName = desc.getClassName();
@@ -106,7 +78,6 @@ public abstract class ActivationGroup
                                                   cl0.getName());
                 }
             }
-
             // create group
             Constructor<? extends ActivationGroup> constructor =
                 cl.getConstructor(ActivationGroupID.class,
@@ -124,47 +95,33 @@ public abstract class ActivationGroup
                 e.getTargetException().printStackTrace();
                 throw new ActivationException("exception in group constructor",
                                               e.getTargetException());
-
         } catch (ActivationException e) {
             throw e;
-
         } catch (Exception e) {
             throw new ActivationException("exception creating group", e);
         }
-
         return currGroup;
     }
-
-
     public static synchronized ActivationGroupID currentGroupID() {
         return currGroupID;
     }
-
-
     static synchronized ActivationGroupID internalCurrentGroupID()
         throws ActivationException
     {
         if (currGroupID == null)
             throw new ActivationException("nonexistent group");
-
         return currGroupID;
     }
-
-
     public static synchronized void setSystem(ActivationSystem system)
         throws ActivationException
     {
         SecurityManager security = System.getSecurityManager();
         if (security != null)
             security.checkSetFactory();
-
         if (currSystem != null)
             throw new ActivationException("activation system already set");
-
         currSystem = system;
     }
-
-
     public static synchronized ActivationSystem getSystem()
         throws ActivationException
     {
@@ -183,16 +140,12 @@ public abstract class ActivationGroup
         }
         return currSystem;
     }
-
-
     protected void activeObject(ActivationID id,
                                 MarshalledObject<? extends Remote> mobj)
         throws ActivationException, UnknownObjectException, RemoteException
     {
         getMonitor().activeObject(id, mobj);
     }
-
-
     protected void inactiveGroup()
         throws UnknownGroupException, RemoteException
     {
@@ -202,8 +155,6 @@ public abstract class ActivationGroup
             destroyGroup();
         }
     }
-
-
     private ActivationMonitor getMonitor() throws RemoteException {
         synchronized (ActivationGroup.class) {
             if (monitor != null) {
@@ -212,15 +163,11 @@ public abstract class ActivationGroup
         }
         throw new RemoteException("monitor not received");
     }
-
-
     private static synchronized void destroyGroup() {
         currGroup = null;
         currGroupID = null;
         // NOTE: don't set currSystem to null since it may be needed
     }
-
-
     static synchronized ActivationGroup currentGroup()
         throws ActivationException
     {
@@ -229,5 +176,4 @@ public abstract class ActivationGroup
         }
         return currGroup;
     }
-
 }

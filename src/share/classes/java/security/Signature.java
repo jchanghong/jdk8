@@ -1,69 +1,41 @@
-
-
 package java.security;
-
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-
 import java.nio.ByteBuffer;
-
 import java.security.Provider.Service;
-
 import javax.crypto.Cipher;
 import javax.crypto.CipherSpi;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.NoSuchPaddingException;
-
 import sun.security.util.Debug;
 import sun.security.jca.*;
 import sun.security.jca.GetInstance.Instance;
-
-
-
 public abstract class Signature extends SignatureSpi {
-
     private static final Debug debug =
                         Debug.getInstance("jca", "Signature");
-
     private static final Debug pdebug =
                         Debug.getInstance("provider", "Provider");
     private static final boolean skipDebug =
         Debug.isOn("engine=") && !Debug.isOn("signature");
-
-
     private String algorithm;
-
     // The provider
     Provider provider;
-
-
     protected final static int UNINITIALIZED = 0;
-
-
     protected final static int SIGN = 2;
-
-
     protected final static int VERIFY = 3;
-
-
     protected int state = UNINITIALIZED;
-
-
     protected Signature(String algorithm) {
         this.algorithm = algorithm;
     }
-
     // name of the special signature alg
     private final static String RSA_SIGNATURE = "NONEwithRSA";
-
     // name of the equivalent cipher alg
     private final static String RSA_CIPHER = "RSA/ECB/PKCS1Padding";
-
     // all the services we need to lookup for compatibility with Cipher
     private final static List<ServiceId> rsaIds = Arrays.asList(
         new ServiceId[] {
@@ -74,8 +46,6 @@ public abstract class Signature extends SignatureSpi {
             new ServiceId("Cipher", "RSA"),
         }
     );
-
-
     public static Signature getInstance(String algorithm)
             throws NoSuchAlgorithmException {
         List<Service> list;
@@ -108,7 +78,6 @@ public abstract class Signature extends SignatureSpi {
         } while (t.hasNext());
         throw failure;
     }
-
     private static Signature getInstance(Instance instance, String algorithm) {
         Signature sig;
         if (instance.impl instanceof Signature) {
@@ -121,9 +90,7 @@ public abstract class Signature extends SignatureSpi {
         sig.provider = instance.provider;
         return sig;
     }
-
     private final static Map<String,Boolean> signatureInfo;
-
     static {
         signatureInfo = new ConcurrentHashMap<String,Boolean>();
         Boolean TRUE = Boolean.TRUE;
@@ -139,7 +106,6 @@ public abstract class Signature extends SignatureSpi {
         signatureInfo.put("com.sun.net.ssl.internal.ssl.RSASignature", TRUE);
         signatureInfo.put("sun.security.pkcs11.P11Signature", TRUE);
     }
-
     private static boolean isSpi(Service s) {
         if (s.getType().equals("Cipher")) {
             // must be a CipherSpi, which we can wrap with the CipherAdapter
@@ -169,8 +135,6 @@ public abstract class Signature extends SignatureSpi {
         }
         return result.booleanValue();
     }
-
-
     public static Signature getInstance(String algorithm, String provider)
             throws NoSuchAlgorithmException, NoSuchProviderException {
         if (algorithm.equalsIgnoreCase(RSA_SIGNATURE)) {
@@ -189,8 +153,6 @@ public abstract class Signature extends SignatureSpi {
                 ("Signature", SignatureSpi.class, algorithm, provider);
         return getInstance(instance, algorithm);
     }
-
-
     public static Signature getInstance(String algorithm, Provider provider)
             throws NoSuchAlgorithmException {
         if (algorithm.equalsIgnoreCase(RSA_SIGNATURE)) {
@@ -204,7 +166,6 @@ public abstract class Signature extends SignatureSpi {
                 ("Signature", SignatureSpi.class, algorithm, provider);
         return getInstance(instance, algorithm);
     }
-
     // return an implementation for NONEwithRSA, which is a special case
     // because of the Cipher.RSA/ECB/PKCS1Padding compatibility wrapper
     private static Signature getInstanceRSA(Provider p)
@@ -226,34 +187,25 @@ public abstract class Signature extends SignatureSpi {
                 + RSA_SIGNATURE + " for provider " + p.getName(), e);
         }
     }
-
-
     public final Provider getProvider() {
         chooseFirstProvider();
         return this.provider;
     }
-
     private String getProviderName() {
         return (provider == null)  ? "(no provider)" : provider.getName();
     }
-
     void chooseFirstProvider() {
         // empty, overridden in Delegate
     }
-
-
     public final void initVerify(PublicKey publicKey)
             throws InvalidKeyException {
         engineInitVerify(publicKey);
         state = VERIFY;
-
         if (!skipDebug && pdebug != null) {
             pdebug.println("Signature." + algorithm +
                 " verification algorithm from: " + getProviderName());
         }
     }
-
-
     public final void initVerify(Certificate certificate)
             throws InvalidKeyException {
         // If the certificate is of type X509Certificate,
@@ -265,7 +217,6 @@ public abstract class Signature extends SignatureSpi {
             // The OID for KeyUsage extension is 2.5.29.15.
             X509Certificate cert = (X509Certificate)certificate;
             Set<String> critSet = cert.getCriticalExtensionOIDs();
-
             if (critSet != null && !critSet.isEmpty()
                 && critSet.contains("2.5.29.15")) {
                 boolean[] keyUsageInfo = cert.getKeyUsage();
@@ -274,42 +225,32 @@ public abstract class Signature extends SignatureSpi {
                     throw new InvalidKeyException("Wrong key usage");
             }
         }
-
         PublicKey publicKey = certificate.getPublicKey();
         engineInitVerify(publicKey);
         state = VERIFY;
-
         if (!skipDebug && pdebug != null) {
             pdebug.println("Signature." + algorithm +
                 " verification algorithm from: " + getProviderName());
         }
     }
-
-
     public final void initSign(PrivateKey privateKey)
             throws InvalidKeyException {
         engineInitSign(privateKey);
         state = SIGN;
-
         if (!skipDebug && pdebug != null) {
             pdebug.println("Signature." + algorithm +
                 " signing algorithm from: " + getProviderName());
         }
     }
-
-
     public final void initSign(PrivateKey privateKey, SecureRandom random)
             throws InvalidKeyException {
         engineInitSign(privateKey, random);
         state = SIGN;
-
         if (!skipDebug && pdebug != null) {
             pdebug.println("Signature." + algorithm +
                 " signing algorithm from: " + getProviderName());
         }
     }
-
-
     public final byte[] sign() throws SignatureException {
         if (state == SIGN) {
             return engineSign();
@@ -317,8 +258,6 @@ public abstract class Signature extends SignatureSpi {
         throw new SignatureException("object not initialized for " +
                                      "signing");
     }
-
-
     public final int sign(byte[] outbuf, int offset, int len)
         throws SignatureException {
         if (outbuf == null) {
@@ -337,8 +276,6 @@ public abstract class Signature extends SignatureSpi {
         }
         return engineSign(outbuf, offset, len);
     }
-
-
     public final boolean verify(byte[] signature) throws SignatureException {
         if (state == VERIFY) {
             return engineVerify(signature);
@@ -346,8 +283,6 @@ public abstract class Signature extends SignatureSpi {
         throw new SignatureException("object not initialized for " +
                                      "verification");
     }
-
-
     public final boolean verify(byte[] signature, int offset, int length)
         throws SignatureException {
         if (state == VERIFY) {
@@ -362,14 +297,11 @@ public abstract class Signature extends SignatureSpi {
                 throw new IllegalArgumentException
                     ("signature too small for specified offset and length");
             }
-
             return engineVerify(signature, offset, length);
         }
         throw new SignatureException("object not initialized for " +
                                      "verification");
     }
-
-
     public final void update(byte b) throws SignatureException {
         if (state == VERIFY || state == SIGN) {
             engineUpdate(b);
@@ -378,13 +310,9 @@ public abstract class Signature extends SignatureSpi {
                                          + "signature or verification");
         }
     }
-
-
     public final void update(byte[] data) throws SignatureException {
         update(data, 0, data.length);
     }
-
-
     public final void update(byte[] data, int off, int len)
             throws SignatureException {
         if (state == SIGN || state == VERIFY) {
@@ -404,8 +332,6 @@ public abstract class Signature extends SignatureSpi {
                                          + "signature or verification");
         }
     }
-
-
     public final void update(ByteBuffer data) throws SignatureException {
         if ((state != SIGN) && (state != VERIFY)) {
             throw new SignatureException("object not initialized for "
@@ -416,13 +342,9 @@ public abstract class Signature extends SignatureSpi {
         }
         engineUpdate(data);
     }
-
-
     public final String getAlgorithm() {
         return this.algorithm;
     }
-
-
     public String toString() {
         String initState = "";
         switch (state) {
@@ -438,33 +360,23 @@ public abstract class Signature extends SignatureSpi {
         }
         return "Signature object: " + getAlgorithm() + initState;
     }
-
-
     @Deprecated
     public final void setParameter(String param, Object value)
             throws InvalidParameterException {
         engineSetParameter(param, value);
     }
-
-
     public final void setParameter(AlgorithmParameterSpec params)
             throws InvalidAlgorithmParameterException {
         engineSetParameter(params);
     }
-
-
     public final AlgorithmParameters getParameters() {
         return engineGetParameters();
     }
-
-
     @Deprecated
     public final Object getParameter(String param)
             throws InvalidParameterException {
         return engineGetParameter(param);
     }
-
-
     public Object clone() throws CloneNotSupportedException {
         if (this instanceof Cloneable) {
             return super.clone();
@@ -472,34 +384,25 @@ public abstract class Signature extends SignatureSpi {
             throw new CloneNotSupportedException();
         }
     }
-
-
-
     @SuppressWarnings("deprecation")
     private static class Delegate extends Signature {
-
         // The provider implementation (delegate)
         // filled in once the provider is selected
         private SignatureSpi sigSpi;
-
         // lock for mutex during provider selection
         private final Object lock;
-
         // next service to try in provider selection
         // null once provider is selected
         private Service firstService;
-
         // remaining services to try in provider selection
         // null once provider is selected
         private Iterator<Service> serviceIterator;
-
         // constructor
         Delegate(SignatureSpi sigSpi, String algorithm) {
             super(algorithm);
             this.sigSpi = sigSpi;
             this.lock = null; // no lock needed
         }
-
         // used with delayed provider selection
         Delegate(Service service,
                         Iterator<Service> iterator, String algorithm) {
@@ -508,8 +411,6 @@ public abstract class Signature extends SignatureSpi {
             this.serviceIterator = iterator;
             this.lock = new Object();
         }
-
-
         public Object clone() throws CloneNotSupportedException {
             chooseFirstProvider();
             if (sigSpi instanceof Cloneable) {
@@ -525,7 +426,6 @@ public abstract class Signature extends SignatureSpi {
                 throw new CloneNotSupportedException();
             }
         }
-
         private static SignatureSpi newInstance(Service s)
                 throws NoSuchAlgorithmException {
             if (s.getType().equals("Cipher")) {
@@ -545,11 +445,8 @@ public abstract class Signature extends SignatureSpi {
                 return (SignatureSpi)o;
             }
         }
-
         // max number of debug warnings to print from chooseFirstProvider()
         private static int warnCount = 10;
-
-
         void chooseFirstProvider() {
             if (sigSpi != null) {
                 return;
@@ -601,7 +498,6 @@ public abstract class Signature extends SignatureSpi {
                 throw e;
             }
         }
-
         private void chooseProvider(int type, Key key, SecureRandom random)
                 throws InvalidKeyException {
             synchronized (lock) {
@@ -656,11 +552,9 @@ public abstract class Signature extends SignatureSpi {
                     + k, lastException);
             }
         }
-
         private final static int I_PUB     = 1;
         private final static int I_PRIV    = 2;
         private final static int I_PRIV_SR = 3;
-
         private void init(SignatureSpi spi, int type, Key  key,
                 SecureRandom random) throws InvalidKeyException {
             switch (type) {
@@ -677,7 +571,6 @@ public abstract class Signature extends SignatureSpi {
                 throw new AssertionError("Internal error: " + type);
             }
         }
-
         protected void engineInitVerify(PublicKey publicKey)
                 throws InvalidKeyException {
             if (sigSpi != null) {
@@ -686,7 +579,6 @@ public abstract class Signature extends SignatureSpi {
                 chooseProvider(I_PUB, publicKey, null);
             }
         }
-
         protected void engineInitSign(PrivateKey privateKey)
                 throws InvalidKeyException {
             if (sigSpi != null) {
@@ -695,7 +587,6 @@ public abstract class Signature extends SignatureSpi {
                 chooseProvider(I_PRIV, privateKey, null);
             }
         }
-
         protected void engineInitSign(PrivateKey privateKey, SecureRandom sr)
                 throws InvalidKeyException {
             if (sigSpi != null) {
@@ -704,82 +595,66 @@ public abstract class Signature extends SignatureSpi {
                 chooseProvider(I_PRIV_SR, privateKey, sr);
             }
         }
-
         protected void engineUpdate(byte b) throws SignatureException {
             chooseFirstProvider();
             sigSpi.engineUpdate(b);
         }
-
         protected void engineUpdate(byte[] b, int off, int len)
                 throws SignatureException {
             chooseFirstProvider();
             sigSpi.engineUpdate(b, off, len);
         }
-
         protected void engineUpdate(ByteBuffer data) {
             chooseFirstProvider();
             sigSpi.engineUpdate(data);
         }
-
         protected byte[] engineSign() throws SignatureException {
             chooseFirstProvider();
             return sigSpi.engineSign();
         }
-
         protected int engineSign(byte[] outbuf, int offset, int len)
                 throws SignatureException {
             chooseFirstProvider();
             return sigSpi.engineSign(outbuf, offset, len);
         }
-
         protected boolean engineVerify(byte[] sigBytes)
                 throws SignatureException {
             chooseFirstProvider();
             return sigSpi.engineVerify(sigBytes);
         }
-
         protected boolean engineVerify(byte[] sigBytes, int offset, int length)
                 throws SignatureException {
             chooseFirstProvider();
             return sigSpi.engineVerify(sigBytes, offset, length);
         }
-
         protected void engineSetParameter(String param, Object value)
                 throws InvalidParameterException {
             chooseFirstProvider();
             sigSpi.engineSetParameter(param, value);
         }
-
         protected void engineSetParameter(AlgorithmParameterSpec params)
                 throws InvalidAlgorithmParameterException {
             chooseFirstProvider();
             sigSpi.engineSetParameter(params);
         }
-
         protected Object engineGetParameter(String param)
                 throws InvalidParameterException {
             chooseFirstProvider();
             return sigSpi.engineGetParameter(param);
         }
-
         protected AlgorithmParameters engineGetParameters() {
             chooseFirstProvider();
             return sigSpi.engineGetParameters();
         }
     }
-
     // adapter for RSA/ECB/PKCS1Padding ciphers
     @SuppressWarnings("deprecation")
     private static class CipherAdapter extends SignatureSpi {
-
         private final Cipher cipher;
-
         private ByteArrayOutputStream data;
-
         CipherAdapter(Cipher cipher) {
             this.cipher = cipher;
         }
-
         protected void engineInitVerify(PublicKey publicKey)
                 throws InvalidKeyException {
             cipher.init(Cipher.DECRYPT_MODE, publicKey);
@@ -789,23 +664,19 @@ public abstract class Signature extends SignatureSpi {
                 data.reset();
             }
         }
-
         protected void engineInitSign(PrivateKey privateKey)
                 throws InvalidKeyException {
             cipher.init(Cipher.ENCRYPT_MODE, privateKey);
             data = null;
         }
-
         protected void engineInitSign(PrivateKey privateKey,
                 SecureRandom random) throws InvalidKeyException {
             cipher.init(Cipher.ENCRYPT_MODE, privateKey, random);
             data = null;
         }
-
         protected void engineUpdate(byte b) throws SignatureException {
             engineUpdate(new byte[] {b}, 0, 1);
         }
-
         protected void engineUpdate(byte[] b, int off, int len)
                 throws SignatureException {
             if (data != null) {
@@ -818,7 +689,6 @@ public abstract class Signature extends SignatureSpi {
                     ("Cipher unexpectedly returned data");
             }
         }
-
         protected byte[] engineSign() throws SignatureException {
             try {
                 return cipher.doFinal();
@@ -828,7 +698,6 @@ public abstract class Signature extends SignatureSpi {
                 throw new SignatureException("doFinal() failed", e);
             }
         }
-
         protected boolean engineVerify(byte[] sigBytes)
                 throws SignatureException {
             try {
@@ -844,17 +713,13 @@ public abstract class Signature extends SignatureSpi {
                 throw new SignatureException("doFinal() failed", e);
             }
         }
-
         protected void engineSetParameter(String param, Object value)
                 throws InvalidParameterException {
             throw new InvalidParameterException("Parameters not supported");
         }
-
         protected Object engineGetParameter(String param)
                 throws InvalidParameterException {
             throw new InvalidParameterException("Parameters not supported");
         }
-
     }
-
 }

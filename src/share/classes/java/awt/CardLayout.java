@@ -1,28 +1,16 @@
-
-
 package java.awt;
-
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Enumeration;
-
 import java.io.Serializable;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.IOException;
-
-
-
 public class CardLayout implements LayoutManager2,
                                    Serializable {
-
     private static final long serialVersionUID = -4328196481005934313L;
-
-
     Vector<Card> vector = new Vector<>();
-
-
     class Card implements Serializable {
         static final long serialVersionUID = 6640330810709497518L;
         public String name;
@@ -32,18 +20,9 @@ public class CardLayout implements LayoutManager2,
             comp = cardComponent;
         }
     }
-
-
     int currentCard = 0;
-
-
-
     int hgap;
-
-
     int vgap;
-
-
     private static final ObjectStreamField[] serialPersistentFields = {
         new ObjectStreamField("tab", Hashtable.class),
         new ObjectStreamField("hgap", Integer.TYPE),
@@ -51,39 +30,25 @@ public class CardLayout implements LayoutManager2,
         new ObjectStreamField("vector", Vector.class),
         new ObjectStreamField("currentCard", Integer.TYPE)
     };
-
-
     public CardLayout() {
         this(0, 0);
     }
-
-
     public CardLayout(int hgap, int vgap) {
         this.hgap = hgap;
         this.vgap = vgap;
     }
-
-
     public int getHgap() {
         return hgap;
     }
-
-
     public void setHgap(int hgap) {
         this.hgap = hgap;
     }
-
-
     public int getVgap() {
         return vgap;
     }
-
-
     public void setVgap(int vgap) {
         this.vgap = vgap;
     }
-
-
     public void addLayoutComponent(Component comp, Object constraints) {
       synchronized (comp.getTreeLock()) {
           if (constraints == null){
@@ -96,8 +61,6 @@ public class CardLayout implements LayoutManager2,
         }
       }
     }
-
-
     @Deprecated
     public void addLayoutComponent(String name, Component comp) {
         synchronized (comp.getTreeLock()) {
@@ -113,8 +76,6 @@ public class CardLayout implements LayoutManager2,
             vector.add(new Card(name, comp));
         }
     }
-
-
     public void removeLayoutComponent(Component comp) {
         synchronized (comp.getTreeLock()) {
             for (int i = 0; i < vector.size(); i++) {
@@ -123,9 +84,7 @@ public class CardLayout implements LayoutManager2,
                     if (comp.isVisible() && (comp.getParent() != null)) {
                         next(comp.getParent());
                     }
-
                     vector.remove(i);
-
                     // correct currentCard if this is necessary
                     if (currentCard > i) {
                         currentCard--;
@@ -135,15 +94,12 @@ public class CardLayout implements LayoutManager2,
             }
         }
     }
-
-
     public Dimension preferredLayoutSize(Container parent) {
         synchronized (parent.getTreeLock()) {
             Insets insets = parent.getInsets();
             int ncomponents = parent.getComponentCount();
             int w = 0;
             int h = 0;
-
             for (int i = 0 ; i < ncomponents ; i++) {
                 Component comp = parent.getComponent(i);
                 Dimension d = comp.getPreferredSize();
@@ -158,15 +114,12 @@ public class CardLayout implements LayoutManager2,
                                  insets.top + insets.bottom + h + vgap*2);
         }
     }
-
-
     public Dimension minimumLayoutSize(Container parent) {
         synchronized (parent.getTreeLock()) {
             Insets insets = parent.getInsets();
             int ncomponents = parent.getComponentCount();
             int w = 0;
             int h = 0;
-
             for (int i = 0 ; i < ncomponents ; i++) {
                 Component comp = parent.getComponent(i);
                 Dimension d = comp.getMinimumSize();
@@ -181,34 +134,23 @@ public class CardLayout implements LayoutManager2,
                                  insets.top + insets.bottom + h + vgap*2);
         }
     }
-
-
     public Dimension maximumLayoutSize(Container target) {
         return new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
-
-
     public float getLayoutAlignmentX(Container parent) {
         return 0.5f;
     }
-
-
     public float getLayoutAlignmentY(Container parent) {
         return 0.5f;
     }
-
-
     public void invalidateLayout(Container target) {
     }
-
-
     public void layoutContainer(Container parent) {
         synchronized (parent.getTreeLock()) {
             Insets insets = parent.getInsets();
             int ncomponents = parent.getComponentCount();
             Component comp = null;
             boolean currentFound = false;
-
             for (int i = 0 ; i < ncomponents ; i++) {
                 comp = parent.getComponent(i);
                 comp.setBounds(hgap + insets.left, vgap + insets.top,
@@ -218,21 +160,16 @@ public class CardLayout implements LayoutManager2,
                     currentFound = true;
                 }
             }
-
             if (!currentFound && ncomponents > 0) {
                 parent.getComponent(0).setVisible(true);
             }
         }
     }
-
-
     void checkLayout(Container parent) {
         if (parent.getLayout() != this) {
             throw new IllegalArgumentException("wrong parent for CardLayout");
         }
     }
-
-
     public void first(Container parent) {
         synchronized (parent.getTreeLock()) {
             checkLayout(parent);
@@ -251,8 +188,6 @@ public class CardLayout implements LayoutManager2,
             }
         }
     }
-
-
     public void next(Container parent) {
         synchronized (parent.getTreeLock()) {
             checkLayout(parent);
@@ -271,8 +206,6 @@ public class CardLayout implements LayoutManager2,
             showDefaultComponent(parent);
         }
     }
-
-
     public void previous(Container parent) {
         synchronized (parent.getTreeLock()) {
             checkLayout(parent);
@@ -291,7 +224,6 @@ public class CardLayout implements LayoutManager2,
             showDefaultComponent(parent);
         }
     }
-
     void showDefaultComponent(Container parent) {
         if (parent.getComponentCount() > 0) {
             currentCard = 0;
@@ -299,8 +231,6 @@ public class CardLayout implements LayoutManager2,
             parent.validate();
         }
     }
-
-
     public void last(Container parent) {
         synchronized (parent.getTreeLock()) {
             checkLayout(parent);
@@ -319,8 +249,6 @@ public class CardLayout implements LayoutManager2,
             }
         }
     }
-
-
     public void show(Container parent, String name) {
         synchronized (parent.getTreeLock()) {
             checkLayout(parent);
@@ -348,21 +276,15 @@ public class CardLayout implements LayoutManager2,
             }
         }
     }
-
-
     public String toString() {
         return getClass().getName() + "[hgap=" + hgap + ",vgap=" + vgap + "]";
     }
-
-
     private void readObject(ObjectInputStream s)
         throws ClassNotFoundException, IOException
     {
         ObjectInputStream.GetField f = s.readFields();
-
         hgap = f.get("hgap", 0);
         vgap = f.get("vgap", 0);
-
         if (f.defaulted("vector")) {
             //  pre-1.4 stream
             Hashtable<String, Component> tab = (Hashtable)f.get("tab", null);
@@ -382,8 +304,6 @@ public class CardLayout implements LayoutManager2,
             currentCard = f.get("currentCard", 0);
         }
     }
-
-
     private void writeObject(ObjectOutputStream s)
         throws IOException
     {
@@ -393,7 +313,6 @@ public class CardLayout implements LayoutManager2,
             Card card = (Card)vector.get(i);
             tab.put(card.name, card.comp);
         }
-
         ObjectOutputStream.PutField f = s.putFields();
         f.put("hgap", hgap);
         f.put("vgap", vgap);

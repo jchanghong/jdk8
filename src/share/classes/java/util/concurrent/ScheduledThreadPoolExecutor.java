@@ -1,84 +1,47 @@
-
-
-
-
 package java.util.concurrent;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.*;
-
-
 public class ScheduledThreadPoolExecutor
         extends ThreadPoolExecutor
         implements ScheduledExecutorService {
-
-
-
-
     private volatile boolean continueExistingPeriodicTasksAfterShutdown;
-
-
     private volatile boolean executeExistingDelayedTasksAfterShutdown = true;
-
-
     private volatile boolean removeOnCancel = false;
-
-
     private static final AtomicLong sequencer = new AtomicLong();
-
-
     final long now() {
         return System.nanoTime();
     }
-
     private class ScheduledFutureTask<V>
             extends FutureTask<V> implements RunnableScheduledFuture<V> {
-
-
         private final long sequenceNumber;
-
-
         private long time;
-
-
         private final long period;
-
-
         RunnableScheduledFuture<V> outerTask = this;
-
-
         int heapIndex;
-
-
         ScheduledFutureTask(Runnable r, V result, long ns) {
             super(r, result);
             this.time = ns;
             this.period = 0;
             this.sequenceNumber = sequencer.getAndIncrement();
         }
-
-
         ScheduledFutureTask(Runnable r, V result, long ns, long period) {
             super(r, result);
             this.time = ns;
             this.period = period;
             this.sequenceNumber = sequencer.getAndIncrement();
         }
-
-
         ScheduledFutureTask(Callable<V> callable, long ns) {
             super(callable);
             this.time = ns;
             this.period = 0;
             this.sequenceNumber = sequencer.getAndIncrement();
         }
-
         public long getDelay(TimeUnit unit) {
             return unit.convert(time - now(), NANOSECONDS);
         }
-
         public int compareTo(Delayed other) {
             if (other == this) // compare zero if same object
                 return 0;
@@ -97,13 +60,9 @@ public class ScheduledThreadPoolExecutor
             long diff = getDelay(NANOSECONDS) - other.getDelay(NANOSECONDS);
             return (diff < 0) ? -1 : (diff > 0) ? 1 : 0;
         }
-
-
         public boolean isPeriodic() {
             return period != 0;
         }
-
-
         private void setNextRunTime() {
             long p = period;
             if (p > 0)
@@ -111,15 +70,12 @@ public class ScheduledThreadPoolExecutor
             else
                 time = triggerTime(-p);
         }
-
         public boolean cancel(boolean mayInterruptIfRunning) {
             boolean cancelled = super.cancel(mayInterruptIfRunning);
             if (cancelled && removeOnCancel && heapIndex >= 0)
                 remove(this);
             return cancelled;
         }
-
-
         public void run() {
             boolean periodic = isPeriodic();
             if (!canRunInCurrentRunState(periodic))
@@ -132,15 +88,11 @@ public class ScheduledThreadPoolExecutor
             }
         }
     }
-
-
     boolean canRunInCurrentRunState(boolean periodic) {
         return isRunningOrShutdown(periodic ?
                                    continueExistingPeriodicTasksAfterShutdown :
                                    executeExistingDelayedTasksAfterShutdown);
     }
-
-
     private void delayedExecute(RunnableScheduledFuture<?> task) {
         if (isShutdown())
             reject(task);
@@ -154,8 +106,6 @@ public class ScheduledThreadPoolExecutor
                 ensurePrestart();
         }
     }
-
-
     void reExecutePeriodic(RunnableScheduledFuture<?> task) {
         if (canRunInCurrentRunState(true)) {
             super.getQueue().add(task);
@@ -165,8 +115,6 @@ public class ScheduledThreadPoolExecutor
                 ensurePrestart();
         }
     }
-
-
     @Override void onShutdown() {
         BlockingQueue<Runnable> q = super.getQueue();
         boolean keepDelayed =
@@ -195,59 +143,41 @@ public class ScheduledThreadPoolExecutor
         }
         tryTerminate();
     }
-
-
     protected <V> RunnableScheduledFuture<V> decorateTask(
         Runnable runnable, RunnableScheduledFuture<V> task) {
         return task;
     }
-
-
     protected <V> RunnableScheduledFuture<V> decorateTask(
         Callable<V> callable, RunnableScheduledFuture<V> task) {
         return task;
     }
-
-
     public ScheduledThreadPoolExecutor(int corePoolSize) {
         super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
               new DelayedWorkQueue());
     }
-
-
     public ScheduledThreadPoolExecutor(int corePoolSize,
                                        ThreadFactory threadFactory) {
         super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
               new DelayedWorkQueue(), threadFactory);
     }
-
-
     public ScheduledThreadPoolExecutor(int corePoolSize,
                                        RejectedExecutionHandler handler) {
         super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
               new DelayedWorkQueue(), handler);
     }
-
-
     public ScheduledThreadPoolExecutor(int corePoolSize,
                                        ThreadFactory threadFactory,
                                        RejectedExecutionHandler handler) {
         super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
               new DelayedWorkQueue(), threadFactory, handler);
     }
-
-
     private long triggerTime(long delay, TimeUnit unit) {
         return triggerTime(unit.toNanos((delay < 0) ? 0 : delay));
     }
-
-
     long triggerTime(long delay) {
         return now() +
             ((delay < (Long.MAX_VALUE >> 1)) ? delay : overflowFree(delay));
     }
-
-
     private long overflowFree(long delay) {
         Delayed head = (Delayed) super.getQueue().peek();
         if (head != null) {
@@ -257,8 +187,6 @@ public class ScheduledThreadPoolExecutor
         }
         return delay;
     }
-
-
     public ScheduledFuture<?> schedule(Runnable command,
                                        long delay,
                                        TimeUnit unit) {
@@ -270,8 +198,6 @@ public class ScheduledThreadPoolExecutor
         delayedExecute(t);
         return t;
     }
-
-
     public <V> ScheduledFuture<V> schedule(Callable<V> callable,
                                            long delay,
                                            TimeUnit unit) {
@@ -283,8 +209,6 @@ public class ScheduledThreadPoolExecutor
         delayedExecute(t);
         return t;
     }
-
-
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
                                                   long initialDelay,
                                                   long period,
@@ -303,8 +227,6 @@ public class ScheduledThreadPoolExecutor
         delayedExecute(t);
         return t;
     }
-
-
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
                                                      long initialDelay,
                                                      long delay,
@@ -323,103 +245,63 @@ public class ScheduledThreadPoolExecutor
         delayedExecute(t);
         return t;
     }
-
-
     public void execute(Runnable command) {
         schedule(command, 0, NANOSECONDS);
     }
-
     // Override AbstractExecutorService methods
-
-
     public Future<?> submit(Runnable task) {
         return schedule(task, 0, NANOSECONDS);
     }
-
-
     public <T> Future<T> submit(Runnable task, T result) {
         return schedule(Executors.callable(task, result), 0, NANOSECONDS);
     }
-
-
     public <T> Future<T> submit(Callable<T> task) {
         return schedule(task, 0, NANOSECONDS);
     }
-
-
     public void setContinueExistingPeriodicTasksAfterShutdownPolicy(boolean value) {
         continueExistingPeriodicTasksAfterShutdown = value;
         if (!value && isShutdown())
             onShutdown();
     }
-
-
     public boolean getContinueExistingPeriodicTasksAfterShutdownPolicy() {
         return continueExistingPeriodicTasksAfterShutdown;
     }
-
-
     public void setExecuteExistingDelayedTasksAfterShutdownPolicy(boolean value) {
         executeExistingDelayedTasksAfterShutdown = value;
         if (!value && isShutdown())
             onShutdown();
     }
-
-
     public boolean getExecuteExistingDelayedTasksAfterShutdownPolicy() {
         return executeExistingDelayedTasksAfterShutdown;
     }
-
-
     public void setRemoveOnCancelPolicy(boolean value) {
         removeOnCancel = value;
     }
-
-
     public boolean getRemoveOnCancelPolicy() {
         return removeOnCancel;
     }
-
-
     public void shutdown() {
         super.shutdown();
     }
-
-
     public List<Runnable> shutdownNow() {
         return super.shutdownNow();
     }
-
-
     public BlockingQueue<Runnable> getQueue() {
         return super.getQueue();
     }
-
-
     static class DelayedWorkQueue extends AbstractQueue<Runnable>
         implements BlockingQueue<Runnable> {
-
-
-
         private static final int INITIAL_CAPACITY = 16;
         private RunnableScheduledFuture<?>[] queue =
             new RunnableScheduledFuture<?>[INITIAL_CAPACITY];
         private final ReentrantLock lock = new ReentrantLock();
         private int size = 0;
-
-
         private Thread leader = null;
-
-
         private final Condition available = lock.newCondition();
-
-
         private void setIndex(RunnableScheduledFuture<?> f, int idx) {
             if (f instanceof ScheduledFutureTask)
                 ((ScheduledFutureTask)f).heapIndex = idx;
         }
-
-
         private void siftUp(int k, RunnableScheduledFuture<?> key) {
             while (k > 0) {
                 int parent = (k - 1) >>> 1;
@@ -433,8 +315,6 @@ public class ScheduledThreadPoolExecutor
             queue[k] = key;
             setIndex(key, k);
         }
-
-
         private void siftDown(int k, RunnableScheduledFuture<?> key) {
             int half = size >>> 1;
             while (k < half) {
@@ -452,8 +332,6 @@ public class ScheduledThreadPoolExecutor
             queue[k] = key;
             setIndex(key, k);
         }
-
-
         private void grow() {
             int oldCapacity = queue.length;
             int newCapacity = oldCapacity + (oldCapacity >> 1); // grow 50%
@@ -461,8 +339,6 @@ public class ScheduledThreadPoolExecutor
                 newCapacity = Integer.MAX_VALUE;
             queue = Arrays.copyOf(queue, newCapacity);
         }
-
-
         private int indexOf(Object x) {
             if (x != null) {
                 if (x instanceof ScheduledFutureTask) {
@@ -479,7 +355,6 @@ public class ScheduledThreadPoolExecutor
             }
             return -1;
         }
-
         public boolean contains(Object x) {
             final ReentrantLock lock = this.lock;
             lock.lock();
@@ -489,7 +364,6 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
         public boolean remove(Object x) {
             final ReentrantLock lock = this.lock;
             lock.lock();
@@ -497,7 +371,6 @@ public class ScheduledThreadPoolExecutor
                 int i = indexOf(x);
                 if (i < 0)
                     return false;
-
                 setIndex(queue[i], -1);
                 int s = --size;
                 RunnableScheduledFuture<?> replacement = queue[s];
@@ -512,7 +385,6 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
         public int size() {
             final ReentrantLock lock = this.lock;
             lock.lock();
@@ -522,15 +394,12 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
         public boolean isEmpty() {
             return size() == 0;
         }
-
         public int remainingCapacity() {
             return Integer.MAX_VALUE;
         }
-
         public RunnableScheduledFuture<?> peek() {
             final ReentrantLock lock = this.lock;
             lock.lock();
@@ -540,7 +409,6 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
         public boolean offer(Runnable x) {
             if (x == null)
                 throw new NullPointerException();
@@ -567,20 +435,15 @@ public class ScheduledThreadPoolExecutor
             }
             return true;
         }
-
         public void put(Runnable e) {
             offer(e);
         }
-
         public boolean add(Runnable e) {
             return offer(e);
         }
-
         public boolean offer(Runnable e, long timeout, TimeUnit unit) {
             return offer(e);
         }
-
-
         private RunnableScheduledFuture<?> finishPoll(RunnableScheduledFuture<?> f) {
             int s = --size;
             RunnableScheduledFuture<?> x = queue[s];
@@ -590,7 +453,6 @@ public class ScheduledThreadPoolExecutor
             setIndex(f, -1);
             return f;
         }
-
         public RunnableScheduledFuture<?> poll() {
             final ReentrantLock lock = this.lock;
             lock.lock();
@@ -604,7 +466,6 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
         public RunnableScheduledFuture<?> take() throws InterruptedException {
             final ReentrantLock lock = this.lock;
             lock.lockInterruptibly();
@@ -638,7 +499,6 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
         public RunnableScheduledFuture<?> poll(long timeout, TimeUnit unit)
             throws InterruptedException {
             long nanos = unit.toNanos(timeout);
@@ -680,7 +540,6 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
         public void clear() {
             final ReentrantLock lock = this.lock;
             lock.lock();
@@ -697,15 +556,12 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
-
         private RunnableScheduledFuture<?> peekExpired() {
             // assert lock.isHeldByCurrentThread();
             RunnableScheduledFuture<?> first = queue[0];
             return (first == null || first.getDelay(NANOSECONDS) > 0) ?
                 null : first;
         }
-
         public int drainTo(Collection<? super Runnable> c) {
             if (c == null)
                 throw new NullPointerException();
@@ -726,7 +582,6 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
         public int drainTo(Collection<? super Runnable> c, int maxElements) {
             if (c == null)
                 throw new NullPointerException();
@@ -749,7 +604,6 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
         public Object[] toArray() {
             final ReentrantLock lock = this.lock;
             lock.lock();
@@ -759,7 +613,6 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
         @SuppressWarnings("unchecked")
         public <T> T[] toArray(T[] a) {
             final ReentrantLock lock = this.lock;
@@ -775,32 +628,25 @@ public class ScheduledThreadPoolExecutor
                 lock.unlock();
             }
         }
-
         public Iterator<Runnable> iterator() {
             return new Itr(Arrays.copyOf(queue, size));
         }
-
-
         private class Itr implements Iterator<Runnable> {
             final RunnableScheduledFuture<?>[] array;
             int cursor = 0;     // index of next element to return
             int lastRet = -1;   // index of last element, or -1 if no such
-
             Itr(RunnableScheduledFuture<?>[] array) {
                 this.array = array;
             }
-
             public boolean hasNext() {
                 return cursor < array.length;
             }
-
             public Runnable next() {
                 if (cursor >= array.length)
                     throw new NoSuchElementException();
                 lastRet = cursor;
                 return array[cursor++];
             }
-
             public void remove() {
                 if (lastRet < 0)
                     throw new IllegalStateException();

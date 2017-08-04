@@ -1,15 +1,9 @@
-
-
 package java.awt.geom;
-
 import java.util.*;
-
-
 class EllipseIterator implements PathIterator {
     double x, y, w, h;
     AffineTransform affine;
     int index;
-
     EllipseIterator(Ellipse2D e, AffineTransform at) {
         this.x = e.getX();
         this.y = e.getY();
@@ -20,26 +14,17 @@ class EllipseIterator implements PathIterator {
             index = 6;
         }
     }
-
-
     public int getWindingRule() {
         return WIND_NON_ZERO;
     }
-
-
     public boolean isDone() {
         return index > 5;
     }
-
-
     public void next() {
         index++;
     }
-
     // ArcIterator.btan(Math.PI/2)
     public static final double CtrlVal = 0.5522847498307933;
-
-
     private static final double pcv = 0.5 + CtrlVal * 0.5;
     private static final double ncv = 0.5 - CtrlVal * 0.5;
     private static double ctrlpts[][] = {
@@ -48,8 +33,6 @@ class EllipseIterator implements PathIterator {
         {  0.0,  ncv,  ncv,  0.0,  0.5,  0.0 },
         {  pcv,  0.0,  1.0,  ncv,  1.0,  0.5 }
     };
-
-
     public int currentSegment(float[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("ellipse iterator out of bounds");
@@ -78,8 +61,6 @@ class EllipseIterator implements PathIterator {
         }
         return SEG_CUBICTO;
     }
-
-
     public int currentSegment(double[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("ellipse iterator out of bounds");

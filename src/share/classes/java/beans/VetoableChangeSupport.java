@@ -1,6 +1,4 @@
-
 package java.beans;
-
 import java.io.Serializable;
 import java.io.ObjectStreamField;
 import java.io.ObjectOutputStream;
@@ -8,20 +6,14 @@ import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map.Entry;
-
-
 public class VetoableChangeSupport implements Serializable {
     private VetoableChangeListenerMap map = new VetoableChangeListenerMap();
-
-
     public VetoableChangeSupport(Object sourceBean) {
         if (sourceBean == null) {
             throw new NullPointerException();
         }
         source = sourceBean;
     }
-
-
     public void addVetoableChangeListener(VetoableChangeListener listener) {
         if (listener == null) {
             return;
@@ -36,8 +28,6 @@ public class VetoableChangeSupport implements Serializable {
             this.map.add(null, listener);
         }
     }
-
-
     public void removeVetoableChangeListener(VetoableChangeListener listener) {
         if (listener == null) {
             return;
@@ -52,13 +42,9 @@ public class VetoableChangeSupport implements Serializable {
             this.map.remove(null, listener);
         }
     }
-
-
     public VetoableChangeListener[] getVetoableChangeListeners(){
         return this.map.getListeners();
     }
-
-
     public void addVetoableChangeListener(
                                 String propertyName,
                 VetoableChangeListener listener) {
@@ -70,8 +56,6 @@ public class VetoableChangeSupport implements Serializable {
             this.map.add(propertyName, listener);
         }
     }
-
-
     public void removeVetoableChangeListener(
                                 String propertyName,
                 VetoableChangeListener listener) {
@@ -83,49 +67,37 @@ public class VetoableChangeSupport implements Serializable {
             this.map.remove(propertyName, listener);
         }
     }
-
-
     public VetoableChangeListener[] getVetoableChangeListeners(String propertyName) {
         return this.map.getListeners(propertyName);
     }
-
-
     public void fireVetoableChange(String propertyName, Object oldValue, Object newValue)
             throws PropertyVetoException {
         if (oldValue == null || newValue == null || !oldValue.equals(newValue)) {
             fireVetoableChange(new PropertyChangeEvent(this.source, propertyName, oldValue, newValue));
         }
     }
-
-
     public void fireVetoableChange(String propertyName, int oldValue, int newValue)
             throws PropertyVetoException {
         if (oldValue != newValue) {
             fireVetoableChange(propertyName, Integer.valueOf(oldValue), Integer.valueOf(newValue));
         }
     }
-
-
     public void fireVetoableChange(String propertyName, boolean oldValue, boolean newValue)
             throws PropertyVetoException {
         if (oldValue != newValue) {
             fireVetoableChange(propertyName, Boolean.valueOf(oldValue), Boolean.valueOf(newValue));
         }
     }
-
-
     public void fireVetoableChange(PropertyChangeEvent event)
             throws PropertyVetoException {
         Object oldValue = event.getOldValue();
         Object newValue = event.getNewValue();
         if (oldValue == null || newValue == null || !oldValue.equals(newValue)) {
             String name = event.getPropertyName();
-
             VetoableChangeListener[] common = this.map.get(null);
             VetoableChangeListener[] named = (name != null)
                         ? this.map.get(name)
                         : null;
-
             VetoableChangeListener[] listeners;
             if (common == null) {
                 listeners = named;
@@ -161,13 +133,9 @@ public class VetoableChangeSupport implements Serializable {
             }
         }
     }
-
-
     public boolean hasListeners(String propertyName) {
         return this.map.hasListeners(propertyName);
     }
-
-
     private void writeObject(ObjectOutputStream s) throws IOException {
         Hashtable<String, VetoableChangeSupport> children = null;
         VetoableChangeListener[] listeners = null;
@@ -191,7 +159,6 @@ public class VetoableChangeSupport implements Serializable {
         fields.put("source", this.source);
         fields.put("vetoableChangeSupportSerializedDataVersion", 2);
         s.writeFields();
-
         if (listeners != null) {
             for (VetoableChangeListener l : listeners) {
                 if (l instanceof Serializable) {
@@ -201,17 +168,13 @@ public class VetoableChangeSupport implements Serializable {
         }
         s.writeObject(null);
     }
-
     private void readObject(ObjectInputStream s) throws ClassNotFoundException, IOException {
         this.map = new VetoableChangeListenerMap();
-
         ObjectInputStream.GetField fields = s.readFields();
-
         @SuppressWarnings("unchecked")
         Hashtable<String, VetoableChangeSupport> children = (Hashtable<String, VetoableChangeSupport>)fields.get("children", null);
         this.source = fields.get("source", null);
         fields.get("vetoableChangeSupportSerializedDataVersion", 2);
-
         Object listenerOrNull;
         while (null != (listenerOrNull = s.readObject())) {
             this.map.add(null, (VetoableChangeListener)listenerOrNull);
@@ -224,39 +187,25 @@ public class VetoableChangeSupport implements Serializable {
             }
         }
     }
-
-
     private Object source;
-
-
     private static final ObjectStreamField[] serialPersistentFields = {
             new ObjectStreamField("children", Hashtable.class),
             new ObjectStreamField("source", Object.class),
             new ObjectStreamField("vetoableChangeSupportSerializedDataVersion", Integer.TYPE)
     };
-
-
     static final long serialVersionUID = -5090210921595982017L;
-
-
     private static final class VetoableChangeListenerMap extends ChangeListenerMap<VetoableChangeListener> {
         private static final VetoableChangeListener[] EMPTY = {};
-
-
         @Override
         protected VetoableChangeListener[] newArray(int length) {
             return (0 < length)
                     ? new VetoableChangeListener[length]
                     : EMPTY;
         }
-
-
         @Override
         protected VetoableChangeListener newProxy(String name, VetoableChangeListener listener) {
             return new VetoableChangeListenerProxy(name, listener);
         }
-
-
         public final VetoableChangeListener extract(VetoableChangeListener listener) {
             while (listener instanceof VetoableChangeListenerProxy) {
                 listener = ((VetoableChangeListenerProxy) listener).getListener();

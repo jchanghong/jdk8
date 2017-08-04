@@ -1,6 +1,4 @@
-
 package java.util.stream;
-
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -9,17 +7,11 @@ import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntFunction;
-
-
 final class DistinctOps {
-
     private DistinctOps() { }
-
-
     static <T> ReferencePipeline<T, T> makeRef(AbstractPipeline<?, T, ?> upstream) {
         return new ReferencePipeline.StatefulOp<T, T>(upstream, StreamShape.REFERENCE,
                                                       StreamOpFlag.IS_DISTINCT | StreamOpFlag.NOT_SIZED) {
-
             <P_IN> Node<T> reduce(PipelineHelper<T> helper, Spliterator<P_IN> spliterator) {
                 // If the stream is SORTED then it should also be ORDERED so the following will also
                 // preserve the sort order
@@ -28,7 +20,6 @@ final class DistinctOps {
                                                                  LinkedHashSet::addAll);
                 return Nodes.node(reduceOp.evaluateParallel(helper, spliterator));
             }
-
             @Override
             <P_IN> Node<T> opEvaluateParallel(PipelineHelper<T> helper,
                                               Spliterator<P_IN> spliterator,
@@ -51,7 +42,6 @@ final class DistinctOps {
                             map.putIfAbsent(t, Boolean.TRUE);
                     }, false);
                     forEachOp.evaluateParallel(helper, spliterator);
-
                     // If null has been seen then copy the key set into a HashSet that supports null values
                     // and add null
                     Set<T> keys = map.keySet();
@@ -63,7 +53,6 @@ final class DistinctOps {
                     return Nodes.node(keys);
                 }
             }
-
             @Override
             <P_IN> Spliterator<T> opEvaluateParallelLazy(PipelineHelper<T> helper, Spliterator<P_IN> spliterator) {
                 if (StreamOpFlag.DISTINCT.isKnown(helper.getStreamAndOpFlags())) {
@@ -79,32 +68,27 @@ final class DistinctOps {
                     return new StreamSpliterators.DistinctSpliterator<>(helper.wrapSpliterator(spliterator));
                 }
             }
-
             @Override
             Sink<T> opWrapSink(int flags, Sink<T> sink) {
                 Objects.requireNonNull(sink);
-
                 if (StreamOpFlag.DISTINCT.isKnown(flags)) {
                     return sink;
                 } else if (StreamOpFlag.SORTED.isKnown(flags)) {
                     return new Sink.ChainedReference<T, T>(sink) {
                         boolean seenNull;
                         T lastSeen;
-
                         @Override
                         public void begin(long size) {
                             seenNull = false;
                             lastSeen = null;
                             downstream.begin(-1);
                         }
-
                         @Override
                         public void end() {
                             seenNull = false;
                             lastSeen = null;
                             downstream.end();
                         }
-
                         @Override
                         public void accept(T t) {
                             if (t == null) {
@@ -120,19 +104,16 @@ final class DistinctOps {
                 } else {
                     return new Sink.ChainedReference<T, T>(sink) {
                         Set<T> seen;
-
                         @Override
                         public void begin(long size) {
                             seen = new HashSet<>();
                             downstream.begin(-1);
                         }
-
                         @Override
                         public void end() {
                             seen = null;
                             downstream.end();
                         }
-
                         @Override
                         public void accept(T t) {
                             if (!seen.contains(t)) {

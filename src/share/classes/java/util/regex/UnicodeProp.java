@@ -1,48 +1,37 @@
-
-
 package java.util.regex;
-
 import java.util.HashMap;
 import java.util.Locale;
-
 enum UnicodeProp {
-
     ALPHABETIC {
         public boolean is(int ch) {
             return Character.isAlphabetic(ch);
         }
     },
-
     LETTER {
         public boolean is(int ch) {
             return Character.isLetter(ch);
         }
     },
-
     IDEOGRAPHIC {
         public boolean is(int ch) {
             return Character.isIdeographic(ch);
         }
     },
-
     LOWERCASE {
         public boolean is(int ch) {
             return Character.isLowerCase(ch);
         }
     },
-
     UPPERCASE {
         public boolean is(int ch) {
             return Character.isUpperCase(ch);
         }
     },
-
     TITLECASE {
         public boolean is(int ch) {
             return Character.isTitleCase(ch);
         }
     },
-
     WHITE_SPACE {
         // \p{Whitespace}
         public boolean is(int ch) {
@@ -52,14 +41,12 @@ enum UnicodeProp {
                    != 0 || (ch >= 0x9 && ch <= 0xd) || (ch == 0x85);
         }
     },
-
     CONTROL {
         // \p{gc=Control}
         public boolean is(int ch) {
             return Character.getType(ch) == Character.CONTROL;
         }
     },
-
     PUNCTUATION {
         // \p{gc=Punctuation}
         public boolean is(int ch) {
@@ -73,7 +60,6 @@ enum UnicodeProp {
                    != 0;
         }
     },
-
     HEX_DIGIT {
         // \p{gc=Decimal_Number}
         // \p{Hex_Digit}    -> PropList.txt: Hex_Digit
@@ -87,27 +73,23 @@ enum UnicodeProp {
                    (ch >= 0xFF41 && ch <= 0xFF46);
         }
     },
-
     ASSIGNED {
         public boolean is(int ch) {
             return Character.getType(ch) != Character.UNASSIGNED;
         }
     },
-
     NONCHARACTER_CODE_POINT {
         // PropList.txt:Noncharacter_Code_Point
         public boolean is(int ch) {
             return (ch & 0xfffe) == 0xfffe || (ch >= 0xfdd0 && ch <= 0xfdef);
         }
     },
-
     DIGIT {
         // \p{gc=Decimal_Number}
         public boolean is(int ch) {
             return Character.isDigit(ch);
         }
     },
-
     ALNUM {
         // \p{alpha}
         // \p{digit}
@@ -115,7 +97,6 @@ enum UnicodeProp {
             return ALPHABETIC.is(ch) || DIGIT.is(ch);
         }
     },
-
     BLANK {
         // \p{Whitespace} --
         // [\N{LF} \N{VT} \N{FF} \N{CR} \N{NEL}  -> 0xa, 0xb, 0xc, 0xd, 0x85
@@ -126,7 +107,6 @@ enum UnicodeProp {
                    ch == 0x9; // \N{HT}
         }
     },
-
     GRAPH {
         // [^
         //  \p{space}
@@ -143,7 +123,6 @@ enum UnicodeProp {
                    == 0;
         }
     },
-
     PRINT {
         // \p{graph}
         // \p{blank}
@@ -152,14 +131,12 @@ enum UnicodeProp {
             return (GRAPH.is(ch) || BLANK.is(ch)) && !CONTROL.is(ch);
         }
     },
-
     WORD {
         //  \p{alpha}
         //  \p{gc=Mark}
         //  \p{digit}
         //  \p{gc=Connector_Punctuation}
         //  \p{Join_Control}    200C..200D
-
         public boolean is(int ch) {
             return ALPHABETIC.is(ch) ||
                    ((((1 << Character.NON_SPACING_MARK) |
@@ -171,14 +148,12 @@ enum UnicodeProp {
                    JOIN_CONTROL.is(ch);
         }
     },
-
     JOIN_CONTROL {
         //  200C..200D    PropList.txt:Join_Control
         public boolean is(int ch) {
            return (ch == 0x200C || ch == 0x200D);
         }
     };
-
     private final static HashMap<String, String> posix = new HashMap<>();
     private final static HashMap<String, String> aliases = new HashMap<>();
     static {
@@ -194,13 +169,11 @@ enum UnicodeProp {
         posix.put("BLANK", "BLANK");
         posix.put("GRAPH", "GRAPH");
         posix.put("PRINT", "PRINT");
-
         aliases.put("WHITESPACE", "WHITE_SPACE");
         aliases.put("HEXDIGIT","HEX_DIGIT");
         aliases.put("NONCHARACTERCODEPOINT", "NONCHARACTER_CODE_POINT");
         aliases.put("JOINCONTROL", "JOIN_CONTROL");
     }
-
     public static UnicodeProp forName(String propName) {
         propName = propName.toUpperCase(Locale.ENGLISH);
         String alias = aliases.get(propName);
@@ -211,13 +184,11 @@ enum UnicodeProp {
         } catch (IllegalArgumentException x) {}
         return null;
     }
-
     public static UnicodeProp forPOSIXName(String propName) {
         propName = posix.get(propName.toUpperCase(Locale.ENGLISH));
         if (propName == null)
             return null;
         return valueOf (propName);
     }
-
     public abstract boolean is(int ch);
 }

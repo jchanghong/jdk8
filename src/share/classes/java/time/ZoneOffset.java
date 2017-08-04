@@ -1,13 +1,8 @@
-
-
-
 package java.time;
-
 import static java.time.LocalTime.MINUTES_PER_HOUR;
 import static java.time.LocalTime.SECONDS_PER_HOUR;
 import static java.time.LocalTime.SECONDS_PER_MINUTE;
 import static java.time.temporal.ChronoField.OFFSET_SECONDS;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -27,36 +22,19 @@ import java.time.zone.ZoneRules;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-
 public final class ZoneOffset
         extends ZoneId
         implements TemporalAccessor, TemporalAdjuster, Comparable<ZoneOffset>, Serializable {
-
-
     private static final ConcurrentMap<Integer, ZoneOffset> SECONDS_CACHE = new ConcurrentHashMap<>(16, 0.75f, 4);
-
     private static final ConcurrentMap<String, ZoneOffset> ID_CACHE = new ConcurrentHashMap<>(16, 0.75f, 4);
-
-
     private static final int MAX_SECONDS = 18 * SECONDS_PER_HOUR;
-
     private static final long serialVersionUID = 2357656521762053153L;
-
-
     public static final ZoneOffset UTC = ZoneOffset.ofTotalSeconds(0);
-
     public static final ZoneOffset MIN = ZoneOffset.ofTotalSeconds(-MAX_SECONDS);
-
     public static final ZoneOffset MAX = ZoneOffset.ofTotalSeconds(MAX_SECONDS);
-
-
     private final int totalSeconds;
-
     private final transient String id;
-
     //-----------------------------------------------------------------------
-
     @SuppressWarnings("fallthrough")
     public static ZoneOffset of(String offsetId) {
         Objects.requireNonNull(offsetId, "offsetId");
@@ -65,7 +43,6 @@ public final class ZoneOffset
         if (offset != null) {
             return offset;
         }
-
         // parse - +h, +hh, +hhmm, +hh:mm, +hhmmss, +hh:mm:ss
         final int hours, minutes, seconds;
         switch (offsetId.length()) {
@@ -109,8 +86,6 @@ public final class ZoneOffset
             return ofHoursMinutesSeconds(hours, minutes, seconds);
         }
     }
-
-
     private static int parseNumber(CharSequence offsetId, int pos, boolean precededByColon) {
         if (precededByColon && offsetId.charAt(pos - 1) != ':') {
             throw new DateTimeException("Invalid ID for ZoneOffset, colon not found when expected: " + offsetId);
@@ -122,27 +97,19 @@ public final class ZoneOffset
         }
         return (ch1 - 48) * 10 + (ch2 - 48);
     }
-
     //-----------------------------------------------------------------------
-
     public static ZoneOffset ofHours(int hours) {
         return ofHoursMinutesSeconds(hours, 0, 0);
     }
-
-
     public static ZoneOffset ofHoursMinutes(int hours, int minutes) {
         return ofHoursMinutesSeconds(hours, minutes, 0);
     }
-
-
     public static ZoneOffset ofHoursMinutesSeconds(int hours, int minutes, int seconds) {
         validate(hours, minutes, seconds);
         int totalSeconds = totalSeconds(hours, minutes, seconds);
         return ofTotalSeconds(totalSeconds);
     }
-
     //-----------------------------------------------------------------------
-
     public static ZoneOffset from(TemporalAccessor temporal) {
         Objects.requireNonNull(temporal, "temporal");
         ZoneOffset offset = temporal.query(TemporalQueries.offset());
@@ -152,9 +119,7 @@ public final class ZoneOffset
         }
         return offset;
     }
-
     //-----------------------------------------------------------------------
-
     private static void validate(int hours, int minutes, int seconds) {
         if (hours < -18 || hours > 18) {
             throw new DateTimeException("Zone offset hours not in valid range: value " + hours +
@@ -183,14 +148,10 @@ public final class ZoneOffset
             throw new DateTimeException("Zone offset not in valid range: -18:00 to +18:00");
         }
     }
-
-
     private static int totalSeconds(int hours, int minutes, int seconds) {
         return hours * SECONDS_PER_HOUR + minutes * SECONDS_PER_MINUTE + seconds;
     }
-
     //-----------------------------------------------------------------------
-
     public static ZoneOffset ofTotalSeconds(int totalSeconds) {
         if (totalSeconds < -MAX_SECONDS || totalSeconds > MAX_SECONDS) {
             throw new DateTimeException("Zone offset not in valid range: -18:00 to +18:00");
@@ -209,15 +170,12 @@ public final class ZoneOffset
             return new ZoneOffset(totalSeconds);
         }
     }
-
     //-----------------------------------------------------------------------
-
     private ZoneOffset(int totalSeconds) {
         super();
         this.totalSeconds = totalSeconds;
         id = buildId(totalSeconds);
     }
-
     private static String buildId(int totalSeconds) {
         if (totalSeconds == 0) {
             return "Z";
@@ -236,27 +194,19 @@ public final class ZoneOffset
             return buf.toString();
         }
     }
-
     //-----------------------------------------------------------------------
-
     public int getTotalSeconds() {
         return totalSeconds;
     }
-
-
     @Override
     public String getId() {
         return id;
     }
-
-
     @Override
     public ZoneRules getRules() {
         return ZoneRules.of(this);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean isSupported(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -264,14 +214,10 @@ public final class ZoneOffset
         }
         return field != null && field.isSupportedBy(this);
     }
-
-
     @Override  // override for Javadoc
     public ValueRange range(TemporalField field) {
         return TemporalAccessor.super.range(field);
     }
-
-
     @Override  // override for Javadoc and performance
     public int get(TemporalField field) {
         if (field == OFFSET_SECONDS) {
@@ -281,8 +227,6 @@ public final class ZoneOffset
         }
         return range(field).checkValidIntValue(getLong(field), field);
     }
-
-
     @Override
     public long getLong(TemporalField field) {
         if (field == OFFSET_SECONDS) {
@@ -292,9 +236,7 @@ public final class ZoneOffset
         }
         return field.getFrom(this);
     }
-
     //-----------------------------------------------------------------------
-
     @SuppressWarnings("unchecked")
     @Override
     public <R> R query(TemporalQuery<R> query) {
@@ -303,23 +245,17 @@ public final class ZoneOffset
         }
         return TemporalAccessor.super.query(query);
     }
-
-
     @Override
     public Temporal adjustInto(Temporal temporal) {
         return temporal.with(OFFSET_SECONDS, totalSeconds);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public int compareTo(ZoneOffset other) {
         // abs(totalSeconds) <= MAX_SECONDS, so no overflow can happen here
         return other.totalSeconds - totalSeconds;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -330,37 +266,27 @@ public final class ZoneOffset
         }
         return false;
     }
-
-
     @Override
     public int hashCode() {
         return totalSeconds;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public String toString() {
         return id;
     }
-
     // -----------------------------------------------------------------------
-
     private Object writeReplace() {
         return new Ser(Ser.ZONE_OFFSET_TYPE, this);
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
     @Override
     void write(DataOutput out) throws IOException {
         out.writeByte(Ser.ZONE_OFFSET_TYPE);
         writeExternal(out);
     }
-
     void writeExternal(DataOutput out) throws IOException {
         final int offsetSecs = totalSeconds;
         int offsetByte = offsetSecs % 900 == 0 ? offsetSecs / 900 : 127;  // compress to -72 to +72
@@ -369,10 +295,8 @@ public final class ZoneOffset
             out.writeInt(offsetSecs);
         }
     }
-
     static ZoneOffset readExternal(DataInput in) throws IOException {
         int offsetByte = in.readByte();
         return (offsetByte == 127 ? ZoneOffset.ofTotalSeconds(in.readInt()) : ZoneOffset.ofTotalSeconds(offsetByte * 900));
     }
-
 }

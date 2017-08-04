@@ -1,22 +1,13 @@
-
-
 package java.beans;
-
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-
-
 abstract class WeakIdentityMap<T> {
-
     private static final int MAXIMUM_CAPACITY = 1 << 30; // it MUST be a power of two
     private static final Object NULL = new Object(); // special object for null key
-
     private final ReferenceQueue<Object> queue = new ReferenceQueue<Object>();
-
     private volatile Entry<T>[] table = newTable(1<<3); // table's length MUST be a power of two
     private int threshold = 6; // the next size value at which to resize
     private int size = 0; // the number of key-value mappings
-
     public T get(Object key) {
         removeStaleEntries();
         if (key == null) {
@@ -66,9 +57,7 @@ abstract class WeakIdentityMap<T> {
             return value;
         }
     }
-
     protected abstract T create(Object key);
-
     private void removeStaleEntries() {
         Object ref = this.queue.poll();
         if (ref != null) {
@@ -77,7 +66,6 @@ abstract class WeakIdentityMap<T> {
                     @SuppressWarnings("unchecked")
                     Entry<T> entry = (Entry<T>) ref;
                     int index = getIndex(this.table, entry.hash);
-
                     Entry<T> prev = this.table[index];
                     Entry<T> current = prev;
                     while (current != null) {
@@ -103,7 +91,6 @@ abstract class WeakIdentityMap<T> {
             }
         }
     }
-
     private void transfer(Entry<T>[] oldTable, Entry<T>[] newTable) {
         for (int i = 0; i < oldTable.length; i++) {
             Entry<T> entry = oldTable[i];
@@ -125,29 +112,23 @@ abstract class WeakIdentityMap<T> {
             }
         }
     }
-
-
     @SuppressWarnings("unchecked")
     private Entry<T>[] newTable(int length) {
         return (Entry<T>[]) new Entry<?>[length];
     }
-
     private static int getIndex(Entry<?>[] table, int hash) {
         return hash & (table.length - 1);
     }
-
     private static class Entry<T> extends WeakReference<Object> {
         private final int hash;
         private volatile T value;
         private volatile Entry<T> next;
-
         Entry(Object key, int hash, T value, ReferenceQueue<Object> queue, Entry<T> next) {
             super(key, queue);
             this.hash = hash;
             this.value = value;
             this.next  = next;
         }
-
         boolean isMatched(Object key, int hash) {
             return (this.hash == hash) && (key == get());
         }

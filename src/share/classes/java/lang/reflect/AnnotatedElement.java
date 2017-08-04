@@ -1,7 +1,4 @@
-
-
 package java.lang.reflect;
-
 import java.lang.annotation.Annotation;
 import java.lang.annotation.AnnotationFormatError;
 import java.lang.annotation.Repeatable;
@@ -13,25 +10,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import sun.reflect.annotation.AnnotationSupport;
 import sun.reflect.annotation.AnnotationType;
-
-
 public interface AnnotatedElement {
-
     default boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
         return getAnnotation(annotationClass) != null;
     }
-
-
     <T extends Annotation> T getAnnotation(Class<T> annotationClass);
-
-
     Annotation[] getAnnotations();
-
-
     default <T extends Annotation> T[] getAnnotationsByType(Class<T> annotationClass) {
-
          T[] result = getDeclaredAnnotationsByType(annotationClass);
-
          if (result.length == 0 && // Neither directly nor indirectly present
              this instanceof Class && // the element is a class
              AnnotationType.getInstance(annotationClass).isInherited()) { // Inheritable
@@ -42,11 +28,8 @@ public interface AnnotatedElement {
                  result = superClass.getAnnotationsByType(annotationClass);
              }
          }
-
          return result;
      }
-
-
     default <T extends Annotation> T getDeclaredAnnotation(Class<T> annotationClass) {
          Objects.requireNonNull(annotationClass);
          // Loop over all directly-present annotations looking for a matching one
@@ -59,8 +42,6 @@ public interface AnnotatedElement {
          }
          return null;
      }
-
-
     default <T extends Annotation> T[] getDeclaredAnnotationsByType(Class<T> annotationClass) {
         Objects.requireNonNull(annotationClass);
         return AnnotationSupport.
@@ -71,7 +52,5 @@ public interface AnnotatedElement {
                                                                      LinkedHashMap::new)),
                                             annotationClass);
     }
-
-
     Annotation[] getDeclaredAnnotations();
 }

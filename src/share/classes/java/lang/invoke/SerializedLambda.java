@@ -1,14 +1,10 @@
-
 package java.lang.invoke;
-
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Objects;
-
-
 public final class SerializedLambda implements Serializable {
     private static final long serialVersionUID = 8025925345765570181L;
     private final Class<?> capturingClass;
@@ -21,8 +17,6 @@ public final class SerializedLambda implements Serializable {
     private final int implMethodKind;
     private final String instantiatedMethodType;
     private final Object[] capturedArgs;
-
-
     public SerializedLambda(Class<?> capturingClass,
                             String functionalInterfaceClass,
                             String functionalInterfaceMethodName,
@@ -44,62 +38,39 @@ public final class SerializedLambda implements Serializable {
         this.instantiatedMethodType = instantiatedMethodType;
         this.capturedArgs = Objects.requireNonNull(capturedArgs).clone();
     }
-
-
     public String getCapturingClass() {
         return capturingClass.getName().replace('.', '/');
     }
-
-
     public String getFunctionalInterfaceClass() {
         return functionalInterfaceClass;
     }
-
-
     public String getFunctionalInterfaceMethodName() {
         return functionalInterfaceMethodName;
     }
-
-
     public String getFunctionalInterfaceMethodSignature() {
         return functionalInterfaceMethodSignature;
     }
-
-
     public String getImplClass() {
         return implClass;
     }
-
-
     public String getImplMethodName() {
         return implMethodName;
     }
-
-
     public String getImplMethodSignature() {
         return implMethodSignature;
     }
-
-
     public int getImplMethodKind() {
         return implMethodKind;
     }
-
-
     public final String getInstantiatedMethodType() {
         return instantiatedMethodType;
     }
-
-
     public int getCapturedArgCount() {
         return capturedArgs.length;
     }
-
-
     public Object getCapturedArg(int i) {
         return capturedArgs[i];
     }
-
     private Object readResolve() throws ReflectiveOperationException {
         try {
             Method deserialize = AccessController.doPrivileged(new PrivilegedExceptionAction<Method>() {
@@ -110,7 +81,6 @@ public final class SerializedLambda implements Serializable {
                     return m;
                 }
             });
-
             return deserialize.invoke(null, this);
         }
         catch (PrivilegedActionException e) {
@@ -123,7 +93,6 @@ public final class SerializedLambda implements Serializable {
                 throw new RuntimeException("Exception in SerializedLambda.readResolve", e);
         }
     }
-
     @Override
     public String toString() {
         String implKind=MethodHandleInfo.referenceKindToString(implMethodKind);

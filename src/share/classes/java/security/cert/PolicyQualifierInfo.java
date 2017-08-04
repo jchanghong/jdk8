@@ -1,28 +1,17 @@
-
-
 package java.security.cert;
-
 import java.io.IOException;
-
 import sun.misc.HexDumpEncoder;
 import sun.security.util.DerValue;
-
-
 public class PolicyQualifierInfo {
-
     private byte [] mEncoded;
     private String mId;
     private byte [] mData;
     private String pqiString;
-
-
     public PolicyQualifierInfo(byte[] encoded) throws IOException {
         mEncoded = encoded.clone();
-
         DerValue val = new DerValue(mEncoded);
         if (val.tag != DerValue.tag_Sequence)
             throw new IOException("Invalid encoding for PolicyQualifierInfo");
-
         mId = (val.data.getDerValue()).getOID().toString();
         byte [] tmp = val.data.toByteArray();
         if (tmp == null) {
@@ -32,23 +21,15 @@ public class PolicyQualifierInfo {
             System.arraycopy(tmp, 0, mData, 0, tmp.length);
         }
     }
-
-
     public final String getPolicyQualifierId() {
         return mId;
     }
-
-
     public final byte[] getEncoded() {
         return mEncoded.clone();
     }
-
-
     public final byte[] getPolicyQualifier() {
         return (mData == null ? null : mData.clone());
     }
-
-
     public String toString() {
         if (pqiString != null)
             return pqiString;

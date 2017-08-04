@@ -1,29 +1,14 @@
-
-
 package java.io;
-
-
 public class CharArrayReader extends Reader {
-
     protected char buf[];
-
-
     protected int pos;
-
-
     protected int markedPos = 0;
-
-
     protected int count;
-
-
     public CharArrayReader(char buf[]) {
         this.buf = buf;
         this.pos = 0;
         this.count = buf.length;
     }
-
-
     public CharArrayReader(char buf[], int offset, int length) {
         if ((offset < 0) || (offset > buf.length) || (length < 0) ||
             ((offset + length) < 0)) {
@@ -34,14 +19,10 @@ public class CharArrayReader extends Reader {
         this.count = Math.min(offset + length, buf.length);
         this.markedPos = offset;
     }
-
-
     private void ensureOpen() throws IOException {
         if (buf == null)
             throw new IOException("Stream closed");
     }
-
-
     public int read() throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -51,8 +32,6 @@ public class CharArrayReader extends Reader {
                 return buf[pos++];
         }
     }
-
-
     public int read(char b[], int off, int len) throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -62,11 +41,9 @@ public class CharArrayReader extends Reader {
             } else if (len == 0) {
                 return 0;
             }
-
             if (pos >= count) {
                 return -1;
             }
-
             int avail = count - pos;
             if (len > avail) {
                 len = avail;
@@ -79,12 +56,9 @@ public class CharArrayReader extends Reader {
             return len;
         }
     }
-
-
     public long skip(long n) throws IOException {
         synchronized (lock) {
             ensureOpen();
-
             long avail = count - pos;
             if (n > avail) {
                 n = avail;
@@ -96,37 +70,27 @@ public class CharArrayReader extends Reader {
             return n;
         }
     }
-
-
     public boolean ready() throws IOException {
         synchronized (lock) {
             ensureOpen();
             return (count - pos) > 0;
         }
     }
-
-
     public boolean markSupported() {
         return true;
     }
-
-
     public void mark(int readAheadLimit) throws IOException {
         synchronized (lock) {
             ensureOpen();
             markedPos = pos;
         }
     }
-
-
     public void reset() throws IOException {
         synchronized (lock) {
             ensureOpen();
             pos = markedPos;
         }
     }
-
-
     public void close() {
         buf = null;
     }

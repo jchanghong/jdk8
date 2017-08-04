@@ -1,15 +1,8 @@
-
-
 package java.sql;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.StringTokenizer;
-
-
 public class Timestamp extends java.util.Date {
-
-
     @Deprecated
     public Timestamp(int year, int month, int date,
                      int hour, int minute, int second, int nano) {
@@ -19,8 +12,6 @@ public class Timestamp extends java.util.Date {
         }
         nanos = nano;
     }
-
-
     public Timestamp(long time) {
         super((time/1000)*1000);
         nanos = (int)((time%1000) * 1000000);
@@ -29,8 +20,6 @@ public class Timestamp extends java.util.Date {
             super.setTime(((time/1000)-1)*1000);
         }
     }
-
-
     public void setTime(long time) {
         super.setTime((time/1000)*1000);
         nanos = (int)((time%1000) * 1000000);
@@ -39,18 +28,11 @@ public class Timestamp extends java.util.Date {
             super.setTime(((time/1000)-1)*1000);
         }
     }
-
-
     public long getTime() {
         long time = super.getTime();
         return (time + (nanos / 1000000));
     }
-
-
-
     private int nanos;
-
-
     public static Timestamp valueOf(String s) {
         final int YEAR_LENGTH = 4;
         final int MONTH_LENGTH = 2;
@@ -77,9 +59,7 @@ public class Timestamp extends java.util.Date {
         String zeros = "000000000";
         String delimiterDate = "-";
         String delimiterTime = ":";
-
         if (s == null) throw new java.lang.IllegalArgumentException("null string");
-
         // Split the string into date and time components
         s = s.trim();
         dividingSpace = s.indexOf(' ');
@@ -89,18 +69,15 @@ public class Timestamp extends java.util.Date {
         } else {
             throw new java.lang.IllegalArgumentException(formatError);
         }
-
         // Parse the date
         firstDash = date_s.indexOf('-');
         secondDash = date_s.indexOf('-', firstDash+1);
-
         // Parse the time
         if (time_s == null)
             throw new java.lang.IllegalArgumentException(formatError);
         firstColon = time_s.indexOf(':');
         secondColon = time_s.indexOf(':', firstColon+1);
         period = time_s.indexOf('.', secondColon+1);
-
         // Convert the date
         boolean parsedDate = false;
         if ((firstDash > 0) && (secondDash > 0) && (secondDash < date_s.length() - 1)) {
@@ -113,7 +90,6 @@ public class Timestamp extends java.util.Date {
                  year = Integer.parseInt(yyyy);
                  month = Integer.parseInt(mm);
                  day = Integer.parseInt(dd);
-
                 if ((month >= 1 && month <= MAX_MONTH) && (day >= 1 && day <= MAX_DAY)) {
                     parsedDate = true;
                 }
@@ -122,7 +98,6 @@ public class Timestamp extends java.util.Date {
         if (! parsedDate) {
             throw new java.lang.IllegalArgumentException(formatError);
         }
-
         // Convert the time; default missing nanos
         if ((firstColon > 0) & (secondColon > 0) &
             (secondColon < time_s.length()-1)) {
@@ -147,14 +122,10 @@ public class Timestamp extends java.util.Date {
         } else {
             throw new java.lang.IllegalArgumentException(formatError);
         }
-
         return new Timestamp(year - 1900, month - 1, day, hour, minute, second, a_nanos);
     }
-
-
     @SuppressWarnings("deprecation")
     public String toString () {
-
         int year = super.getYear() + 1900;
         int month = super.getMonth() + 1;
         int day = super.getDate();
@@ -171,7 +142,6 @@ public class Timestamp extends java.util.Date {
         String zeros = "000000000";
         String yearZeros = "0000";
         StringBuffer timestampBuf;
-
         if (year < 1000) {
             // Add leading zeros
             yearString = "" + year;
@@ -209,11 +179,9 @@ public class Timestamp extends java.util.Date {
             nanosString = "0";
         } else {
             nanosString = Integer.toString(nanos);
-
             // Add leading zeros
             nanosString = zeros.substring(0, (9-nanosString.length())) +
                 nanosString;
-
             // Truncate trailing zeros
             char[] nanosChar = new char[nanosString.length()];
             nanosString.getChars(0, nanosString.length(), nanosChar, 0);
@@ -221,10 +189,8 @@ public class Timestamp extends java.util.Date {
             while (nanosChar[truncIndex] == '0') {
                 truncIndex--;
             }
-
             nanosString = new String(nanosChar, 0, truncIndex + 1);
         }
-
         // do a string buffer here instead.
         timestampBuf = new StringBuffer(20+nanosString.length());
         timestampBuf.append(yearString);
@@ -240,24 +206,17 @@ public class Timestamp extends java.util.Date {
         timestampBuf.append(secondString);
         timestampBuf.append(".");
         timestampBuf.append(nanosString);
-
         return (timestampBuf.toString());
     }
-
-
     public int getNanos() {
         return nanos;
     }
-
-
     public void setNanos(int n) {
         if (n > 999999999 || n < 0) {
             throw new IllegalArgumentException("nanos > 999999999 or < 0");
         }
         nanos = n;
     }
-
-
     public boolean equals(Timestamp ts) {
         if (super.equals(ts)) {
             if  (nanos == ts.nanos) {
@@ -269,8 +228,6 @@ public class Timestamp extends java.util.Date {
             return false;
         }
     }
-
-
     public boolean equals(java.lang.Object ts) {
       if (ts instanceof Timestamp) {
         return this.equals((Timestamp)ts);
@@ -278,18 +235,12 @@ public class Timestamp extends java.util.Date {
         return false;
       }
     }
-
-
     public boolean before(Timestamp ts) {
         return compareTo(ts) < 0;
     }
-
-
     public boolean after(Timestamp ts) {
         return compareTo(ts) > 0;
     }
-
-
     public int compareTo(Timestamp ts) {
         long thisTime = this.getTime();
         long anotherTime = ts.getTime();
@@ -303,8 +254,6 @@ public class Timestamp extends java.util.Date {
         }
         return i;
     }
-
-
     public int compareTo(java.util.Date o) {
        if(o instanceof Timestamp) {
             // When Timestamp instance compare it with a Timestamp
@@ -318,18 +267,12 @@ public class Timestamp extends java.util.Date {
           return this.compareTo(ts);
       }
     }
-
-
     @Override
     public int hashCode() {
         return super.hashCode();
     }
-
     static final long serialVersionUID = 2745179027874758501L;
-
     private static final int MILLIS_PER_SECOND = 1000;
-
-
     @SuppressWarnings("deprecation")
     public static Timestamp valueOf(LocalDateTime dateTime) {
         return new Timestamp(dateTime.getYear() - 1900,
@@ -340,8 +283,6 @@ public class Timestamp extends java.util.Date {
                              dateTime.getSecond(),
                              dateTime.getNano());
     }
-
-
     @SuppressWarnings("deprecation")
     public LocalDateTime toLocalDateTime() {
         return LocalDateTime.of(getYear() + 1900,
@@ -352,8 +293,6 @@ public class Timestamp extends java.util.Date {
                                 getSeconds(),
                                 getNanos());
     }
-
-
     public static Timestamp from(Instant instant) {
         try {
             Timestamp stamp = new Timestamp(instant.getEpochSecond() * MILLIS_PER_SECOND);
@@ -363,8 +302,6 @@ public class Timestamp extends java.util.Date {
             throw new IllegalArgumentException(ex);
         }
     }
-
-
     @Override
     public Instant toInstant() {
         return Instant.ofEpochSecond(super.getTime() / MILLIS_PER_SECOND, nanos);

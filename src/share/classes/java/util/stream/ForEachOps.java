@@ -1,6 +1,4 @@
-
 package java.util.stream;
-
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,62 +9,44 @@ import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.LongConsumer;
-
-
 final class ForEachOps {
-
     private ForEachOps() { }
-
-
     public static <T> TerminalOp<T, Void> makeRef(Consumer<? super T> action,
                                                   boolean ordered) {
         Objects.requireNonNull(action);
         return new ForEachOp.OfRef<>(action, ordered);
     }
-
-
     public static TerminalOp<Integer, Void> makeInt(IntConsumer action,
                                                     boolean ordered) {
         Objects.requireNonNull(action);
         return new ForEachOp.OfInt(action, ordered);
     }
-
-
     public static TerminalOp<Long, Void> makeLong(LongConsumer action,
                                                   boolean ordered) {
         Objects.requireNonNull(action);
         return new ForEachOp.OfLong(action, ordered);
     }
-
-
     public static TerminalOp<Double, Void> makeDouble(DoubleConsumer action,
                                                       boolean ordered) {
         Objects.requireNonNull(action);
         return new ForEachOp.OfDouble(action, ordered);
     }
-
-
     static abstract class ForEachOp<T>
             implements TerminalOp<T, Void>, TerminalSink<T, Void> {
         private final boolean ordered;
-
         protected ForEachOp(boolean ordered) {
             this.ordered = ordered;
         }
-
         // TerminalOp
-
         @Override
         public int getOpFlags() {
             return ordered ? 0 : StreamOpFlag.NOT_ORDERED;
         }
-
         @Override
         public <S> Void evaluateSequential(PipelineHelper<T> helper,
                                            Spliterator<S> spliterator) {
             return helper.wrapAndCopyInto(this, spliterator).get();
         }
-
         @Override
         public <S> Void evaluateParallel(PipelineHelper<T> helper,
                                          Spliterator<S> spliterator) {
@@ -76,103 +56,78 @@ final class ForEachOps {
                 new ForEachTask<>(helper, spliterator, helper.wrapSink(this)).invoke();
             return null;
         }
-
         // TerminalSink
-
         @Override
         public Void get() {
             return null;
         }
-
         // Implementations
-
-
         static final class OfRef<T> extends ForEachOp<T> {
             final Consumer<? super T> consumer;
-
             OfRef(Consumer<? super T> consumer, boolean ordered) {
                 super(ordered);
                 this.consumer = consumer;
             }
-
             @Override
             public void accept(T t) {
                 consumer.accept(t);
             }
         }
-
-
         static final class OfInt extends ForEachOp<Integer>
                 implements Sink.OfInt {
             final IntConsumer consumer;
-
             OfInt(IntConsumer consumer, boolean ordered) {
                 super(ordered);
                 this.consumer = consumer;
             }
-
             @Override
             public StreamShape inputShape() {
                 return StreamShape.INT_VALUE;
             }
-
             @Override
             public void accept(int t) {
                 consumer.accept(t);
             }
         }
-
-
         static final class OfLong extends ForEachOp<Long>
                 implements Sink.OfLong {
             final LongConsumer consumer;
-
             OfLong(LongConsumer consumer, boolean ordered) {
                 super(ordered);
                 this.consumer = consumer;
             }
-
             @Override
             public StreamShape inputShape() {
                 return StreamShape.LONG_VALUE;
             }
-
             @Override
             public void accept(long t) {
                 consumer.accept(t);
             }
         }
-
-
         static final class OfDouble extends ForEachOp<Double>
                 implements Sink.OfDouble {
             final DoubleConsumer consumer;
-
             OfDouble(DoubleConsumer consumer, boolean ordered) {
                 super(ordered);
                 this.consumer = consumer;
             }
-
             @Override
             public StreamShape inputShape() {
                 return StreamShape.DOUBLE_VALUE;
             }
-
             @Override
             public void accept(double t) {
                 consumer.accept(t);
             }
         }
     }
-
-
     @SuppressWarnings("serial")
     static final class ForEachTask<S, T> extends CountedCompleter<Void> {
         private Spliterator<S> spliterator;
         private final Sink<S> sink;
         private final PipelineHelper<T> helper;
         private long targetSize;
-
         ForEachTask(PipelineHelper<T> helper,
                     Spliterator<S> spliterator,
                     Sink<S> sink) {
@@ -182,7 +137,6 @@ final class ForEachOps {
             this.spliterator = spliterator;
             this.targetSize = 0L;
         }
-
         ForEachTask(ForEachTask<S, T> parent, Spliterator<S> spliterator) {
             super(parent);
             this.spliterator = spliterator;
@@ -190,7 +144,6 @@ final class ForEachOps {
             this.targetSize = parent.targetSize;
             this.helper = parent.helper;
         }
-
         // Similar to AbstractTask but doesn't need to track child tasks
         public void compute() {
             Spliterator<S> rightSplit = spliterator, leftSplit;
@@ -227,12 +180,8 @@ final class ForEachOps {
             task.propagateCompletion();
         }
     }
-
-
     @SuppressWarnings("serial")
     static final class ForEachOrderedTask<S, T> extends CountedCompleter<Void> {
-
-
         private final PipelineHelper<T> helper;
         private Spliterator<S> spliterator;
         private final long targetSize;
@@ -240,7 +189,6 @@ final class ForEachOps {
         private final Sink<T> action;
         private final ForEachOrderedTask<S, T> leftPredecessor;
         private Node<T> node;
-
         protected ForEachOrderedTask(PipelineHelper<T> helper,
                                      Spliterator<S> spliterator,
                                      Sink<T> action) {
@@ -253,7 +201,6 @@ final class ForEachOps {
             this.action = action;
             this.leftPredecessor = null;
         }
-
         ForEachOrderedTask(ForEachOrderedTask<S, T> parent,
                            Spliterator<S> spliterator,
                            ForEachOrderedTask<S, T> leftPredecessor) {
@@ -265,12 +212,10 @@ final class ForEachOps {
             this.action = parent.action;
             this.leftPredecessor = leftPredecessor;
         }
-
         @Override
         public final void compute() {
             doCompute(this);
         }
-
         private static <S, T> void doCompute(ForEachOrderedTask<S, T> task) {
             Spliterator<S> rightSplit = task.spliterator, leftSplit;
             long sizeThreshold = task.targetSize;
@@ -281,7 +226,6 @@ final class ForEachOps {
                     new ForEachOrderedTask<>(task, leftSplit, task.leftPredecessor);
                 ForEachOrderedTask<S, T> rightChild =
                     new ForEachOrderedTask<>(task, rightSplit, leftChild);
-
                 // Fork the parent task
                 // Completion of the left and right children "happens-before"
                 // completion of the parent
@@ -290,10 +234,8 @@ final class ForEachOps {
                 // the right child
                 rightChild.addToPendingCount(1);
                 task.completionMap.put(leftChild, rightChild);
-
                 // If task is not on the left spine
                 if (task.leftPredecessor != null) {
-
                     leftChild.addToPendingCount(1);
                     // Update association of left-predecessor to left-most
                     // leaf node of right subtree
@@ -308,7 +250,6 @@ final class ForEachOps {
                         leftChild.addToPendingCount(-1);
                     }
                 }
-
                 ForEachOrderedTask<S, T> taskToFork;
                 if (forkRight) {
                     forkRight = false;
@@ -323,8 +264,6 @@ final class ForEachOps {
                 }
                 taskToFork.fork();
             }
-
-
             if (task.getPendingCount() > 0) {
                 // Cannot complete just yet so buffer elements into a Node
                 // for use when completion occurs
@@ -338,7 +277,6 @@ final class ForEachOps {
             }
             task.tryComplete();
         }
-
         @Override
         public void onCompletion(CountedCompleter<?> caller) {
             if (node != null) {
@@ -351,7 +289,6 @@ final class ForEachOps {
                 helper.wrapAndCopyInto(action, spliterator);
                 spliterator = null;
             }
-
             // The completion of this task *and* the dumping of elements
             // "happens-before" completion of the associated left-most leaf task
             // of right subtree (if any, which can be this task's right sibling)

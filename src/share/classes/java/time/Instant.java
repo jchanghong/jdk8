@@ -1,8 +1,4 @@
-
-
-
 package java.time;
-
 import static java.time.LocalTime.NANOS_PER_SECOND;
 import static java.time.LocalTime.SECONDS_PER_DAY;
 import static java.time.LocalTime.SECONDS_PER_HOUR;
@@ -13,7 +9,6 @@ import static java.time.temporal.ChronoField.MILLI_OF_SECOND;
 import static java.time.temporal.ChronoField.NANO_OF_SECOND;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.NANOS;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -35,64 +30,39 @@ import java.time.temporal.TemporalUnit;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.time.temporal.ValueRange;
 import java.util.Objects;
-
-
 public final class Instant
         implements Temporal, TemporalAdjuster, Comparable<Instant>, Serializable {
-
-
     public static final Instant EPOCH = new Instant(0, 0);
-
     private static final long MIN_SECOND = -31557014167219200L;
-
     private static final long MAX_SECOND = 31556889864403199L;
-
     public static final Instant MIN = Instant.ofEpochSecond(MIN_SECOND, 0);
-
     public static final Instant MAX = Instant.ofEpochSecond(MAX_SECOND, 999_999_999);
-
-
     private static final long serialVersionUID = -665713676816604388L;
-
-
     private final long seconds;
-
     private final int nanos;
-
     //-----------------------------------------------------------------------
-
     public static Instant now() {
         return Clock.systemUTC().instant();
     }
-
-
     public static Instant now(Clock clock) {
         Objects.requireNonNull(clock, "clock");
         return clock.instant();
     }
-
     //-----------------------------------------------------------------------
-
     public static Instant ofEpochSecond(long epochSecond) {
         return create(epochSecond, 0);
     }
-
-
     public static Instant ofEpochSecond(long epochSecond, long nanoAdjustment) {
         long secs = Math.addExact(epochSecond, Math.floorDiv(nanoAdjustment, NANOS_PER_SECOND));
         int nos = (int)Math.floorMod(nanoAdjustment, NANOS_PER_SECOND);
         return create(secs, nos);
     }
-
-
     public static Instant ofEpochMilli(long epochMilli) {
         long secs = Math.floorDiv(epochMilli, 1000);
         int mos = (int)Math.floorMod(epochMilli, 1000);
         return create(secs, mos * 1000_000);
     }
-
     //-----------------------------------------------------------------------
-
     public static Instant from(TemporalAccessor temporal) {
         if (temporal instanceof Instant) {
             return (Instant) temporal;
@@ -107,15 +77,11 @@ public final class Instant
                     temporal + " of type " + temporal.getClass().getName(), ex);
         }
     }
-
     //-----------------------------------------------------------------------
-
     public static Instant parse(final CharSequence text) {
         return DateTimeFormatter.ISO_INSTANT.parse(text, Instant::from);
     }
-
     //-----------------------------------------------------------------------
-
     private static Instant create(long seconds, int nanoOfSecond) {
         if ((seconds | nanoOfSecond) == 0) {
             return EPOCH;
@@ -125,16 +91,12 @@ public final class Instant
         }
         return new Instant(seconds, nanoOfSecond);
     }
-
-
     private Instant(long epochSecond, int nanos) {
         super();
         this.seconds = epochSecond;
         this.nanos = nanos;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean isSupported(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -142,8 +104,6 @@ public final class Instant
         }
         return field != null && field.isSupportedBy(this);
     }
-
-
     @Override
     public boolean isSupported(TemporalUnit unit) {
         if (unit instanceof ChronoUnit) {
@@ -151,15 +111,11 @@ public final class Instant
         }
         return unit != null && unit.isSupportedBy(this);
     }
-
     //-----------------------------------------------------------------------
-
     @Override  // override for Javadoc
     public ValueRange range(TemporalField field) {
         return Temporal.super.range(field);
     }
-
-
     @Override  // override for Javadoc and performance
     public int get(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -173,8 +129,6 @@ public final class Instant
         }
         return range(field).checkValidIntValue(field.getFrom(this), field);
     }
-
-
     @Override
     public long getLong(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -188,26 +142,18 @@ public final class Instant
         }
         return field.getFrom(this);
     }
-
     //-----------------------------------------------------------------------
-
     public long getEpochSecond() {
         return seconds;
     }
-
-
     public int getNano() {
         return nanos;
     }
-
     //-------------------------------------------------------------------------
-
     @Override
     public Instant with(TemporalAdjuster adjuster) {
         return (Instant) adjuster.adjustInto(this);
     }
-
-
     @Override
     public Instant with(TemporalField field, long newValue) {
         if (field instanceof ChronoField) {
@@ -229,9 +175,7 @@ public final class Instant
         }
         return field.adjustInto(this, newValue);
     }
-
     //-----------------------------------------------------------------------
-
     public Instant truncatedTo(TemporalUnit unit) {
         if (unit == ChronoUnit.NANOS) {
             return this;
@@ -248,15 +192,11 @@ public final class Instant
         long result = (nod / dur) * dur;
         return plusNanos(result - nod);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public Instant plus(TemporalAmount amountToAdd) {
         return (Instant) amountToAdd.addTo(this);
     }
-
-
     @Override
     public Instant plus(long amountToAdd, TemporalUnit unit) {
         if (unit instanceof ChronoUnit) {
@@ -274,24 +214,16 @@ public final class Instant
         }
         return unit.addTo(this, amountToAdd);
     }
-
     //-----------------------------------------------------------------------
-
     public Instant plusSeconds(long secondsToAdd) {
         return plus(secondsToAdd, 0);
     }
-
-
     public Instant plusMillis(long millisToAdd) {
         return plus(millisToAdd / 1000, (millisToAdd % 1000) * 1000_000);
     }
-
-
     public Instant plusNanos(long nanosToAdd) {
         return plus(0, nanosToAdd);
     }
-
-
     private Instant plus(long secondsToAdd, long nanosToAdd) {
         if ((secondsToAdd | nanosToAdd) == 0) {
             return this;
@@ -302,47 +234,35 @@ public final class Instant
         long nanoAdjustment = nanos + nanosToAdd;  // safe int+NANOS_PER_SECOND
         return ofEpochSecond(epochSec, nanoAdjustment);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public Instant minus(TemporalAmount amountToSubtract) {
         return (Instant) amountToSubtract.subtractFrom(this);
     }
-
-
     @Override
     public Instant minus(long amountToSubtract, TemporalUnit unit) {
         return (amountToSubtract == Long.MIN_VALUE ? plus(Long.MAX_VALUE, unit).plus(1, unit) : plus(-amountToSubtract, unit));
     }
-
     //-----------------------------------------------------------------------
-
     public Instant minusSeconds(long secondsToSubtract) {
         if (secondsToSubtract == Long.MIN_VALUE) {
             return plusSeconds(Long.MAX_VALUE).plusSeconds(1);
         }
         return plusSeconds(-secondsToSubtract);
     }
-
-
     public Instant minusMillis(long millisToSubtract) {
         if (millisToSubtract == Long.MIN_VALUE) {
             return plusMillis(Long.MAX_VALUE).plusMillis(1);
         }
         return plusMillis(-millisToSubtract);
     }
-
-
     public Instant minusNanos(long nanosToSubtract) {
         if (nanosToSubtract == Long.MIN_VALUE) {
             return plusNanos(Long.MAX_VALUE).plusNanos(1);
         }
         return plusNanos(-nanosToSubtract);
     }
-
     //-------------------------------------------------------------------------
-
     @SuppressWarnings("unchecked")
     @Override
     public <R> R query(TemporalQuery<R> query) {
@@ -357,14 +277,10 @@ public final class Instant
         }
         return query.queryFrom(this);
     }
-
-
     @Override
     public Temporal adjustInto(Temporal temporal) {
         return temporal.with(INSTANT_SECONDS, seconds).with(NANO_OF_SECOND, nanos);
     }
-
-
     @Override
     public long until(Temporal endExclusive, TemporalUnit unit) {
         Instant end = Instant.from(endExclusive);
@@ -384,13 +300,11 @@ public final class Instant
         }
         return unit.between(this, end);
     }
-
     private long nanosUntil(Instant end) {
         long secsDiff = Math.subtractExact(end.seconds, seconds);
         long totalNanos = Math.multiplyExact(secsDiff, NANOS_PER_SECOND);
         return Math.addExact(totalNanos, end.nanos - nanos);
     }
-
     private long secondsUntil(Instant end) {
         long secsDiff = Math.subtractExact(end.seconds, seconds);
         long nanosDiff = end.nanos - nanos;
@@ -401,20 +315,14 @@ public final class Instant
         }
         return secsDiff;
     }
-
     //-----------------------------------------------------------------------
-
     public OffsetDateTime atOffset(ZoneOffset offset) {
         return OffsetDateTime.ofInstant(this, offset);
     }
-
-
     public ZonedDateTime atZone(ZoneId zone) {
         return ZonedDateTime.ofInstant(this, zone);
     }
-
     //-----------------------------------------------------------------------
-
     public long toEpochMilli() {
         if (seconds < 0 && nanos > 0) {
             long millis = Math.multiplyExact(seconds+1, 1000);
@@ -425,9 +333,7 @@ public final class Instant
             return Math.addExact(millis, nanos / 1000_000);
         }
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public int compareTo(Instant otherInstant) {
         int cmp = Long.compare(seconds, otherInstant.seconds);
@@ -436,19 +342,13 @@ public final class Instant
         }
         return nanos - otherInstant.nanos;
     }
-
-
     public boolean isAfter(Instant otherInstant) {
         return compareTo(otherInstant) > 0;
     }
-
-
     public boolean isBefore(Instant otherInstant) {
         return compareTo(otherInstant) < 0;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean equals(Object otherInstant) {
         if (this == otherInstant) {
@@ -461,40 +361,29 @@ public final class Instant
         }
         return false;
     }
-
-
     @Override
     public int hashCode() {
         return ((int) (seconds ^ (seconds >>> 32))) + 51 * nanos;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public String toString() {
         return DateTimeFormatter.ISO_INSTANT.format(this);
     }
-
     // -----------------------------------------------------------------------
-
     private Object writeReplace() {
         return new Ser(Ser.INSTANT_TYPE, this);
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
     void writeExternal(DataOutput out) throws IOException {
         out.writeLong(seconds);
         out.writeInt(nanos);
     }
-
     static Instant readExternal(DataInput in) throws IOException {
         long seconds = in.readLong();
         int nanos = in.readInt();
         return Instant.ofEpochSecond(seconds, nanos);
     }
-
 }

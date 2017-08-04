@@ -1,23 +1,12 @@
-
-
 package java.io;
-
-
 public
 class PushbackInputStream extends FilterInputStream {
-
     protected byte[] buf;
-
-
     protected int pos;
-
-
     private void ensureOpen() throws IOException {
         if (in == null)
             throw new IOException("Stream closed");
     }
-
-
     public PushbackInputStream(InputStream in, int size) {
         super(in);
         if (size <= 0) {
@@ -26,13 +15,9 @@ class PushbackInputStream extends FilterInputStream {
         this.buf = new byte[size];
         this.pos = size;
     }
-
-
     public PushbackInputStream(InputStream in) {
         this(in, 1);
     }
-
-
     public int read() throws IOException {
         ensureOpen();
         if (pos < buf.length) {
@@ -40,8 +25,6 @@ class PushbackInputStream extends FilterInputStream {
         }
         return super.read();
     }
-
-
     public int read(byte[] b, int off, int len) throws IOException {
         ensureOpen();
         if (b == null) {
@@ -51,7 +34,6 @@ class PushbackInputStream extends FilterInputStream {
         } else if (len == 0) {
             return 0;
         }
-
         int avail = buf.length - pos;
         if (avail > 0) {
             if (len < avail) {
@@ -71,8 +53,6 @@ class PushbackInputStream extends FilterInputStream {
         }
         return avail;
     }
-
-
     public void unread(int b) throws IOException {
         ensureOpen();
         if (pos == 0) {
@@ -80,8 +60,6 @@ class PushbackInputStream extends FilterInputStream {
         }
         buf[--pos] = (byte)b;
     }
-
-
     public void unread(byte[] b, int off, int len) throws IOException {
         ensureOpen();
         if (len > pos) {
@@ -90,13 +68,9 @@ class PushbackInputStream extends FilterInputStream {
         pos -= len;
         System.arraycopy(b, off, buf, pos, len);
     }
-
-
     public void unread(byte[] b) throws IOException {
         unread(b, 0, b.length);
     }
-
-
     public int available() throws IOException {
         ensureOpen();
         int n = buf.length - pos;
@@ -105,14 +79,11 @@ class PushbackInputStream extends FilterInputStream {
                     ? Integer.MAX_VALUE
                     : n + avail;
     }
-
-
     public long skip(long n) throws IOException {
         ensureOpen();
         if (n <= 0) {
             return 0;
         }
-
         long pskip = buf.length - pos;
         if (pskip > 0) {
             if (n < pskip) {
@@ -126,22 +97,14 @@ class PushbackInputStream extends FilterInputStream {
         }
         return pskip;
     }
-
-
     public boolean markSupported() {
         return false;
     }
-
-
     public synchronized void mark(int readlimit) {
     }
-
-
     public synchronized void reset() throws IOException {
         throw new IOException("mark/reset not supported");
     }
-
-
     public synchronized void close() throws IOException {
         if (in == null)
             return;

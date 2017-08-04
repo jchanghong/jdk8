@@ -1,28 +1,19 @@
-
-
 package java.lang;
-
 import java.text.BreakIterator;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
 import sun.text.Normalizer;
-
-
-
 final class ConditionalSpecialCasing {
-
     // context conditions.
     final static int FINAL_CASED =              1;
     final static int AFTER_SOFT_DOTTED =        2;
     final static int MORE_ABOVE =               3;
     final static int AFTER_I =                  4;
     final static int NOT_BEFORE_DOT =           5;
-
     // combining class definitions
     final static int COMBINING_CLASS_ABOVE = 230;
-
     // Special case mapping entries
     static Entry[] entry = {
         //# ================================================================================
@@ -30,7 +21,6 @@ final class ConditionalSpecialCasing {
         //# ================================================================================
         new Entry(0x03A3, new char[]{0x03C2}, new char[]{0x03A3}, null, FINAL_CASED), // # GREEK CAPITAL LETTER SIGMA
         new Entry(0x0130, new char[]{0x0069, 0x0307}, new char[]{0x0130}, null, 0), // # LATIN CAPITAL LETTER I WITH DOT ABOVE
-
         //# ================================================================================
         //# Locale-sensitive mappings
         //# ================================================================================
@@ -42,7 +32,6 @@ final class ConditionalSpecialCasing {
         new Entry(0x00CC, new char[]{0x0069, 0x0307, 0x0300}, new char[]{0x00CC}, "lt", 0), // # LATIN CAPITAL LETTER I WITH GRAVE
         new Entry(0x00CD, new char[]{0x0069, 0x0307, 0x0301}, new char[]{0x00CD}, "lt", 0), // # LATIN CAPITAL LETTER I WITH ACUTE
         new Entry(0x0128, new char[]{0x0069, 0x0307, 0x0303}, new char[]{0x0128}, "lt", 0), // # LATIN CAPITAL LETTER I WITH TILDE
-
         //# ================================================================================
         //# Turkish and Azeri
         new Entry(0x0130, new char[]{0x0069}, new char[]{0x0130}, "tr", 0), // # LATIN CAPITAL LETTER I WITH DOT ABOVE
@@ -54,7 +43,6 @@ final class ConditionalSpecialCasing {
         new Entry(0x0069, new char[]{0x0069}, new char[]{0x0130}, "tr", 0), // # LATIN SMALL LETTER I
         new Entry(0x0069, new char[]{0x0069}, new char[]{0x0130}, "az", 0)  // # LATIN SMALL LETTER I
     };
-
     // A hash table that contains the above entries
     static Hashtable<Integer, HashSet<Entry>> entryTable = new Hashtable<>();
     static {
@@ -70,10 +58,8 @@ final class ConditionalSpecialCasing {
             entryTable.put(cp, set);
         }
     }
-
     static int toLowerCaseEx(String src, int index, Locale locale) {
         char[] result = lookUpTable(src, index, locale, true);
-
         if (result != null) {
             if (result.length == 1) {
                 return result[0];
@@ -85,10 +71,8 @@ final class ConditionalSpecialCasing {
             return Character.toLowerCase(src.codePointAt(index));
         }
     }
-
     static int toUpperCaseEx(String src, int index, Locale locale) {
         char[] result = lookUpTable(src, index, locale, false);
-
         if (result != null) {
             if (result.length == 1) {
                 return result[0];
@@ -100,11 +84,9 @@ final class ConditionalSpecialCasing {
             return Character.toUpperCaseEx(src.codePointAt(index));
         }
     }
-
     static char[] toLowerCaseCharArray(String src, int index, Locale locale) {
         return lookUpTable(src, index, locale, true);
     }
-
     static char[] toUpperCaseCharArray(String src, int index, Locale locale) {
         char[] result = lookUpTable(src, index, locale, false);
         if (result != null) {
@@ -113,11 +95,9 @@ final class ConditionalSpecialCasing {
             return Character.toUpperCaseCharArray(src.codePointAt(index));
         }
     }
-
     private static char[] lookUpTable(String src, int index, Locale locale, boolean bLowerCasing) {
         HashSet<Entry> set = entryTable.get(new Integer(src.codePointAt(index)));
         char[] ret = null;
-
         if (set != null) {
             Iterator<Entry> iter = set.iterator();
             String currentLang = locale.getLanguage();
@@ -133,74 +113,54 @@ final class ConditionalSpecialCasing {
                 }
             }
         }
-
         return ret;
     }
-
     private static boolean isConditionMet(String src, int index, Locale locale, int condition) {
         switch (condition) {
         case FINAL_CASED:
             return isFinalCased(src, index, locale);
-
         case AFTER_SOFT_DOTTED:
             return isAfterSoftDotted(src, index);
-
         case MORE_ABOVE:
             return isMoreAbove(src, index);
-
         case AFTER_I:
             return isAfterI(src, index);
-
         case NOT_BEFORE_DOT:
             return !isBeforeDot(src, index);
-
         default:
             return true;
         }
     }
-
-
     private static boolean isFinalCased(String src, int index, Locale locale) {
         BreakIterator wordBoundary = BreakIterator.getWordInstance(locale);
         wordBoundary.setText(src);
         int ch;
-
         // Look for a preceding 'cased' letter
         for (int i = index; (i >= 0) && !wordBoundary.isBoundary(i);
                 i -= Character.charCount(ch)) {
-
             ch = src.codePointBefore(i);
             if (isCased(ch)) {
-
                 int len = src.length();
                 // Check that there is no 'cased' letter after the index
                 for (i = index + Character.charCount(src.codePointAt(index));
                         (i < len) && !wordBoundary.isBoundary(i);
                         i += Character.charCount(ch)) {
-
                     ch = src.codePointAt(i);
                     if (isCased(ch)) {
                         return false;
                     }
                 }
-
                 return true;
             }
         }
-
         return false;
     }
-
-
     private static boolean isAfterI(String src, int index) {
         int ch;
         int cc;
-
         // Look for the last preceding base character
         for (int i = index; i > 0; i -= Character.charCount(ch)) {
-
             ch = src.codePointBefore(i);
-
             if (ch == 'I') {
                 return true;
             } else {
@@ -210,20 +170,14 @@ final class ConditionalSpecialCasing {
                 }
             }
         }
-
         return false;
     }
-
-
     private static boolean isAfterSoftDotted(String src, int index) {
         int ch;
         int cc;
-
         // Look for the last preceding character
         for (int i = index; i > 0; i -= Character.charCount(ch)) {
-
             ch = src.codePointBefore(i);
-
             if (isSoftDotted(ch)) {
                 return true;
             } else {
@@ -233,45 +187,33 @@ final class ConditionalSpecialCasing {
                 }
             }
         }
-
         return false;
     }
-
-
     private static boolean isMoreAbove(String src, int index) {
         int ch;
         int cc;
         int len = src.length();
-
         // Look for a following ABOVE combining class character
         for (int i = index + Character.charCount(src.codePointAt(index));
                 i < len; i += Character.charCount(ch)) {
-
             ch = src.codePointAt(i);
             cc = Normalizer.getCombiningClass(ch);
-
             if (cc == COMBINING_CLASS_ABOVE) {
                 return true;
             } else if (cc == 0) {
                 return false;
             }
         }
-
         return false;
     }
-
-
     private static boolean isBeforeDot(String src, int index) {
         int ch;
         int cc;
         int len = src.length();
-
         // Look for a following COMBINING DOT ABOVE
         for (int i = index + Character.charCount(src.codePointAt(index));
                 i < len; i += Character.charCount(ch)) {
-
             ch = src.codePointAt(i);
-
             if (ch == '\u0307') {
                 return true;
             } else {
@@ -281,11 +223,8 @@ final class ConditionalSpecialCasing {
                 }
             }
         }
-
         return false;
     }
-
-
     private static boolean isCased(int ch) {
         int type = Character.getType(ch);
         if (type == Character.LOWERCASE_LETTER ||
@@ -326,7 +265,6 @@ final class ConditionalSpecialCasing {
             }
         }
     }
-
     private static boolean isSoftDotted(int ch) {
         switch (ch) {
         case 0x0069: // Soft_Dotted # L&       LATIN SMALL LETTER I
@@ -344,15 +282,12 @@ final class ConditionalSpecialCasing {
             return false;
         }
     }
-
-
     static class Entry {
         int ch;
         char [] lower;
         char [] upper;
         String lang;
         int condition;
-
         Entry(int ch, char[] lower, char[] upper, String lang, int condition) {
             this.ch = ch;
             this.lower = lower;
@@ -360,23 +295,18 @@ final class ConditionalSpecialCasing {
             this.lang = lang;
             this.condition = condition;
         }
-
         int getCodePoint() {
             return ch;
         }
-
         char[] getLowerCase() {
             return lower;
         }
-
         char[] getUpperCase() {
             return upper;
         }
-
         String getLanguage() {
             return lang;
         }
-
         int getCondition() {
             return condition;
         }

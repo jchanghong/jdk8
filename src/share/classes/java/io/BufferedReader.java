@@ -1,39 +1,22 @@
-
-
 package java.io;
-
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-
-
 public class BufferedReader extends Reader {
-
     private Reader in;
-
     private char cb[];
     private int nChars, nextChar;
-
     private static final int INVALIDATED = -2;
     private static final int UNMARKED = -1;
     private int markedChar = UNMARKED;
     private int readAheadLimit = 0;
-
-
     private boolean skipLF = false;
-
-
     private boolean markedSkipLF = false;
-
     private static int defaultCharBufferSize = 8192;
     private static int defaultExpectedLineLength = 80;
-
-
     public BufferedReader(Reader in, int sz) {
         super(in);
         if (sz <= 0)
@@ -42,40 +25,29 @@ public class BufferedReader extends Reader {
         cb = new char[sz];
         nextChar = nChars = 0;
     }
-
-
     public BufferedReader(Reader in) {
         this(in, defaultCharBufferSize);
     }
-
-
     private void ensureOpen() throws IOException {
         if (in == null)
             throw new IOException("Stream closed");
     }
-
-
     private void fill() throws IOException {
         int dst;
         if (markedChar <= UNMARKED) {
-
             dst = 0;
         } else {
-
             int delta = nextChar - markedChar;
             if (delta >= readAheadLimit) {
-
                 markedChar = INVALIDATED;
                 readAheadLimit = 0;
                 dst = 0;
             } else {
                 if (readAheadLimit <= cb.length) {
-
                     System.arraycopy(cb, markedChar, cb, 0, delta);
                     markedChar = 0;
                     dst = delta;
                 } else {
-
                     char ncb[] = new char[readAheadLimit];
                     System.arraycopy(cb, markedChar, ncb, 0, delta);
                     cb = ncb;
@@ -85,7 +57,6 @@ public class BufferedReader extends Reader {
                 nextChar = nChars = delta;
             }
         }
-
         int n;
         do {
             n = in.read(cb, dst, cb.length - dst);
@@ -95,8 +66,6 @@ public class BufferedReader extends Reader {
             nextChar = dst;
         }
     }
-
-
     public int read() throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -117,11 +86,8 @@ public class BufferedReader extends Reader {
             }
         }
     }
-
-
     private int read1(char[] cbuf, int off, int len) throws IOException {
         if (nextChar >= nChars) {
-
             if (len >= cb.length && markedChar <= UNMARKED && !skipLF) {
                 return in.read(cbuf, off, len);
             }
@@ -143,8 +109,6 @@ public class BufferedReader extends Reader {
         nextChar += n;
         return n;
     }
-
-
     public int read(char cbuf[], int off, int len) throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -154,7 +118,6 @@ public class BufferedReader extends Reader {
             } else if (len == 0) {
                 return 0;
             }
-
             int n = read1(cbuf, off, len);
             if (n <= 0) return n;
             while ((n < len) && in.ready()) {
@@ -165,19 +128,14 @@ public class BufferedReader extends Reader {
             return n;
         }
     }
-
-
     String readLine(boolean ignoreLF) throws IOException {
         StringBuffer s = null;
         int startChar;
-
         synchronized (lock) {
             ensureOpen();
             boolean omitLF = ignoreLF || skipLF;
-
         bufferLoop:
             for (;;) {
-
                 if (nextChar >= nChars)
                     fill();
                 if (nextChar >= nChars) {
@@ -189,13 +147,10 @@ public class BufferedReader extends Reader {
                 boolean eol = false;
                 char c = 0;
                 int i;
-
-
                 if (omitLF && (cb[nextChar] == '\n'))
                     nextChar++;
                 skipLF = false;
                 omitLF = false;
-
             charLoop:
                 for (i = nextChar; i < nChars; i++) {
                     c = cb[i];
@@ -204,10 +159,8 @@ public class BufferedReader extends Reader {
                         break charLoop;
                     }
                 }
-
                 startChar = nextChar;
                 nextChar = i;
-
                 if (eol) {
                     String str;
                     if (s == null) {
@@ -222,20 +175,15 @@ public class BufferedReader extends Reader {
                     }
                     return str;
                 }
-
                 if (s == null)
                     s = new StringBuffer(defaultExpectedLineLength);
                 s.append(cb, startChar, i - startChar);
             }
         }
     }
-
-
     public String readLine() throws IOException {
         return readLine(false);
     }
-
-
     public long skip(long n) throws IOException {
         if (n < 0L) {
             throw new IllegalArgumentException("skip value is negative");
@@ -268,15 +216,10 @@ public class BufferedReader extends Reader {
             return n - r;
         }
     }
-
-
     public boolean ready() throws IOException {
         synchronized (lock) {
             ensureOpen();
-
-
             if (skipLF) {
-
                 if (nextChar >= nChars && in.ready()) {
                     fill();
                 }
@@ -289,13 +232,9 @@ public class BufferedReader extends Reader {
             return (nextChar < nChars) || in.ready();
         }
     }
-
-
     public boolean markSupported() {
         return true;
     }
-
-
     public void mark(int readAheadLimit) throws IOException {
         if (readAheadLimit < 0) {
             throw new IllegalArgumentException("Read-ahead limit < 0");
@@ -307,8 +246,6 @@ public class BufferedReader extends Reader {
             markedSkipLF = skipLF;
         }
     }
-
-
     public void reset() throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -320,7 +257,6 @@ public class BufferedReader extends Reader {
             skipLF = markedSkipLF;
         }
     }
-
     public void close() throws IOException {
         synchronized (lock) {
             if (in == null)
@@ -333,12 +269,9 @@ public class BufferedReader extends Reader {
             }
         }
     }
-
-
     public Stream<String> lines() {
         Iterator<String> iter = new Iterator<String>() {
             String nextLine = null;
-
             @Override
             public boolean hasNext() {
                 if (nextLine != null) {
@@ -352,7 +285,6 @@ public class BufferedReader extends Reader {
                     }
                 }
             }
-
             @Override
             public String next() {
                 if (nextLine != null || hasNext()) {

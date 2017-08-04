@@ -1,5 +1,3 @@
-
-
 package java.lang.management;
 import javax.management.DynamicMBean;
 import javax.management.MBeanServer;
@@ -30,103 +28,61 @@ import java.security.PrivilegedExceptionAction;
 import javax.management.JMX;
 import sun.management.ManagementFactoryHelper;
 import sun.management.ExtendedPlatformComponent;
-
-
 public class ManagementFactory {
     // A class with only static fields and methods.
     private ManagementFactory() {};
-
-
     public final static String CLASS_LOADING_MXBEAN_NAME =
         "java.lang:type=ClassLoading";
-
-
     public final static String COMPILATION_MXBEAN_NAME =
         "java.lang:type=Compilation";
-
-
     public final static String MEMORY_MXBEAN_NAME =
         "java.lang:type=Memory";
-
-
     public final static String OPERATING_SYSTEM_MXBEAN_NAME =
         "java.lang:type=OperatingSystem";
-
-
     public final static String RUNTIME_MXBEAN_NAME =
         "java.lang:type=Runtime";
-
-
     public final static String THREAD_MXBEAN_NAME =
         "java.lang:type=Threading";
-
-
     public final static String GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE =
         "java.lang:type=GarbageCollector";
-
-
     public final static String MEMORY_MANAGER_MXBEAN_DOMAIN_TYPE=
         "java.lang:type=MemoryManager";
-
-
     public final static String MEMORY_POOL_MXBEAN_DOMAIN_TYPE=
         "java.lang:type=MemoryPool";
-
-
     public static ClassLoadingMXBean getClassLoadingMXBean() {
         return ManagementFactoryHelper.getClassLoadingMXBean();
     }
-
-
     public static MemoryMXBean getMemoryMXBean() {
         return ManagementFactoryHelper.getMemoryMXBean();
     }
-
-
     public static ThreadMXBean getThreadMXBean() {
         return ManagementFactoryHelper.getThreadMXBean();
     }
-
-
     public static RuntimeMXBean getRuntimeMXBean() {
         return ManagementFactoryHelper.getRuntimeMXBean();
     }
-
-
     public static CompilationMXBean getCompilationMXBean() {
         return ManagementFactoryHelper.getCompilationMXBean();
     }
-
-
     public static OperatingSystemMXBean getOperatingSystemMXBean() {
         return ManagementFactoryHelper.getOperatingSystemMXBean();
     }
-
-
     public static List<MemoryPoolMXBean> getMemoryPoolMXBeans() {
         return ManagementFactoryHelper.getMemoryPoolMXBeans();
     }
-
-
     public static List<MemoryManagerMXBean> getMemoryManagerMXBeans() {
         return ManagementFactoryHelper.getMemoryManagerMXBeans();
     }
-
-
-
     public static List<GarbageCollectorMXBean> getGarbageCollectorMXBeans() {
         return ManagementFactoryHelper.getGarbageCollectorMXBeans();
     }
-
     private static MBeanServer platformMBeanServer;
-
     public static synchronized MBeanServer getPlatformMBeanServer() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
             Permission perm = new MBeanServerPermission("createMBeanServer");
             sm.checkPermission(perm);
         }
-
         if (platformMBeanServer == null) {
             platformMBeanServer = MBeanServerFactory.createMBeanServer();
             for (PlatformComponent pc : PlatformComponent.values()) {
@@ -161,14 +117,11 @@ public class ManagementFactory {
         }
         return platformMBeanServer;
     }
-
-
     public static <T> T
         newPlatformMXBeanProxy(MBeanServerConnection connection,
                                String mxbeanName,
                                Class<T> mxbeanInterface)
             throws java.io.IOException {
-
         // Only allow MXBean interfaces from rt.jar loaded by the
         // bootstrap class loader
         final Class<?> cls = mxbeanInterface;
@@ -182,7 +135,6 @@ public class ManagementFactory {
             throw new IllegalArgumentException(mxbeanName +
                 " is not a platform MXBean");
         }
-
         try {
             final ObjectName objName = new ObjectName(mxbeanName);
             // skip the isInstanceOf check for LoggingMXBean
@@ -191,11 +143,9 @@ public class ManagementFactory {
                 throw new IllegalArgumentException(mxbeanName +
                     " is not an instance of " + mxbeanInterface);
             }
-
             final Class[] interfaces;
             // check if the registered MBean is a notification emitter
             boolean emitter = connection.isInstanceOf(objName, NOTIF_EMITTER);
-
             // create an MXBean proxy
             return JMX.newMXBeanProxy(connection, objName, mxbeanInterface,
                                       emitter);
@@ -203,8 +153,6 @@ public class ManagementFactory {
             throw new IllegalArgumentException(e);
         }
     }
-
-
     public static <T extends PlatformManagedObject>
             T getPlatformMXBean(Class<T> mxbeanInterface) {
         PlatformComponent pc = PlatformComponent.getPlatformComponent(mxbeanInterface);
@@ -219,11 +167,8 @@ public class ManagementFactory {
         if (!pc.isSingleton())
             throw new IllegalArgumentException(mxbeanInterface.getName() +
                 " can have zero or more than one instances");
-
         return pc.getSingletonMXBean(mxbeanInterface);
     }
-
-
     public static <T extends PlatformManagedObject> List<T>
             getPlatformMXBeans(Class<T> mxbeanInterface) {
         PlatformComponent pc = PlatformComponent.getPlatformComponent(mxbeanInterface);
@@ -237,8 +182,6 @@ public class ManagementFactory {
         }
         return Collections.unmodifiableList(pc.getMXBeans(mxbeanInterface));
     }
-
-
     public static <T extends PlatformManagedObject>
             T getPlatformMXBean(MBeanServerConnection connection,
                                 Class<T> mxbeanInterface)
@@ -261,8 +204,6 @@ public class ManagementFactory {
                 " can have zero or more than one instances");
         return pc.getSingletonMXBean(connection, mxbeanInterface);
     }
-
-
     public static <T extends PlatformManagedObject>
             List<T> getPlatformMXBeans(MBeanServerConnection connection,
                                        Class<T> mxbeanInterface)
@@ -282,8 +223,6 @@ public class ManagementFactory {
         }
         return Collections.unmodifiableList(pc.getMXBeans(connection, mxbeanInterface));
     }
-
-
     public static Set<Class<? extends PlatformManagedObject>>
            getPlatformManagementInterfaces()
     {
@@ -294,11 +233,8 @@ public class ManagementFactory {
         }
         return Collections.unmodifiableSet(result);
     }
-
     private static final String NOTIF_EMITTER =
         "javax.management.NotificationEmitter";
-
-
     private static void addMXBean(final MBeanServer mbs, final PlatformManagedObject pmo) {
         // Make DynamicMBean out of MXBean by wrapping it with a StandardMBean
         try {
@@ -314,7 +250,6 @@ public class ManagementFactory {
                     } else {
                         dmbean = new StandardMBean(pmo, null, true);
                     }
-
                     mbs.registerMBean(dmbean, pmo.getObjectName());
                     return null;
                 }
@@ -323,8 +258,6 @@ public class ManagementFactory {
             throw new RuntimeException(e.getException());
         }
     }
-
-
     private static void addDynamicMBean(final MBeanServer mbs,
                                         final DynamicMBean dmbean,
                                         final ObjectName on) {

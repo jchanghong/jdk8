@@ -1,58 +1,27 @@
-
 package java.awt;
-
 import java.util.Hashtable;
 import java.util.Arrays;
-
-
 public class GridBagLayout implements LayoutManager2,
 java.io.Serializable {
-
     static final int EMPIRICMULTIPLIER = 2;
-
     protected static final int MAXGRIDSIZE = 512;
-
-
     protected static final int MINSIZE = 1;
-
     protected static final int PREFERREDSIZE = 2;
-
-
     protected Hashtable<Component,GridBagConstraints> comptable;
-
-
     protected GridBagConstraints defaultConstraints;
-
-
     protected GridBagLayoutInfo layoutInfo;
-
-
     public int columnWidths[];
-
-
     public int rowHeights[];
-
-
     public double columnWeights[];
-
-
     public double rowWeights[];
-
-
     private Component componentAdjusting;
-
-
     public GridBagLayout () {
         comptable = new Hashtable<Component,GridBagConstraints>();
         defaultConstraints = new GridBagConstraints();
     }
-
-
     public void setConstraints(Component comp, GridBagConstraints constraints) {
         comptable.put(comp, (GridBagConstraints)constraints.clone());
     }
-
-
     public GridBagConstraints getConstraints(Component comp) {
         GridBagConstraints constraints = comptable.get(comp);
         if (constraints == null) {
@@ -61,8 +30,6 @@ java.io.Serializable {
         }
         return (GridBagConstraints)constraints.clone();
     }
-
-
     protected GridBagConstraints lookupConstraints(Component comp) {
         GridBagConstraints constraints = comptable.get(comp);
         if (constraints == null) {
@@ -71,13 +38,9 @@ java.io.Serializable {
         }
         return constraints;
     }
-
-
     private void removeConstraints(Component comp) {
         comptable.remove(comp);
     }
-
-
     public Point getLayoutOrigin () {
         Point origin = new Point(0,0);
         if (layoutInfo != null) {
@@ -86,45 +49,31 @@ java.io.Serializable {
         }
         return origin;
     }
-
-
     public int [][] getLayoutDimensions () {
         if (layoutInfo == null)
             return new int[2][0];
-
         int dim[][] = new int [2][];
         dim[0] = new int[layoutInfo.width];
         dim[1] = new int[layoutInfo.height];
-
         System.arraycopy(layoutInfo.minWidth, 0, dim[0], 0, layoutInfo.width);
         System.arraycopy(layoutInfo.minHeight, 0, dim[1], 0, layoutInfo.height);
-
         return dim;
     }
-
-
     public double [][] getLayoutWeights () {
         if (layoutInfo == null)
             return new double[2][0];
-
         double weights[][] = new double [2][];
         weights[0] = new double[layoutInfo.width];
         weights[1] = new double[layoutInfo.height];
-
         System.arraycopy(layoutInfo.weightX, 0, weights[0], 0, layoutInfo.width);
         System.arraycopy(layoutInfo.weightY, 0, weights[1], 0, layoutInfo.height);
-
         return weights;
     }
-
-
     public Point location(int x, int y) {
         Point loc = new Point(0,0);
         int i, d;
-
         if (layoutInfo == null)
             return loc;
-
         d = layoutInfo.startx;
         if (!rightToLeft) {
             for (i=0; i<layoutInfo.width; i++) {
@@ -141,7 +90,6 @@ java.io.Serializable {
             i++;
         }
         loc.x = i;
-
         d = layoutInfo.starty;
         for (i=0; i<layoutInfo.height; i++) {
             d += layoutInfo.minHeight[i];
@@ -149,15 +97,10 @@ java.io.Serializable {
                 break;
         }
         loc.y = i;
-
         return loc;
     }
-
-
     public void addLayoutComponent(String name, Component comp) {
     }
-
-
     public void addLayoutComponent(Component comp, Object constraints) {
         if (constraints instanceof GridBagConstraints) {
             setConstraints(comp, (GridBagConstraints)constraints);
@@ -165,68 +108,37 @@ java.io.Serializable {
             throw new IllegalArgumentException("cannot add to layout: constraints must be a GridBagConstraint");
         }
     }
-
-
     public void removeLayoutComponent(Component comp) {
         removeConstraints(comp);
     }
-
-
     public Dimension preferredLayoutSize(Container parent) {
         GridBagLayoutInfo info = getLayoutInfo(parent, PREFERREDSIZE);
         return getMinSize(parent, info);
     }
-
-
     public Dimension minimumLayoutSize(Container parent) {
         GridBagLayoutInfo info = getLayoutInfo(parent, MINSIZE);
         return getMinSize(parent, info);
     }
-
-
     public Dimension maximumLayoutSize(Container target) {
         return new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
-
-
     public float getLayoutAlignmentX(Container parent) {
         return 0.5f;
     }
-
-
     public float getLayoutAlignmentY(Container parent) {
         return 0.5f;
     }
-
-
     public void invalidateLayout(Container target) {
     }
-
-
     public void layoutContainer(Container parent) {
         arrangeGrid(parent);
     }
-
-
     public String toString() {
         return getClass().getName();
     }
-
-
-
-
-
-
-
-
-
-
     protected GridBagLayoutInfo getLayoutInfo(Container parent, int sizeflag) {
         return GetLayoutInfo(parent, sizeflag);
     }
-
-
-
     private long[]  preInitMaximumArraySizes(Container parent){
         Component components[] = parent.getComponents();
         Component comp;
@@ -236,19 +148,16 @@ java.io.Serializable {
         int preMaximumArrayXIndex = 0;
         int preMaximumArrayYIndex = 0;
         long [] returnArray = new long[2];
-
         for (int compId = 0 ; compId < components.length ; compId++) {
             comp = components[compId];
             if (!comp.isVisible()) {
                 continue;
             }
-
             constraints = lookupConstraints(comp);
             curX = constraints.gridx;
             curY = constraints.gridy;
             curWidth = constraints.gridwidth;
             curHeight = constraints.gridheight;
-
             // -1==RELATIVE, means that column|row equals to previously added component,
             // since each next Component with gridx|gridy == RELATIVE starts from
             // previous position, so we should start from previous component which
@@ -269,18 +178,14 @@ java.io.Serializable {
             if (curHeight <= 0){
                 curHeight = 1;
             }
-
             preMaximumArrayXIndex = Math.max(curY + curHeight, preMaximumArrayXIndex);
             preMaximumArrayYIndex = Math.max(curX + curWidth, preMaximumArrayYIndex);
         } //for (components) loop
         // Must specify index++ to allocate well-working arrays.
-
         returnArray[0] = preMaximumArrayXIndex;
         returnArray[1] = preMaximumArrayYIndex;
         return returnArray;
     } //PreInitMaximumSizes
-
-
     protected GridBagLayoutInfo GetLayoutInfo(Container parent, int sizeflag) {
         synchronized (parent.getTreeLock()) {
             GridBagLayoutInfo r;
@@ -294,7 +199,6 @@ java.io.Serializable {
             // Thus, the maximum index that could
             // be calculated in the following code is curX+curX.
             // EmpericMultier equals 2 because of this.
-
             int layoutWidth, layoutHeight;
             int []xMaxArray;
             int []yMaxArray;
@@ -308,34 +212,25 @@ java.io.Serializable {
             int maximumArrayXIndex = 0;
             int maximumArrayYIndex = 0;
             int anchor;
-
-
-
             layoutWidth = layoutHeight = 0;
             curRow = curCol = -1;
             long [] arraySizes = preInitMaximumArraySizes(parent);
-
-
             maximumArrayXIndex = (EMPIRICMULTIPLIER * arraySizes[0] > Integer.MAX_VALUE )? Integer.MAX_VALUE : EMPIRICMULTIPLIER*(int)arraySizes[0];
             maximumArrayYIndex = (EMPIRICMULTIPLIER * arraySizes[1] > Integer.MAX_VALUE )? Integer.MAX_VALUE : EMPIRICMULTIPLIER*(int)arraySizes[1];
-
             if (rowHeights != null){
                 maximumArrayXIndex = Math.max(maximumArrayXIndex, rowHeights.length);
             }
             if (columnWidths != null){
                 maximumArrayYIndex = Math.max(maximumArrayYIndex, columnWidths.length);
             }
-
             xMaxArray = new int[maximumArrayXIndex];
             yMaxArray = new int[maximumArrayYIndex];
-
             boolean hasBaseline = false;
             for (compindex = 0 ; compindex < components.length ; compindex++) {
                 comp = components[compindex];
                 if (!comp.isVisible())
                     continue;
                 constraints = lookupConstraints(comp);
-
                 curX = constraints.gridx;
                 curY = constraints.gridy;
                 curWidth = constraints.gridwidth;
@@ -344,8 +239,6 @@ java.io.Serializable {
                 curHeight = constraints.gridheight;
                 if (curHeight <= 0)
                     curHeight = 1;
-
-
                 if (curX < 0 && curY < 0) {
                     if (curRow >= 0)
                         curY = curRow;
@@ -359,7 +252,6 @@ java.io.Serializable {
                     for (i = curY; i < (curY + curHeight); i++) {
                         px = Math.max(px, xMaxArray[i]);
                     }
-
                     curX = px - curX - 1;
                     if(curX < 0)
                         curX = 0;
@@ -373,8 +265,6 @@ java.io.Serializable {
                     if(curY < 0)
                         curY = 0;
                 }
-
-
                 px = curX + curWidth;
                 if (layoutWidth < px) {
                     layoutWidth = px;
@@ -383,17 +273,12 @@ java.io.Serializable {
                 if (layoutHeight < py) {
                     layoutHeight = py;
                 }
-
-
                 for (i = curX; i < (curX + curWidth); i++) {
                     yMaxArray[i] =py;
                 }
                 for (i = curY; i < (curY + curHeight); i++) {
                     xMaxArray[i] = px;
                 }
-
-
-
                 if (sizeflag == PREFERREDSIZE)
                     d = comp.getPreferredSize();
                 else
@@ -403,60 +288,39 @@ java.io.Serializable {
                 if (calculateBaseline(comp, constraints, d)) {
                     hasBaseline = true;
                 }
-
-
                 if (constraints.gridheight == 0 && constraints.gridwidth == 0)
                     curRow = curCol = -1;
-
-
                 if (constraints.gridheight == 0 && curRow < 0)
                     curCol = curX + curWidth;
-
-
                 else if (constraints.gridwidth == 0 && curCol < 0)
                     curRow = curY + curHeight;
             } //for (components) loop
-
-
-
             if (columnWidths != null && layoutWidth < columnWidths.length)
                 layoutWidth = columnWidths.length;
             if (rowHeights != null && layoutHeight < rowHeights.length)
                 layoutHeight = rowHeights.length;
-
             r = new GridBagLayoutInfo(layoutWidth, layoutHeight);
-
-
-
             curRow = curCol = -1;
-
             Arrays.fill(xMaxArray, 0);
             Arrays.fill(yMaxArray, 0);
-
             int[] maxAscent = null;
             int[] maxDescent = null;
             short[] baselineType = null;
-
             if (hasBaseline) {
                 r.maxAscent = maxAscent = new int[layoutHeight];
                 r.maxDescent = maxDescent = new int[layoutHeight];
                 r.baselineType = baselineType = new short[layoutHeight];
                 r.hasBaseline = true;
             }
-
-
             for (compindex = 0 ; compindex < components.length ; compindex++) {
                 comp = components[compindex];
                 if (!comp.isVisible())
                     continue;
                 constraints = lookupConstraints(comp);
-
                 curX = constraints.gridx;
                 curY = constraints.gridy;
                 curWidth = constraints.gridwidth;
                 curHeight = constraints.gridheight;
-
-
                 if (curX < 0 && curY < 0) {
                     if(curRow >= 0)
                         curY = curRow;
@@ -465,18 +329,15 @@ java.io.Serializable {
                     else
                         curY = 0;
                 }
-
                 if (curX < 0) {
                     if (curHeight <= 0) {
                         curHeight += r.height - curY;
                         if (curHeight < 1)
                             curHeight = 1;
                     }
-
                     px = 0;
                     for (i = curY; i < (curY + curHeight); i++)
                         px = Math.max(px, xMaxArray[i]);
-
                     curX = px - curX - 1;
                     if(curX < 0)
                         curX = 0;
@@ -487,49 +348,38 @@ java.io.Serializable {
                         if (curWidth < 1)
                             curWidth = 1;
                     }
-
                     py = 0;
                     for (i = curX; i < (curX + curWidth); i++){
                         py = Math.max(py, yMaxArray[i]);
                     }
-
                     curY = py - curY - 1;
                     if(curY < 0)
                         curY = 0;
                 }
-
                 if (curWidth <= 0) {
                     curWidth += r.width - curX;
                     if (curWidth < 1)
                         curWidth = 1;
                 }
-
                 if (curHeight <= 0) {
                     curHeight += r.height - curY;
                     if (curHeight < 1)
                         curHeight = 1;
                 }
-
                 px = curX + curWidth;
                 py = curY + curHeight;
-
                 for (i = curX; i < (curX + curWidth); i++) { yMaxArray[i] = py; }
                 for (i = curY; i < (curY + curHeight); i++) { xMaxArray[i] = px; }
-
-
                 if (constraints.gridheight == 0 && constraints.gridwidth == 0)
                     curRow = curCol = -1;
                 if (constraints.gridheight == 0 && curRow < 0)
                     curCol = curX + curWidth;
                 else if (constraints.gridwidth == 0 && curCol < 0)
                     curRow = curY + curHeight;
-
-
                 constraints.tempX = curX;
                 constraints.tempY = curY;
                 constraints.tempWidth = curWidth;
                 constraints.tempHeight = curHeight;
-
                 anchor = constraints.anchor;
                 if (hasBaseline) {
                     switch(anchor) {
@@ -603,14 +453,10 @@ java.io.Serializable {
                     }
                 }
             }
-
             r.weightX = new double[maximumArrayYIndex];
             r.weightY = new double[maximumArrayXIndex];
             r.minWidth = new int[maximumArrayYIndex];
             r.minHeight = new int[maximumArrayXIndex];
-
-
-
             if (columnWidths != null)
                 System.arraycopy(columnWidths, 0, r.minWidth, 0, columnWidths.length);
             if (rowHeights != null)
@@ -619,11 +465,7 @@ java.io.Serializable {
                 System.arraycopy(columnWeights, 0, r.weightX, 0,  Math.min(r.weightX.length, columnWeights.length));
             if (rowWeights != null)
                 System.arraycopy(rowWeights, 0, r.weightY, 0,  Math.min(r.weightY.length, rowWeights.length));
-
-
-
             nextSize = Integer.MAX_VALUE;
-
             for (i = 1;
                  i != Integer.MAX_VALUE;
                  i = nextSize, nextSize = Integer.MAX_VALUE) {
@@ -632,12 +474,8 @@ java.io.Serializable {
                     if (!comp.isVisible())
                         continue;
                     constraints = lookupConstraints(comp);
-
                     if (constraints.tempWidth == i) {
                         px = constraints.tempX + constraints.tempWidth;
-
-
-
                         weight_diff = constraints.weightx;
                         for (k = constraints.tempX; k < px; k++)
                             weight_diff -= r.weightX[k];
@@ -652,16 +490,11 @@ java.io.Serializable {
                                 weight_diff -= dx;
                                 weight -= wt;
                             }
-
                             r.weightX[px-1] += weight_diff;
                         }
-
-
-
                         pixels_diff =
                             constraints.minWidth + constraints.ipadx +
                             constraints.insets.left + constraints.insets.right;
-
                         for (k = constraints.tempX; k < px; k++)
                             pixels_diff -= r.minWidth[k];
                         if (pixels_diff > 0) {
@@ -675,19 +508,13 @@ java.io.Serializable {
                                 pixels_diff -= dx;
                                 weight -= wt;
                             }
-
                             r.minWidth[px-1] += pixels_diff;
                         }
                     }
                     else if (constraints.tempWidth > i && constraints.tempWidth < nextSize)
                         nextSize = constraints.tempWidth;
-
-
                     if (constraints.tempHeight == i) {
                         py = constraints.tempY + constraints.tempHeight;
-
-
-
                         weight_diff = constraints.weighty;
                         for (k = constraints.tempY; k < py; k++)
                             weight_diff -= r.weightY[k];
@@ -702,12 +529,8 @@ java.io.Serializable {
                                 weight_diff -= dy;
                                 weight -= wt;
                             }
-
                             r.weightY[py-1] += weight_diff;
                         }
-
-
-
                         pixels_diff = -1;
                         if (hasBaseline) {
                             switch(constraints.anchor) {
@@ -771,7 +594,6 @@ java.io.Serializable {
                                 pixels_diff -= dy;
                                 weight -= wt;
                             }
-
                             r.minHeight[py-1] += pixels_diff;
                         }
                     }
@@ -783,8 +605,6 @@ java.io.Serializable {
             return r;
         }
     } //getLayoutInfo()
-
-
     private boolean calculateBaseline(Component c,
                                       GridBagConstraints constraints,
                                       Dimension size) {
@@ -833,20 +653,15 @@ java.io.Serializable {
             return false;
         }
     }
-
-
     protected void adjustForGravity(GridBagConstraints constraints,
                                     Rectangle r) {
         AdjustForGravity(constraints, r);
     }
-
-
     protected void AdjustForGravity(GridBagConstraints constraints,
                                     Rectangle r) {
         int diffx, diffy;
         int cellY = r.y;
         int cellHeight = r.height;
-
         if (!rightToLeft) {
             r.x += constraints.insets.left;
         } else {
@@ -855,7 +670,6 @@ java.io.Serializable {
         r.width -= (constraints.insets.left + constraints.insets.right);
         r.y += constraints.insets.top;
         r.height -= (constraints.insets.top + constraints.insets.bottom);
-
         diffx = 0;
         if ((constraints.fill != GridBagConstraints.HORIZONTAL &&
              constraints.fill != GridBagConstraints.BOTH)
@@ -863,7 +677,6 @@ java.io.Serializable {
             diffx = r.width - (constraints.minWidth + constraints.ipadx);
             r.width = constraints.minWidth + constraints.ipadx;
         }
-
         diffy = 0;
         if ((constraints.fill != GridBagConstraints.VERTICAL &&
              constraints.fill != GridBagConstraints.BOTH)
@@ -871,7 +684,6 @@ java.io.Serializable {
             diffy = r.height - (constraints.minHeight + constraints.ipady);
             r.height = constraints.minHeight + constraints.ipady;
         }
-
         switch (constraints.anchor) {
           case GridBagConstraints.BASELINE:
               r.x += diffx/2;
@@ -991,8 +803,6 @@ java.io.Serializable {
               throw new IllegalArgumentException("illegal anchor value");
         }
     }
-
-
     private void alignOnBaseline(GridBagConstraints cons, Rectangle r,
                                  int cellY, int cellHeight) {
         if (cons.ascent >= 0) {
@@ -1122,8 +932,6 @@ java.io.Serializable {
             centerVertically(cons, r, cellHeight);
         }
     }
-
-
     private void alignAboveBaseline(GridBagConstraints cons, Rectangle r,
                                     int cellY, int cellHeight) {
         if (layoutInfo.hasBaseline(cons.tempY)) {
@@ -1152,8 +960,6 @@ java.io.Serializable {
             centerVertically(cons, r, cellHeight);
         }
     }
-
-
     private void alignBelowBaseline(GridBagConstraints cons, Rectangle r,
                                     int cellY, int cellHeight) {
         if (layoutInfo.hasBaseline(cons.tempY)) {
@@ -1173,7 +979,6 @@ java.io.Serializable {
             centerVertically(cons, r, cellHeight);
         }
     }
-
     private void centerVertically(GridBagConstraints cons, Rectangle r,
                                   int cellHeight) {
         if (!cons.isVerticallyResizable()) {
@@ -1182,39 +987,27 @@ java.io.Serializable {
                                 cons.ipady) / 2);
         }
     }
-
-
     protected Dimension getMinSize(Container parent, GridBagLayoutInfo info) {
         return GetMinSize(parent, info);
     }
-
-
     protected Dimension GetMinSize(Container parent, GridBagLayoutInfo info) {
         Dimension d = new Dimension();
         int i, t;
         Insets insets = parent.getInsets();
-
         t = 0;
         for(i = 0; i < info.width; i++)
             t += info.minWidth[i];
         d.width = t + insets.left + insets.right;
-
         t = 0;
         for(i = 0; i < info.height; i++)
             t += info.minHeight[i];
         d.height = t + insets.top + insets.bottom;
-
         return d;
     }
-
     transient boolean rightToLeft = false;
-
-
     protected void arrangeGrid(Container parent) {
         ArrangeGrid(parent);
     }
-
-
     protected void ArrangeGrid(Container parent) {
         Component comp;
         int compindex;
@@ -1226,34 +1019,21 @@ java.io.Serializable {
         int i, diffw, diffh;
         double weight;
         GridBagLayoutInfo info;
-
         rightToLeft = !parent.getComponentOrientation().isLeftToRight();
-
-
         if (components.length == 0 &&
             (columnWidths == null || columnWidths.length == 0) &&
             (rowHeights == null || rowHeights.length == 0)) {
             return;
         }
-
-
-
         info = getLayoutInfo(parent, PREFERREDSIZE);
         d = getMinSize(parent, info);
-
         if (parent.width < d.width || parent.height < d.height) {
             info = getLayoutInfo(parent, MINSIZE);
             d = getMinSize(parent, info);
         }
-
         layoutInfo = info;
         r.width = d.width;
         r.height = d.height;
-
-
-
-
-
         diffw = parent.width - r.width;
         if (diffw != 0) {
             weight = 0.0;
@@ -1272,11 +1052,9 @@ java.io.Serializable {
             }
             diffw = parent.width - r.width;
         }
-
         else {
             diffw = 0;
         }
-
         diffh = parent.height - r.height;
         if (diffh != 0) {
             weight = 0.0;
@@ -1295,25 +1073,17 @@ java.io.Serializable {
             }
             diffh = parent.height - r.height;
         }
-
         else {
             diffh = 0;
         }
-
-
-
-
-
         info.startx = diffw/2 + insets.left;
         info.starty = diffh/2 + insets.top;
-
         for (compindex = 0 ; compindex < components.length ; compindex++) {
             comp = components[compindex];
             if (!comp.isVisible()){
                 continue;
             }
             constraints = lookupConstraints(comp);
-
             if (!rightToLeft) {
                 r.x = info.startx;
                 for(i = 0; i < constraints.tempX; i++)
@@ -1323,42 +1093,31 @@ java.io.Serializable {
                 for(i = 0; i < constraints.tempX; i++)
                     r.x -= info.minWidth[i];
             }
-
             r.y = info.starty;
             for(i = 0; i < constraints.tempY; i++)
                 r.y += info.minHeight[i];
-
             r.width = 0;
             for(i = constraints.tempX;
                 i < (constraints.tempX + constraints.tempWidth);
                 i++) {
                 r.width += info.minWidth[i];
             }
-
             r.height = 0;
             for(i = constraints.tempY;
                 i < (constraints.tempY + constraints.tempHeight);
                 i++) {
                 r.height += info.minHeight[i];
             }
-
             componentAdjusting = comp;
             adjustForGravity(constraints, r);
-
-
-
             if (r.x < 0) {
                 r.width += r.x;
                 r.x = 0;
             }
-
             if (r.y < 0) {
                 r.height += r.y;
                 r.y = 0;
             }
-
-
-
             if ((r.width <= 0) || (r.height <= 0)) {
                 comp.setBounds(0, 0, 0, 0);
             }
@@ -1370,7 +1129,6 @@ java.io.Serializable {
             }
         }
     }
-
     // Added for serial backwards compatibility (4348425)
     static final long serialVersionUID = 8838754796412211005L;
 }

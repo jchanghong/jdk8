@@ -1,45 +1,28 @@
-
-
 package java.util.zip;
-
 import java.io.SequenceInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.FilterInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.EOFException;
-
-
 public
 class GZIPInputStream extends InflaterInputStream {
-
     protected CRC32 crc = new CRC32();
-
-
     protected boolean eos;
-
     private boolean closed = false;
-
-
     private void ensureOpen() throws IOException {
         if (closed) {
             throw new IOException("Stream closed");
         }
     }
-
-
     public GZIPInputStream(InputStream in, int size) throws IOException {
         super(in, new Inflater(true), size);
         usesDefaultInflater = true;
         readHeader(in);
     }
-
-
     public GZIPInputStream(InputStream in) throws IOException {
         this(in, 512);
     }
-
-
     public int read(byte[] buf, int off, int len) throws IOException {
         ensureOpen();
         if (eos) {
@@ -56,8 +39,6 @@ class GZIPInputStream extends InflaterInputStream {
         }
         return n;
     }
-
-
     public void close() throws IOException {
         if (!closed) {
             super.close();
@@ -65,18 +46,12 @@ class GZIPInputStream extends InflaterInputStream {
             closed = true;
         }
     }
-
-
     public final static int GZIP_MAGIC = 0x8b1f;
-
-
     private final static int FTEXT      = 1;    // Extra text
     private final static int FHCRC      = 2;    // Header CRC
     private final static int FEXTRA     = 4;    // Extra field
     private final static int FNAME      = 8;    // File name
     private final static int FCOMMENT   = 16;   // File comment
-
-
     private int readHeader(InputStream this_in) throws IOException {
         CheckedInputStream in = new CheckedInputStream(this_in, crc);
         crc.reset();
@@ -122,8 +97,6 @@ class GZIPInputStream extends InflaterInputStream {
         crc.reset();
         return n;
     }
-
-
     private boolean readTrailer() throws IOException {
         InputStream in = this.in;
         int n = inf.getRemaining();
@@ -139,7 +112,6 @@ class GZIPInputStream extends InflaterInputStream {
             // rfc1952; ISIZE is the input size modulo 2^32
             (readUInt(in) != (inf.getBytesWritten() & 0xffffffffL)))
             throw new ZipException("Corrupt GZIP trailer");
-
         // If there are more bytes available in "in" or
         // the leftover in the "inf" is > 26 bytes:
         // this.trailer(8) + next.header.min(10) + next.trailer(8)
@@ -158,20 +130,14 @@ class GZIPInputStream extends InflaterInputStream {
         }
         return true;
     }
-
-
     private long readUInt(InputStream in) throws IOException {
         long s = readUShort(in);
         return ((long)readUShort(in) << 16) | s;
     }
-
-
     private int readUShort(InputStream in) throws IOException {
         int b = readUByte(in);
         return (readUByte(in) << 8) | b;
     }
-
-
     private int readUByte(InputStream in) throws IOException {
         int b = in.read();
         if (b == -1) {
@@ -184,10 +150,7 @@ class GZIPInputStream extends InflaterInputStream {
         }
         return b;
     }
-
     private byte[] tmpbuf = new byte[128];
-
-
     private void skipBytes(InputStream in, int n) throws IOException {
         while (n > 0) {
             int len = in.read(tmpbuf, 0, n < tmpbuf.length ? n : tmpbuf.length);

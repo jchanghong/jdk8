@@ -1,17 +1,9 @@
-
-
 package java.security.cert;
-
 import java.security.PublicKey;
-
-
 public class PKIXCertPathValidatorResult implements CertPathValidatorResult {
-
     private TrustAnchor trustAnchor;
     private PolicyNode policyTree;
     private PublicKey subjectPublicKey;
-
-
     public PKIXCertPathValidatorResult(TrustAnchor trustAnchor,
         PolicyNode policyTree, PublicKey subjectPublicKey)
     {
@@ -23,33 +15,22 @@ public class PKIXCertPathValidatorResult implements CertPathValidatorResult {
         this.policyTree = policyTree;
         this.subjectPublicKey = subjectPublicKey;
     }
-
-
     public TrustAnchor getTrustAnchor() {
         return trustAnchor;
     }
-
-
     public PolicyNode getPolicyTree() {
         return policyTree;
     }
-
-
     public PublicKey getPublicKey() {
         return subjectPublicKey;
     }
-
-
     public Object clone() {
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
-
             throw new InternalError(e.toString(), e);
         }
     }
-
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("PKIXCertPathValidatorResult: [\n");

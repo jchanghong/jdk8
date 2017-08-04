@@ -1,28 +1,17 @@
-
-
 package java.lang.ref;
-
-
-
 public class ReferenceQueue<T> {
-
-
     public ReferenceQueue() { }
-
     private static class Null<S> extends ReferenceQueue<S> {
         boolean enqueue(Reference<? extends S> r) {
             return false;
         }
     }
-
     static ReferenceQueue<Object> NULL = new Null<>();
     static ReferenceQueue<Object> ENQUEUED = new Null<>();
-
     static private class Lock { };
     private Lock lock = new Lock();
     private volatile Reference<? extends T> head = null;
     private long queueLength = 0;
-
     boolean enqueue(Reference<? extends T> r) {
         synchronized (lock) {
             // Check that since getting the lock this reference hasn't already been
@@ -43,7 +32,6 @@ public class ReferenceQueue<T> {
             return true;
         }
     }
-
     @SuppressWarnings("unchecked")
     private Reference<? extends T> reallyPoll() {
         Reference<? extends T> r = head;
@@ -61,8 +49,6 @@ public class ReferenceQueue<T> {
         }
         return null;
     }
-
-
     public Reference<? extends T> poll() {
         if (head == null)
             return null;
@@ -70,8 +56,6 @@ public class ReferenceQueue<T> {
             return reallyPoll();
         }
     }
-
-
     public Reference<? extends T> remove(long timeout)
         throws IllegalArgumentException, InterruptedException
     {
@@ -95,10 +79,7 @@ public class ReferenceQueue<T> {
             }
         }
     }
-
-
     public Reference<? extends T> remove() throws InterruptedException {
         return remove(0);
     }
-
 }

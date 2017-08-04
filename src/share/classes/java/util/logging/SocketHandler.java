@@ -1,25 +1,16 @@
-
-
-
 package java.util.logging;
-
 import java.io.*;
 import java.net.*;
-
-
-
 public class SocketHandler extends StreamHandler {
     private Socket sock;
     private String host;
     private int port;
-
     // Private method to configure a SocketHandler from LogManager
     // properties and/or default values as specified in the class
     // javadoc.
     private void configure() {
         LogManager manager = LogManager.getLogManager();
         String cname = getClass().getName();
-
         setLevel(manager.getLevelProperty(cname +".level", Level.ALL));
         setFilter(manager.getFilterProperty(cname +".filter", null));
         setFormatter(manager.getFormatterProperty(cname +".formatter", new XMLFormatter()));
@@ -36,14 +27,10 @@ public class SocketHandler extends StreamHandler {
         port = manager.getIntProperty(cname + ".port", 0);
         host = manager.getStringProperty(cname + ".host", null);
     }
-
-
-
     public SocketHandler() throws IOException {
         // We are going to use the logging defaults.
         sealed = false;
         configure();
-
         try {
             connect();
         } catch (IOException ix) {
@@ -52,8 +39,6 @@ public class SocketHandler extends StreamHandler {
         }
         sealed = true;
     }
-
-
     public SocketHandler(String host, int port) throws IOException {
         sealed = false;
         configure();
@@ -62,7 +47,6 @@ public class SocketHandler extends StreamHandler {
         this.host = host;
         connect();
     }
-
     private void connect() throws IOException {
         // Check the arguments are valid.
         if (port == 0) {
@@ -71,15 +55,12 @@ public class SocketHandler extends StreamHandler {
         if (host == null) {
             throw new IllegalArgumentException("Null host name: " + host);
         }
-
         // Try to open a new socket.
         sock = new Socket(host, port);
         OutputStream out = sock.getOutputStream();
         BufferedOutputStream bout = new BufferedOutputStream(out);
         setOutputStream(bout);
     }
-
-
     @Override
     public synchronized void close() throws SecurityException {
         super.close();
@@ -92,8 +73,6 @@ public class SocketHandler extends StreamHandler {
         }
         sock = null;
     }
-
-
     @Override
     public synchronized void publish(LogRecord record) {
         if (!isLoggable(record)) {

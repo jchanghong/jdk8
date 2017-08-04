@@ -1,46 +1,27 @@
-
-
-
 package java.time;
-
 import static java.time.LocalTime.NANOS_PER_MINUTE;
 import static java.time.LocalTime.NANOS_PER_SECOND;
-
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.TimeZone;
-
-
 public abstract class Clock {
-
-
     public static Clock systemUTC() {
         return new SystemClock(ZoneOffset.UTC);
     }
-
-
     public static Clock systemDefaultZone() {
         return new SystemClock(ZoneId.systemDefault());
     }
-
-
     public static Clock system(ZoneId zone) {
         Objects.requireNonNull(zone, "zone");
         return new SystemClock(zone);
     }
-
     //-------------------------------------------------------------------------
-
     public static Clock tickSeconds(ZoneId zone) {
         return new TickClock(system(zone), NANOS_PER_SECOND);
     }
-
-
     public static Clock tickMinutes(ZoneId zone) {
         return new TickClock(system(zone), NANOS_PER_MINUTE);
     }
-
-
     public static Clock tick(Clock baseClock, Duration tickDuration) {
         Objects.requireNonNull(baseClock, "baseClock");
         Objects.requireNonNull(tickDuration, "tickDuration");
@@ -60,17 +41,13 @@ public abstract class Clock {
         }
         return new TickClock(baseClock, tickNanos);
     }
-
     //-----------------------------------------------------------------------
-
     public static Clock fixed(Instant fixedInstant, ZoneId zone) {
         Objects.requireNonNull(fixedInstant, "fixedInstant");
         Objects.requireNonNull(zone, "zone");
         return new FixedClock(fixedInstant, zone);
     }
-
     //-------------------------------------------------------------------------
-
     public static Clock offset(Clock baseClock, Duration offsetDuration) {
         Objects.requireNonNull(baseClock, "baseClock");
         Objects.requireNonNull(offsetDuration, "offsetDuration");
@@ -79,48 +56,31 @@ public abstract class Clock {
         }
         return new OffsetClock(baseClock, offsetDuration);
     }
-
     //-----------------------------------------------------------------------
-
     protected Clock() {
     }
-
     //-----------------------------------------------------------------------
-
     public abstract ZoneId getZone();
-
-
     public abstract Clock withZone(ZoneId zone);
-
     //-------------------------------------------------------------------------
-
     public long millis() {
         return instant().toEpochMilli();
     }
-
     //-----------------------------------------------------------------------
-
     public abstract Instant instant();
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
     }
-
-
     @Override
     public  int hashCode() {
         return super.hashCode();
     }
-
     //-----------------------------------------------------------------------
-
     static final class SystemClock extends Clock implements Serializable {
         private static final long serialVersionUID = 6740630888130243051L;
         private final ZoneId zone;
-
         SystemClock(ZoneId zone) {
             this.zone = zone;
         }
@@ -159,14 +119,11 @@ public abstract class Clock {
             return "SystemClock[" + zone + "]";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class FixedClock extends Clock implements Serializable {
        private static final long serialVersionUID = 7430389292664866958L;
         private final Instant instant;
         private final ZoneId zone;
-
         FixedClock(Instant fixedInstant, ZoneId zone) {
             this.instant = fixedInstant;
             this.zone = zone;
@@ -207,14 +164,11 @@ public abstract class Clock {
             return "FixedClock[" + instant + "," + zone + "]";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class OffsetClock extends Clock implements Serializable {
        private static final long serialVersionUID = 2007484719125426256L;
         private final Clock baseClock;
         private final Duration offset;
-
         OffsetClock(Clock baseClock, Duration offset) {
             this.baseClock = baseClock;
             this.offset = offset;
@@ -255,14 +209,11 @@ public abstract class Clock {
             return "OffsetClock[" + baseClock + "," + offset + "]";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class TickClock extends Clock implements Serializable {
         private static final long serialVersionUID = 6504659149906368850L;
         private final Clock baseClock;
         private final long tickNanos;
-
         TickClock(Clock baseClock, long tickNanos) {
             this.baseClock = baseClock;
             this.tickNanos = tickNanos;
@@ -311,5 +262,4 @@ public abstract class Clock {
             return "TickClock[" + baseClock + "," + Duration.ofNanos(tickNanos) + "]";
         }
     }
-
 }

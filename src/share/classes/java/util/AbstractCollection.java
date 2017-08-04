@@ -1,27 +1,13 @@
-
-
 package java.util;
-
-
-
 public abstract class AbstractCollection<E> implements Collection<E> {
-
     protected AbstractCollection() {
     }
-
     // Query Operations
-
-
     public abstract Iterator<E> iterator();
-
     public abstract int size();
-
-
     public boolean isEmpty() {
         return size() == 0;
     }
-
-
     public boolean contains(Object o) {
         Iterator<E> it = iterator();
         if (o==null) {
@@ -35,8 +21,6 @@ public abstract class AbstractCollection<E> implements Collection<E> {
         }
         return false;
     }
-
-
     public Object[] toArray() {
         // Estimate size of array; be prepared to see more or fewer elements
         Object[] r = new Object[size()];
@@ -48,8 +32,6 @@ public abstract class AbstractCollection<E> implements Collection<E> {
         }
         return it.hasNext() ? finishToArray(r, it) : r;
     }
-
-
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
         // Estimate size of array; be prepared to see more or fewer elements
@@ -58,7 +40,6 @@ public abstract class AbstractCollection<E> implements Collection<E> {
                   (T[])java.lang.reflect.Array
                   .newInstance(a.getClass().getComponentType(), size);
         Iterator<E> it = iterator();
-
         for (int i = 0; i < r.length; i++) {
             if (! it.hasNext()) { // fewer elements than expected
                 if (a == r) {
@@ -78,11 +59,7 @@ public abstract class AbstractCollection<E> implements Collection<E> {
         // more elements than expected
         return it.hasNext() ? finishToArray(r, it) : r;
     }
-
-
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
-
-
     @SuppressWarnings("unchecked")
     private static <T> T[] finishToArray(T[] r, Iterator<?> it) {
         int i = r.length;
@@ -100,7 +77,6 @@ public abstract class AbstractCollection<E> implements Collection<E> {
         // trim if overallocated
         return (i == r.length) ? r : Arrays.copyOf(r, i);
     }
-
     private static int hugeCapacity(int minCapacity) {
         if (minCapacity < 0) // overflow
             throw new OutOfMemoryError
@@ -109,15 +85,10 @@ public abstract class AbstractCollection<E> implements Collection<E> {
             Integer.MAX_VALUE :
             MAX_ARRAY_SIZE;
     }
-
     // Modification Operations
-
-
     public boolean add(E e) {
         throw new UnsupportedOperationException();
     }
-
-
     public boolean remove(Object o) {
         Iterator<E> it = iterator();
         if (o==null) {
@@ -137,19 +108,13 @@ public abstract class AbstractCollection<E> implements Collection<E> {
         }
         return false;
     }
-
-
     // Bulk Operations
-
-
     public boolean containsAll(Collection<?> c) {
         for (Object e : c)
             if (!contains(e))
                 return false;
         return true;
     }
-
-
     public boolean addAll(Collection<? extends E> c) {
         boolean modified = false;
         for (E e : c)
@@ -157,8 +122,6 @@ public abstract class AbstractCollection<E> implements Collection<E> {
                 modified = true;
         return modified;
     }
-
-
     public boolean removeAll(Collection<?> c) {
         Objects.requireNonNull(c);
         boolean modified = false;
@@ -171,8 +134,6 @@ public abstract class AbstractCollection<E> implements Collection<E> {
         }
         return modified;
     }
-
-
     public boolean retainAll(Collection<?> c) {
         Objects.requireNonNull(c);
         boolean modified = false;
@@ -185,8 +146,6 @@ public abstract class AbstractCollection<E> implements Collection<E> {
         }
         return modified;
     }
-
-
     public void clear() {
         Iterator<E> it = iterator();
         while (it.hasNext()) {
@@ -194,16 +153,11 @@ public abstract class AbstractCollection<E> implements Collection<E> {
             it.remove();
         }
     }
-
-
     //  String conversion
-
-
     public String toString() {
         Iterator<E> it = iterator();
         if (! it.hasNext())
             return "[]";
-
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         for (;;) {
@@ -214,5 +168,4 @@ public abstract class AbstractCollection<E> implements Collection<E> {
             sb.append(',').append(' ');
         }
     }
-
 }

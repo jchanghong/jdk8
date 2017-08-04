@@ -1,63 +1,24 @@
-
-
 package java.awt.event;
-
 import java.awt.Adjustable;
 import java.awt.AWTEvent;
 import java.lang.annotation.Native;
-
-
-
 public class AdjustmentEvent extends AWTEvent {
-
-
     public static final int ADJUSTMENT_FIRST    = 601;
-
-
     public static final int ADJUSTMENT_LAST     = 601;
-
-
     public static final int ADJUSTMENT_VALUE_CHANGED = ADJUSTMENT_FIRST; //Event.SCROLL_LINE_UP
-
-
     @Native public static final int UNIT_INCREMENT      = 1;
-
-
     @Native public static final int UNIT_DECREMENT      = 2;
-
-
     @Native public static final int BLOCK_DECREMENT     = 3;
-
-
     @Native public static final int BLOCK_INCREMENT     = 4;
-
-
     @Native public static final int TRACK               = 5;
-
-
     Adjustable adjustable;
-
-
     int value;
-
-
     int adjustmentType;
-
-
-
     boolean isAdjusting;
-
-
-
      private static final long serialVersionUID = 5700290645205279921L;
-
-
-
     public AdjustmentEvent(Adjustable source, int id, int type, int value) {
         this(source, id, type, value, false);
     }
-
-
     public AdjustmentEvent(Adjustable source, int id, int type, int value, boolean isAdjusting) {
         super(source, id);
         adjustable = source;
@@ -65,27 +26,18 @@ public class AdjustmentEvent extends AWTEvent {
         this.value = value;
         this.isAdjusting = isAdjusting;
     }
-
-
     public Adjustable getAdjustable() {
         return adjustable;
     }
-
-
     public int getValue() {
         return value;
     }
-
-
     public int getAdjustmentType() {
         return adjustmentType;
     }
-
-
     public boolean getValueIsAdjusting() {
         return isAdjusting;
     }
-
     public String paramString() {
         String typeStr;
         switch(id) {

@@ -1,8 +1,4 @@
-
-
-
 package java.time.temporal;
-
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalTime;
@@ -10,25 +6,13 @@ import java.time.Period;
 import java.time.chrono.ChronoLocalDate;
 import java.time.chrono.ChronoLocalDateTime;
 import java.time.chrono.ChronoZonedDateTime;
-
-
 public interface TemporalUnit {
-
-
     Duration getDuration();
-
-
     boolean isDurationEstimated();
-
     //-----------------------------------------------------------------------
-
     boolean isDateBased();
-
-
     boolean isTimeBased();
-
     //-----------------------------------------------------------------------
-
     default boolean isSupportedBy(Temporal temporal) {
         if (temporal instanceof LocalTime) {
             return isTimeBased();
@@ -53,17 +37,10 @@ public interface TemporalUnit {
             }
         }
     }
-
-
     <R extends Temporal> R addTo(R temporal, long amount);
-
     //-----------------------------------------------------------------------
-
     long between(Temporal temporal1Inclusive, Temporal temporal2Exclusive);
-
     //-----------------------------------------------------------------------
-
     @Override
     String toString();
-
 }

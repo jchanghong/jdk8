@@ -1,70 +1,51 @@
-
-
 package java.lang.invoke;
-
 import java.util.Arrays;
 import static java.lang.invoke.LambdaForm.*;
 import static java.lang.invoke.MethodHandleStatics.*;
-
-
-
 abstract class DelegatingMethodHandle extends MethodHandle {
     protected DelegatingMethodHandle(MethodHandle target) {
         this(target.type(), target);
     }
-
     protected DelegatingMethodHandle(MethodType type, MethodHandle target) {
         super(type, chooseDelegatingForm(target));
     }
-
     protected DelegatingMethodHandle(MethodType type, LambdaForm form) {
         super(type, form);
     }
-
-
     abstract protected MethodHandle getTarget();
-
     @Override
     abstract MethodHandle asTypeUncached(MethodType newType);
-
     @Override
     MemberName internalMemberName() {
         return getTarget().internalMemberName();
     }
-
     @Override
     boolean isInvokeSpecial() {
         return getTarget().isInvokeSpecial();
     }
-
     @Override
     Class<?> internalCallerClass() {
         return getTarget().internalCallerClass();
     }
-
     @Override
     MethodHandle copyWith(MethodType mt, LambdaForm lf) {
         // FIXME: rethink 'copyWith' protocol; it is too low-level for use on all MHs
         throw newIllegalArgumentException("do not use this");
     }
-
     @Override
     String internalProperties() {
         return "\n& Class="+getClass().getSimpleName()+
                "\n& Target="+getTarget().debugString();
     }
-
     @Override
     BoundMethodHandle rebind() {
         return getTarget().rebind();
     }
-
     private static LambdaForm chooseDelegatingForm(MethodHandle target) {
         if (target instanceof SimpleMethodHandle)
             return target.internalForm();  // no need for an indirection
         return makeReinvokerForm(target, MethodTypeForm.LF_DELEGATE, DelegatingMethodHandle.class, NF_getTarget);
     }
-
     static LambdaForm makeReinvokerForm(MethodHandle target,
                                         int whichCache,
                                         Object constraint,
@@ -78,7 +59,6 @@ abstract class DelegatingMethodHandle extends MethodHandle {
         // No pre-action needed.
         return makeReinvokerForm(target, whichCache, constraint, debugString, true, getTargetFn, null);
     }
-
     static LambdaForm makeReinvokerForm(MethodHandle target,
                                         int whichCache,
                                         Object constraint,
@@ -124,7 +104,6 @@ abstract class DelegatingMethodHandle extends MethodHandle {
         }
         return form;
     }
-
     static final NamedFunction NF_getTarget;
     static {
         try {

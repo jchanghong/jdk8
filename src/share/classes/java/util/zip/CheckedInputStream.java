@@ -1,23 +1,14 @@
-
-
 package java.util.zip;
-
 import java.io.FilterInputStream;
 import java.io.InputStream;
 import java.io.IOException;
-
-
 public
 class CheckedInputStream extends FilterInputStream {
     private Checksum cksum;
-
-
     public CheckedInputStream(InputStream in, Checksum cksum) {
         super(in);
         this.cksum = cksum;
     }
-
-
     public int read() throws IOException {
         int b = in.read();
         if (b != -1) {
@@ -25,8 +16,6 @@ class CheckedInputStream extends FilterInputStream {
         }
         return b;
     }
-
-
     public int read(byte[] buf, int off, int len) throws IOException {
         len = in.read(buf, off, len);
         if (len != -1) {
@@ -34,8 +23,6 @@ class CheckedInputStream extends FilterInputStream {
         }
         return len;
     }
-
-
     public long skip(long n) throws IOException {
         byte[] buf = new byte[512];
         long total = 0;
@@ -49,8 +36,6 @@ class CheckedInputStream extends FilterInputStream {
         }
         return total;
     }
-
-
     public Checksum getChecksum() {
         return cksum;
     }

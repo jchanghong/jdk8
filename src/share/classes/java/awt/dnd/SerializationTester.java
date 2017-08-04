@@ -1,13 +1,8 @@
-
-
 package java.awt.dnd;
-
 import java.io.OutputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-
-
 final class SerializationTester {
     private static ObjectOutputStream stream;
     static {
@@ -18,12 +13,10 @@ final class SerializationTester {
         } catch (IOException cannotHappen) {
         }
     }
-
     static boolean test(Object obj) {
         if (!(obj instanceof Serializable)) {
             return false;
         }
-
         try {
             stream.writeObject(obj);
         } catch (IOException e) {
@@ -40,6 +33,5 @@ final class SerializationTester {
         }
         return true;
     }
-
     private SerializationTester() {}
 }

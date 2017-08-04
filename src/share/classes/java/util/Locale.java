@@ -1,9 +1,4 @@
-
-
-
-
 package java.util;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,7 +7,6 @@ import java.io.Serializable;
 import java.security.AccessController;
 import java.text.MessageFormat;
 import java.util.spi.LocaleNameProvider;
-
 import sun.security.action.GetPropertyAction;
 import sun.util.locale.BaseLocale;
 import sun.util.locale.InternalLocaleBuilder;
@@ -27,100 +21,41 @@ import sun.util.locale.provider.LocaleProviderAdapter;
 import sun.util.locale.provider.LocaleResources;
 import sun.util.locale.provider.LocaleServiceProviderPool;
 import sun.util.locale.provider.ResourceBundleBasedAdapter;
-
-
 public final class Locale implements Cloneable, Serializable {
-
     static private final  Cache LOCALECACHE = new Cache();
-
-
     static public final Locale ENGLISH = createConstant("en", "");
-
-
     static public final Locale FRENCH = createConstant("fr", "");
-
-
     static public final Locale GERMAN = createConstant("de", "");
-
-
     static public final Locale ITALIAN = createConstant("it", "");
-
-
     static public final Locale JAPANESE = createConstant("ja", "");
-
-
     static public final Locale KOREAN = createConstant("ko", "");
-
-
     static public final Locale CHINESE = createConstant("zh", "");
-
-
     static public final Locale SIMPLIFIED_CHINESE = createConstant("zh", "CN");
-
-
     static public final Locale TRADITIONAL_CHINESE = createConstant("zh", "TW");
-
-
     static public final Locale FRANCE = createConstant("fr", "FR");
-
-
     static public final Locale GERMANY = createConstant("de", "DE");
-
-
     static public final Locale ITALY = createConstant("it", "IT");
-
-
     static public final Locale JAPAN = createConstant("ja", "JP");
-
-
     static public final Locale KOREA = createConstant("ko", "KR");
-
-
     static public final Locale CHINA = SIMPLIFIED_CHINESE;
-
-
     static public final Locale PRC = SIMPLIFIED_CHINESE;
-
-
     static public final Locale TAIWAN = TRADITIONAL_CHINESE;
-
-
     static public final Locale UK = createConstant("en", "GB");
-
-
     static public final Locale US = createConstant("en", "US");
-
-
     static public final Locale CANADA = createConstant("en", "CA");
-
-
     static public final Locale CANADA_FRENCH = createConstant("fr", "CA");
-
-
     static public final Locale ROOT = createConstant("", "");
-
-
     static public final char PRIVATE_USE_EXTENSION = 'x';
-
-
     static public final char UNICODE_LOCALE_EXTENSION = 'u';
-
-
     static final long serialVersionUID = 9149081749638150636L;
-
-
     private static final int DISPLAY_LANGUAGE = 0;
     private static final int DISPLAY_COUNTRY  = 1;
     private static final int DISPLAY_VARIANT  = 2;
     private static final int DISPLAY_SCRIPT   = 3;
-
-
     private Locale(BaseLocale baseLocale, LocaleExtensions extensions) {
         this.baseLocale = baseLocale;
         this.localeExtensions = extensions;
     }
-
-
     public Locale(String language, String country, String variant) {
         if (language== null || country == null || variant == null) {
             throw new NullPointerException();
@@ -128,66 +63,49 @@ public final class Locale implements Cloneable, Serializable {
         baseLocale = BaseLocale.getInstance(convertOldISOCodes(language), "", country, variant);
         localeExtensions = getCompatibilityExtensions(language, "", country, variant);
     }
-
-
     public Locale(String language, String country) {
         this(language, country, "");
     }
-
-
     public Locale(String language) {
         this(language, "", "");
     }
-
-
     private static Locale createConstant(String lang, String country) {
         BaseLocale base = BaseLocale.createInstance(lang, country);
         return getInstance(base, null);
     }
-
-
     static Locale getInstance(String language, String country, String variant) {
         return getInstance(language, "", country, variant, null);
     }
-
     static Locale getInstance(String language, String script, String country,
                                       String variant, LocaleExtensions extensions) {
         if (language== null || script == null || country == null || variant == null) {
             throw new NullPointerException();
         }
-
         if (extensions == null) {
             extensions = getCompatibilityExtensions(language, script, country, variant);
         }
-
         BaseLocale baseloc = BaseLocale.getInstance(language, script, country, variant);
         return getInstance(baseloc, extensions);
     }
-
     static Locale getInstance(BaseLocale baseloc, LocaleExtensions extensions) {
         LocaleKey key = new LocaleKey(baseloc, extensions);
         return LOCALECACHE.get(key);
     }
-
     private static class Cache extends LocaleObjectCache<LocaleKey, Locale> {
         private Cache() {
         }
-
         @Override
         protected Locale createObject(LocaleKey key) {
             return new Locale(key.base, key.exts);
         }
     }
-
     private static final class LocaleKey {
         private final BaseLocale base;
         private final LocaleExtensions exts;
         private final int hash;
-
         private LocaleKey(BaseLocale baseLocale, LocaleExtensions extensions) {
             base = baseLocale;
             exts = extensions;
-
             // Calculate the hash value here because it's always used.
             int h = base.hashCode();
             if (exts != null) {
@@ -195,7 +113,6 @@ public final class Locale implements Cloneable, Serializable {
             }
             hash = h;
         }
-
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -213,20 +130,15 @@ public final class Locale implements Cloneable, Serializable {
             }
             return exts.equals(other.exts);
         }
-
         @Override
         public int hashCode() {
             return hash;
         }
     }
-
-
     public static Locale getDefault() {
         // do not synchronize this method - see 4071298
         return defaultLocale;
     }
-
-
     public static Locale getDefault(Locale.Category category) {
         // do not synchronize this method - see 4071298
         switch (category) {
@@ -253,7 +165,6 @@ public final class Locale implements Cloneable, Serializable {
         }
         return getDefault();
     }
-
     private static Locale initDefault() {
         String language, region, script, country, variant;
         language = AccessController.doPrivileged(
@@ -280,10 +191,8 @@ public final class Locale implements Cloneable, Serializable {
             variant = AccessController.doPrivileged(
                 new GetPropertyAction("user.variant", ""));
         }
-
         return getInstance(language, script, country, variant, null);
     }
-
     private static Locale initDefault(Locale.Category category) {
         return getInstance(
             AccessController.doPrivileged(
@@ -296,22 +205,17 @@ public final class Locale implements Cloneable, Serializable {
                 new GetPropertyAction(category.variantKey, defaultLocale.getVariant())),
             null);
     }
-
-
     public static synchronized void setDefault(Locale newLocale) {
         setDefault(Category.DISPLAY, newLocale);
         setDefault(Category.FORMAT, newLocale);
         defaultLocale = newLocale;
     }
-
-
     public static synchronized void setDefault(Locale.Category category,
         Locale newLocale) {
         if (category == null)
             throw new NullPointerException("Category cannot be NULL");
         if (newLocale == null)
             throw new NullPointerException("Can't set default locale to NULL");
-
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) sm.checkPermission(new PropertyPermission
                         ("user.language", "write"));
@@ -326,13 +230,9 @@ public final class Locale implements Cloneable, Serializable {
             assert false: "Unknown Category";
         }
     }
-
-
     public static Locale[] getAvailableLocales() {
         return LocaleServiceProviderPool.getAllAvailableLocales();
     }
-
-
     public static String[] getISOCountries() {
         if (isoCountries == null) {
             isoCountries = getISO2Table(LocaleISOData.isoCountryTable);
@@ -341,8 +241,6 @@ public final class Locale implements Cloneable, Serializable {
         System.arraycopy(isoCountries, 0, result, 0, isoCountries.length);
         return result;
     }
-
-
     public static String[] getISOLanguages() {
         if (isoLanguages == null) {
             isoLanguages = getISO2Table(LocaleISOData.isoLanguageTable);
@@ -351,7 +249,6 @@ public final class Locale implements Cloneable, Serializable {
         System.arraycopy(isoLanguages, 0, result, 0, isoLanguages.length);
         return result;
     }
-
     private static String[] getISO2Table(String table) {
         int len = table.length() / 5;
         String[] isoTable = new String[len];
@@ -360,88 +257,60 @@ public final class Locale implements Cloneable, Serializable {
         }
         return isoTable;
     }
-
-
     public String getLanguage() {
         return baseLocale.getLanguage();
     }
-
-
     public String getScript() {
         return baseLocale.getScript();
     }
-
-
     public String getCountry() {
         return baseLocale.getRegion();
     }
-
-
     public String getVariant() {
         return baseLocale.getVariant();
     }
-
-
     public boolean hasExtensions() {
         return localeExtensions != null;
     }
-
-
     public Locale stripExtensions() {
         return hasExtensions() ? Locale.getInstance(baseLocale, null) : this;
     }
-
-
     public String getExtension(char key) {
         if (!LocaleExtensions.isValidKey(key)) {
             throw new IllegalArgumentException("Ill-formed extension key: " + key);
         }
         return hasExtensions() ? localeExtensions.getExtensionValue(key) : null;
     }
-
-
     public Set<Character> getExtensionKeys() {
         if (!hasExtensions()) {
             return Collections.emptySet();
         }
         return localeExtensions.getKeys();
     }
-
-
     public Set<String> getUnicodeLocaleAttributes() {
         if (!hasExtensions()) {
             return Collections.emptySet();
         }
         return localeExtensions.getUnicodeLocaleAttributes();
     }
-
-
     public String getUnicodeLocaleType(String key) {
         if (!isUnicodeExtensionKey(key)) {
             throw new IllegalArgumentException("Ill-formed Unicode locale key: " + key);
         }
         return hasExtensions() ? localeExtensions.getUnicodeLocaleType(key) : null;
     }
-
-
     public Set<String> getUnicodeLocaleKeys() {
         if (localeExtensions == null) {
             return Collections.emptySet();
         }
         return localeExtensions.getUnicodeLocaleKeys();
     }
-
-
     BaseLocale getBaseLocale() {
         return baseLocale;
     }
-
-
      LocaleExtensions getLocaleExtensions() {
          return localeExtensions;
      }
-
-
     @Override
     public final String toString() {
         boolean l = (baseLocale.getLanguage().length() != 0);
@@ -449,7 +318,6 @@ public final class Locale implements Cloneable, Serializable {
         boolean r = (baseLocale.getRegion().length() != 0);
         boolean v = (baseLocale.getVariant().length() != 0);
         boolean e = (localeExtensions != null && localeExtensions.getID().length() != 0);
-
         StringBuilder result = new StringBuilder(baseLocale.getLanguage());
         if (r || (l && (v || s || e))) {
             result.append('_')
@@ -459,12 +327,10 @@ public final class Locale implements Cloneable, Serializable {
             result.append('_')
                 .append(baseLocale.getVariant());
         }
-
         if (s && (l || r)) {
             result.append("_#")
                 .append(baseLocale.getScript());
         }
-
         if (e && (l || r)) {
             result.append('_');
             if (!s) {
@@ -472,49 +338,39 @@ public final class Locale implements Cloneable, Serializable {
             }
             result.append(localeExtensions.getID());
         }
-
         return result.toString();
     }
-
-
     public String toLanguageTag() {
         if (languageTag != null) {
             return languageTag;
         }
-
         LanguageTag tag = LanguageTag.parseLocale(baseLocale, localeExtensions);
         StringBuilder buf = new StringBuilder();
-
         String subtag = tag.getLanguage();
         if (subtag.length() > 0) {
             buf.append(LanguageTag.canonicalizeLanguage(subtag));
         }
-
         subtag = tag.getScript();
         if (subtag.length() > 0) {
             buf.append(LanguageTag.SEP);
             buf.append(LanguageTag.canonicalizeScript(subtag));
         }
-
         subtag = tag.getRegion();
         if (subtag.length() > 0) {
             buf.append(LanguageTag.SEP);
             buf.append(LanguageTag.canonicalizeRegion(subtag));
         }
-
         List<String>subtags = tag.getVariants();
         for (String s : subtags) {
             buf.append(LanguageTag.SEP);
             // preserve casing
             buf.append(s);
         }
-
         subtags = tag.getExtensions();
         for (String s : subtags) {
             buf.append(LanguageTag.SEP);
             buf.append(LanguageTag.canonicalizeExtension(s));
         }
-
         subtag = tag.getPrivateuse();
         if (subtag.length() > 0) {
             if (buf.length() > 0) {
@@ -524,7 +380,6 @@ public final class Locale implements Cloneable, Serializable {
             // preserve casing
             buf.append(subtag);
         }
-
         String langTag = buf.toString();
         synchronized (this) {
             if (languageTag == null) {
@@ -533,8 +388,6 @@ public final class Locale implements Cloneable, Serializable {
         }
         return languageTag;
     }
-
-
     public static Locale forLanguageTag(String languageTag) {
         LanguageTag tag = LanguageTag.parse(languageTag, null);
         InternalLocaleBuilder bldr = new InternalLocaleBuilder();
@@ -547,14 +400,11 @@ public final class Locale implements Cloneable, Serializable {
         }
         return getInstance(base, exts);
     }
-
-
     public String getISO3Language() throws MissingResourceException {
         String lang = baseLocale.getLanguage();
         if (lang.length() == 3) {
             return lang;
         }
-
         String language3 = getISO3Code(lang, LocaleISOData.isoLanguageTable);
         if (language3 == null) {
             throw new MissingResourceException("Couldn't find 3-letter language code for "
@@ -562,8 +412,6 @@ public final class Locale implements Cloneable, Serializable {
         }
         return language3;
     }
-
-
     public String getISO3Country() throws MissingResourceException {
         String country3 = getISO3Code(baseLocale.getRegion(), LocaleISOData.isoCountryTable);
         if (country3 == null) {
@@ -572,13 +420,11 @@ public final class Locale implements Cloneable, Serializable {
         }
         return country3;
     }
-
     private static String getISO3Code(String iso2Code, String table) {
         int codeLength = iso2Code.length();
         if (codeLength == 0) {
             return "";
         }
-
         int tableLength = table.length();
         int index = tableLength;
         if (codeLength == 2) {
@@ -593,46 +439,31 @@ public final class Locale implements Cloneable, Serializable {
         }
         return index < tableLength ? table.substring(index + 2, index + 5) : null;
     }
-
-
     public final String getDisplayLanguage() {
         return getDisplayLanguage(getDefault(Category.DISPLAY));
     }
-
-
     public String getDisplayLanguage(Locale inLocale) {
         return getDisplayString(baseLocale.getLanguage(), inLocale, DISPLAY_LANGUAGE);
     }
-
-
     public String getDisplayScript() {
         return getDisplayScript(getDefault(Category.DISPLAY));
     }
-
-
     public String getDisplayScript(Locale inLocale) {
         return getDisplayString(baseLocale.getScript(), inLocale, DISPLAY_SCRIPT);
     }
-
-
     public final String getDisplayCountry() {
         return getDisplayCountry(getDefault(Category.DISPLAY));
     }
-
-
     public String getDisplayCountry(Locale inLocale) {
         return getDisplayString(baseLocale.getRegion(), inLocale, DISPLAY_COUNTRY);
     }
-
     private String getDisplayString(String code, Locale inLocale, int type) {
         if (code.length() == 0) {
             return "";
         }
-
         if (inLocale == null) {
             throw new NullPointerException();
         }
-
         LocaleServiceProviderPool pool =
             LocaleServiceProviderPool.getPool(LocaleNameProvider.class);
         String key = (type == DISPLAY_VARIANT ? "%%"+code : code);
@@ -642,56 +473,40 @@ public final class Locale implements Cloneable, Serializable {
             if (result != null) {
                 return result;
             }
-
         return code;
     }
-
-
     public final String getDisplayVariant() {
         return getDisplayVariant(getDefault(Category.DISPLAY));
     }
-
-
     public String getDisplayVariant(Locale inLocale) {
         if (baseLocale.getVariant().length() == 0)
             return "";
-
         LocaleResources lr = LocaleProviderAdapter.forJRE().getLocaleResources(inLocale);
-
         String names[] = getDisplayVariantArray(inLocale);
-
         // Get the localized patterns for formatting a list, and use
         // them to format the list.
         return formatList(names,
                           lr.getLocaleName("ListPattern"),
                           lr.getLocaleName("ListCompositionPattern"));
     }
-
-
     public final String getDisplayName() {
         return getDisplayName(getDefault(Category.DISPLAY));
     }
-
-
     public String getDisplayName(Locale inLocale) {
         LocaleResources lr =  LocaleProviderAdapter.forJRE().getLocaleResources(inLocale);
-
         String languageName = getDisplayLanguage(inLocale);
         String scriptName = getDisplayScript(inLocale);
         String countryName = getDisplayCountry(inLocale);
         String[] variantNames = getDisplayVariantArray(inLocale);
-
         // Get the localized patterns for formatting a display name.
         String displayNamePattern = lr.getLocaleName("DisplayNamePattern");
         String listPattern = lr.getLocaleName("ListPattern");
         String listCompositionPattern = lr.getLocaleName("ListCompositionPattern");
-
         // The display name consists of a main name, followed by qualifiers.
         // Typically, the format is "MainName (Qualifier, Qualifier)" but this
         // depends on what pattern is stored in the display locale.
         String   mainName       = null;
         String[] qualifierNames = null;
-
         // The main name is the language, or if there is no language, the script,
         // then if no script, the country. If there is no language/script/country
         // (an anomalous situation) then the display name is simply the variant's
@@ -716,15 +531,12 @@ public final class Locale implements Cloneable, Serializable {
         if (variantNames.length != 0) {
             names.addAll(Arrays.asList(variantNames));
         }
-
         // The first one in the main name
         mainName = names.get(0);
-
         // Others are qualifiers
         int numNames = names.size();
         qualifierNames = (numNames > 1) ?
                 names.subList(1, numNames).toArray(new String[numNames - 1]) : new String[0];
-
         // Create an array whose first element is the number of remaining
         // elements.  This serves as a selector into a ChoiceFormat pattern from
         // the resource.  The second and third elements are the main name and
@@ -739,7 +551,6 @@ public final class Locale implements Cloneable, Serializable {
             // qualifiers.
             qualifierNames.length != 0 ? formatList(qualifierNames, listPattern, listCompositionPattern) : null
         };
-
         if (displayNamePattern != null) {
             return new MessageFormat(displayNamePattern).format(displayNames);
         }
@@ -757,8 +568,6 @@ public final class Locale implements Cloneable, Serializable {
             return result.toString();
         }
     }
-
-
     @Override
     public Object clone()
     {
@@ -769,8 +578,6 @@ public final class Locale implements Cloneable, Serializable {
             throw new InternalError(e);
         }
     }
-
-
     @Override
     public int hashCode() {
         int hc = hashCodeValue;
@@ -783,10 +590,7 @@ public final class Locale implements Cloneable, Serializable {
         }
         return hc;
     }
-
     // Overrides
-
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj)                      // quick check
@@ -802,38 +606,26 @@ public final class Locale implements Cloneable, Serializable {
         }
         return localeExtensions.equals(((Locale)obj).localeExtensions);
     }
-
     // ================= privates =====================================
-
     private transient BaseLocale baseLocale;
     private transient LocaleExtensions localeExtensions;
-
-
     private transient volatile int hashCodeValue = 0;
-
     private volatile static Locale defaultLocale = initDefault();
     private volatile static Locale defaultDisplayLocale = null;
     private volatile static Locale defaultFormatLocale = null;
-
     private transient volatile String languageTag;
-
-
     private String[] getDisplayVariantArray(Locale inLocale) {
         // Split the variant name into tokens separated by '_'.
         StringTokenizer tokenizer = new StringTokenizer(baseLocale.getVariant(), "_");
         String[] names = new String[tokenizer.countTokens()];
-
         // For each variant token, lookup the display name.  If
         // not found, use the variant name itself.
         for (int i=0; i<names.length; ++i) {
             names[i] = getDisplayString(tokenizer.nextToken(),
                                 inLocale, DISPLAY_VARIANT);
         }
-
         return names;
     }
-
-
     private static String formatList(String[] stringList, String listPattern, String listCompositionPattern) {
         // If we have no list patterns, compose the list in a simple,
         // non-localized way.
@@ -847,48 +639,37 @@ public final class Locale implements Cloneable, Serializable {
             }
             return result.toString();
         }
-
         // Compose the list down to three elements if necessary
         if (stringList.length > 3) {
             MessageFormat format = new MessageFormat(listCompositionPattern);
             stringList = composeList(format, stringList);
         }
-
         // Rebuild the argument list with the list length as the first element
         Object[] args = new Object[stringList.length + 1];
         System.arraycopy(stringList, 0, args, 1, stringList.length);
         args[0] = new Integer(stringList.length);
-
         // Format it using the pattern in the resource
         MessageFormat format = new MessageFormat(listPattern);
         return format.format(args);
     }
-
-
     private static String[] composeList(MessageFormat format, String[] list) {
         if (list.length <= 3) return list;
-
         // Use the given format to compose the first two elements into one
         String[] listItems = { list[0], list[1] };
         String newItem = format.format(listItems);
-
         // Form a new list one element shorter
         String[] newList = new String[list.length-1];
         System.arraycopy(list, 2, newList, 1, newList.length-1);
         newList[0] = newItem;
-
         // Recurse
         return composeList(format, newList);
     }
-
     // Duplicate of sun.util.locale.UnicodeLocaleExtension.isKey in order to
     // avoid its class loading.
     private static boolean isUnicodeExtensionKey(String s) {
         // 2alphanum
         return (s.length() == 2) && LocaleUtils.isAlphaNumericString(s);
     }
-
-
     private static final ObjectStreamField[] serialPersistentFields = {
         new ObjectStreamField("language", String.class),
         new ObjectStreamField("country", String.class),
@@ -897,8 +678,6 @@ public final class Locale implements Cloneable, Serializable {
         new ObjectStreamField("script", String.class),
         new ObjectStreamField("extensions", String.class),
     };
-
-
     private void writeObject(ObjectOutputStream out) throws IOException {
         ObjectOutputStream.PutField fields = out.putFields();
         fields.put("language", baseLocale.getLanguage());
@@ -909,8 +688,6 @@ public final class Locale implements Cloneable, Serializable {
         fields.put("hashcode", -1); // place holder just for backward support
         out.writeFields();
     }
-
-
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         ObjectInputStream.GetField fields = in.readFields();
         String language = (String)fields.get("language", "");
@@ -931,17 +708,12 @@ public final class Locale implements Cloneable, Serializable {
             localeExtensions = null;
         }
     }
-
-
     private Object readResolve() throws java.io.ObjectStreamException {
         return getInstance(baseLocale.getLanguage(), baseLocale.getScript(),
                 baseLocale.getRegion(), baseLocale.getVariant(), localeExtensions);
     }
-
     private static volatile String[] isoLanguages = null;
-
     private static volatile String[] isoCountries = null;
-
     private static String convertOldISOCodes(String language) {
         // we accept both the old and the new ISO codes for the languages whose ISO
         // codes have changed, but we always store the OLD code, for backward compatibility
@@ -956,7 +728,6 @@ public final class Locale implements Cloneable, Serializable {
             return language;
         }
     }
-
     private static LocaleExtensions getCompatibilityExtensions(String language,
                                                                String script,
                                                                String country,
@@ -978,12 +749,9 @@ public final class Locale implements Cloneable, Serializable {
         }
         return extensions;
     }
-
-
     private static class LocaleNameGetter
         implements LocaleServiceProviderPool.LocalizedObjectGetter<LocaleNameProvider, String> {
         private static final LocaleNameGetter INSTANCE = new LocaleNameGetter();
-
         @Override
         public String getObject(LocaleNameProvider localeNameProvider,
                                 Locale locale,
@@ -992,7 +760,6 @@ public final class Locale implements Cloneable, Serializable {
             assert params.length == 2;
             int type = (Integer)params[0];
             String code = (String)params[1];
-
             switch(type) {
             case DISPLAY_LANGUAGE:
                 return localeNameProvider.getDisplayLanguage(code, locale);
@@ -1005,49 +772,34 @@ public final class Locale implements Cloneable, Serializable {
             default:
                 assert false; // shouldn't happen
             }
-
             return null;
         }
     }
-
-
     public enum Category {
-
-
         DISPLAY("user.language.display",
                 "user.script.display",
                 "user.country.display",
                 "user.variant.display"),
-
-
         FORMAT("user.language.format",
                "user.script.format",
                "user.country.format",
                "user.variant.format");
-
         Category(String languageKey, String scriptKey, String countryKey, String variantKey) {
             this.languageKey = languageKey;
             this.scriptKey = scriptKey;
             this.countryKey = countryKey;
             this.variantKey = variantKey;
         }
-
         final String languageKey;
         final String scriptKey;
         final String countryKey;
         final String variantKey;
     }
-
-
     public static final class Builder {
         private final InternalLocaleBuilder localeBuilder;
-
-
         public Builder() {
             localeBuilder = new InternalLocaleBuilder();
         }
-
-
         public Builder setLocale(Locale locale) {
             try {
                 localeBuilder.setLocale(locale.baseLocale, locale.localeExtensions);
@@ -1056,8 +808,6 @@ public final class Locale implements Cloneable, Serializable {
             }
             return this;
         }
-
-
         public Builder setLanguageTag(String languageTag) {
             ParseStatus sts = new ParseStatus();
             LanguageTag tag = LanguageTag.parse(languageTag, sts);
@@ -1067,8 +817,6 @@ public final class Locale implements Cloneable, Serializable {
             localeBuilder.setLanguageTag(tag);
             return this;
         }
-
-
         public Builder setLanguage(String language) {
             try {
                 localeBuilder.setLanguage(language);
@@ -1077,8 +825,6 @@ public final class Locale implements Cloneable, Serializable {
             }
             return this;
         }
-
-
         public Builder setScript(String script) {
             try {
                 localeBuilder.setScript(script);
@@ -1087,8 +833,6 @@ public final class Locale implements Cloneable, Serializable {
             }
             return this;
         }
-
-
         public Builder setRegion(String region) {
             try {
                 localeBuilder.setRegion(region);
@@ -1097,8 +841,6 @@ public final class Locale implements Cloneable, Serializable {
             }
             return this;
         }
-
-
         public Builder setVariant(String variant) {
             try {
                 localeBuilder.setVariant(variant);
@@ -1107,8 +849,6 @@ public final class Locale implements Cloneable, Serializable {
             }
             return this;
         }
-
-
         public Builder setExtension(char key, String value) {
             try {
                 localeBuilder.setExtension(key, value);
@@ -1117,8 +857,6 @@ public final class Locale implements Cloneable, Serializable {
             }
             return this;
         }
-
-
         public Builder setUnicodeLocaleKeyword(String key, String type) {
             try {
                 localeBuilder.setUnicodeLocaleKeyword(key, type);
@@ -1127,8 +865,6 @@ public final class Locale implements Cloneable, Serializable {
             }
             return this;
         }
-
-
         public Builder addUnicodeLocaleAttribute(String attribute) {
             try {
                 localeBuilder.addUnicodeLocaleAttribute(attribute);
@@ -1137,8 +873,6 @@ public final class Locale implements Cloneable, Serializable {
             }
             return this;
         }
-
-
         public Builder removeUnicodeLocaleAttribute(String attribute) {
             try {
                 localeBuilder.removeUnicodeLocaleAttribute(attribute);
@@ -1147,20 +881,14 @@ public final class Locale implements Cloneable, Serializable {
             }
             return this;
         }
-
-
         public Builder clear() {
             localeBuilder.clear();
             return this;
         }
-
-
         public Builder clearExtensions() {
             localeBuilder.clearExtensions();
             return this;
         }
-
-
         public Locale build() {
             BaseLocale baseloc = localeBuilder.getBaseLocale();
             LocaleExtensions extensions = localeBuilder.getLocaleExtensions();
@@ -1171,45 +899,22 @@ public final class Locale implements Cloneable, Serializable {
             return Locale.getInstance(baseloc, extensions);
         }
     }
-
-
     public static enum FilteringMode {
-
         AUTOSELECT_FILTERING,
-
-
         EXTENDED_FILTERING,
-
-
         IGNORE_EXTENDED_RANGES,
-
-
         MAP_EXTENDED_RANGES,
-
-
         REJECT_EXTENDED_RANGES
     };
-
-
     public static final class LanguageRange {
-
-
         public static final double MAX_WEIGHT = 1.0;
-
-
         public static final double MIN_WEIGHT = 0.0;
-
         private final String range;
         private final double weight;
-
         private volatile int hash = 0;
-
-
         public LanguageRange(String range) {
             this(range, MAX_WEIGHT);
         }
-
-
         public LanguageRange(String range, double weight) {
             if (range == null) {
                 throw new NullPointerException();
@@ -1217,9 +922,7 @@ public final class Locale implements Cloneable, Serializable {
             if (weight < MIN_WEIGHT || weight > MAX_WEIGHT) {
                 throw new IllegalArgumentException("weight=" + weight);
             }
-
             range = range.toLowerCase();
-
             // Do syntax check.
             boolean isIllFormed = false;
             String[] subtags = range.split("-");
@@ -1237,11 +940,9 @@ public final class Locale implements Cloneable, Serializable {
             if (isIllFormed) {
                 throw new IllegalArgumentException("range=" + range);
             }
-
             this.range = range;
             this.weight = weight;
         }
-
         private static boolean isSubtagIllFormed(String subtag,
                                                  boolean isFirstSubtag) {
             if (subtag.equals("") || subtag.length() > 8) {
@@ -1265,36 +966,24 @@ public final class Locale implements Cloneable, Serializable {
             }
             return false;
         }
-
-
         public String getRange() {
             return range;
         }
-
-
         public double getWeight() {
             return weight;
         }
-
-
         public static List<LanguageRange> parse(String ranges) {
             return LocaleMatcher.parse(ranges);
         }
-
-
         public static List<LanguageRange> parse(String ranges,
                                                 Map<String, List<String>> map) {
             return mapEquivalents(parse(ranges), map);
         }
-
-
         public static List<LanguageRange> mapEquivalents(
                                               List<LanguageRange>priorityList,
                                               Map<String, List<String>> map) {
             return LocaleMatcher.mapEquivalents(priorityList, map);
         }
-
-
         @Override
         public int hashCode() {
             if (hash == 0) {
@@ -1306,8 +995,6 @@ public final class Locale implements Cloneable, Serializable {
             }
             return hash;
         }
-
-
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -1322,43 +1009,30 @@ public final class Locale implements Cloneable, Serializable {
                    && weight == other.weight;
         }
     }
-
-
     public static List<Locale> filter(List<LanguageRange> priorityList,
                                       Collection<Locale> locales,
                                       FilteringMode mode) {
         return LocaleMatcher.filter(priorityList, locales, mode);
     }
-
-
     public static List<Locale> filter(List<LanguageRange> priorityList,
                                       Collection<Locale> locales) {
         return filter(priorityList, locales, FilteringMode.AUTOSELECT_FILTERING);
     }
-
-
     public static List<String> filterTags(List<LanguageRange> priorityList,
                                           Collection<String> tags,
                                           FilteringMode mode) {
         return LocaleMatcher.filterTags(priorityList, tags, mode);
     }
-
-
     public static List<String> filterTags(List<LanguageRange> priorityList,
                                           Collection<String> tags) {
         return filterTags(priorityList, tags, FilteringMode.AUTOSELECT_FILTERING);
     }
-
-
     public static Locale lookup(List<LanguageRange> priorityList,
                                 Collection<Locale> locales) {
         return LocaleMatcher.lookup(priorityList, locales);
     }
-
-
     public static String lookupTag(List<LanguageRange> priorityList,
                                    Collection<String> tags) {
         return LocaleMatcher.lookupTag(priorityList, tags);
     }
-
 }

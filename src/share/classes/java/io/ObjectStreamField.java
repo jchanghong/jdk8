@@ -1,36 +1,20 @@
-
-
 package java.io;
-
 import java.lang.reflect.Field;
 import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
 import sun.reflect.misc.ReflectUtil;
-
-
 public class ObjectStreamField
     implements Comparable<Object>
 {
-
-
     private final String name;
-
     private final String signature;
-
     private final Class<?> type;
-
     private final boolean unshared;
-
     private final Field field;
-
     private int offset = 0;
-
-
     public ObjectStreamField(String name, Class<?> type) {
         this(name, type, false);
     }
-
-
     public ObjectStreamField(String name, Class<?> type, boolean unshared) {
         if (name == null) {
             throw new NullPointerException();
@@ -41,8 +25,6 @@ public class ObjectStreamField
         signature = getClassSignature(type).intern();
         field = null;
     }
-
-
     ObjectStreamField(String name, String signature, boolean unshared) {
         if (name == null) {
             throw new NullPointerException();
@@ -51,7 +33,6 @@ public class ObjectStreamField
         this.signature = signature.intern();
         this.unshared = unshared;
         field = null;
-
         switch (signature.charAt(0)) {
             case 'Z': type = Boolean.TYPE; break;
             case 'B': type = Byte.TYPE; break;
@@ -66,8 +47,6 @@ public class ObjectStreamField
             default: throw new IllegalArgumentException("illegal signature");
         }
     }
-
-
     ObjectStreamField(Field field, boolean unshared, boolean showType) {
         this.field = field;
         this.unshared = unshared;
@@ -76,13 +55,9 @@ public class ObjectStreamField
         type = (showType || ftype.isPrimitive()) ? ftype : Object.class;
         signature = getClassSignature(ftype).intern();
     }
-
-
     public String getName() {
         return name;
     }
-
-
     @CallerSensitive
     public Class<?> getType() {
         if (System.getSecurityManager() != null) {
@@ -93,44 +68,30 @@ public class ObjectStreamField
         }
         return type;
     }
-
-
     // REMIND: deprecate?
     public char getTypeCode() {
         return signature.charAt(0);
     }
-
-
     // REMIND: deprecate?
     public String getTypeString() {
         return isPrimitive() ? null : signature;
     }
-
-
     // REMIND: deprecate?
     public int getOffset() {
         return offset;
     }
-
-
     // REMIND: deprecate?
     protected void setOffset(int offset) {
         this.offset = offset;
     }
-
-
     // REMIND: deprecate?
     public boolean isPrimitive() {
         char tcode = signature.charAt(0);
         return ((tcode != 'L') && (tcode != '['));
     }
-
-
     public boolean isUnshared() {
         return unshared;
     }
-
-
     // REMIND: deprecate?
     public int compareTo(Object obj) {
         ObjectStreamField other = (ObjectStreamField) obj;
@@ -140,23 +101,15 @@ public class ObjectStreamField
         }
         return name.compareTo(other.name);
     }
-
-
     public String toString() {
         return signature + ' ' + name;
     }
-
-
     Field getField() {
         return field;
     }
-
-
     String getSignature() {
         return signature;
     }
-
-
     private static String getClassSignature(Class<?> cl) {
         StringBuilder sbuf = new StringBuilder();
         while (cl.isArray()) {

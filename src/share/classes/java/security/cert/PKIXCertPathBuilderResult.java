@@ -1,16 +1,8 @@
-
-
 package java.security.cert;
-
 import java.security.PublicKey;
-
-
 public class PKIXCertPathBuilderResult extends PKIXCertPathValidatorResult
     implements CertPathBuilderResult {
-
     private CertPath certPath;
-
-
     public PKIXCertPathBuilderResult(CertPath certPath,
         TrustAnchor trustAnchor, PolicyNode policyTree,
         PublicKey subjectPublicKey)
@@ -20,13 +12,9 @@ public class PKIXCertPathBuilderResult extends PKIXCertPathValidatorResult
             throw new NullPointerException("certPath must be non-null");
         this.certPath = certPath;
     }
-
-
     public CertPath getCertPath() {
         return certPath;
     }
-
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("PKIXCertPathBuilderResult: [\n");

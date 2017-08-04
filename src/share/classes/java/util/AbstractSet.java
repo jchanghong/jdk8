@@ -1,21 +1,11 @@
-
-
 package java.util;
-
-
-
 public abstract class AbstractSet<E> extends AbstractCollection<E> implements Set<E> {
-
     protected AbstractSet() {
     }
-
     // Comparison and hashing
-
-
     public boolean equals(Object o) {
         if (o == this)
             return true;
-
         if (!(o instanceof Set))
             return false;
         Collection<?> c = (Collection<?>) o;
@@ -29,8 +19,6 @@ public abstract class AbstractSet<E> extends AbstractCollection<E> implements Se
             return false;
         }
     }
-
-
     public int hashCode() {
         int h = 0;
         Iterator<E> i = iterator();
@@ -41,12 +29,9 @@ public abstract class AbstractSet<E> extends AbstractCollection<E> implements Se
         }
         return h;
     }
-
-
     public boolean removeAll(Collection<?> c) {
         Objects.requireNonNull(c);
         boolean modified = false;
-
         if (size() > c.size()) {
             for (Iterator<?> i = c.iterator(); i.hasNext(); )
                 modified |= remove(i.next());
@@ -60,5 +45,4 @@ public abstract class AbstractSet<E> extends AbstractCollection<E> implements Se
         }
         return modified;
     }
-
 }

@@ -1,7 +1,4 @@
-
-
 package java.lang;
-
 abstract class CharacterData {
     abstract int getProperties(int ch);
     abstract int getType(int ch);
@@ -18,38 +15,30 @@ abstract class CharacterData {
     abstract int digit(int ch, int radix);
     abstract int getNumericValue(int ch);
     abstract byte getDirectionality(int ch);
-
     //need to implement for JSR204
     int toUpperCaseEx(int ch) {
         return toUpperCase(ch);
     }
-
     char[] toUpperCaseCharArray(int ch) {
         return null;
     }
-
     boolean isOtherLowercase(int ch) {
         return false;
     }
-
     boolean isOtherUppercase(int ch) {
         return false;
     }
-
     boolean isOtherAlphabetic(int ch) {
         return false;
     }
-
     boolean isIdeographic(int ch) {
         return false;
     }
-
     // Character <= 0xff (basic latin) is handled by internal fast-path
     // to avoid initializing large tables.
     // Note: performance of this "fast-path" code may be sub-optimal
     // in negative cases for some accessors due to complicated ranges.
     // Should revisit after optimization of table initialization.
-
     static final CharacterData of(int ch) {
         if (ch >>> 8 == 0) {     // fast-path
             return CharacterDataLatin1.instance;

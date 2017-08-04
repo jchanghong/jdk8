@@ -1,37 +1,17 @@
-
-
 package java.awt.event;
-
 import java.awt.Component;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import sun.awt.AWTAccessor;
-
-
 public class KeyEvent extends InputEvent {
-
-
     private boolean isProxyActive = false;
-
-
     public static final int KEY_FIRST = 400;
-
-
     public static final int KEY_LAST  = 402;
-
-
     public static final int KEY_TYPED = KEY_FIRST;
-
-
     public static final int KEY_PRESSED = 1 + KEY_FIRST; //Event.KEY_PRESS
-
-
     public static final int KEY_RELEASED = 2 + KEY_FIRST; //Event.KEY_RELEASE
-
-
-
     public static final int VK_ENTER          = '\n';
     public static final int VK_BACK_SPACE     = '\b';
     public static final int VK_TAB            = '\t';
@@ -48,32 +28,14 @@ public class KeyEvent extends InputEvent {
     public static final int VK_PAGE_DOWN      = 0x22;
     public static final int VK_END            = 0x23;
     public static final int VK_HOME           = 0x24;
-
-
     public static final int VK_LEFT           = 0x25;
-
-
     public static final int VK_UP             = 0x26;
-
-
     public static final int VK_RIGHT          = 0x27;
-
-
     public static final int VK_DOWN           = 0x28;
-
-
     public static final int VK_COMMA          = 0x2C;
-
-
     public static final int VK_MINUS          = 0x2D;
-
-
     public static final int VK_PERIOD         = 0x2E;
-
-
     public static final int VK_SLASH          = 0x2F;
-
-
     public static final int VK_0              = 0x30;
     public static final int VK_1              = 0x31;
     public static final int VK_2              = 0x32;
@@ -84,14 +46,8 @@ public class KeyEvent extends InputEvent {
     public static final int VK_7              = 0x37;
     public static final int VK_8              = 0x38;
     public static final int VK_9              = 0x39;
-
-
     public static final int VK_SEMICOLON      = 0x3B;
-
-
     public static final int VK_EQUALS         = 0x3D;
-
-
     public static final int VK_A              = 0x41;
     public static final int VK_B              = 0x42;
     public static final int VK_C              = 0x43;
@@ -118,16 +74,9 @@ public class KeyEvent extends InputEvent {
     public static final int VK_X              = 0x58;
     public static final int VK_Y              = 0x59;
     public static final int VK_Z              = 0x5A;
-
-
     public static final int VK_OPEN_BRACKET   = 0x5B;
-
-
     public static final int VK_BACK_SLASH     = 0x5C;
-
-
     public static final int VK_CLOSE_BRACKET  = 0x5D;
-
     public static final int VK_NUMPAD0        = 0x60;
     public static final int VK_NUMPAD1        = 0x61;
     public static final int VK_NUMPAD2        = 0x62;
@@ -140,395 +89,163 @@ public class KeyEvent extends InputEvent {
     public static final int VK_NUMPAD9        = 0x69;
     public static final int VK_MULTIPLY       = 0x6A;
     public static final int VK_ADD            = 0x6B;
-
-
     public static final int VK_SEPARATER      = 0x6C;
-
-
     public static final int VK_SEPARATOR      = VK_SEPARATER;
-
     public static final int VK_SUBTRACT       = 0x6D;
     public static final int VK_DECIMAL        = 0x6E;
     public static final int VK_DIVIDE         = 0x6F;
     public static final int VK_DELETE         = 0x7F;
     public static final int VK_NUM_LOCK       = 0x90;
     public static final int VK_SCROLL_LOCK    = 0x91;
-
-
     public static final int VK_F1             = 0x70;
-
-
     public static final int VK_F2             = 0x71;
-
-
     public static final int VK_F3             = 0x72;
-
-
     public static final int VK_F4             = 0x73;
-
-
     public static final int VK_F5             = 0x74;
-
-
     public static final int VK_F6             = 0x75;
-
-
     public static final int VK_F7             = 0x76;
-
-
     public static final int VK_F8             = 0x77;
-
-
     public static final int VK_F9             = 0x78;
-
-
     public static final int VK_F10            = 0x79;
-
-
     public static final int VK_F11            = 0x7A;
-
-
     public static final int VK_F12            = 0x7B;
-
-
-
     public static final int VK_F13            = 0xF000;
-
-
     public static final int VK_F14            = 0xF001;
-
-
     public static final int VK_F15            = 0xF002;
-
-
     public static final int VK_F16            = 0xF003;
-
-
     public static final int VK_F17            = 0xF004;
-
-
     public static final int VK_F18            = 0xF005;
-
-
     public static final int VK_F19            = 0xF006;
-
-
     public static final int VK_F20            = 0xF007;
-
-
     public static final int VK_F21            = 0xF008;
-
-
     public static final int VK_F22            = 0xF009;
-
-
     public static final int VK_F23            = 0xF00A;
-
-
     public static final int VK_F24            = 0xF00B;
-
     public static final int VK_PRINTSCREEN    = 0x9A;
     public static final int VK_INSERT         = 0x9B;
     public static final int VK_HELP           = 0x9C;
     public static final int VK_META           = 0x9D;
-
     public static final int VK_BACK_QUOTE     = 0xC0;
     public static final int VK_QUOTE          = 0xDE;
-
-
     public static final int VK_KP_UP          = 0xE0;
-
-
     public static final int VK_KP_DOWN        = 0xE1;
-
-
     public static final int VK_KP_LEFT        = 0xE2;
-
-
     public static final int VK_KP_RIGHT       = 0xE3;
-
-
-
     public static final int VK_DEAD_GRAVE               = 0x80;
-
     public static final int VK_DEAD_ACUTE               = 0x81;
-
     public static final int VK_DEAD_CIRCUMFLEX          = 0x82;
-
     public static final int VK_DEAD_TILDE               = 0x83;
-
     public static final int VK_DEAD_MACRON              = 0x84;
-
     public static final int VK_DEAD_BREVE               = 0x85;
-
     public static final int VK_DEAD_ABOVEDOT            = 0x86;
-
     public static final int VK_DEAD_DIAERESIS           = 0x87;
-
     public static final int VK_DEAD_ABOVERING           = 0x88;
-
     public static final int VK_DEAD_DOUBLEACUTE         = 0x89;
-
     public static final int VK_DEAD_CARON               = 0x8a;
-
     public static final int VK_DEAD_CEDILLA             = 0x8b;
-
     public static final int VK_DEAD_OGONEK              = 0x8c;
-
     public static final int VK_DEAD_IOTA                = 0x8d;
-
     public static final int VK_DEAD_VOICED_SOUND        = 0x8e;
-
     public static final int VK_DEAD_SEMIVOICED_SOUND    = 0x8f;
-
-
     public static final int VK_AMPERSAND                = 0x96;
-
     public static final int VK_ASTERISK                 = 0x97;
-
     public static final int VK_QUOTEDBL                 = 0x98;
-
     public static final int VK_LESS                     = 0x99;
-
-
     public static final int VK_GREATER                  = 0xa0;
-
     public static final int VK_BRACELEFT                = 0xa1;
-
     public static final int VK_BRACERIGHT               = 0xa2;
-
-
     public static final int VK_AT                       = 0x0200;
-
-
     public static final int VK_COLON                    = 0x0201;
-
-
     public static final int VK_CIRCUMFLEX               = 0x0202;
-
-
     public static final int VK_DOLLAR                   = 0x0203;
-
-
     public static final int VK_EURO_SIGN                = 0x0204;
-
-
     public static final int VK_EXCLAMATION_MARK         = 0x0205;
-
-
     public static final int VK_INVERTED_EXCLAMATION_MARK = 0x0206;
-
-
     public static final int VK_LEFT_PARENTHESIS         = 0x0207;
-
-
     public static final int VK_NUMBER_SIGN              = 0x0208;
-
-
     public static final int VK_PLUS                     = 0x0209;
-
-
     public static final int VK_RIGHT_PARENTHESIS        = 0x020A;
-
-
     public static final int VK_UNDERSCORE               = 0x020B;
-
-
     public static final int VK_WINDOWS                  = 0x020C;
-
-
     public static final int VK_CONTEXT_MENU             = 0x020D;
-
-
-
-
     public static final int VK_FINAL                    = 0x0018;
-
-
-
     public static final int VK_CONVERT                  = 0x001C;
-
-
-
     public static final int VK_NONCONVERT               = 0x001D;
-
-
-
     public static final int VK_ACCEPT                   = 0x001E;
-
-
     public static final int VK_MODECHANGE               = 0x001F;
-
-
     public static final int VK_KANA                     = 0x0015;
-
-
     public static final int VK_KANJI                    = 0x0019;
-
-
-
     public static final int VK_ALPHANUMERIC             = 0x00F0;
-
-
-
     public static final int VK_KATAKANA                 = 0x00F1;
-
-
-
     public static final int VK_HIRAGANA                 = 0x00F2;
-
-
-
     public static final int VK_FULL_WIDTH               = 0x00F3;
-
-
-
     public static final int VK_HALF_WIDTH               = 0x00F4;
-
-
-
     public static final int VK_ROMAN_CHARACTERS         = 0x00F5;
-
-
-
     public static final int VK_ALL_CANDIDATES           = 0x0100;
-
-
-
     public static final int VK_PREVIOUS_CANDIDATE       = 0x0101;
-
-
-
     public static final int VK_CODE_INPUT               = 0x0102;
-
-
-
     public static final int VK_JAPANESE_KATAKANA        = 0x0103;
-
-
-
     public static final int VK_JAPANESE_HIRAGANA        = 0x0104;
-
-
-
     public static final int VK_JAPANESE_ROMAN           = 0x0105;
-
-
-
     public static final int VK_KANA_LOCK                = 0x0106;
-
-
-
     public static final int VK_INPUT_METHOD_ON_OFF      = 0x0107;
-
-
-
     public static final int VK_CUT                      = 0xFFD1;
-
     public static final int VK_COPY                     = 0xFFCD;
-
     public static final int VK_PASTE                    = 0xFFCF;
-
     public static final int VK_UNDO                     = 0xFFCB;
-
     public static final int VK_AGAIN                    = 0xFFC9;
-
     public static final int VK_FIND                     = 0xFFD0;
-
     public static final int VK_PROPS                    = 0xFFCA;
-
     public static final int VK_STOP                     = 0xFFC8;
-
-
     public static final int VK_COMPOSE                  = 0xFF20;
-
-
     public static final int VK_ALT_GRAPH                = 0xFF7E;
-
-
     public static final int VK_BEGIN                    = 0xFF58;
-
-
     public static final int VK_UNDEFINED      = 0x0;
-
-
     public static final char CHAR_UNDEFINED   = 0xFFFF;
-
-
     public static final int KEY_LOCATION_UNKNOWN  = 0;
-
-
     public static final int KEY_LOCATION_STANDARD = 1;
-
-
     public static final int KEY_LOCATION_LEFT     = 2;
-
-
     public static final int KEY_LOCATION_RIGHT    = 3;
-
-
     public static final int KEY_LOCATION_NUMPAD   = 4;
-
-
     int  keyCode;
-
-
     char keyChar;
-
-
     int keyLocation;
-
     //set from native code.
     private transient long rawCode = 0;
     private transient long primaryLevelUnicode = 0;
     private transient long scancode = 0; // for MS Windows only
     private transient long extendedKeyCode = 0;
-
-
     private static final long serialVersionUID = -2352130953028126954L;
-
     static {
-
         NativeLibLoader.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
             initIDs();
         }
-
         AWTAccessor.setKeyEventAccessor(
             new AWTAccessor.KeyEventAccessor() {
                 public void setRawCode(KeyEvent ev, long rawCode) {
                     ev.rawCode = rawCode;
                 }
-
                 public void setPrimaryLevelUnicode(KeyEvent ev,
                                                    long primaryLevelUnicode) {
                     ev.primaryLevelUnicode = primaryLevelUnicode;
                 }
-
                 public void setExtendedKeyCode(KeyEvent ev,
                                                long extendedKeyCode) {
                     ev.extendedKeyCode = extendedKeyCode;
                 }
-
                 public Component getOriginalSource( KeyEvent ev ) {
                     return ev.originalSource;
                 }
             });
     }
-
-
     private static native void initIDs();
-
-
     private Component originalSource;
-
     private KeyEvent(Component source, int id, long when, int modifiers,
                     int keyCode, char keyChar, int keyLocation, boolean isProxyActive) {
         this(source, id, when, modifiers, keyCode, keyChar, keyLocation);
         this.isProxyActive = isProxyActive;
     }
-
-
     public KeyEvent(Component source, int id, long when, int modifiers,
                     int keyCode, char keyChar, int keyLocation) {
         super(source, id, when, modifiers);
@@ -543,10 +260,8 @@ public class KeyEvent extends InputEvent {
                 throw new IllegalArgumentException("invalid keyLocation");
             }
         }
-
         this.keyCode = keyCode;
         this.keyChar = keyChar;
-
         if ((keyLocation < KEY_LOCATION_UNKNOWN) ||
             (keyLocation > KEY_LOCATION_NUMPAD)) {
             throw new IllegalArgumentException("invalid keyLocation");
@@ -559,42 +274,28 @@ public class KeyEvent extends InputEvent {
         }
         originalSource = source;
     }
-
-
     public KeyEvent(Component source, int id, long when, int modifiers,
                     int keyCode, char keyChar) {
         this(source, id, when, modifiers, keyCode, keyChar,
           KEY_LOCATION_UNKNOWN);
     }
-
-
     @Deprecated
     public KeyEvent(Component source, int id, long when, int modifiers,
                     int keyCode) {
         this(source, id, when, modifiers, keyCode, (char)keyCode);
     }
-
-
     public int getKeyCode() {
         return keyCode;
     }
-
-
     public void setKeyCode(int keyCode) {
         this.keyCode = keyCode;
     }
-
-
     public char getKeyChar() {
         return keyChar;
     }
-
-
     public void setKeyChar(char keyChar) {
         this.keyChar = keyChar;
     }
-
-
     @Deprecated
     public void setModifiers(int modifiers) {
         this.modifiers = modifiers;
@@ -604,19 +305,14 @@ public class KeyEvent extends InputEvent {
             setOldModifiers();
         }
     }
-
-
     public int getKeyLocation() {
         return keyLocation;
     }
-
-
     public static String getKeyText(int keyCode) {
         if (keyCode >= VK_0 && keyCode <= VK_9 ||
             keyCode >= VK_A && keyCode <= VK_Z) {
             return String.valueOf((char)keyCode);
         }
-
         switch(keyCode) {
           case VK_ENTER: return Toolkit.getProperty("AWT.enter", "Enter");
           case VK_BACK_SPACE: return Toolkit.getProperty("AWT.backSpace", "Backspace");
@@ -637,14 +333,12 @@ public class KeyEvent extends InputEvent {
           case VK_RIGHT: return Toolkit.getProperty("AWT.right", "Right");
           case VK_DOWN: return Toolkit.getProperty("AWT.down", "Down");
           case VK_BEGIN: return Toolkit.getProperty("AWT.begin", "Begin");
-
           // modifiers
           case VK_SHIFT: return Toolkit.getProperty("AWT.shift", "Shift");
           case VK_CONTROL: return Toolkit.getProperty("AWT.control", "Control");
           case VK_ALT: return Toolkit.getProperty("AWT.alt", "Alt");
           case VK_META: return Toolkit.getProperty("AWT.meta", "Meta");
           case VK_ALT_GRAPH: return Toolkit.getProperty("AWT.altGraph", "Alt Graph");
-
           // punctuation
           case VK_COMMA: return Toolkit.getProperty("AWT.comma", "Comma");
           case VK_PERIOD: return Toolkit.getProperty("AWT.period", "Period");
@@ -654,7 +348,6 @@ public class KeyEvent extends InputEvent {
           case VK_OPEN_BRACKET: return Toolkit.getProperty("AWT.openBracket", "Open Bracket");
           case VK_BACK_SLASH: return Toolkit.getProperty("AWT.backSlash", "Back Slash");
           case VK_CLOSE_BRACKET: return Toolkit.getProperty("AWT.closeBracket", "Close Bracket");
-
           // numpad numeric keys handled below
           case VK_MULTIPLY: return Toolkit.getProperty("AWT.multiply", "NumPad *");
           case VK_ADD: return Toolkit.getProperty("AWT.add", "NumPad +");
@@ -665,10 +358,8 @@ public class KeyEvent extends InputEvent {
           case VK_DELETE: return Toolkit.getProperty("AWT.delete", "Delete");
           case VK_NUM_LOCK: return Toolkit.getProperty("AWT.numLock", "Num Lock");
           case VK_SCROLL_LOCK: return Toolkit.getProperty("AWT.scrollLock", "Scroll Lock");
-
           case VK_WINDOWS: return Toolkit.getProperty("AWT.windows", "Windows");
           case VK_CONTEXT_MENU: return Toolkit.getProperty("AWT.context", "Context Menu");
-
           case VK_F1: return Toolkit.getProperty("AWT.f1", "F1");
           case VK_F2: return Toolkit.getProperty("AWT.f2", "F2");
           case VK_F3: return Toolkit.getProperty("AWT.f3", "F3");
@@ -693,18 +384,15 @@ public class KeyEvent extends InputEvent {
           case VK_F22: return Toolkit.getProperty("AWT.f22", "F22");
           case VK_F23: return Toolkit.getProperty("AWT.f23", "F23");
           case VK_F24: return Toolkit.getProperty("AWT.f24", "F24");
-
           case VK_PRINTSCREEN: return Toolkit.getProperty("AWT.printScreen", "Print Screen");
           case VK_INSERT: return Toolkit.getProperty("AWT.insert", "Insert");
           case VK_HELP: return Toolkit.getProperty("AWT.help", "Help");
           case VK_BACK_QUOTE: return Toolkit.getProperty("AWT.backQuote", "Back Quote");
           case VK_QUOTE: return Toolkit.getProperty("AWT.quote", "Quote");
-
           case VK_KP_UP: return Toolkit.getProperty("AWT.up", "Up");
           case VK_KP_DOWN: return Toolkit.getProperty("AWT.down", "Down");
           case VK_KP_LEFT: return Toolkit.getProperty("AWT.left", "Left");
           case VK_KP_RIGHT: return Toolkit.getProperty("AWT.right", "Right");
-
           case VK_DEAD_GRAVE: return Toolkit.getProperty("AWT.deadGrave", "Dead Grave");
           case VK_DEAD_ACUTE: return Toolkit.getProperty("AWT.deadAcute", "Dead Acute");
           case VK_DEAD_CIRCUMFLEX: return Toolkit.getProperty("AWT.deadCircumflex", "Dead Circumflex");
@@ -721,7 +409,6 @@ public class KeyEvent extends InputEvent {
           case VK_DEAD_IOTA: return Toolkit.getProperty("AWT.deadIota", "Dead Iota");
           case VK_DEAD_VOICED_SOUND: return Toolkit.getProperty("AWT.deadVoicedSound", "Dead Voiced Sound");
           case VK_DEAD_SEMIVOICED_SOUND: return Toolkit.getProperty("AWT.deadSemivoicedSound", "Dead Semivoiced Sound");
-
           case VK_AMPERSAND: return Toolkit.getProperty("AWT.ampersand", "Ampersand");
           case VK_ASTERISK: return Toolkit.getProperty("AWT.asterisk", "Asterisk");
           case VK_QUOTEDBL: return Toolkit.getProperty("AWT.quoteDbl", "Double Quote");
@@ -742,7 +429,6 @@ public class KeyEvent extends InputEvent {
           case VK_PLUS: return Toolkit.getProperty("AWT.plus", "Plus");
           case VK_RIGHT_PARENTHESIS: return Toolkit.getProperty("AWT.rightParenthesis", "Right Parenthesis");
           case VK_UNDERSCORE: return Toolkit.getProperty("AWT.underscore", "Underscore");
-
           case VK_FINAL: return Toolkit.getProperty("AWT.final", "Final");
           case VK_CONVERT: return Toolkit.getProperty("AWT.convert", "Convert");
           case VK_NONCONVERT: return Toolkit.getProperty("AWT.noconvert", "No Convert");
@@ -764,7 +450,6 @@ public class KeyEvent extends InputEvent {
           case VK_JAPANESE_ROMAN: return Toolkit.getProperty("AWT.japaneseRoman", "Japanese Roman");
           case VK_KANA_LOCK: return Toolkit.getProperty("AWT.kanaLock", "Kana Lock");
           case VK_INPUT_METHOD_ON_OFF: return Toolkit.getProperty("AWT.inputMethodOnOff", "Input Method On/Off");
-
           case VK_AGAIN: return Toolkit.getProperty("AWT.again", "Again");
           case VK_UNDO: return Toolkit.getProperty("AWT.undo", "Undo");
           case VK_COPY: return Toolkit.getProperty("AWT.copy", "Copy");
@@ -774,21 +459,17 @@ public class KeyEvent extends InputEvent {
           case VK_PROPS: return Toolkit.getProperty("AWT.props", "Props");
           case VK_STOP: return Toolkit.getProperty("AWT.stop", "Stop");
         }
-
         if (keyCode >= VK_NUMPAD0 && keyCode <= VK_NUMPAD9) {
             String numpad = Toolkit.getProperty("AWT.numpad", "NumPad");
             char c = (char)(keyCode - VK_NUMPAD0 + '0');
             return numpad + "-" + c;
         }
-
         if ((keyCode & 0x01000000) != 0) {
             return String.valueOf((char)(keyCode ^ 0x01000000 ));
         }
         String unknown = Toolkit.getProperty("AWT.unknown", "Unknown");
         return unknown + " keyCode: 0x" + Integer.toString(keyCode, 16);
     }
-
-
     public static String getKeyModifiersText(int modifiers) {
         StringBuilder buf = new StringBuilder();
         if ((modifiers & InputEvent.META_MASK) != 0) {
@@ -820,9 +501,6 @@ public class KeyEvent extends InputEvent {
         }
         return buf.toString();
     }
-
-
-
     public boolean isActionKey() {
         switch (keyCode) {
           case VK_HOME:
@@ -834,12 +512,10 @@ public class KeyEvent extends InputEvent {
           case VK_LEFT:
           case VK_RIGHT:
           case VK_BEGIN:
-
           case VK_KP_LEFT:
           case VK_KP_UP:
           case VK_KP_RIGHT:
           case VK_KP_DOWN:
-
           case VK_F1:
           case VK_F2:
           case VK_F3:
@@ -870,7 +546,6 @@ public class KeyEvent extends InputEvent {
           case VK_NUM_LOCK:
           case VK_PAUSE:
           case VK_INSERT:
-
           case VK_FINAL:
           case VK_CONVERT:
           case VK_NONCONVERT:
@@ -892,7 +567,6 @@ public class KeyEvent extends InputEvent {
           case VK_JAPANESE_ROMAN:
           case VK_KANA_LOCK:
           case VK_INPUT_METHOD_ON_OFF:
-
           case VK_AGAIN:
           case VK_UNDO:
           case VK_COPY:
@@ -901,7 +575,6 @@ public class KeyEvent extends InputEvent {
           case VK_FIND:
           case VK_PROPS:
           case VK_STOP:
-
           case VK_HELP:
           case VK_WINDOWS:
           case VK_CONTEXT_MENU:
@@ -909,11 +582,8 @@ public class KeyEvent extends InputEvent {
         }
         return false;
     }
-
-
     public String paramString() {
         StringBuilder str = new StringBuilder(100);
-
         switch (id) {
           case KEY_PRESSED:
             str.append("KEY_PRESSED");
@@ -928,11 +598,8 @@ public class KeyEvent extends InputEvent {
             str.append("unknown type");
             break;
         }
-
         str.append(",keyCode=").append(keyCode);
         str.append(",keyText=").append(getKeyText(keyCode));
-
-
         str.append(",keyChar=");
         switch (keyChar) {
           case '\b':
@@ -961,14 +628,12 @@ public class KeyEvent extends InputEvent {
             str.append("'").append(keyChar).append("'");
             break;
         }
-
         if (getModifiers() != 0) {
             str.append(",modifiers=").append(getKeyModifiersText(modifiers));
         }
         if (getModifiersEx() != 0) {
             str.append(",extModifiers=").append(getModifiersExText(modifiers));
         }
-
         str.append(",keyLocation=");
         switch (keyLocation) {
           case KEY_LOCATION_UNKNOWN:
@@ -994,20 +659,15 @@ public class KeyEvent extends InputEvent {
         str.append(",primaryLevelUnicode=").append(primaryLevelUnicode);
         str.append(",scancode=").append(scancode);
         str.append(",extendedKeyCode=0x").append(Long.toHexString(extendedKeyCode));
-
         return str.toString();
     }
-
     public  int getExtendedKeyCode() {
         return (int)extendedKeyCode;
     }
-
     public static int getExtendedKeyCodeForChar(int c) {
         // Return a keycode (if any) associated with a character.
         return sun.awt.ExtendedKeyCodes.getExtendedKeyCodeForChar(c);
     }
-
-
     private void setNewModifiers() {
         if ((modifiers & SHIFT_MASK) != 0) {
             modifiers |= SHIFT_DOWN_MASK;
@@ -1028,8 +688,6 @@ public class KeyEvent extends InputEvent {
             modifiers |= BUTTON1_DOWN_MASK;
         }
     }
-
-
     private void setOldModifiers() {
         if ((modifiers & SHIFT_DOWN_MASK) != 0) {
             modifiers |= SHIFT_MASK;
@@ -1050,8 +708,6 @@ public class KeyEvent extends InputEvent {
             modifiers |= BUTTON1_MASK;
         }
     }
-
-
     private void readObject(ObjectInputStream s)
       throws IOException, ClassNotFoundException {
         s.defaultReadObject();

@@ -1,12 +1,6 @@
-
-
 package java.lang.reflect;
-
 import sun.reflect.MethodAccessor;
 import sun.reflect.ConstructorAccessor;
-
-
-
 class ReflectAccess implements sun.reflect.LangReflectAccess {
     public Field newField(Class<?> declaringClass,
                           String name,
@@ -24,7 +18,6 @@ class ReflectAccess implements sun.reflect.LangReflectAccess {
                          signature,
                          annotations);
     }
-
     public Method newMethod(Class<?> declaringClass,
                             String name,
                             Class<?>[] parameterTypes,
@@ -49,7 +42,6 @@ class ReflectAccess implements sun.reflect.LangReflectAccess {
                           parameterAnnotations,
                           annotationDefault);
     }
-
     public <T> Constructor<T> newConstructor(Class<T> declaringClass,
                                              Class<?>[] parameterTypes,
                                              Class<?>[] checkedExceptions,
@@ -68,45 +60,35 @@ class ReflectAccess implements sun.reflect.LangReflectAccess {
                                   annotations,
                                   parameterAnnotations);
     }
-
     public MethodAccessor getMethodAccessor(Method m) {
         return m.getMethodAccessor();
     }
-
     public void setMethodAccessor(Method m, MethodAccessor accessor) {
         m.setMethodAccessor(accessor);
     }
-
     public ConstructorAccessor getConstructorAccessor(Constructor<?> c) {
         return c.getConstructorAccessor();
     }
-
     public void setConstructorAccessor(Constructor<?> c,
                                        ConstructorAccessor accessor)
     {
         c.setConstructorAccessor(accessor);
     }
-
     public int getConstructorSlot(Constructor<?> c) {
         return c.getSlot();
     }
-
     public String getConstructorSignature(Constructor<?> c) {
         return c.getSignature();
     }
-
     public byte[] getConstructorAnnotations(Constructor<?> c) {
         return c.getRawAnnotations();
     }
-
     public byte[] getConstructorParameterAnnotations(Constructor<?> c) {
         return c.getRawParameterAnnotations();
     }
-
     public byte[] getExecutableTypeAnnotationBytes(Executable ex) {
         return ex.getTypeAnnotationBytes();
     }
-
     //
     // Copying routines, needed to quickly fabricate new Field,
     // Method, and Constructor objects from templates
@@ -114,11 +96,9 @@ class ReflectAccess implements sun.reflect.LangReflectAccess {
     public Method      copyMethod(Method arg) {
         return arg.copy();
     }
-
     public Field       copyField(Field arg) {
         return arg.copy();
     }
-
     public <T> Constructor<T> copyConstructor(Constructor<T> arg) {
         return arg.copy();
     }

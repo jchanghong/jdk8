@@ -1,30 +1,19 @@
-
 package java.net;
-
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.security.AccessController;
 import sun.net.ResourceManager;
-
-
-
 abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
 {
-
     int timeout = 0;
     boolean connected = false;
     private int trafficClass = 0;
     protected InetAddress connectedAddress = null;
     private int connectedPort = -1;
-
     private static final String os = AccessController.doPrivileged(
         new sun.security.action.GetPropertyAction("os.name")
     );
-
-
     private final static boolean connectDisabled = os.contains("OS X");
-
-
     static {
         java.security.AccessController.doPrivileged(
             new java.security.PrivilegedAction<Void>() {
@@ -34,8 +23,6 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
                 }
             });
     }
-
-
     protected synchronized void create() throws SocketException {
         ResourceManager.beforeUdpCreate();
         fd = new FileDescriptor();
@@ -47,94 +34,61 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
             throw ioe;
         }
     }
-
-
     protected synchronized void bind(int lport, InetAddress laddr)
         throws SocketException {
         bind0(lport, laddr);
     }
-
     protected abstract void bind0(int lport, InetAddress laddr)
         throws SocketException;
-
-
     protected abstract void send(DatagramPacket p) throws IOException;
-
-
     protected void connect(InetAddress address, int port) throws SocketException {
         connect0(address, port);
         connectedAddress = address;
         connectedPort = port;
         connected = true;
     }
-
-
     protected void disconnect() {
         disconnect0(connectedAddress.holder().getFamily());
         connected = false;
         connectedAddress = null;
         connectedPort = -1;
     }
-
-
     protected abstract int peek(InetAddress i) throws IOException;
     protected abstract int peekData(DatagramPacket p) throws IOException;
-
     protected synchronized void receive(DatagramPacket p)
         throws IOException {
         receive0(p);
     }
-
     protected abstract void receive0(DatagramPacket p)
         throws IOException;
-
-
     protected abstract void setTimeToLive(int ttl) throws IOException;
-
-
     protected abstract int getTimeToLive() throws IOException;
-
-
     @Deprecated
     protected abstract void setTTL(byte ttl) throws IOException;
-
-
     @Deprecated
     protected abstract byte getTTL() throws IOException;
-
-
     protected void join(InetAddress inetaddr) throws IOException {
         join(inetaddr, null);
     }
-
-
     protected void leave(InetAddress inetaddr) throws IOException {
         leave(inetaddr, null);
     }
-
-
     protected void joinGroup(SocketAddress mcastaddr, NetworkInterface netIf)
         throws IOException {
         if (mcastaddr == null || !(mcastaddr instanceof InetSocketAddress))
             throw new IllegalArgumentException("Unsupported address type");
         join(((InetSocketAddress)mcastaddr).getAddress(), netIf);
     }
-
     protected abstract void join(InetAddress inetaddr, NetworkInterface netIf)
         throws IOException;
-
-
     protected void leaveGroup(SocketAddress mcastaddr, NetworkInterface netIf)
         throws IOException {
         if (mcastaddr == null || !(mcastaddr instanceof InetSocketAddress))
             throw new IllegalArgumentException("Unsupported address type");
         leave(((InetSocketAddress)mcastaddr).getAddress(), netIf);
     }
-
     protected abstract void leave(InetAddress inetaddr, NetworkInterface netIf)
         throws IOException;
-
-
     protected void close() {
         if (fd != null) {
             datagramSocketClose();
@@ -142,23 +96,17 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
             fd = null;
         }
     }
-
     protected boolean isClosed() {
         return (fd == null) ? true : false;
     }
-
     protected void finalize() {
         close();
     }
-
-
-
      public void setOption(int optID, Object o) throws SocketException {
          if (isClosed()) {
              throw new SocketException("Socket Closed");
          }
          switch (optID) {
-
          case SO_TIMEOUT:
              if (o == null || !(o instanceof Integer)) {
                  throw new SocketException("bad argument for SO_TIMEOUT");
@@ -211,28 +159,21 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
          }
          socketSetOption(optID, o);
      }
-
-
-
     public Object getOption(int optID) throws SocketException {
         if (isClosed()) {
             throw new SocketException("Socket Closed");
         }
-
         Object result;
-
         switch (optID) {
             case SO_TIMEOUT:
                 result = new Integer(timeout);
                 break;
-
             case IP_TOS:
                 result = socketGetOption(optID);
                 if ( ((Integer)result).intValue() == -1) {
                     result = new Integer(trafficClass);
                 }
                 break;
-
             case SO_BINDADDR:
             case IP_MULTICAST_IF:
             case IP_MULTICAST_IF2:
@@ -243,26 +184,20 @@ abstract class AbstractPlainDatagramSocketImpl extends DatagramSocketImpl
             case SO_BROADCAST:
                 result = socketGetOption(optID);
                 break;
-
             default:
                 throw new SocketException("invalid option: " + optID);
         }
-
         return result;
     }
-
     protected abstract void datagramSocketCreate() throws SocketException;
     protected abstract void datagramSocketClose();
     protected abstract void socketSetOption(int opt, Object val)
         throws SocketException;
     protected abstract Object socketGetOption(int opt) throws SocketException;
-
     protected abstract void connect0(InetAddress address, int port) throws SocketException;
     protected abstract void disconnect0(int family);
-
     protected boolean nativeConnectDisabled() {
         return connectDisabled;
     }
-
     abstract int dataAvailable();
 }

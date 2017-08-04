@@ -1,15 +1,7 @@
-
-
 package java.util;
-
-
-
 public abstract class AbstractSequentialList<E> extends AbstractList<E> {
-
     protected AbstractSequentialList() {
     }
-
-
     public E get(int index) {
         try {
             return listIterator(index).next();
@@ -17,8 +9,6 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
             throw new IndexOutOfBoundsException("Index: "+index);
         }
     }
-
-
     public E set(int index, E element) {
         try {
             ListIterator<E> e = listIterator(index);
@@ -29,8 +19,6 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
             throw new IndexOutOfBoundsException("Index: "+index);
         }
     }
-
-
     public void add(int index, E element) {
         try {
             listIterator(index).add(element);
@@ -38,8 +26,6 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
             throw new IndexOutOfBoundsException("Index: "+index);
         }
     }
-
-
     public E remove(int index) {
         try {
             ListIterator<E> e = listIterator(index);
@@ -50,11 +36,7 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
             throw new IndexOutOfBoundsException("Index: "+index);
         }
     }
-
-
     // Bulk Operations
-
-
     public boolean addAll(int index, Collection<? extends E> c) {
         try {
             boolean modified = false;
@@ -69,15 +51,9 @@ public abstract class AbstractSequentialList<E> extends AbstractList<E> {
             throw new IndexOutOfBoundsException("Index: "+index);
         }
     }
-
-
     // Iterators
-
-
     public Iterator<E> iterator() {
         return listIterator();
     }
-
-
     public abstract ListIterator<E> listIterator(int index);
 }

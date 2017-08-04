@@ -1,36 +1,22 @@
-
-
 package java.awt.geom;
-
 import java.util.*;
-
-
 class QuadIterator implements PathIterator {
     QuadCurve2D quad;
     AffineTransform affine;
     int index;
-
     QuadIterator(QuadCurve2D q, AffineTransform at) {
         this.quad = q;
         this.affine = at;
     }
-
-
     public int getWindingRule() {
         return WIND_NON_ZERO;
     }
-
-
     public boolean isDone() {
         return (index > 1);
     }
-
-
     public void next() {
         index++;
     }
-
-
     public int currentSegment(float[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("quad iterator iterator out of bounds");
@@ -52,8 +38,6 @@ class QuadIterator implements PathIterator {
         }
         return type;
     }
-
-
     public int currentSegment(double[] coords) {
         if (isDone()) {
             throw new NoSuchElementException("quad iterator iterator out of bounds");

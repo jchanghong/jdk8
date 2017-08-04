@@ -1,19 +1,9 @@
-
-
 package java.security.spec;
-
 import java.math.BigInteger;
-
-
-
 public class RSAOtherPrimeInfo {
-
     private BigInteger prime;
     private BigInteger primeExponent;
     private BigInteger crtCoefficient;
-
-
-
     public RSAOtherPrimeInfo(BigInteger prime,
                           BigInteger primeExponent,
                           BigInteger crtCoefficient) {
@@ -33,18 +23,12 @@ public class RSAOtherPrimeInfo {
         this.primeExponent = primeExponent;
         this.crtCoefficient = crtCoefficient;
     }
-
-
     public final BigInteger getPrime() {
         return this.prime;
     }
-
-
     public final BigInteger getExponent() {
         return this.primeExponent;
     }
-
-
     public final BigInteger getCrtCoefficient() {
         return this.crtCoefficient;
     }

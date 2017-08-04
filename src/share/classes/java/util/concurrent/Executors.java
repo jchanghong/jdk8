@@ -1,7 +1,3 @@
-
-
-
-
 package java.util.concurrent;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,50 +8,36 @@ import java.security.PrivilegedExceptionAction;
 import java.security.PrivilegedActionException;
 import java.security.AccessControlException;
 import sun.security.util.SecurityConstants;
-
-
 public class Executors {
-
-
     public static ExecutorService newFixedThreadPool(int nThreads) {
         return new ThreadPoolExecutor(nThreads, nThreads,
                                       0L, TimeUnit.MILLISECONDS,
                                       new LinkedBlockingQueue<Runnable>());
     }
-
-
     public static ExecutorService newWorkStealingPool(int parallelism) {
         return new ForkJoinPool
             (parallelism,
              ForkJoinPool.defaultForkJoinWorkerThreadFactory,
              null, true);
     }
-
-
     public static ExecutorService newWorkStealingPool() {
         return new ForkJoinPool
             (Runtime.getRuntime().availableProcessors(),
              ForkJoinPool.defaultForkJoinWorkerThreadFactory,
              null, true);
     }
-
-
     public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) {
         return new ThreadPoolExecutor(nThreads, nThreads,
                                       0L, TimeUnit.MILLISECONDS,
                                       new LinkedBlockingQueue<Runnable>(),
                                       threadFactory);
     }
-
-
     public static ExecutorService newSingleThreadExecutor() {
         return new FinalizableDelegatedExecutorService
             (new ThreadPoolExecutor(1, 1,
                                     0L, TimeUnit.MILLISECONDS,
                                     new LinkedBlockingQueue<Runnable>()));
     }
-
-
     public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactory) {
         return new FinalizableDelegatedExecutorService
             (new ThreadPoolExecutor(1, 1,
@@ -63,116 +45,81 @@ public class Executors {
                                     new LinkedBlockingQueue<Runnable>(),
                                     threadFactory));
     }
-
-
     public static ExecutorService newCachedThreadPool() {
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                                       60L, TimeUnit.SECONDS,
                                       new SynchronousQueue<Runnable>());
     }
-
-
     public static ExecutorService newCachedThreadPool(ThreadFactory threadFactory) {
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                                       60L, TimeUnit.SECONDS,
                                       new SynchronousQueue<Runnable>(),
                                       threadFactory);
     }
-
-
     public static ScheduledExecutorService newSingleThreadScheduledExecutor() {
         return new DelegatedScheduledExecutorService
             (new ScheduledThreadPoolExecutor(1));
     }
-
-
     public static ScheduledExecutorService newSingleThreadScheduledExecutor(ThreadFactory threadFactory) {
         return new DelegatedScheduledExecutorService
             (new ScheduledThreadPoolExecutor(1, threadFactory));
     }
-
-
     public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
         return new ScheduledThreadPoolExecutor(corePoolSize);
     }
-
-
     public static ScheduledExecutorService newScheduledThreadPool(
             int corePoolSize, ThreadFactory threadFactory) {
         return new ScheduledThreadPoolExecutor(corePoolSize, threadFactory);
     }
-
-
     public static ExecutorService unconfigurableExecutorService(ExecutorService executor) {
         if (executor == null)
             throw new NullPointerException();
         return new DelegatedExecutorService(executor);
     }
-
-
     public static ScheduledExecutorService unconfigurableScheduledExecutorService(ScheduledExecutorService executor) {
         if (executor == null)
             throw new NullPointerException();
         return new DelegatedScheduledExecutorService(executor);
     }
-
-
     public static ThreadFactory defaultThreadFactory() {
         return new DefaultThreadFactory();
     }
-
-
     public static ThreadFactory privilegedThreadFactory() {
         return new PrivilegedThreadFactory();
     }
-
-
     public static <T> Callable<T> callable(Runnable task, T result) {
         if (task == null)
             throw new NullPointerException();
         return new RunnableAdapter<T>(task, result);
     }
-
-
     public static Callable<Object> callable(Runnable task) {
         if (task == null)
             throw new NullPointerException();
         return new RunnableAdapter<Object>(task, null);
     }
-
-
     public static Callable<Object> callable(final PrivilegedAction<?> action) {
         if (action == null)
             throw new NullPointerException();
         return new Callable<Object>() {
             public Object call() { return action.run(); }};
     }
-
-
     public static Callable<Object> callable(final PrivilegedExceptionAction<?> action) {
         if (action == null)
             throw new NullPointerException();
         return new Callable<Object>() {
             public Object call() throws Exception { return action.run(); }};
     }
-
-
     public static <T> Callable<T> privilegedCallable(Callable<T> callable) {
         if (callable == null)
             throw new NullPointerException();
         return new PrivilegedCallable<T>(callable);
     }
-
-
     public static <T> Callable<T> privilegedCallableUsingCurrentClassLoader(Callable<T> callable) {
         if (callable == null)
             throw new NullPointerException();
         return new PrivilegedCallableUsingCurrentClassLoader<T>(callable);
     }
-
     // Non-public classes supporting the public methods
-
-
     static final class RunnableAdapter<T> implements Callable<T> {
         final Runnable task;
         final T result;
@@ -185,17 +132,13 @@ public class Executors {
             return result;
         }
     }
-
-
     static final class PrivilegedCallable<T> implements Callable<T> {
         private final Callable<T> task;
         private final AccessControlContext acc;
-
         PrivilegedCallable(Callable<T> task) {
             this.task = task;
             this.acc = AccessController.getContext();
         }
-
         public T call() throws Exception {
             try {
                 return AccessController.doPrivileged(
@@ -209,13 +152,10 @@ public class Executors {
             }
         }
     }
-
-
     static final class PrivilegedCallableUsingCurrentClassLoader<T> implements Callable<T> {
         private final Callable<T> task;
         private final AccessControlContext acc;
         private final ClassLoader ccl;
-
         PrivilegedCallableUsingCurrentClassLoader(Callable<T> task) {
             SecurityManager sm = System.getSecurityManager();
             if (sm != null) {
@@ -223,7 +163,6 @@ public class Executors {
                 // never trigger a security check, but we check
                 // whether our callers have this permission anyways.
                 sm.checkPermission(SecurityConstants.GET_CLASSLOADER_PERMISSION);
-
                 // Whether setContextClassLoader turns out to be necessary
                 // or not, we fail fast if permission is not available.
                 sm.checkPermission(new RuntimePermission("setContextClassLoader"));
@@ -232,7 +171,6 @@ public class Executors {
             this.acc = AccessController.getContext();
             this.ccl = Thread.currentThread().getContextClassLoader();
         }
-
         public T call() throws Exception {
             try {
                 return AccessController.doPrivileged(
@@ -257,14 +195,11 @@ public class Executors {
             }
         }
     }
-
-
     static class DefaultThreadFactory implements ThreadFactory {
         private static final AtomicInteger poolNumber = new AtomicInteger(1);
         private final ThreadGroup group;
         private final AtomicInteger threadNumber = new AtomicInteger(1);
         private final String namePrefix;
-
         DefaultThreadFactory() {
             SecurityManager s = System.getSecurityManager();
             group = (s != null) ? s.getThreadGroup() :
@@ -273,7 +208,6 @@ public class Executors {
                           poolNumber.getAndIncrement() +
                          "-thread-";
         }
-
         public Thread newThread(Runnable r) {
             Thread t = new Thread(group, r,
                                   namePrefix + threadNumber.getAndIncrement(),
@@ -285,12 +219,9 @@ public class Executors {
             return t;
         }
     }
-
-
     static class PrivilegedThreadFactory extends DefaultThreadFactory {
         private final AccessControlContext acc;
         private final ClassLoader ccl;
-
         PrivilegedThreadFactory() {
             super();
             SecurityManager sm = System.getSecurityManager();
@@ -299,14 +230,12 @@ public class Executors {
                 // never trigger a security check, but we check
                 // whether our callers have this permission anyways.
                 sm.checkPermission(SecurityConstants.GET_CLASSLOADER_PERMISSION);
-
                 // Fail fast
                 sm.checkPermission(new RuntimePermission("setContextClassLoader"));
             }
             this.acc = AccessController.getContext();
             this.ccl = Thread.currentThread().getContextClassLoader();
         }
-
         public Thread newThread(final Runnable r) {
             return super.newThread(new Runnable() {
                 public void run() {
@@ -321,8 +250,6 @@ public class Executors {
             });
         }
     }
-
-
     static class DelegatedExecutorService extends AbstractExecutorService {
         private final ExecutorService e;
         DelegatedExecutorService(ExecutorService executor) { e = executor; }
@@ -363,7 +290,6 @@ public class Executors {
             return e.invokeAny(tasks, timeout, unit);
         }
     }
-
     static class FinalizableDelegatedExecutorService
         extends DelegatedExecutorService {
         FinalizableDelegatedExecutorService(ExecutorService executor) {
@@ -373,8 +299,6 @@ public class Executors {
             super.shutdown();
         }
     }
-
-
     static class DelegatedScheduledExecutorService
             extends DelegatedExecutorService
             implements ScheduledExecutorService {
@@ -396,7 +320,5 @@ public class Executors {
             return e.scheduleWithFixedDelay(command, initialDelay, delay, unit);
         }
     }
-
-
     private Executors() {}
 }

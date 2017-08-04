@@ -1,14 +1,9 @@
-
-
-
 package java.time.chrono;
-
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.ERA;
 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import static java.time.temporal.ChronoField.PROLEPTIC_MONTH;
 import static java.time.temporal.ChronoField.YEAR_OF_ERA;
-
 import java.io.Serializable;
 import java.time.DateTimeException;
 import java.time.temporal.ChronoUnit;
@@ -20,15 +15,9 @@ import java.time.temporal.TemporalUnit;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.time.temporal.ValueRange;
 import java.util.Objects;
-
-
 abstract class ChronoLocalDateImpl<D extends ChronoLocalDate>
         implements ChronoLocalDate, Temporal, TemporalAdjuster, Serializable {
-
-
     private static final long serialVersionUID = 6282433883239719096L;
-
-
     static <D extends ChronoLocalDate> D ensureValid(Chronology chrono, Temporal temporal) {
         @SuppressWarnings("unchecked")
         D other = (D) temporal;
@@ -37,31 +26,25 @@ abstract class ChronoLocalDateImpl<D extends ChronoLocalDate>
         }
         return other;
     }
-
     //-----------------------------------------------------------------------
-
     ChronoLocalDateImpl() {
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public D with(TemporalAdjuster adjuster) {
         return (D) ChronoLocalDate.super.with(adjuster);
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public D with(TemporalField field, long value) {
         return (D) ChronoLocalDate.super.with(field, value);
     }
-
     //-----------------------------------------------------------------------
     @Override
     @SuppressWarnings("unchecked")
     public D plus(TemporalAmount amount) {
         return (D) ChronoLocalDate.super.plus(amount);
     }
-
     //-----------------------------------------------------------------------
     @Override
     @SuppressWarnings("unchecked")
@@ -82,59 +65,40 @@ abstract class ChronoLocalDateImpl<D extends ChronoLocalDate>
         }
         return (D) ChronoLocalDate.super.plus(amountToAdd, unit);
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public D minus(TemporalAmount amount) {
         return (D) ChronoLocalDate.super.minus(amount);
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public D minus(long amountToSubtract, TemporalUnit unit) {
         return (D) ChronoLocalDate.super.minus(amountToSubtract, unit);
     }
-
     //-----------------------------------------------------------------------
-
     abstract D plusYears(long yearsToAdd);
-
-
     abstract D plusMonths(long monthsToAdd);
-
-
     D plusWeeks(long weeksToAdd) {
         return plusDays(Math.multiplyExact(weeksToAdd, 7));
     }
-
-
     abstract D plusDays(long daysToAdd);
-
     //-----------------------------------------------------------------------
-
     @SuppressWarnings("unchecked")
     D minusYears(long yearsToSubtract) {
         return (yearsToSubtract == Long.MIN_VALUE ? ((ChronoLocalDateImpl<D>)plusYears(Long.MAX_VALUE)).plusYears(1) : plusYears(-yearsToSubtract));
     }
-
-
     @SuppressWarnings("unchecked")
     D minusMonths(long monthsToSubtract) {
         return (monthsToSubtract == Long.MIN_VALUE ? ((ChronoLocalDateImpl<D>)plusMonths(Long.MAX_VALUE)).plusMonths(1) : plusMonths(-monthsToSubtract));
     }
-
-
     @SuppressWarnings("unchecked")
     D minusWeeks(long weeksToSubtract) {
         return (weeksToSubtract == Long.MIN_VALUE ? ((ChronoLocalDateImpl<D>)plusWeeks(Long.MAX_VALUE)).plusWeeks(1) : plusWeeks(-weeksToSubtract));
     }
-
-
     @SuppressWarnings("unchecked")
     D minusDays(long daysToSubtract) {
         return (daysToSubtract == Long.MIN_VALUE ? ((ChronoLocalDateImpl<D>)plusDays(Long.MAX_VALUE)).plusDays(1) : plusDays(-daysToSubtract));
     }
-
     //-----------------------------------------------------------------------
     @Override
     public long until(Temporal endExclusive, TemporalUnit unit) {
@@ -156,11 +120,9 @@ abstract class ChronoLocalDateImpl<D extends ChronoLocalDate>
         Objects.requireNonNull(unit, "unit");
         return unit.between(this, end);
     }
-
     private long daysUntil(ChronoLocalDate end) {
         return end.toEpochDay() - toEpochDay();  // no overflow
     }
-
     private long monthsUntil(ChronoLocalDate end) {
         ValueRange range = getChronology().range(MONTH_OF_YEAR);
         if (range.getMaximum() != 12) {
@@ -170,7 +132,6 @@ abstract class ChronoLocalDateImpl<D extends ChronoLocalDate>
         long packed2 = end.getLong(PROLEPTIC_MONTH) * 32L + end.get(DAY_OF_MONTH);  // no overflow
         return (packed2 - packed1) / 32;
     }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -181,13 +142,11 @@ abstract class ChronoLocalDateImpl<D extends ChronoLocalDate>
         }
         return false;
     }
-
     @Override
     public int hashCode() {
         long epDay = toEpochDay();
         return getChronology().hashCode() ^ ((int) (epDay ^ (epDay >>> 32)));
     }
-
     @Override
     public String toString() {
         // getLong() reduces chances of exceptions in toString()
@@ -204,5 +163,4 @@ abstract class ChronoLocalDateImpl<D extends ChronoLocalDate>
                 .append(dom < 10 ? "-0" : "-").append(dom);
         return buf.toString();
     }
-
 }

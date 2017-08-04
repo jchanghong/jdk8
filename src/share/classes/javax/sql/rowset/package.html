@@ -1,44 +1,35 @@
 <!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
 <html>
 <head>
-                                    
   <meta http-equiv="Content-Type"
  content="text/html; charset=iso-8859-1">
 <!--
 Copyright (c) 2003, 2013, Oracle and/or its affiliates. All rights reserved.
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-
 This code is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License version 2 only, as
 published by the Free Software Foundation.  Oracle designates this
 particular file as subject to the "Classpath" exception as provided
 by Oracle in the LICENSE file that accompanied this code.
-
 This code is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 version 2 for more details (a copy is included in the LICENSE file that
 accompanied this code).
-
 You should have received a copy of the GNU General Public License version
 2 along with this work; if not, write to the Free Software Foundation,
 Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-
 Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
 or visit www.oracle.com if you need additional information or have any
 questions.
-
 -->
   <title>javax.sql.rowset Package</title>
 </head>
   <body bgcolor="#ffffff">
-
 <!-- Description clause -->
 Standard interfaces and base classes for JDBC <code>RowSet</code>
 implementations. This package contains interfaces and classes 
 that a standard <code>RowSet</code> implementation either implements or extends.
-
-
 <h2>Table of Contents</h2>
 <ul>
 <li><a href="#pkgspec">1.0 Package Specification</a>
@@ -47,7 +38,6 @@ that a standard <code>RowSet</code> implementation either implements or extends.
 <li><a href="#relspec">4.0 Related Specifications</a>
 <li><a href="#reldocs">5.0 Related Documentation</a>
 </ul>
-
 <h3><a name="pkgspec">1.0 Package Specification</a></h3>
 This package specifies five standard JDBC <code>RowSet</code> interfaces.
  All five extend the 
@@ -62,7 +52,6 @@ all compliant JDBC <code>RowSet</code> implementations. Vendors and more advance
 developers who intend to provide their own compliant <code>RowSet</code> implementations 
 should pay particular attention to the assertions detailed in specification
 interfaces. 
-
 <h3><a name="stdrowset">2.0 Standard RowSet Definitions</a></h3>
 <ul>
 <li><a href="JdbcRowSet.html"><b><code>JdbcRowSet</code></b></a> - A wrapper around 
@@ -135,7 +124,6 @@ database tables based upon a common attribute. By establishing and then enforcin
 column matches, a <tt>JoinRowSet</tt> object establishes relationships between
 <tt>RowSet</tt> instances without the need to touch the originating data source.     
 </ul>
-
 <h3><a name="impl">3.0 Implementer's Guide</a></h3>
 Compliant implementations of JDBC <code>RowSet</code> Implementations 
 <b>must</b> follow the assertions described in this specification. In accordance
@@ -215,8 +203,7 @@ by  compliant implementations.<br>
   in addition to providing a set of constants for stream type designation.<br>
               </td>
             </tr>
-                               
-      </tbody>                    
+      </tbody>
     </table>
     </blockquote>
 <p>
@@ -232,7 +219,6 @@ or a <code>RowSetWriter</code> object. They can safely rely on the JDBC driver t
 supply their needs by virtue of the presence of an underlying updatable and scrollable
 <code>ResultSet</code> implementation.
 <p>
-
 <li>
 <b>3.4 Disconnected RowSet Requirements</b>
 <p> 
@@ -272,8 +258,6 @@ After a warning has been retrieved with one of the
 <code>getNextWarning</code> can be called on it to retrieve any warnings that might
 be chained on it.  If a warning is returned, <code>getNextWarning</code> can be called
 on it, and so on until there are no more warnings.
-
-
 <P>
 <li><b>3.7 The Joinable Interface</b>
 <P>
@@ -285,21 +269,18 @@ interface can set a match column, retrieve a match column, or unset a match colu
 A <code>JoinRowSet</code> object can then use the <code>RowSet</code> object's
 match column as a basis for adding the <code>RowSet</code> object.
 </li>
-
 <li><b>3.8 The RowSetFactory Interface</b>
     <p>
         A <code>RowSetFactory</code> implementation <strong>must</strong>
         be provided.
 </li>
 </ul>
-
 <h3><a name="relspec">4.0 Related Specifications</a></h3>
 <ul>
 <li><a href="http://java.sun.com/products/jdbc">JDBC 3.0 Specification</a>
 <li><a href="http://www.w3.org/XML/Schema">XML Schema</a>
 <li><a href="http://www.syncml.org">SyncML</a>
 </ul>
-
 <h3><a name="reldocs">5.0 Related Documentation</a></h3>
 <ul>
 <li><a href="http://java.sun.com/developer/Books/JDBCTutorial/chapter5.html">

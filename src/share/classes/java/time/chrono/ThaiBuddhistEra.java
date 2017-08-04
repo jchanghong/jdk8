@@ -1,20 +1,9 @@
-
-
-
 package java.time.chrono;
-
 import java.time.DateTimeException;
-
-
 public enum ThaiBuddhistEra implements Era {
-
-
     BEFORE_BE,
-
     BE;
-
     //-----------------------------------------------------------------------
-
     public static ThaiBuddhistEra of(int thaiBuddhistEra) {
         switch (thaiBuddhistEra) {
             case 0:
@@ -25,12 +14,9 @@ public enum ThaiBuddhistEra implements Era {
                 throw new DateTimeException("Invalid era: " + thaiBuddhistEra);
         }
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public int getValue() {
         return ordinal();
     }
-
 }

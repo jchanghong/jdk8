@@ -1,10 +1,5 @@
-
-
-
 package java.time.chrono;
-
 import static java.time.temporal.ChronoField.EPOCH_DAY;
-
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInput;
@@ -21,50 +16,27 @@ import java.time.temporal.TemporalField;
 import java.time.temporal.TemporalUnit;
 import java.time.temporal.ValueRange;
 import java.util.Objects;
-
-
 final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         implements  ChronoLocalDateTime<D>, Temporal, TemporalAdjuster, Serializable {
-
-
     private static final long serialVersionUID = 4556003607393004514L;
-
     static final int HOURS_PER_DAY = 24;
-
     static final int MINUTES_PER_HOUR = 60;
-
     static final int MINUTES_PER_DAY = MINUTES_PER_HOUR * HOURS_PER_DAY;
-
     static final int SECONDS_PER_MINUTE = 60;
-
     static final int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
-
     static final int SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
-
     static final long MILLIS_PER_DAY = SECONDS_PER_DAY * 1000L;
-
     static final long MICROS_PER_DAY = SECONDS_PER_DAY * 1000_000L;
-
     static final long NANOS_PER_SECOND = 1000_000_000L;
-
     static final long NANOS_PER_MINUTE = NANOS_PER_SECOND * SECONDS_PER_MINUTE;
-
     static final long NANOS_PER_HOUR = NANOS_PER_MINUTE * MINUTES_PER_HOUR;
-
     static final long NANOS_PER_DAY = NANOS_PER_HOUR * HOURS_PER_DAY;
-
-
     private final transient D date;
-
     private final transient LocalTime time;
-
     //-----------------------------------------------------------------------
-
     static <R extends ChronoLocalDate> ChronoLocalDateTimeImpl<R> of(R date, LocalTime time) {
         return new ChronoLocalDateTimeImpl<>(date, time);
     }
-
-
     static <R extends ChronoLocalDate> ChronoLocalDateTimeImpl<R> ensureValid(Chronology chrono, Temporal temporal) {
         @SuppressWarnings("unchecked")
         ChronoLocalDateTimeImpl<R> other = (ChronoLocalDateTimeImpl<R>) temporal;
@@ -74,16 +46,12 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         }
         return other;
     }
-
-
     private ChronoLocalDateTimeImpl(D date, LocalTime time) {
         Objects.requireNonNull(date, "date");
         Objects.requireNonNull(time, "time");
         this.date = date;
         this.time = time;
     }
-
-
     private ChronoLocalDateTimeImpl<D> with(Temporal newDate, LocalTime newTime) {
         if (date == newDate && time == newTime) {
             return this;
@@ -92,18 +60,15 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         D cd = ChronoLocalDateImpl.ensureValid(date.getChronology(), newDate);
         return new ChronoLocalDateTimeImpl<>(cd, newTime);
     }
-
     //-----------------------------------------------------------------------
     @Override
     public D toLocalDate() {
         return date;
     }
-
     @Override
     public LocalTime toLocalTime() {
         return time;
     }
-
     //-----------------------------------------------------------------------
     @Override
     public boolean isSupported(TemporalField field) {
@@ -113,7 +78,6 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         }
         return field != null && field.isSupportedBy(this);
     }
-
     @Override
     public ValueRange range(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -122,7 +86,6 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         }
         return field.rangeRefinedBy(this);
     }
-
     @Override
     public int get(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -131,7 +94,6 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         }
         return range(field).checkValidIntValue(getLong(field), field);
     }
-
     @Override
     public long getLong(TemporalField field) {
         if (field instanceof ChronoField) {
@@ -140,7 +102,6 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         }
         return field.getFrom(this);
     }
-
     //-----------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     @Override
@@ -155,7 +116,6 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         }
         return ChronoLocalDateTimeImpl.ensureValid(date.getChronology(), (ChronoLocalDateTimeImpl<?>) adjuster.adjustInto(this));
     }
-
     @Override
     public ChronoLocalDateTimeImpl<D> with(TemporalField field, long newValue) {
         if (field instanceof ChronoField) {
@@ -168,7 +128,6 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         }
         return ChronoLocalDateTimeImpl.ensureValid(date.getChronology(), field.adjustInto(this, newValue));
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ChronoLocalDateTimeImpl<D> plus(long amountToAdd, TemporalUnit unit) {
@@ -187,27 +146,21 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         }
         return ChronoLocalDateTimeImpl.ensureValid(date.getChronology(), unit.addTo(this, amountToAdd));
     }
-
     private ChronoLocalDateTimeImpl<D> plusDays(long days) {
         return with(date.plus(days, ChronoUnit.DAYS), time);
     }
-
     private ChronoLocalDateTimeImpl<D> plusHours(long hours) {
         return plusWithOverflow(date, hours, 0, 0, 0);
     }
-
     private ChronoLocalDateTimeImpl<D> plusMinutes(long minutes) {
         return plusWithOverflow(date, 0, minutes, 0, 0);
     }
-
     ChronoLocalDateTimeImpl<D> plusSeconds(long seconds) {
         return plusWithOverflow(date, 0, 0, seconds, 0);
     }
-
     private ChronoLocalDateTimeImpl<D> plusNanos(long nanos) {
         return plusWithOverflow(date, 0, 0, 0, nanos);
     }
-
     //-----------------------------------------------------------------------
     private ChronoLocalDateTimeImpl<D> plusWithOverflow(D newDate, long hours, long minutes, long seconds, long nanos) {
         // 9223372036854775808 long, 2147483648 int
@@ -229,13 +182,11 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         LocalTime newTime = (newNoD == curNoD ? time : LocalTime.ofNanoOfDay(newNoD));
         return with(newDate.plus(totDays, ChronoUnit.DAYS), newTime);
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ChronoZonedDateTime<D> atZone(ZoneId zone) {
         return ChronoZonedDateTimeImpl.ofBest(this, zone, null);
     }
-
     //-----------------------------------------------------------------------
     @Override
     public long until(Temporal endExclusive, TemporalUnit unit) {
@@ -265,29 +216,22 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         Objects.requireNonNull(unit, "unit");
         return unit.between(this, end);
     }
-
     //-----------------------------------------------------------------------
-
     private Object writeReplace() {
         return new Ser(Ser.CHRONO_LOCAL_DATE_TIME_TYPE, this);
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
     void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(date);
         out.writeObject(time);
     }
-
     static ChronoLocalDateTime<?> readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         ChronoLocalDate date = (ChronoLocalDate) in.readObject();
         LocalTime time = (LocalTime) in.readObject();
         return date.atTime(time);
     }
-
     //-----------------------------------------------------------------------
     @Override
     public boolean equals(Object obj) {
@@ -299,15 +243,12 @@ final class ChronoLocalDateTimeImpl<D extends ChronoLocalDate>
         }
         return false;
     }
-
     @Override
     public int hashCode() {
         return toLocalDate().hashCode() ^ toLocalTime().hashCode();
     }
-
     @Override
     public String toString() {
         return toLocalDate().toString() + 'T' + toLocalTime().toString();
     }
-
 }

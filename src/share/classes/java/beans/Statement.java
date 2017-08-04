@@ -1,6 +1,4 @@
-
 package java.beans;
-
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -10,17 +8,12 @@ import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
-
 import com.sun.beans.finder.ClassFinder;
 import com.sun.beans.finder.ConstructorFinder;
 import com.sun.beans.finder.MethodFinder;
 import sun.reflect.misc.MethodUtil;
-
-
 public class Statement {
-
     private static Object[] emptyArray = new Object[]{};
-
     static ExceptionListener defaultExceptionListener = new ExceptionListener() {
         public void exceptionThrown(Exception e) {
             System.err.println(e);
@@ -28,41 +21,29 @@ public class Statement {
             System.err.println("Continuing ...");
         }
     };
-
     private final AccessControlContext acc = AccessController.getContext();
     private final Object target;
     private final String methodName;
     private final Object[] arguments;
     ClassLoader loader;
-
-
     @ConstructorProperties({"target", "methodName", "arguments"})
     public Statement(Object target, String methodName, Object[] arguments) {
         this.target = target;
         this.methodName = methodName;
         this.arguments = (arguments == null) ? emptyArray : arguments.clone();
     }
-
-
     public Object getTarget() {
         return target;
     }
-
-
     public String getMethodName() {
         return methodName;
     }
-
-
     public Object[] getArguments() {
         return this.arguments.clone();
     }
-
-
     public void execute() throws Exception {
         invoke();
     }
-
     Object invoke() throws Exception {
         AccessControlContext acc = this.acc;
         if ((acc == null) && (System.getSecurityManager() != null)) {
@@ -82,16 +63,13 @@ public class Statement {
             throw exception.getException();
         }
     }
-
     private Object invokeInternal() throws Exception {
         Object target = getTarget();
         String methodName = getMethodName();
-
         if (target == null || methodName == null) {
             throw new NullPointerException((target == null ? "target" :
                                             "methodName") + " should not be null");
         }
-
         Object[] arguments = getArguments();
         if (arguments == null) {
             arguments = emptyArray;
@@ -106,10 +84,8 @@ public class Statement {
         for(int i = 0; i < arguments.length; i++) {
             argClasses[i] = (arguments[i] == null) ? null : arguments[i].getClass();
         }
-
         AccessibleObject m = null;
         if (target instanceof Class) {
-
             if (methodName.equals("new")) {
                 methodName = "newInstance";
             }
@@ -146,7 +122,6 @@ public class Statement {
             }
         }
         else {
-
             if (target.getClass().isArray() &&
                 (methodName.equals("set") || methodName.equals("get"))) {
                 int index = ((Integer)arguments[0]).intValue();
@@ -186,7 +161,6 @@ public class Statement {
         }
         throw new NoSuchMethodException(toString());
     }
-
     String instanceName(Object instance) {
         if (instance == null) {
             return "null";
@@ -198,12 +172,9 @@ public class Statement {
             // specific information about the inner class name. For example,
             // In 1.4.2 an inner class would be represented as JList$1 now
             // would be named Class.
-
             return NameGenerator.unqualifiedClassName(instance.getClass());
         }
     }
-
-
     public String toString() {
         // Respect a subclass's implementation here.
         Object target = getTarget();
@@ -223,7 +194,6 @@ public class Statement {
         result.append(");");
         return result.toString();
     }
-
     static Method getMethod(Class<?> type, String name, Class<?>... args) {
         try {
             return MethodFinder.findMethod(type, name, args);

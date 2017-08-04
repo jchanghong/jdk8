@@ -1,7 +1,4 @@
-
-
 package javax.sql.rowset;
-
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.sql.SQLException;
@@ -10,29 +7,19 @@ import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import javax.sql.rowset.spi.SyncFactoryException;
 import sun.reflect.misc.ReflectUtil;
-
-
 public class RowSetProvider {
-
     private static final String ROWSET_DEBUG_PROPERTY = "javax.sql.rowset.RowSetProvider.debug";
     private static final String ROWSET_FACTORY_IMPL = "com.sun.rowset.RowSetFactoryImpl";
     private static final String ROWSET_FACTORY_NAME = "javax.sql.rowset.RowSetFactory";
-
     private static boolean debug = true;
-
-
     static {
         // Check to see if the debug property is set
         String val = getSystemProperty(ROWSET_DEBUG_PROPERTY);
         // Allow simply setting the prop to turn on debug
         debug = val != null && !"false".equals(val);
     }
-
-
     protected RowSetProvider () {
     }
-
-
     public static RowSetFactory newFactory()
             throws SQLException {
         // Use the system property first
@@ -49,7 +36,6 @@ public class RowSetProvider {
             throw new SQLException( "RowSetFactory: " + factoryClassName +
                     " could not be instantiated: ", e);
         }
-
         // Check to see if we found the RowSetFactory via a System property
         if (factory == null) {
             // If the RowSetFactory is not found via a System Property, now
@@ -61,13 +47,9 @@ public class RowSetProvider {
         }
         return (factory);
     }
-
-
     public static RowSetFactory newFactory(String factoryClassName, ClassLoader cl)
             throws SQLException {
-
         trace("***In newInstance()");
-
         if(factoryClassName == null) {
             throw new SQLException("Error: factoryClassName cannot be null");
         }
@@ -76,7 +58,6 @@ public class RowSetProvider {
         } catch (java.security.AccessControlException e) {
             throw new SQLException("Access Exception",e);
         }
-
         try {
             Class<?> providerClass = getFactoryClass(factoryClassName, cl, false);
             RowSetFactory instance = (RowSetFactory) providerClass.newInstance();
@@ -94,26 +75,18 @@ public class RowSetProvider {
                     x);
         }
     }
-
-
     static private ClassLoader getContextClassLoader() throws SecurityException {
         return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-
             public ClassLoader run() {
                 ClassLoader cl = null;
-
                 cl = Thread.currentThread().getContextClassLoader();
-
                 if (cl == null) {
                     cl = ClassLoader.getSystemClassLoader();
                 }
-
                 return cl;
             }
         });
     }
-
-
     static private Class<?> getFactoryClass(String factoryClassName, ClassLoader cl,
             boolean doFallback) throws ClassNotFoundException {
         try {
@@ -136,8 +109,6 @@ public class RowSetProvider {
             }
         }
     }
-
-
     static private RowSetFactory loadViaServiceLoader() throws SQLException {
         RowSetFactory theFactory = null;
         try {
@@ -153,15 +124,11 @@ public class RowSetProvider {
                     + "Loader API: " + e, e);
         }
         return theFactory;
-
     }
-
-
     static private String getSystemProperty(final String propName) {
         String property = null;
         try {
             property = AccessController.doPrivileged(new PrivilegedAction<String>() {
-
                 public String run() {
                     return System.getProperty(propName);
                 }
@@ -174,8 +141,6 @@ public class RowSetProvider {
         }
         return property;
     }
-
-
     private static void trace(String msg) {
         if (debug) {
             System.err.println("###RowSets: " + msg);

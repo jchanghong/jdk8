@@ -1,9 +1,4 @@
-
-
-
-
 package java.text;
-
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -21,11 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import sun.util.locale.provider.LocaleProviderAdapter;
 import sun.util.locale.provider.ResourceBundleBasedAdapter;
-
-
 public class DecimalFormat extends NumberFormat {
-
-
     public DecimalFormat() {
         // Get the pattern for the default locale.
         Locale def = Locale.getDefault(Locale.Category.FORMAT);
@@ -34,31 +25,21 @@ public class DecimalFormat extends NumberFormat {
             adapter = LocaleProviderAdapter.getResourceBundleBased();
         }
         String[] all = adapter.getLocaleResources(def).getNumberPatterns();
-
         // Always applyPattern after the symbols are set
         this.symbols = DecimalFormatSymbols.getInstance(def);
         applyPattern(all[0], false);
     }
-
-
-
     public DecimalFormat(String pattern) {
         // Always applyPattern after the symbols are set
         this.symbols = DecimalFormatSymbols.getInstance(Locale.getDefault(Locale.Category.FORMAT));
         applyPattern(pattern, false);
     }
-
-
-
     public DecimalFormat (String pattern, DecimalFormatSymbols symbols) {
         // Always applyPattern after the symbols are set
         this.symbols = (DecimalFormatSymbols)symbols.clone();
         applyPattern(pattern, false);
     }
-
-
     // Overrides
-
     @Override
     public final StringBuffer format(Object number,
                                      StringBuffer toAppendTo,
@@ -80,8 +61,6 @@ public class DecimalFormat extends NumberFormat {
             throw new IllegalArgumentException("Cannot format given Object as a Number");
         }
     }
-
-
     @Override
     public StringBuffer format(double number, StringBuffer result,
                                FieldPosition fieldPosition) {
@@ -94,7 +73,6 @@ public class DecimalFormat extends NumberFormat {
             fieldPosition.setBeginIndex(0);
             fieldPosition.setEndIndex(0);
         }
-
         if (tryFastPath) {
             String tempResult = fastFormat(number);
             if (tempResult != null) {
@@ -102,12 +80,9 @@ public class DecimalFormat extends NumberFormat {
                 return result;
             }
         }
-
         // if fast-path could not work, we fallback to standard code.
         return format(number, result, fieldPosition.getFieldDelegate());
     }
-
-
     private StringBuffer format(double number, StringBuffer result,
                                 FieldDelegate delegate) {
         if (Double.isNaN(number) ||
@@ -118,14 +93,10 @@ public class DecimalFormat extends NumberFormat {
                                iFieldStart, result.length(), result);
             return result;
         }
-
-
         boolean isNegative = ((number < 0.0) || (number == 0.0 && 1/number < 0.0)) ^ (multiplier < 0);
-
         if (multiplier != 1) {
             number *= multiplier;
         }
-
         if (Double.isInfinite(number)) {
             if (isNegative) {
                 append(result, negativePrefix, delegate,
@@ -134,12 +105,10 @@ public class DecimalFormat extends NumberFormat {
                 append(result, positivePrefix, delegate,
                        getPositivePrefixFieldPositions(), Field.SIGN);
             }
-
             int iFieldStart = result.length();
             result.append(symbols.getInfinity());
             delegate.formatted(INTEGER_FIELD, Field.INTEGER, Field.INTEGER,
                                iFieldStart, result.length(), result);
-
             if (isNegative) {
                 append(result, negativeSuffix, delegate,
                        getNegativeSuffixFieldPositions(), Field.SIGN);
@@ -147,23 +116,18 @@ public class DecimalFormat extends NumberFormat {
                 append(result, positiveSuffix, delegate,
                        getPositiveSuffixFieldPositions(), Field.SIGN);
             }
-
             return result;
         }
-
         if (isNegative) {
             number = -number;
         }
-
         // at this point we are guaranteed a nonnegative finite number.
         assert(number >= 0 && !Double.isInfinite(number));
-
         synchronized(digitList) {
             int maxIntDigits = super.getMaximumIntegerDigits();
             int minIntDigits = super.getMinimumIntegerDigits();
             int maxFraDigits = super.getMaximumFractionDigits();
             int minFraDigits = super.getMinimumFractionDigits();
-
             digitList.set(isNegative, number, useExponentialNotation ?
                           maxIntDigits + maxFraDigits : maxFraDigits,
                           !useExponentialNotation);
@@ -171,25 +135,19 @@ public class DecimalFormat extends NumberFormat {
                        maxIntDigits, minIntDigits, maxFraDigits, minFraDigits);
         }
     }
-
-
     @Override
     public StringBuffer format(long number, StringBuffer result,
                                FieldPosition fieldPosition) {
         fieldPosition.setBeginIndex(0);
         fieldPosition.setEndIndex(0);
-
         return format(number, result, fieldPosition.getFieldDelegate());
     }
-
-
     private StringBuffer format(long number, StringBuffer result,
                                FieldDelegate delegate) {
         boolean isNegative = (number < 0);
         if (isNegative) {
             number = -number;
         }
-
         // In general, long values always represent real finite numbers, so
         // we don't have to check for +/- Infinity or NaN.  However, there
         // is one case we have to be careful of:  The multiplier can push
@@ -208,7 +166,6 @@ public class DecimalFormat extends NumberFormat {
             }
             useBigInteger = (number > cutoff);
         }
-
         if (useBigInteger) {
             if (isNegative) {
                 number = -number;
@@ -216,7 +173,6 @@ public class DecimalFormat extends NumberFormat {
             BigInteger bigIntegerValue = BigInteger.valueOf(number);
             return format(bigIntegerValue, result, delegate, true);
         }
-
         number *= multiplier;
         if (number == 0) {
             isNegative = false;
@@ -226,30 +182,23 @@ public class DecimalFormat extends NumberFormat {
                 isNegative = !isNegative;
             }
         }
-
         synchronized(digitList) {
             int maxIntDigits = super.getMaximumIntegerDigits();
             int minIntDigits = super.getMinimumIntegerDigits();
             int maxFraDigits = super.getMaximumFractionDigits();
             int minFraDigits = super.getMinimumFractionDigits();
-
             digitList.set(isNegative, number,
                      useExponentialNotation ? maxIntDigits + maxFraDigits : 0);
-
             return subformat(result, delegate, isNegative, true,
                        maxIntDigits, minIntDigits, maxFraDigits, minFraDigits);
         }
     }
-
-
     private StringBuffer format(BigDecimal number, StringBuffer result,
                                 FieldPosition fieldPosition) {
         fieldPosition.setBeginIndex(0);
         fieldPosition.setEndIndex(0);
         return format(number, result, fieldPosition.getFieldDelegate());
     }
-
-
     private StringBuffer format(BigDecimal number, StringBuffer result,
                                 FieldDelegate delegate) {
         if (multiplier != 1) {
@@ -259,33 +208,25 @@ public class DecimalFormat extends NumberFormat {
         if (isNegative) {
             number = number.negate();
         }
-
         synchronized(digitList) {
             int maxIntDigits = getMaximumIntegerDigits();
             int minIntDigits = getMinimumIntegerDigits();
             int maxFraDigits = getMaximumFractionDigits();
             int minFraDigits = getMinimumFractionDigits();
             int maximumDigits = maxIntDigits + maxFraDigits;
-
             digitList.set(isNegative, number, useExponentialNotation ?
                 ((maximumDigits < 0) ? Integer.MAX_VALUE : maximumDigits) :
                 maxFraDigits, !useExponentialNotation);
-
             return subformat(result, delegate, isNegative, false,
                 maxIntDigits, minIntDigits, maxFraDigits, minFraDigits);
         }
     }
-
-
     private StringBuffer format(BigInteger number, StringBuffer result,
                                FieldPosition fieldPosition) {
         fieldPosition.setBeginIndex(0);
         fieldPosition.setEndIndex(0);
-
         return format(number, result, fieldPosition.getFieldDelegate(), false);
     }
-
-
     private StringBuffer format(BigInteger number, StringBuffer result,
                                FieldDelegate delegate, boolean formatLong) {
         if (multiplier != 1) {
@@ -295,7 +236,6 @@ public class DecimalFormat extends NumberFormat {
         if (isNegative) {
             number = number.negate();
         }
-
         synchronized(digitList) {
             int maxIntDigits, minIntDigits, maxFraDigits, minFraDigits, maximumDigits;
             if (formatLong) {
@@ -314,22 +254,17 @@ public class DecimalFormat extends NumberFormat {
                     maximumDigits = Integer.MAX_VALUE;
                 }
             }
-
             digitList.set(isNegative, number,
                           useExponentialNotation ? maximumDigits : 0);
-
             return subformat(result, delegate, isNegative, true,
                 maxIntDigits, minIntDigits, maxFraDigits, minFraDigits);
         }
     }
-
-
     @Override
     public AttributedCharacterIterator formatToCharacterIterator(Object obj) {
         CharacterIteratorFieldDelegate delegate =
                          new CharacterIteratorFieldDelegate();
         StringBuffer sb = new StringBuffer();
-
         if (obj instanceof Double || obj instanceof Float) {
             format(((Number)obj).doubleValue(), sb, delegate);
         } else if (obj instanceof Long || obj instanceof Integer ||
@@ -349,28 +284,19 @@ public class DecimalFormat extends NumberFormat {
         }
         return delegate.getIterator(sb.toString());
     }
-
     // ==== Begin fast-path formating logic for double =========================
-
-
-
-
     private void checkAndSetFastPathStatus() {
-
         boolean fastPathWasOn = isFastPath;
-
         if ((roundingMode == RoundingMode.HALF_EVEN) &&
             (isGroupingUsed()) &&
             (groupingSize == 3) &&
             (multiplier == 1) &&
             (!decimalSeparatorAlwaysShown) &&
             (!useExponentialNotation)) {
-
             // The fast-path algorithm is semi-hardcoded against
             //  minimumIntegerDigits and maximumIntegerDigits.
             isFastPath = ((minimumIntegerDigits == 1) &&
                           (maximumIntegerDigits >= 10));
-
             // The fast-path algorithm is hardcoded against
             //  minimumFractionDigits and maximumFractionDigits.
             if (isFastPath) {
@@ -384,29 +310,24 @@ public class DecimalFormat extends NumberFormat {
             }
         } else
             isFastPath = false;
-
         // Since some instance properties may have changed while still falling
         // in the fast-path case, we need to reinitialize fastPathData anyway.
         if (isFastPath) {
             // We need to instantiate fastPathData if not already done.
             if (fastPathData == null)
                 fastPathData = new FastPathData();
-
             // Sets up the locale specific constants used when formatting.
             // '0' is our default representation of zero.
             fastPathData.zeroDelta = symbols.getZeroDigit() - '0';
             fastPathData.groupingChar = symbols.getGroupingSeparator();
-
             // Sets up fractional constants related to currency/decimal pattern.
             fastPathData.fractionalMaxIntBound = (isCurrencyFormat) ? 99 : 999;
             fastPathData.fractionalScaleFactor = (isCurrencyFormat) ? 100.0d : 1000.0d;
-
             // Records the need for adding prefix or suffix
             fastPathData.positiveAffixesRequired =
                 (positivePrefix.length() != 0) || (positiveSuffix.length() != 0);
             fastPathData.negativeAffixesRequired =
                 (negativePrefix.length() != 0) || (negativeSuffix.length() != 0);
-
             // Creates a cached char container for result, with max possible size.
             int maxNbIntegralDigits = 10;
             int maxNbGroups = 3;
@@ -414,29 +335,24 @@ public class DecimalFormat extends NumberFormat {
                 Math.max(positivePrefix.length(), negativePrefix.length()) +
                 maxNbIntegralDigits + maxNbGroups + 1 + maximumFractionDigits +
                 Math.max(positiveSuffix.length(), negativeSuffix.length());
-
             fastPathData.fastPathContainer = new char[containerSize];
-
             // Sets up prefix and suffix char arrays constants.
             fastPathData.charsPositiveSuffix = positiveSuffix.toCharArray();
             fastPathData.charsNegativeSuffix = negativeSuffix.toCharArray();
             fastPathData.charsPositivePrefix = positivePrefix.toCharArray();
             fastPathData.charsNegativePrefix = negativePrefix.toCharArray();
-
             // Sets up fixed index positions for integral and fractional digits.
             // Sets up decimal point in cached result container.
             int longestPrefixLength =
                 Math.max(positivePrefix.length(), negativePrefix.length());
             int decimalPointIndex =
                 maxNbIntegralDigits + maxNbGroups + longestPrefixLength;
-
             fastPathData.integralLastIndex    = decimalPointIndex - 1;
             fastPathData.fractionalFirstIndex = decimalPointIndex + 1;
             fastPathData.fastPathContainer[decimalPointIndex] =
                 isCurrencyFormat ?
                 symbols.getMonetaryDecimalSeparator() :
                 symbols.getDecimalSeparator();
-
         } else if (fastPathWasOn) {
             // Previous state was fast-path and is no more.
             // Resets cached array constants.
@@ -446,27 +362,16 @@ public class DecimalFormat extends NumberFormat {
             fastPathData.charsPositivePrefix = null;
             fastPathData.charsNegativePrefix = null;
         }
-
         fastPathCheckNeeded = false;
     }
-
-
     private boolean exactRoundUp(double fractionalPart,
                                  int scaledFractionalPartAsInt) {
-
-
-
-
-
-
         double approxMax;    // Will always be positive.
         double approxMedium; // Will always be negative.
         double approxMin;
-
         double fastTwoSumApproximation = 0.0d;
         double fastTwoSumRoundOff = 0.0d;
         double bVirtual = 0.0d;
-
         if (isCurrencyFormat) {
             // Scale is 100 = 128 - 32 + 4.
             // Multiply by 2**n is a shift. No roundoff. No error.
@@ -480,7 +385,6 @@ public class DecimalFormat extends NumberFormat {
             approxMedium = - (fractionalPart * 16.00d);
             approxMin    = - (fractionalPart * 8.00d);
         }
-
         // Shewchuk/Dekker's FastTwoSum(approxMedium, approxMin).
         assert(-approxMedium >= Math.abs(approxMin));
         fastTwoSumApproximation = approxMedium + approxMin;
@@ -488,7 +392,6 @@ public class DecimalFormat extends NumberFormat {
         fastTwoSumRoundOff = approxMin - bVirtual;
         double approxS1 = fastTwoSumApproximation;
         double roundoffS1 = fastTwoSumRoundOff;
-
         // Shewchuk/Dekker's FastTwoSum(approxMax, approxS1);
         assert(approxMax >= Math.abs(approxS1));
         fastTwoSumApproximation = approxMax + approxS1;
@@ -497,18 +400,13 @@ public class DecimalFormat extends NumberFormat {
         double roundoff1000 = fastTwoSumRoundOff;
         double approx1000 = fastTwoSumApproximation;
         double roundoffTotal = roundoffS1 + roundoff1000;
-
         // Shewchuk/Dekker's FastTwoSum(approx1000, roundoffTotal);
         assert(approx1000 >= Math.abs(roundoffTotal));
         fastTwoSumApproximation = approx1000 + roundoffTotal;
         bVirtual = fastTwoSumApproximation - approx1000;
-
         // Now we have got the roundoff for the scaled fractional
         double scaledFractionalRoundoff = roundoffTotal - bVirtual;
-
         // ---- TwoProduct(fractionalPart, scale (i.e. 1000.0d or 100.0d)) end.
-
-
         if (scaledFractionalRoundoff > 0.0) {
             return true;
         } else if (scaledFractionalRoundoff < 0.0) {
@@ -516,13 +414,9 @@ public class DecimalFormat extends NumberFormat {
         } else if ((scaledFractionalPartAsInt & 1) != 0) {
             return true;
         }
-
         return false;
-
         // ---- Taking the rounding decision end
     }
-
-
     private void collectIntegralDigits(int number,
                                        char[] digitsBuffer,
                                        int backwardIndex) {
@@ -534,13 +428,11 @@ public class DecimalFormat extends NumberFormat {
             q = number / 1000;
             r = number - (q << 10) + (q << 4) + (q << 3); // -1024 +16 +8 = 1000.
             number = q;
-
             digitsBuffer[index--] = DigitArrays.DigitOnes1000[r];
             digitsBuffer[index--] = DigitArrays.DigitTens1000[r];
             digitsBuffer[index--] = DigitArrays.DigitHundreds1000[r];
             digitsBuffer[index--] = fastPathData.groupingChar;
         }
-
         // Collects last 3 or less digits.
         digitsBuffer[index] = DigitArrays.DigitOnes1000[number];
         if (number > 9) {
@@ -548,19 +440,14 @@ public class DecimalFormat extends NumberFormat {
             if (number > 99)
                 digitsBuffer[--index]   = DigitArrays.DigitHundreds1000[number];
         }
-
         fastPathData.firstUsedIndex = index;
     }
-
-
     private void collectFractionalDigits(int number,
                                          char[] digitsBuffer,
                                          int startIndex) {
         int index = startIndex;
-
         char digitOnes = DigitArrays.DigitOnes1000[number];
         char digitTens = DigitArrays.DigitTens1000[number];
-
         if (isCurrencyFormat) {
             // Currency case. Always collects fractional digits.
             digitsBuffer[index++] = digitTens;
@@ -568,42 +455,31 @@ public class DecimalFormat extends NumberFormat {
         } else if (number != 0) {
             // Decimal case. Hundreds will always be collected
             digitsBuffer[index++] = DigitArrays.DigitHundreds1000[number];
-
             // Ending zeros won't be collected.
             if (digitOnes != '0') {
                 digitsBuffer[index++] = digitTens;
                 digitsBuffer[index++] = digitOnes;
             } else if (digitTens != '0')
                 digitsBuffer[index++] = digitTens;
-
         } else
             // This is decimal pattern and fractional part is zero.
             // We must remove decimal point from result.
             index--;
-
         fastPathData.lastFreeIndex = index;
     }
-
-
     //    private void addAffixes(boolean isNegative, char[] container) {
     private void addAffixes(char[] container, char[] prefix, char[] suffix) {
-
         // We add affixes only if needed (affix length > 0).
         int pl = prefix.length;
         int sl = suffix.length;
         if (pl != 0) prependPrefix(prefix, pl, container);
         if (sl != 0) appendSuffix(suffix, sl, container);
-
     }
-
-
     private void prependPrefix(char[] prefix,
                                int len,
                                char[] container) {
-
         fastPathData.firstUsedIndex -= len;
         int startIndex = fastPathData.firstUsedIndex;
-
         // If prefix to prepend is only 1 char long, just assigns this char.
         // If prefix is less or equal 4, we use a dedicated algorithm that
         //  has shown to run faster than System.arraycopy.
@@ -616,7 +492,6 @@ public class DecimalFormat extends NumberFormat {
             int srcUpper = len - 1;
             container[dstLower] = prefix[0];
             container[dstUpper] = prefix[srcUpper];
-
             if (len > 2)
                 container[++dstLower] = prefix[1];
             if (len == 4)
@@ -624,14 +499,10 @@ public class DecimalFormat extends NumberFormat {
         } else
             System.arraycopy(prefix, 0, container, startIndex, len);
     }
-
-
     private void appendSuffix(char[] suffix,
                               int len,
                               char[] container) {
-
         int startIndex = fastPathData.lastFreeIndex;
-
         // If suffix to append is only 1 char long, just assigns this char.
         // If suffix is less or equal 4, we use a dedicated algorithm that
         //  has shown to run faster than System.arraycopy.
@@ -644,31 +515,23 @@ public class DecimalFormat extends NumberFormat {
             int srcUpper = len - 1;
             container[dstLower] = suffix[0];
             container[dstUpper] = suffix[srcUpper];
-
             if (len > 2)
                 container[++dstLower] = suffix[1];
             if (len == 4)
                 container[--dstUpper] = suffix[2];
         } else
             System.arraycopy(suffix, 0, container, startIndex, len);
-
         fastPathData.lastFreeIndex += len;
     }
-
-
     private void localizeDigits(char[] digitsBuffer) {
-
         // We will localize only the digits, using the groupingSize,
         // and taking into account fractional part.
-
         // First take into account fractional part.
         int digitsCounter =
             fastPathData.lastFreeIndex - fastPathData.fractionalFirstIndex;
-
         // The case when there is no fractional digits.
         if (digitsCounter < 0)
             digitsCounter = groupingSize;
-
         // Only the digits remains to localize.
         for (int cursor = fastPathData.lastFreeIndex - 1;
              cursor >= fastPathData.firstUsedIndex;
@@ -683,31 +546,20 @@ public class DecimalFormat extends NumberFormat {
             }
         }
     }
-
-
     private void fastDoubleFormat(double d,
                                   boolean negative) {
-
         char[] container = fastPathData.fastPathContainer;
-
-
-
         // Exact integral part of d.
         int integralPartAsInt = (int) d;
-
         // Exact fractional part of d (since we subtract it's integral part).
         double exactFractionalPart = d - (double) integralPartAsInt;
-
         // Approximated scaled fractional part of d (due to multiplication).
         double scaledFractional =
             exactFractionalPart * fastPathData.fractionalScaleFactor;
-
         // Exact integral part of scaled fractional above.
         int fractionalPartAsInt = (int) scaledFractional;
-
         // Exact fractional part of scaled fractional above.
         scaledFractional = scaledFractional - (double) fractionalPartAsInt;
-
         // Only when scaledFractional is exactly 0.5d do we have to do exact
         // calculations and take fine-grained rounding decision, since
         // approximated results above may lead to incorrect decision.
@@ -719,7 +571,6 @@ public class DecimalFormat extends NumberFormat {
                 roundItUp = exactRoundUp(exactFractionalPart, fractionalPartAsInt);
             else
                 roundItUp = true;
-
             if (roundItUp) {
                 // Rounds up both fractional part (and also integral if needed).
                 if (fractionalPartAsInt < fastPathData.fractionalMaxIntBound) {
@@ -731,17 +582,14 @@ public class DecimalFormat extends NumberFormat {
                 }
             }
         }
-
         // Collecting digits.
         collectFractionalDigits(fractionalPartAsInt, container,
                                 fastPathData.fractionalFirstIndex);
         collectIntegralDigits(integralPartAsInt, container,
                               fastPathData.integralLastIndex);
-
         // Localizing digits.
         if (fastPathData.zeroDelta != 0)
             localizeDigits(container);
-
         // Adding prefix and suffix.
         if (negative) {
             if (fastPathData.negativeAffixesRequired)
@@ -753,21 +601,16 @@ public class DecimalFormat extends NumberFormat {
                        fastPathData.charsPositivePrefix,
                        fastPathData.charsPositiveSuffix);
     }
-
-
     String fastFormat(double d) {
         // (Re-)Evaluates fast-path status if needed.
         if (fastPathCheckNeeded)
             checkAndSetFastPathStatus();
-
         if (!isFastPath )
             // DecimalFormat instance is not in a fast-path state.
             return null;
-
         if (!Double.isFinite(d))
             // Should not use fast-path for Infinity and NaN.
             return null;
-
         // Extracts and records sign of double value, possibly changing it
         // to a positive one, before calling fastDoubleFormat().
         boolean negative = false;
@@ -778,23 +621,17 @@ public class DecimalFormat extends NumberFormat {
             negative = (Math.copySign(1.0d, d) == -1.0d);
             d = +0.0d;
         }
-
         if (d > MAX_INT_AS_DOUBLE)
             // Filters out values that are outside expected fast-path range
             return null;
         else
             fastDoubleFormat(d, negative);
-
         // Returns a new string from updated fastPathContainer.
         return new String(fastPathData.fastPathContainer,
                           fastPathData.firstUsedIndex,
                           fastPathData.lastFreeIndex - fastPathData.firstUsedIndex);
-
     }
-
     // ======== End fast-path formating logic for double =========================
-
-
     private StringBuffer subformat(StringBuffer result, FieldDelegate delegate,
                                    boolean isNegative, boolean isInteger,
                                    int maxIntDigits, int minIntDigits,
@@ -812,19 +649,15 @@ public class DecimalFormat extends NumberFormat {
         //  {
         //      digitList.count = 0;
         //  }
-
         char zero = symbols.getZeroDigit();
         int zeroDelta = zero - '0'; // '0' is the DigitList representation of zero
         char grouping = symbols.getGroupingSeparator();
         char decimal = isCurrencyFormat ?
             symbols.getMonetaryDecimalSeparator() :
             symbols.getDecimalSeparator();
-
-
         if (digitList.isZero()) {
             digitList.decimalAt = 0; // Normalize
         }
-
         if (isNegative) {
             append(result, negativePrefix, delegate,
                    getNegativePrefixFieldPositions(), Field.SIGN);
@@ -832,16 +665,13 @@ public class DecimalFormat extends NumberFormat {
             append(result, positivePrefix, delegate,
                    getPositivePrefixFieldPositions(), Field.SIGN);
         }
-
         if (useExponentialNotation) {
             int iFieldStart = result.length();
             int iFieldEnd = -1;
             int fFieldStart = -1;
-
             // Minimum integer digits are handled in exponential format by
             // adjusting the exponent.  For example, 0.01234 with 3 minimum
             // integer digits is "123.4E-4".
-
             // Maximum integer digits are interpreted as indicating the
             // repeating range.  This is useful for engineering notation, in
             // which the exponent is restricted to a multiple of 3.  For
@@ -869,7 +699,6 @@ public class DecimalFormat extends NumberFormat {
                 // No repeating range is defined; use minimum integer digits.
                 exponent -= minimumIntegerDigits;
             }
-
             // We now output a minimum number of digits, and more if there
             // are more digits, up to the maximum number of digits.  We
             // place the decimal point after the "integer" digits, which
@@ -878,7 +707,6 @@ public class DecimalFormat extends NumberFormat {
             if (minimumDigits < 0) {    // overflow?
                 minimumDigits = Integer.MAX_VALUE;
             }
-
             // The number of integer digits is handled specially if the number
             // is zero, since then there may be no digits.
             int integerDigits = digitList.isZero() ? minimumIntegerDigits :
@@ -891,15 +719,12 @@ public class DecimalFormat extends NumberFormat {
                 totalDigits = minimumDigits;
             }
             boolean addedDecimalSeparator = false;
-
             for (int i=0; i<totalDigits; ++i) {
                 if (i == integerDigits) {
                     // Record field information for caller.
                     iFieldEnd = result.length();
-
                     result.append(decimal);
                     addedDecimalSeparator = true;
-
                     // Record field information for caller.
                     fFieldStart = result.length();
                 }
@@ -907,18 +732,14 @@ public class DecimalFormat extends NumberFormat {
                               (char)(digitList.digits[i] + zeroDelta) :
                               zero);
             }
-
             if (decimalSeparatorAlwaysShown && totalDigits == integerDigits) {
                 // Record field information for caller.
                 iFieldEnd = result.length();
-
                 result.append(decimal);
                 addedDecimalSeparator = true;
-
                 // Record field information for caller.
                 fFieldStart = result.length();
             }
-
             // Record field information
             if (iFieldEnd == -1) {
                 iFieldEnd = result.length();
@@ -935,25 +756,20 @@ public class DecimalFormat extends NumberFormat {
             }
             delegate.formatted(FRACTION_FIELD, Field.FRACTION, Field.FRACTION,
                                fFieldStart, result.length(), result);
-
             // The exponent is output using the pattern-specified minimum
             // exponent digits.  There is no maximum limit to the exponent
             // digits, since truncating the exponent would result in an
             // unacceptable inaccuracy.
             int fieldStart = result.length();
-
             result.append(symbols.getExponentSeparator());
-
             delegate.formatted(Field.EXPONENT_SYMBOL, Field.EXPONENT_SYMBOL,
                                fieldStart, result.length(), result);
-
             // For zero values, we force the exponent to zero.  We
             // must do this here, and not earlier, because the value
             // is used to determine integer digit count above.
             if (digitList.isZero()) {
                 exponent = 0;
             }
-
             boolean negativeExponent = exponent < 0;
             if (negativeExponent) {
                 exponent = -exponent;
@@ -963,9 +779,7 @@ public class DecimalFormat extends NumberFormat {
                                    fieldStart, result.length(), result);
             }
             digitList.set(negativeExponent, exponent);
-
             int eFieldStart = result.length();
-
             for (int i=digitList.decimalAt; i<minExponentDigits; ++i) {
                 result.append(zero);
             }
@@ -977,7 +791,6 @@ public class DecimalFormat extends NumberFormat {
                                result.length(), result);
         } else {
             int iFieldStart = result.length();
-
             // Output the integer portion.  Here 'count' is the total
             // number of integer digits we will display, including both
             // leading zeros required to satisfy getMinimumIntegerDigits,
@@ -987,7 +800,6 @@ public class DecimalFormat extends NumberFormat {
             if (digitList.decimalAt > 0 && count < digitList.decimalAt) {
                 count = digitList.decimalAt;
             }
-
             // Handle the case where getMaximumIntegerDigits() is smaller
             // than the real number of integer digits.  If this is so, we
             // output the least significant max integer digits.  For example,
@@ -996,7 +808,6 @@ public class DecimalFormat extends NumberFormat {
                 count = maxIntDigits;
                 digitIndex = digitList.decimalAt - count;
             }
-
             int sizeBeforeIntegerPart = result.length();
             for (int i=count-1; i>=0; --i) {
                 if (i < digitList.decimalAt && digitIndex < digitList.count) {
@@ -1006,7 +817,6 @@ public class DecimalFormat extends NumberFormat {
                     // Output a leading zero
                     result.append(zero);
                 }
-
                 // Output grouping separator if necessary.  Don't output a
                 // grouping separator if i==0 though; that's at the end of
                 // the integer part.
@@ -1019,35 +829,29 @@ public class DecimalFormat extends NumberFormat {
                                        result.length(), result);
                 }
             }
-
             // Determine whether or not there are any printable fractional
             // digits.  If we've used up the digits we know there aren't.
             boolean fractionPresent = (minFraDigits > 0) ||
                 (!isInteger && digitIndex < digitList.count);
-
             // If there is no fraction present, and we haven't printed any
             // integer digits, then print a zero.  Otherwise we won't print
             // _any_ digits, and we won't be able to parse this string.
             if (!fractionPresent && result.length() == sizeBeforeIntegerPart) {
                 result.append(zero);
             }
-
             delegate.formatted(INTEGER_FIELD, Field.INTEGER, Field.INTEGER,
                                iFieldStart, result.length(), result);
-
             // Output the decimal separator if we always do so.
             int sStart = result.length();
             if (decimalSeparatorAlwaysShown || fractionPresent) {
                 result.append(decimal);
             }
-
             if (sStart != result.length()) {
                 delegate.formatted(Field.DECIMAL_SEPARATOR,
                                    Field.DECIMAL_SEPARATOR,
                                    sStart, result.length(), result);
             }
             int fFieldStart = result.length();
-
             for (int i=0; i < maxFraDigits; ++i) {
                 // Here is where we escape from the loop.  We escape if we've
                 // output the maximum fraction digits (specified in the for
@@ -1059,7 +863,6 @@ public class DecimalFormat extends NumberFormat {
                     (isInteger || digitIndex >= digitList.count)) {
                     break;
                 }
-
                 // Output leading fractional zeros. These are zeros that come
                 // after the decimal but before any significant digits. These
                 // are only output if abs(number being formatted) < 1.0.
@@ -1067,7 +870,6 @@ public class DecimalFormat extends NumberFormat {
                     result.append(zero);
                     continue;
                 }
-
                 // Output a digit, if we have any precision left, or a
                 // zero if we don't.  We don't want to output noise digits.
                 if (!isInteger && digitIndex < digitList.count) {
@@ -1076,12 +878,10 @@ public class DecimalFormat extends NumberFormat {
                     result.append(zero);
                 }
             }
-
             // Record field information for caller.
             delegate.formatted(FRACTION_FIELD, Field.FRACTION, Field.FRACTION,
                                fFieldStart, result.length(), result);
         }
-
         if (isNegative) {
             append(result, negativeSuffix, delegate,
                    getNegativeSuffixFieldPositions(), Field.SIGN);
@@ -1089,24 +889,19 @@ public class DecimalFormat extends NumberFormat {
             append(result, positiveSuffix, delegate,
                    getPositiveSuffixFieldPositions(), Field.SIGN);
         }
-
         return result;
     }
-
-
     private void append(StringBuffer result, String string,
                         FieldDelegate delegate,
                         FieldPosition[] positions,
                         Format.Field signAttribute) {
         int start = result.length();
-
         if (string.length() > 0) {
             result.append(string);
             for (int counter = 0, max = positions.length; counter < max;
                  counter++) {
                 FieldPosition fp = positions[counter];
                 Format.Field attribute = fp.getFieldAttribute();
-
                 if (attribute == Field.SIGN) {
                     attribute = signAttribute;
                 }
@@ -1116,8 +911,6 @@ public class DecimalFormat extends NumberFormat {
             }
         }
     }
-
-
     @Override
     public Number parse(String text, ParsePosition pos) {
         // special case NaN
@@ -1125,12 +918,10 @@ public class DecimalFormat extends NumberFormat {
             pos.index = pos.index + symbols.getNaN().length();
             return new Double(Double.NaN);
         }
-
         boolean[] status = new boolean[STATUS_LENGTH];
         if (!subparse(text, pos, positivePrefix, negativePrefix, digitList, false, status)) {
             return null;
         }
-
         // special case INFINITY
         if (status[STATUS_INFINITE]) {
             if (status[STATUS_POSITIVE] == (multiplier >= 0)) {
@@ -1139,7 +930,6 @@ public class DecimalFormat extends NumberFormat {
                 return new Double(Double.NEGATIVE_INFINITY);
             }
         }
-
         if (multiplier == 0) {
             if (digitList.isZero()) {
                 return new Double(Double.NaN);
@@ -1149,10 +939,8 @@ public class DecimalFormat extends NumberFormat {
                 return new Double(Double.NEGATIVE_INFINITY);
             }
         }
-
         if (isParseBigDecimal()) {
             BigDecimal bigDecimalResult = digitList.getBigDecimal();
-
             if (multiplier != 1) {
                 try {
                     bigDecimalResult = bigDecimalResult.divide(getBigDecimalMultiplier());
@@ -1161,7 +949,6 @@ public class DecimalFormat extends NumberFormat {
                     bigDecimalResult = bigDecimalResult.divide(getBigDecimalMultiplier(), roundingMode);
                 }
             }
-
             if (!status[STATUS_POSITIVE]) {
                 bigDecimalResult = bigDecimalResult.negate();
             }
@@ -1171,7 +958,6 @@ public class DecimalFormat extends NumberFormat {
             boolean gotLongMinimum = false;
             double  doubleResult = 0.0;
             long    longResult = 0;
-
             // Finally, have DigitList parse the digits into a value.
             if (digitList.fitsIntoLong(status[STATUS_POSITIVE], isParseIntegerOnly())) {
                 gotDouble = false;
@@ -1182,7 +968,6 @@ public class DecimalFormat extends NumberFormat {
             } else {
                 doubleResult = digitList.getDouble();
             }
-
             // Divide by multiplier. We have to be careful here not to do
             // unneeded conversions between double and long.
             if (multiplier != 1) {
@@ -1198,12 +983,10 @@ public class DecimalFormat extends NumberFormat {
                     }
                 }
             }
-
             if (!status[STATUS_POSITIVE] && !gotLongMinimum) {
                 doubleResult = -doubleResult;
                 longResult = -longResult;
             }
-
             // At this point, if we divided the result by the multiplier, the
             // result may fit into a long.  We check for this case and return
             // a long if possible.
@@ -1219,13 +1002,10 @@ public class DecimalFormat extends NumberFormat {
                             (doubleResult == 0.0 && 1/doubleResult < 0.0)) &&
                             !isParseIntegerOnly();
             }
-
             return gotDouble ?
                 (Number)new Double(doubleResult) : (Number)new Long(longResult);
         }
     }
-
-
     private BigInteger getBigIntegerMultiplier() {
         if (bigIntegerMultiplier == null) {
             bigIntegerMultiplier = BigInteger.valueOf(multiplier);
@@ -1233,8 +1013,6 @@ public class DecimalFormat extends NumberFormat {
         return bigIntegerMultiplier;
     }
     private transient BigInteger bigIntegerMultiplier;
-
-
     private BigDecimal getBigDecimalMultiplier() {
         if (bigDecimalMultiplier == null) {
             bigDecimalMultiplier = new BigDecimal(multiplier);
@@ -1242,12 +1020,9 @@ public class DecimalFormat extends NumberFormat {
         return bigDecimalMultiplier;
     }
     private transient BigDecimal bigDecimalMultiplier;
-
     private static final int STATUS_INFINITE = 0;
     private static final int STATUS_POSITIVE = 1;
     private static final int STATUS_LENGTH   = 2;
-
-
     private final boolean subparse(String text, ParsePosition parsePosition,
                    String positivePrefix, String negativePrefix,
                    DigitList digits, boolean isExponent,
@@ -1256,13 +1031,11 @@ public class DecimalFormat extends NumberFormat {
         int oldStart = parsePosition.index;
         int backup;
         boolean gotPositive, gotNegative;
-
         // check for positivePrefix; take longest
         gotPositive = text.regionMatches(position, positivePrefix, 0,
                                          positivePrefix.length());
         gotNegative = text.regionMatches(position, negativePrefix, 0,
                                          negativePrefix.length());
-
         if (gotPositive && gotNegative) {
             if (positivePrefix.length() > negativePrefix.length()) {
                 gotNegative = false;
@@ -1270,7 +1043,6 @@ public class DecimalFormat extends NumberFormat {
                 gotPositive = false;
             }
         }
-
         if (gotPositive) {
             position += positivePrefix.length();
         } else if (gotNegative) {
@@ -1279,7 +1051,6 @@ public class DecimalFormat extends NumberFormat {
             parsePosition.errorIndex = position;
             return false;
         }
-
         // process digits or Inf, find decimal position
         status[STATUS_INFINITE] = false;
         if (!isExponent && text.regionMatches(position,symbols.getInfinity(),0,
@@ -1293,7 +1064,6 @@ public class DecimalFormat extends NumberFormat {
             // though, so we keep track of the location of the decimal point,
             // put only significant digits into the DigitList, and adjust the
             // exponent as needed.
-
             digits.decimalAt = digits.count = 0;
             char zero = symbols.getZeroDigit();
             char decimal = isCurrencyFormat ?
@@ -1305,33 +1075,26 @@ public class DecimalFormat extends NumberFormat {
             boolean sawExponent = false;
             boolean sawDigit = false;
             int exponent = 0; // Set to the exponent value, if any
-
             // We have to track digitCount ourselves, because digits.count will
             // pin when the maximum allowable digits is reached.
             int digitCount = 0;
-
             backup = -1;
             for (; position < text.length(); ++position) {
                 char ch = text.charAt(position);
-
-
                 int digit = ch - zero;
                 if (digit < 0 || digit > 9) {
                     digit = Character.digit(ch, 10);
                 }
-
                 if (digit == 0) {
                     // Cancel out backup setting (see grouping handler below)
                     backup = -1; // Do this BEFORE continue statement below!!!
                     sawDigit = true;
-
                     // Handle leading zeros
                     if (digits.count == 0) {
                         // Ignore leading zeros in integer part of number.
                         if (!sawDecimal) {
                             continue;
                         }
-
                         // If we have seen the decimal, but no significant
                         // digits yet, then we account for leading zeros by
                         // decrementing the digits.decimalAt into negative
@@ -1345,7 +1108,6 @@ public class DecimalFormat extends NumberFormat {
                     sawDigit = true;
                     ++digitCount;
                     digits.append((char)(digit + '0'));
-
                     // Cancel out backup setting (see grouping handler below)
                     backup = -1;
                 } else if (!isExponent && ch == decimal) {
@@ -1370,7 +1132,6 @@ public class DecimalFormat extends NumberFormat {
                      ParsePosition pos = new ParsePosition(position + exponentString.length());
                     boolean[] stat = new boolean[STATUS_LENGTH];
                     DigitList exponentDigits = new DigitList();
-
                     if (subparse(text, pos, "", Character.toString(symbols.getMinusSign()), exponentDigits, true, stat) &&
                         exponentDigits.fitsIntoLong(stat[STATUS_POSITIVE], true)) {
                         position = pos.index; // Advance past the exponent
@@ -1385,19 +1146,15 @@ public class DecimalFormat extends NumberFormat {
                     break;
                 }
             }
-
             if (backup != -1) {
                 position = backup;
             }
-
             // If there was no decimal point we have an integer
             if (!sawDecimal) {
                 digits.decimalAt = digitCount; // Not digits.count!
             }
-
             // Adjust for exponent, if any
             digits.decimalAt += exponent;
-
             // If none of the text string was recognized.  For example, parse
             // "x" with pattern "#0.00" (return index and error index both 0)
             // parse "$" with pattern "$#0.00". (return index 0 and error
@@ -1408,7 +1165,6 @@ public class DecimalFormat extends NumberFormat {
                 return false;
             }
         }
-
         // check for suffix
         if (!isExponent) {
             if (gotPositive) {
@@ -1419,7 +1175,6 @@ public class DecimalFormat extends NumberFormat {
                 gotNegative = text.regionMatches(position,negativeSuffix,0,
                                                  negativeSuffix.length());
             }
-
         // if both match, take longest
         if (gotPositive && gotNegative) {
             if (positiveSuffix.length() > negativeSuffix.length()) {
@@ -1428,19 +1183,16 @@ public class DecimalFormat extends NumberFormat {
                 gotPositive = false;
             }
         }
-
         // fail if neither or both
         if (gotPositive == gotNegative) {
             parsePosition.errorIndex = position;
             return false;
         }
-
         parsePosition.index = position +
             (gotPositive ? positiveSuffix.length() : negativeSuffix.length()); // mark success!
         } else {
             parsePosition.index = position;
         }
-
         status[STATUS_POSITIVE] = gotPositive;
         if (parsePosition.index == oldStart) {
             parsePosition.errorIndex = position;
@@ -1448,8 +1200,6 @@ public class DecimalFormat extends NumberFormat {
         }
         return true;
     }
-
-
     public DecimalFormatSymbols getDecimalFormatSymbols() {
         try {
             // don't allow multiple references
@@ -1458,9 +1208,6 @@ public class DecimalFormat extends NumberFormat {
             return null; // should never happen
         }
     }
-
-
-
     public void setDecimalFormatSymbols(DecimalFormatSymbols newSymbols) {
         try {
             // don't allow multiple references
@@ -1471,21 +1218,15 @@ public class DecimalFormat extends NumberFormat {
             // should never happen
         }
     }
-
-
     public String getPositivePrefix () {
         return positivePrefix;
     }
-
-
     public void setPositivePrefix (String newValue) {
         positivePrefix = newValue;
         posPrefixPattern = null;
         positivePrefixFieldPositions = null;
         fastPathCheckNeeded = true;
     }
-
-
     private FieldPosition[] getPositivePrefixFieldPositions() {
         if (positivePrefixFieldPositions == null) {
             if (posPrefixPattern != null) {
@@ -1496,20 +1237,14 @@ public class DecimalFormat extends NumberFormat {
         }
         return positivePrefixFieldPositions;
     }
-
-
     public String getNegativePrefix () {
         return negativePrefix;
     }
-
-
     public void setNegativePrefix (String newValue) {
         negativePrefix = newValue;
         negPrefixPattern = null;
         fastPathCheckNeeded = true;
     }
-
-
     private FieldPosition[] getNegativePrefixFieldPositions() {
         if (negativePrefixFieldPositions == null) {
             if (negPrefixPattern != null) {
@@ -1520,20 +1255,14 @@ public class DecimalFormat extends NumberFormat {
         }
         return negativePrefixFieldPositions;
     }
-
-
     public String getPositiveSuffix () {
         return positiveSuffix;
     }
-
-
     public void setPositiveSuffix (String newValue) {
         positiveSuffix = newValue;
         posSuffixPattern = null;
         fastPathCheckNeeded = true;
     }
-
-
     private FieldPosition[] getPositiveSuffixFieldPositions() {
         if (positiveSuffixFieldPositions == null) {
             if (posSuffixPattern != null) {
@@ -1544,20 +1273,14 @@ public class DecimalFormat extends NumberFormat {
         }
         return positiveSuffixFieldPositions;
     }
-
-
     public String getNegativeSuffix () {
         return negativeSuffix;
     }
-
-
     public void setNegativeSuffix (String newValue) {
         negativeSuffix = newValue;
         negSuffixPattern = null;
         fastPathCheckNeeded = true;
     }
-
-
     private FieldPosition[] getNegativeSuffixFieldPositions() {
         if (negativeSuffixFieldPositions == null) {
             if (negSuffixPattern != null) {
@@ -1568,66 +1291,45 @@ public class DecimalFormat extends NumberFormat {
         }
         return negativeSuffixFieldPositions;
     }
-
-
     public int getMultiplier () {
         return multiplier;
     }
-
-
     public void setMultiplier (int newValue) {
         multiplier = newValue;
         bigDecimalMultiplier = null;
         bigIntegerMultiplier = null;
         fastPathCheckNeeded = true;
     }
-
-
     @Override
     public void setGroupingUsed(boolean newValue) {
         super.setGroupingUsed(newValue);
         fastPathCheckNeeded = true;
     }
-
-
     public int getGroupingSize () {
         return groupingSize;
     }
-
-
     public void setGroupingSize (int newValue) {
         groupingSize = (byte)newValue;
         fastPathCheckNeeded = true;
     }
-
-
     public boolean isDecimalSeparatorAlwaysShown() {
         return decimalSeparatorAlwaysShown;
     }
-
-
     public void setDecimalSeparatorAlwaysShown(boolean newValue) {
         decimalSeparatorAlwaysShown = newValue;
         fastPathCheckNeeded = true;
     }
-
-
     public boolean isParseBigDecimal() {
         return parseBigDecimal;
     }
-
-
     public void setParseBigDecimal(boolean newValue) {
         parseBigDecimal = newValue;
     }
-
-
     @Override
     public Object clone() {
         DecimalFormat other = (DecimalFormat) super.clone();
         other.symbols = (DecimalFormatSymbols) symbols.clone();
         other.digitList = (DigitList) digitList.clone();
-
         // Fast-path is almost stateless algorithm. The only logical state is the
         // isFastPath flag. In addition fastPathCheckNeeded is a sentinel flag
         // that forces recalculation of all fast-path fields when set to true.
@@ -1640,11 +1342,8 @@ public class DecimalFormat extends NumberFormat {
         other.fastPathCheckNeeded = true;
         other.isFastPath = false;
         other.fastPathData = null;
-
         return other;
     }
-
-
     @Override
     public boolean equals(Object obj)
     {
@@ -1683,25 +1382,17 @@ public class DecimalFormat extends NumberFormat {
             && roundingMode == other.roundingMode
             && symbols.equals(other.symbols);
     }
-
-
     @Override
     public int hashCode() {
         return super.hashCode() * 37 + positivePrefix.hashCode();
         // just enough fields for a reasonable distribution
     }
-
-
     public String toPattern() {
         return toPattern( false );
     }
-
-
     public String toLocalizedPattern() {
         return toPattern( true );
     }
-
-
     private void expandAffixes() {
         // Reuse one StringBuffer for better performance
         StringBuffer buffer = new StringBuffer();
@@ -1722,8 +1413,6 @@ public class DecimalFormat extends NumberFormat {
             negativeSuffixFieldPositions = null;
         }
     }
-
-
     private String expandAffix(String pattern, StringBuffer buffer) {
         buffer.setLength(0);
         for (int i=0; i<pattern.length(); ) {
@@ -1755,8 +1444,6 @@ public class DecimalFormat extends NumberFormat {
         }
         return buffer.toString();
     }
-
-
     private FieldPosition[] expandAffix(String pattern) {
         ArrayList<FieldPosition> positions = null;
         int stringIndex = 0;
@@ -1820,8 +1507,6 @@ public class DecimalFormat extends NumberFormat {
         }
         return EmptyFieldPositionArray;
     }
-
-
     private void appendAffix(StringBuffer buffer, String affixPattern,
                              String expAffix, boolean localized) {
         if (affixPattern == null) {
@@ -1865,8 +1550,6 @@ public class DecimalFormat extends NumberFormat {
             }
         }
     }
-
-
     private void appendAffix(StringBuffer buffer, String affix, boolean localized) {
         boolean needQuote;
         if (localized) {
@@ -1901,8 +1584,6 @@ public class DecimalFormat extends NumberFormat {
         }
         if (needQuote) buffer.append('\'');
     }
-
-
     private String toPattern(boolean localized) {
         StringBuffer result = new StringBuffer();
         for (int j = 1; j >= 0; --j) {
@@ -1961,18 +1642,12 @@ public class DecimalFormat extends NumberFormat {
         }
         return result.toString();
     }
-
-
     public void applyPattern(String pattern) {
         applyPattern(pattern, false);
     }
-
-
     public void applyLocalizedPattern(String pattern) {
         applyPattern(pattern, true);
     }
-
-
     private void applyPattern(String pattern, boolean localized) {
         char zeroDigit         = PATTERN_ZERO_DIGIT;
         char groupingSeparator = PATTERN_GROUPING_SEPARATOR;
@@ -1998,14 +1673,12 @@ public class DecimalFormat extends NumberFormat {
         decimalSeparatorAlwaysShown = false;
         isCurrencyFormat = false;
         useExponentialNotation = false;
-
         // Two variables are used to record the subrange of the pattern
         // occupied by phase 1.  This is used during the processing of the
         // second pattern (the one representing negative numbers) to ensure
         // that no deviation exists in phase 1 between the two patterns.
         int phaseOneStart = 0;
         int phaseOneLength = 0;
-
         int start = 0;
         for (int j = 1; j >= 0 && start < pattern.length(); --j) {
             boolean inQuote = false;
@@ -2015,7 +1688,6 @@ public class DecimalFormat extends NumberFormat {
             int multiplier = 1;
             int digitLeftCount = 0, zeroDigitCount = 0, digitRightCount = 0;
             byte groupingCount = -1;
-
             // The phase ranges from 0 to 2.  Phase 0 is the prefix.  Phase 1 is
             // the section of the pattern with digits, decimal separator,
             // grouping characters.  Phase 2 is the suffix.  In phases 0 and 2,
@@ -2024,10 +1696,8 @@ public class DecimalFormat extends NumberFormat {
             // strictly enforced; if phase 1 characters are to appear in the
             // suffix, for example, they must be quoted.
             int phase = 0;
-
             // The affix is either the prefix or the suffix.
             StringBuffer affix = prefix;
-
             for (int pos = start; pos < pattern.length(); ++pos) {
                 char ch = pattern.charAt(pos);
                 switch (phase) {
@@ -2099,7 +1769,6 @@ public class DecimalFormat extends NumberFormat {
                             pos = pattern.length();
                             continue;
                         }
-
                         // Next handle characters which are appended directly.
                         else if (ch == percent) {
                             if (multiplier != 1) {
@@ -2127,7 +1796,6 @@ public class DecimalFormat extends NumberFormat {
                     // through to here.
                     affix.append(ch);
                     break;
-
                 case 1:
                     // Phase one must be identical in the two sub-patterns. We
                     // enforce this by doing a direct comparison. While
@@ -2143,7 +1811,6 @@ public class DecimalFormat extends NumberFormat {
                         }
                         continue;
                     }
-
                     // Process the digits, decimal, and grouping characters. We
                     // record five pieces of information. We expect the digits
                     // to occur in the pattern ####0000.####, and we record the
@@ -2186,7 +1853,6 @@ public class DecimalFormat extends NumberFormat {
                         }
                         useExponentialNotation = true;
                         minExponentDigits = 0;
-
                         // Use lookahead to parse out the exponential part
                         // of the pattern, then jump into phase 2.
                         pos = pos+exponent.length();
@@ -2196,13 +1862,11 @@ public class DecimalFormat extends NumberFormat {
                             ++phaseOneLength;
                             ++pos;
                         }
-
                         if ((digitLeftCount + zeroDigitCount) < 1 ||
                             minExponentDigits < 1) {
                             throw new IllegalArgumentException("Malformed exponential " +
                                 "pattern \"" + pattern + '"');
                         }
-
                         // Transition to phase 2
                         phase = 2;
                         affix = suffix;
@@ -2218,11 +1882,9 @@ public class DecimalFormat extends NumberFormat {
                     break;
                 }
             }
-
             // Handle patterns with no '0' pattern character. These patterns
             // are legal, but must be interpreted.  "##.###" -> "#0.###".
             // ".###" -> ".0##".
-
             if (zeroDigitCount == 0 && digitLeftCount > 0 && decimalPos >= 0) {
                 // Handle "###.###" and "###." and ".###"
                 int n = decimalPos;
@@ -2233,7 +1895,6 @@ public class DecimalFormat extends NumberFormat {
                 digitLeftCount = n - 1;
                 zeroDigitCount = 1;
             }
-
             // Do syntax checking on the digits.
             if ((decimalPos < 0 && digitRightCount > 0) ||
                 (decimalPos >= 0 && (decimalPos < digitLeftCount ||
@@ -2242,14 +1903,12 @@ public class DecimalFormat extends NumberFormat {
                 throw new IllegalArgumentException("Malformed pattern \"" +
                     pattern + '"');
             }
-
             if (j == 1) {
                 posPrefixPattern = prefix.toString();
                 posSuffixPattern = suffix.toString();
                 negPrefixPattern = posPrefixPattern;   // assume these for now
                 negSuffixPattern = posSuffixPattern;
                 int digitTotalCount = digitLeftCount + zeroDigitCount + digitRightCount;
-
                 int effectiveDecimalPos = decimalPos >= 0 ?
                     decimalPos : digitTotalCount;
                 setMinimumIntegerDigits(effectiveDecimalPos - digitLeftCount);
@@ -2271,7 +1930,6 @@ public class DecimalFormat extends NumberFormat {
                 gotNegative = true;
             }
         }
-
         if (pattern.length() == 0) {
             posPrefixPattern = posSuffixPattern = "";
             setMinimumIntegerDigits(0);
@@ -2279,7 +1937,6 @@ public class DecimalFormat extends NumberFormat {
             setMinimumFractionDigits(0);
             setMaximumFractionDigits(MAXIMUM_FRACTION_DIGITS);
         }
-
         // If there was no negative pattern, or if the negative pattern is
         // identical to the positive pattern, then prepend the minus sign to
         // the positive pattern to form the negative pattern.
@@ -2289,11 +1946,8 @@ public class DecimalFormat extends NumberFormat {
             negSuffixPattern = posSuffixPattern;
             negPrefixPattern = "'-" + posPrefixPattern;
         }
-
         expandAffixes();
     }
-
-
     @Override
     public void setMaximumIntegerDigits(int newValue) {
         maximumIntegerDigits = Math.min(Math.max(0, newValue), MAXIMUM_INTEGER_DIGITS);
@@ -2306,8 +1960,6 @@ public class DecimalFormat extends NumberFormat {
         }
         fastPathCheckNeeded = true;
     }
-
-
     @Override
     public void setMinimumIntegerDigits(int newValue) {
         minimumIntegerDigits = Math.min(Math.max(0, newValue), MAXIMUM_INTEGER_DIGITS);
@@ -2320,8 +1972,6 @@ public class DecimalFormat extends NumberFormat {
         }
         fastPathCheckNeeded = true;
     }
-
-
     @Override
     public void setMaximumFractionDigits(int newValue) {
         maximumFractionDigits = Math.min(Math.max(0, newValue), MAXIMUM_FRACTION_DIGITS);
@@ -2334,8 +1984,6 @@ public class DecimalFormat extends NumberFormat {
         }
         fastPathCheckNeeded = true;
     }
-
-
     @Override
     public void setMinimumFractionDigits(int newValue) {
         minimumFractionDigits = Math.min(Math.max(0, newValue), MAXIMUM_FRACTION_DIGITS);
@@ -2348,38 +1996,26 @@ public class DecimalFormat extends NumberFormat {
         }
         fastPathCheckNeeded = true;
     }
-
-
     @Override
     public int getMaximumIntegerDigits() {
         return maximumIntegerDigits;
     }
-
-
     @Override
     public int getMinimumIntegerDigits() {
         return minimumIntegerDigits;
     }
-
-
     @Override
     public int getMaximumFractionDigits() {
         return maximumFractionDigits;
     }
-
-
     @Override
     public int getMinimumFractionDigits() {
         return minimumFractionDigits;
     }
-
-
     @Override
     public Currency getCurrency() {
         return symbols.getCurrency();
     }
-
-
     @Override
     public void setCurrency(Currency currency) {
         if (currency != symbols.getCurrency()) {
@@ -2390,44 +2026,34 @@ public class DecimalFormat extends NumberFormat {
         }
         fastPathCheckNeeded = true;
     }
-
-
     @Override
     public RoundingMode getRoundingMode() {
         return roundingMode;
     }
-
-
     @Override
     public void setRoundingMode(RoundingMode roundingMode) {
         if (roundingMode == null) {
             throw new NullPointerException();
         }
-
         this.roundingMode = roundingMode;
         digitList.setRoundingMode(roundingMode);
         fastPathCheckNeeded = true;
     }
-
-
     private void readObject(ObjectInputStream stream)
          throws IOException, ClassNotFoundException
     {
         stream.defaultReadObject();
         digitList = new DigitList();
-
         // We force complete fast-path reinitialization when the instance is
         // deserialized. See clone() comment on fastPathCheckNeeded.
         fastPathCheckNeeded = true;
         isFastPath = false;
         fastPathData = null;
-
         if (serialVersionOnStream < 4) {
             setRoundingMode(RoundingMode.HALF_EVEN);
         } else {
             setRoundingMode(getRoundingMode());
         }
-
         // We only need to check the maximum counts because NumberFormat
         // .readObject has already ensured that the maximum is greater than the
         // minimum count.
@@ -2447,125 +2073,49 @@ public class DecimalFormat extends NumberFormat {
         }
         serialVersionOnStream = currentSerialVersion;
     }
-
     //----------------------------------------------------------------------
     // INSTANCE VARIABLES
     //----------------------------------------------------------------------
-
     private transient DigitList digitList = new DigitList();
-
-
     private String  positivePrefix = "";
-
-
     private String  positiveSuffix = "";
-
-
     private String  negativePrefix = "-";
-
-
     private String  negativeSuffix = "";
-
-
     private String posPrefixPattern;
-
-
     private String posSuffixPattern;
-
-
     private String negPrefixPattern;
-
-
     private String negSuffixPattern;
-
-
     private int     multiplier = 1;
-
-
     private byte    groupingSize = 3;  // invariant, > 0 if useThousands
-
-
     private boolean decimalSeparatorAlwaysShown = false;
-
-
     private boolean parseBigDecimal = false;
-
-
-
     private transient boolean isCurrencyFormat = false;
-
-
     private DecimalFormatSymbols symbols = null; // LIU new DecimalFormatSymbols();
-
-
     private boolean useExponentialNotation;  // Newly persistent in the Java 2 platform v.1.2
-
-
     private transient FieldPosition[] positivePrefixFieldPositions;
-
-
     private transient FieldPosition[] positiveSuffixFieldPositions;
-
-
     private transient FieldPosition[] negativePrefixFieldPositions;
-
-
     private transient FieldPosition[] negativeSuffixFieldPositions;
-
-
     private byte    minExponentDigits;       // Newly persistent in the Java 2 platform v.1.2
-
-
     private int    maximumIntegerDigits = super.getMaximumIntegerDigits();
-
-
     private int    minimumIntegerDigits = super.getMinimumIntegerDigits();
-
-
     private int    maximumFractionDigits = super.getMaximumFractionDigits();
-
-
     private int    minimumFractionDigits = super.getMinimumFractionDigits();
-
-
     private RoundingMode roundingMode = RoundingMode.HALF_EVEN;
-
     // ------ DecimalFormat fields for fast-path for double algorithm  ------
-
-
     private static class FastPathData {
         // --- Temporary fields used in fast-path, shared by several methods.
-
-
         int lastFreeIndex;
-
-
         int firstUsedIndex;
-
         // --- State fields related to fast-path status. Changes due to a
         //     property change only. Set by checkAndSetFastPathStatus() only.
-
-
         int  zeroDelta;
-
-
         char groupingChar;
-
-
         int integralLastIndex;
-
-
         int fractionalFirstIndex;
-
-
         double fractionalScaleFactor;
         int fractionalMaxIntBound;
-
-
-
         char[] fastPathContainer;
-
-
         char[] charsPositivePrefix;
         char[] charsNegativePrefix;
         char[] charsPositiveSuffix;
@@ -2573,39 +2123,21 @@ public class DecimalFormat extends NumberFormat {
         boolean positiveAffixesRequired = true;
         boolean negativeAffixesRequired = true;
     }
-
-
     private transient boolean isFastPath = false;
-
-
     private transient boolean fastPathCheckNeeded = true;
-
-
     private transient FastPathData fastPathData;
-
-
     //----------------------------------------------------------------------
-
     static final int currentSerialVersion = 4;
-
-
     private int serialVersionOnStream = currentSerialVersion;
-
     //----------------------------------------------------------------------
     // CONSTANTS
     //----------------------------------------------------------------------
-
     // ------ Fast-Path for double Constants ------
-
-
     private static final double MAX_INT_AS_DOUBLE = (double) Integer.MAX_VALUE;
-
-
     private static class DigitArrays {
         static final char[] DigitOnes1000 = new char[1000];
         static final char[] DigitTens1000 = new char[1000];
         static final char[] DigitHundreds1000 = new char[1000];
-
         // initialize on demand holder class idiom for arrays of digits
         static {
             int tenIndex = 0;
@@ -2614,13 +2146,11 @@ public class DecimalFormat extends NumberFormat {
             char digitTen = '0';
             char digitHundred = '0';
             for (int i = 0;  i < 1000; i++ ) {
-
                 DigitOnes1000[i] = digitOne;
                 if (digitOne == '9')
                     digitOne = '0';
                 else
                     digitOne++;
-
                 DigitTens1000[i] = digitTen;
                 if (i == (tenIndex + 9)) {
                     tenIndex += 10;
@@ -2629,7 +2159,6 @@ public class DecimalFormat extends NumberFormat {
                     else
                         digitTen++;
                 }
-
                 DigitHundreds1000[i] = digitHundred;
                 if (i == (hundredIndex + 99)) {
                     digitHundred++;
@@ -2639,7 +2168,6 @@ public class DecimalFormat extends NumberFormat {
         }
     }
     // ------ Fast-Path for double Constants end ------
-
     // Constants for characters used in programmatic (unlocalized) patterns.
     private static final char       PATTERN_ZERO_DIGIT         = '0';
     private static final char       PATTERN_GROUPING_SEPARATOR = ',';
@@ -2650,22 +2178,15 @@ public class DecimalFormat extends NumberFormat {
     private static final char       PATTERN_SEPARATOR          = ';';
     private static final String     PATTERN_EXPONENT           = "E";
     private static final char       PATTERN_MINUS              = '-';
-
-
     private static final char       CURRENCY_SIGN = '\u00A4';
-
     private static final char       QUOTE = '\'';
-
     private static FieldPosition[] EmptyFieldPositionArray = new FieldPosition[0];
-
     // Upper limit on integer and fraction digits for a Java double
     static final int DOUBLE_INTEGER_DIGITS  = 309;
     static final int DOUBLE_FRACTION_DIGITS = 340;
-
     // Upper limit on integer and fraction digits for BigDecimal and BigInteger
     static final int MAXIMUM_INTEGER_DIGITS  = Integer.MAX_VALUE;
     static final int MAXIMUM_FRACTION_DIGITS = Integer.MAX_VALUE;
-
     // Proclaim JDK 1.1 serial compatibility.
     static final long serialVersionUID = 864413376551465018L;
 }

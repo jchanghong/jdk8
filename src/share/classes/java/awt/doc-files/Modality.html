@@ -1,42 +1,30 @@
 <!--
  Copyright (c) 2005, 2013, Oracle and/or its affiliates. All rights reserved.
  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-
  This code is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License version 2 only, as
  published by the Free Software Foundation.  Oracle designates this
  particular file as subject to the "Classpath" exception as provided
  by Oracle in the LICENSE file that accompanied this code.
-
  This code is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  version 2 for more details (a copy is included in the LICENSE file that
  accompanied this code).
-
  You should have received a copy of the GNU General Public License version
  2 along with this work; if not, write to the Free Software Foundation,
  Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-
  Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  or visit www.oracle.com if you need additional information or have any
  questions.
 -->
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-
 <html>
-
 <head>
-
     <title>The AWT Modality</title>
-
 </head>
-
 <body bgcolor="white">
-
     <h1 align="center">The AWT Modality</h1>
-
     <p>
       This document, together with the API documentation for modality-related
       classes (such as <code>java.awt.Dialog</code>), briefly describes the new
@@ -52,10 +40,8 @@
       <li><a href="#Compatibility">Compatibility</a></li>
       <li><a href="#Examples">Examples</a></li>
     </ul>
-
     <a name="Definitions"></a>
     <h3>Definitions</h3>
-
     <p>
       <u>Document</u> - a window without an owner that, together with
       all its child hierarchy, may be operated on as a single self-contained
@@ -95,10 +81,8 @@
       to a top-level window in the Java programming language &mdash; in other words
       an instance of <code>java.awt.Window</code> or any descendant class.
       <hr></blockquote>
-
     <a name="ModalityTypes"></a>
     <h3>Modality types</h3>
-
     <p>
       There are four supported modality types :
       </p><ul>
@@ -161,10 +145,8 @@
       <b>Implementation note</b>: Changing the modality type for a visible
       dialog may have no effect until it is hidden and then shown again.
       <hr></blockquote>
-
     <a name="ShowHideBlocking"></a>
     <h3>Show/hide blocking</h3>
-
     <p>
       <u>Showing the window or modeless dialog: "F"</u><br>
       All the visible modal dialogs are looked through &mdash; if F is from the SB
@@ -266,10 +248,8 @@
       blocked by M become unblocked, and after that the same checks 
       (as in Showing the modal dialog: "M")
       are performed for each of them in the order they were initially shown.
-
     <a name="ModalExclusion"></a>
     </p><h3>Modal exclusion</h3>
-
     <p>
       There are two modal exclusion types introduced as of JDK 6
       </p><ul>
@@ -294,10 +274,8 @@
         <b>Implementation note</b>: Changing the modal exclusion type for a visible window
         may have no effect until it is hidden and then shown again.
     </blockquote>
-
     <a name="Related"></a>
     <h3>Related AWT features</h3>
-
     <p>
       <u>Always-On-Top</u><br>
       When a modal dialog that is not always-on-top blocks an always-on-top window,
@@ -338,10 +316,8 @@
       </li></ol>
       If the modal dialog to be hidden does not have focus, the active window remains
       unchanged.
-    
     <a name="Security"></a>
     <h3>Security</h3>
-
     <p>
       A special <code>AWTPermission</code>, <code>"toolkitModality"</code>,
       is required to show toolkit-modal
@@ -351,10 +327,8 @@
       The same permission is required to exclude a window from toolkit modality.
       This would prevent, for example, a dialog shown from an applet not to be
       blocked by a browser's or JWS's modal dialog.
-
     <a name="PlatformSupport"></a>
     </p><h3>Platform support</h3>
-
     <p>
       Two <code>java.awt.Toolkit</code> methods allow you to check whether
       the current platform supports specific modality features:
@@ -370,10 +344,8 @@
 	  the current platform. If exclusion type "E" is not supported
 	  and a window is marked as E-excluded, this has no effect.
       </li></ul>
-
     <a name="Compatibility"></a>
     <h3>Compatibility</h3>
-
     <p>
       The default modality type is application-modal. It is used by the API
       calls: <code>Dialog.setModal(true)</code>, 
@@ -381,10 +353,8 @@
       the default type was toolkit-modal,
       but the only distinction between application- and toolkit-modality is for
       applets and applications launched from Java Web Start.
-
     <a name="Examples"></a>
     </p><h3>Examples</h3>
-
     <table border="0">
       <tbody><tr>
         <td align="left" >
@@ -467,5 +437,4 @@
         </td>
       </tr>
     </tbody></table>
-
 </body></html>

@@ -1,21 +1,11 @@
-
-
 package java.awt;
-
 import java.awt.peer.PopupMenuPeer;
 import javax.accessibility.*;
-
-
 import sun.awt.AWTAccessor;
-
-
 public class PopupMenu extends Menu {
-
     private static final String base = "popup";
     static int nameCounter = 0;
-
     transient boolean isTrayIconPopup = false;
-
     static {
         AWTAccessor.setPopupMenuAccessor(
             new AWTAccessor.PopupMenuAccessor() {
@@ -24,36 +14,24 @@ public class PopupMenu extends Menu {
                 }
             });
     }
-
-
     private static final long serialVersionUID = -4620452533522760060L;
-
-
     public PopupMenu() throws HeadlessException {
         this("");
     }
-
-
     public PopupMenu(String label) throws HeadlessException {
         super(label);
     }
-
-
     public MenuContainer getParent() {
         if (isTrayIconPopup) {
             return null;
         }
         return super.getParent();
     }
-
-
     String constructComponentName() {
         synchronized (PopupMenu.class) {
             return base + nameCounter++;
         }
     }
-
-
     public void addNotify() {
         synchronized (getTreeLock()) {
             // If our parent is not a Component, then this PopupMenu is
@@ -73,8 +51,6 @@ public class PopupMenu extends Menu {
             }
         }
     }
-
-
     public void show(Component origin, int x, int y) {
         // Use localParent for thread safety.
         MenuContainer localParent = parent;
@@ -111,31 +87,20 @@ public class PopupMenu extends Menu {
             }
         }
     }
-
-
 /////////////////
 // Accessibility support
 ////////////////
-
-
     public AccessibleContext getAccessibleContext() {
         if (accessibleContext == null) {
             accessibleContext = new AccessibleAWTPopupMenu();
         }
         return accessibleContext;
     }
-
-
     protected class AccessibleAWTPopupMenu extends AccessibleAWTMenu
     {
-
         private static final long serialVersionUID = -4282044795947239955L;
-
-
         public AccessibleRole getAccessibleRole() {
             return AccessibleRole.POPUP_MENU;
         }
-
     } // class AccessibleAWTPopupMenu
-
 }

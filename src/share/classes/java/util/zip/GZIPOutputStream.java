@@ -1,28 +1,14 @@
-
-
 package java.util.zip;
-
 import java.io.OutputStream;
 import java.io.IOException;
-
-
 public
 class GZIPOutputStream extends DeflaterOutputStream {
-
     protected CRC32 crc = new CRC32();
-
-
     private final static int GZIP_MAGIC = 0x8b1f;
-
-
     private final static int TRAILER_SIZE = 8;
-
-
     public GZIPOutputStream(OutputStream out, int size) throws IOException {
         this(out, size, false);
     }
-
-
     public GZIPOutputStream(OutputStream out, int size, boolean syncFlush)
         throws IOException
     {
@@ -33,29 +19,20 @@ class GZIPOutputStream extends DeflaterOutputStream {
         writeHeader();
         crc.reset();
     }
-
-
-
     public GZIPOutputStream(OutputStream out) throws IOException {
         this(out, 512, false);
     }
-
-
     public GZIPOutputStream(OutputStream out, boolean syncFlush)
         throws IOException
     {
         this(out, 512, syncFlush);
     }
-
-
     public synchronized void write(byte[] buf, int off, int len)
         throws IOException
     {
         super.write(buf, off, len);
         crc.update(buf, off, len);
     }
-
-
     public void finish() throws IOException {
         if (!def.finished()) {
             def.finish();
@@ -78,8 +55,6 @@ class GZIPOutputStream extends DeflaterOutputStream {
             out.write(trailer);
         }
     }
-
-
     private void writeHeader() throws IOException {
         out.write(new byte[] {
                       (byte) GZIP_MAGIC,        // Magic number (short)
@@ -94,20 +69,14 @@ class GZIPOutputStream extends DeflaterOutputStream {
                       0                         // Operating system (OS)
                   });
     }
-
-
     private void writeTrailer(byte[] buf, int offset) throws IOException {
         writeInt((int)crc.getValue(), buf, offset); // CRC-32 of uncompr. data
         writeInt(def.getTotalIn(), buf, offset + 4); // Number of uncompr. bytes
     }
-
-
     private void writeInt(int i, byte[] buf, int offset) throws IOException {
         writeShort(i & 0xffff, buf, offset);
         writeShort((i >> 16) & 0xffff, buf, offset + 2);
     }
-
-
     private void writeShort(int s, byte[] buf, int offset) throws IOException {
         buf[offset] = (byte)(s & 0xff);
         buf[offset + 1] = (byte)((s >> 8) & 0xff);

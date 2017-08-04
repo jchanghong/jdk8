@@ -1,32 +1,26 @@
 <!--
  Copyright (c) 1998, 2014, Oracle and/or its affiliates. All rights reserved.
  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-
  This code is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License version 2 only, as
  published by the Free Software Foundation.  Oracle designates this
  particular file as subject to the "Classpath" exception as provided
  by Oracle in the LICENSE file that accompanied this code.
-
  This code is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  version 2 for more details (a copy is included in the LICENSE file that
  accompanied this code).
-
  You should have received a copy of the GNU General Public License version
  2 along with this work; if not, write to the Free Software Foundation,
  Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-
  Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  or visit www.oracle.com if you need additional information or have any
  questions.
 -->
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 <html>
 <body bgcolor="white">
-
 Contains classes related to developing
 <em>beans</em> -- components
 based on the JavaBeans&trade; architecture.
@@ -43,20 +37,15 @@ interface that the user can use to customize the bean. For example, a bean may
 contain a property of a special type that a bean editor may not know how to handle. 
 By using the <code>PropertyEditor</code> interface, a bean developer can
 provide an editor for this special type.
-
 <p>
 To minimize the resources used by a bean, the classes used by bean editors are loaded only
 when the bean is being edited. They are not needed while the bean is running in an application
 and therefore not loaded. This information is kept in what's called a bean-info (see {@link java.beans.BeanInfo}).
-
 <p>
 Unless explicitly stated, null values or empty Strings are not valid 
 parameters for the methods in this package. You may expect to see 
 exceptions if these parameters are used.
-
-
 <h2>Long-Term Persistence</h2>
-
 As of v1.4,
 the <code>java.beans</code> package provides support for 
 <em>long-term persistence</em> -- reading and
@@ -67,7 +56,6 @@ their publicly available state.
 This approach is suitable for long-term storage 
 because it relies only on public API,
 rather than the likely-to-change private implementation.
-
 <blockquote>
 <hr>
 <b>Note:</b>
@@ -78,9 +66,7 @@ instead of inner classes for custom event handlers,
 you can avoid this problem.
 <hr>
 </blockquote>
-
 <p>
-
 You read and write beans in XML format using the
 {@link java.beans.XMLDecoder}
 and 
@@ -88,7 +74,6 @@ and
 classes, respectively.
 One notable feature of the persistence scheme is that
 reading in a bean requires no special knowledge of the bean.
-
 <p>
 Writing out a bean, on the other hand,
 sometimes requires special knowledge of the bean's type.
@@ -102,9 +87,7 @@ All classes provided in the JDK that descend
 from <code>java.awt.Component</code>, 
 as well as all their properties, 
 automatically have persistence delegates.
-
 <p>
-
 If you need (or choose) to provide a persistence delegate for a bean,
 you can do so either by using a 
 {@link java.beans.DefaultPersistenceDelegate}
@@ -120,7 +103,6 @@ constructor.
 Otherwise,
 you need to implement your own persistence delegate,
 for which you're likely to need the following classes:
-
 <dl>
 <dt> {@link java.beans.PersistenceDelegate}
 <dd> The abstract class from which all persistence delegates descend.
@@ -135,22 +117,17 @@ for which you're likely to need the following classes:
 <dd> A subclass of <code>Statement</code>
      used for methods that return a value.
 </dl>
-
 <p>
 Once you create a persistence delegate,
 you register it using the
 <code>setPersistenceDelegate</code> method of
 <code>XMLEncoder</code>.
-
-
 <h2>Related Documentation</h2>
-
 For overview, architecture, and tutorial documentation, please see:
 <ul>
   <li><a href="http://docs.oracle.com/javase/tutorial/javabeans/">JavaBeans</a>, a trail in <em>The Java Tutorial</em>.
   <li><a href="http://www.oracle.com/technetwork/java/persistence2-141443.html">Long-Term Persistence</a>, an article in <em>The Swing Connection</em>.
 </ul>
 <p>
-
 </body>
 </html>

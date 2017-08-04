@@ -1,112 +1,51 @@
-
-
 package java.awt;
-
 import java.util.Hashtable;
-
-
 public class BorderLayout implements LayoutManager2,
                                      java.io.Serializable {
-
         int hgap;
-
-
         int vgap;
-
-
         Component north;
-
         Component west;
-
         Component east;
-
     Component south;
-
         Component center;
-
-
     Component firstLine;
-
         Component lastLine;
-
         Component firstItem;
-
         Component lastItem;
-
-
     public static final String NORTH  = "North";
-
-
     public static final String SOUTH  = "South";
-
-
     public static final String EAST   = "East";
-
-
     public static final String WEST   = "West";
-
-
     public static final String CENTER = "Center";
-
-
     public static final String BEFORE_FIRST_LINE = "First";
-
-
     public static final String AFTER_LAST_LINE = "Last";
-
-
     public static final String BEFORE_LINE_BEGINS = "Before";
-
-
     public static final String AFTER_LINE_ENDS = "After";
-
-
     public static final String PAGE_START = BEFORE_FIRST_LINE;
-
-
     public static final String PAGE_END = AFTER_LAST_LINE;
-
-
     public static final String LINE_START = BEFORE_LINE_BEGINS;
-
-
     public static final String LINE_END = AFTER_LINE_ENDS;
-
-
      private static final long serialVersionUID = -8658291919501921765L;
-
-
     public BorderLayout() {
         this(0, 0);
     }
-
-
     public BorderLayout(int hgap, int vgap) {
         this.hgap = hgap;
         this.vgap = vgap;
     }
-
-
     public int getHgap() {
         return hgap;
     }
-
-
     public void setHgap(int hgap) {
         this.hgap = hgap;
     }
-
-
     public int getVgap() {
         return vgap;
     }
-
-
     public void setVgap(int vgap) {
         this.vgap = vgap;
     }
-
-
     public void addLayoutComponent(Component comp, Object constraints) {
       synchronized (comp.getTreeLock()) {
         if ((constraints == null) || (constraints instanceof String)) {
@@ -116,17 +55,12 @@ public class BorderLayout implements LayoutManager2,
         }
       }
     }
-
-
     @Deprecated
     public void addLayoutComponent(String name, Component comp) {
       synchronized (comp.getTreeLock()) {
-
         if (name == null) {
             name = "Center";
         }
-
-
         if ("Center".equals(name)) {
             center = comp;
         } else if ("North".equals(name)) {
@@ -150,8 +84,6 @@ public class BorderLayout implements LayoutManager2,
         }
       }
     }
-
-
     public void removeLayoutComponent(Component comp) {
       synchronized (comp.getTreeLock()) {
         if (comp == center) {
@@ -176,8 +108,6 @@ public class BorderLayout implements LayoutManager2,
         }
       }
     }
-
-
     public Component getLayoutComponent(Object constraints) {
         if (CENTER.equals(constraints)) {
             return center;
@@ -201,13 +131,9 @@ public class BorderLayout implements LayoutManager2,
             throw new IllegalArgumentException("cannot get component: unknown constraint: " + constraints);
         }
     }
-
-
-
     public Component getLayoutComponent(Container target, Object constraints) {
         boolean ltr = target.getComponentOrientation().isLeftToRight();
         Component result = null;
-
         if (NORTH.equals(constraints)) {
             result = (firstLine != null) ? firstLine : north;
         } else if (SOUTH.equals(constraints)) {
@@ -227,12 +153,8 @@ public class BorderLayout implements LayoutManager2,
         } else {
             throw new IllegalArgumentException("cannot get component: invalid constraint: " + constraints);
         }
-
         return result;
     }
-
-
-
     public Object getConstraints(Component comp) {
         //fix for 6242148 : API method java.awt.BorderLayout.getConstraints(null) should return null
         if (comp == null){
@@ -259,15 +181,11 @@ public class BorderLayout implements LayoutManager2,
         }
         return null;
     }
-
-
     public Dimension minimumLayoutSize(Container target) {
       synchronized (target.getTreeLock()) {
         Dimension dim = new Dimension(0, 0);
-
         boolean ltr = target.getComponentOrientation().isLeftToRight();
         Component c = null;
-
         if ((c=getChild(EAST,ltr)) != null) {
             Dimension d = c.getMinimumSize();
             dim.width += d.width + hgap;
@@ -293,23 +211,17 @@ public class BorderLayout implements LayoutManager2,
             dim.width = Math.max(d.width, dim.width);
             dim.height += d.height + vgap;
         }
-
         Insets insets = target.getInsets();
         dim.width += insets.left + insets.right;
         dim.height += insets.top + insets.bottom;
-
         return dim;
       }
     }
-
-
     public Dimension preferredLayoutSize(Container target) {
       synchronized (target.getTreeLock()) {
         Dimension dim = new Dimension(0, 0);
-
         boolean ltr = target.getComponentOrientation().isLeftToRight();
         Component c = null;
-
         if ((c=getChild(EAST,ltr)) != null) {
             Dimension d = c.getPreferredSize();
             dim.width += d.width + hgap;
@@ -335,35 +247,23 @@ public class BorderLayout implements LayoutManager2,
             dim.width = Math.max(d.width, dim.width);
             dim.height += d.height + vgap;
         }
-
         Insets insets = target.getInsets();
         dim.width += insets.left + insets.right;
         dim.height += insets.top + insets.bottom;
-
         return dim;
       }
     }
-
-
     public Dimension maximumLayoutSize(Container target) {
         return new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
     }
-
-
     public float getLayoutAlignmentX(Container parent) {
         return 0.5f;
     }
-
-
     public float getLayoutAlignmentY(Container parent) {
         return 0.5f;
     }
-
-
     public void invalidateLayout(Container target) {
     }
-
-
     public void layoutContainer(Container target) {
       synchronized (target.getTreeLock()) {
         Insets insets = target.getInsets();
@@ -371,10 +271,8 @@ public class BorderLayout implements LayoutManager2,
         int bottom = target.height - insets.bottom;
         int left = insets.left;
         int right = target.width - insets.right;
-
         boolean ltr = target.getComponentOrientation().isLeftToRight();
         Component c = null;
-
         if ((c=getChild(NORTH,ltr)) != null) {
             c.setSize(right - left, c.height);
             Dimension d = c.getPreferredSize();
@@ -404,11 +302,8 @@ public class BorderLayout implements LayoutManager2,
         }
       }
     }
-
-
     private Component getChild(String key, boolean ltr) {
         Component result = null;
-
         if (key == NORTH) {
             result = (firstLine != null) ? firstLine : north;
         }
@@ -435,8 +330,6 @@ public class BorderLayout implements LayoutManager2,
         }
         return result;
     }
-
-
     public String toString() {
         return getClass().getName() + "[hgap=" + hgap + ",vgap=" + vgap + "]";
     }

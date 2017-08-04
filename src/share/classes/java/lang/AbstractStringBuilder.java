@@ -1,45 +1,25 @@
-
-
 package java.lang;
-
 import sun.misc.FloatingDecimal;
 import java.util.Arrays;
-
-
 abstract class AbstractStringBuilder implements Appendable, CharSequence {
-
     char[] value;
-
-
     int count;
-
-
     AbstractStringBuilder() {
     }
-
-
     AbstractStringBuilder(int capacity) {
         value = new char[capacity];
     }
-
-
     @Override
     public int length() {
         return count;
     }
-
-
     public int capacity() {
         return value.length;
     }
-
-
     public void ensureCapacity(int minimumCapacity) {
         if (minimumCapacity > 0)
             ensureCapacityInternal(minimumCapacity);
     }
-
-
     private void ensureCapacityInternal(int minimumCapacity) {
         // overflow-conscious code
         if (minimumCapacity - value.length > 0) {
@@ -47,11 +27,7 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
                     newCapacity(minimumCapacity));
         }
     }
-
-
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
-
-
     private int newCapacity(int minCapacity) {
         // overflow-conscious code
         int newCapacity = (value.length << 1) + 2;
@@ -62,7 +38,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
             ? hugeCapacity(minCapacity)
             : newCapacity;
     }
-
     private int hugeCapacity(int minCapacity) {
         if (Integer.MAX_VALUE - minCapacity < 0) { // overflow
             throw new OutOfMemoryError();
@@ -70,44 +45,32 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         return (minCapacity > MAX_ARRAY_SIZE)
             ? minCapacity : MAX_ARRAY_SIZE;
     }
-
-
     public void trimToSize() {
         if (count < value.length) {
             value = Arrays.copyOf(value, count);
         }
     }
-
-
     public void setLength(int newLength) {
         if (newLength < 0)
             throw new StringIndexOutOfBoundsException(newLength);
         ensureCapacityInternal(newLength);
-
         if (count < newLength) {
             Arrays.fill(value, count, newLength, '\0');
         }
-
         count = newLength;
     }
-
-
     @Override
     public char charAt(int index) {
         if ((index < 0) || (index >= count))
             throw new StringIndexOutOfBoundsException(index);
         return value[index];
     }
-
-
     public int codePointAt(int index) {
         if ((index < 0) || (index >= count)) {
             throw new StringIndexOutOfBoundsException(index);
         }
         return Character.codePointAtImpl(value, index, count);
     }
-
-
     public int codePointBefore(int index) {
         int i = index - 1;
         if ((i < 0) || (i >= count)) {
@@ -115,16 +78,12 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         }
         return Character.codePointBeforeImpl(value, index, 0);
     }
-
-
     public int codePointCount(int beginIndex, int endIndex) {
         if (beginIndex < 0 || endIndex > count || beginIndex > endIndex) {
             throw new IndexOutOfBoundsException();
         }
         return Character.codePointCountImpl(value, beginIndex, endIndex-beginIndex);
     }
-
-
     public int offsetByCodePoints(int index, int codePointOffset) {
         if (index < 0 || index > count) {
             throw new IndexOutOfBoundsException();
@@ -132,8 +91,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         return Character.offsetByCodePointsImpl(value, 0, count,
                                                 index, codePointOffset);
     }
-
-
     public void getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin)
     {
         if (srcBegin < 0)
@@ -144,20 +101,14 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
             throw new StringIndexOutOfBoundsException("srcBegin > srcEnd");
         System.arraycopy(value, srcBegin, dst, dstBegin, srcEnd - srcBegin);
     }
-
-
     public void setCharAt(int index, char ch) {
         if ((index < 0) || (index >= count))
             throw new StringIndexOutOfBoundsException(index);
         value[index] = ch;
     }
-
-
     public AbstractStringBuilder append(Object obj) {
         return append(String.valueOf(obj));
     }
-
-
     public AbstractStringBuilder append(String str) {
         if (str == null)
             return appendNull();
@@ -167,7 +118,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count += len;
         return this;
     }
-
     // Documentation in subclasses because of synchro difference
     public AbstractStringBuilder append(StringBuffer sb) {
         if (sb == null)
@@ -178,8 +128,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count += len;
         return this;
     }
-
-
     AbstractStringBuilder append(AbstractStringBuilder asb) {
         if (asb == null)
             return appendNull();
@@ -189,7 +137,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count += len;
         return this;
     }
-
     // Documentation in subclasses because of synchro difference
     @Override
     public AbstractStringBuilder append(CharSequence s) {
@@ -199,10 +146,8 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
             return this.append((String)s);
         if (s instanceof AbstractStringBuilder)
             return this.append((AbstractStringBuilder)s);
-
         return this.append(s, 0, s.length());
     }
-
     private AbstractStringBuilder appendNull() {
         int c = count;
         ensureCapacityInternal(c + 4);
@@ -214,8 +159,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count = c;
         return this;
     }
-
-
     @Override
     public AbstractStringBuilder append(CharSequence s, int start, int end) {
         if (s == null)
@@ -231,8 +174,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count += len;
         return this;
     }
-
-
     public AbstractStringBuilder append(char[] str) {
         int len = str.length;
         ensureCapacityInternal(count + len);
@@ -240,8 +181,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count += len;
         return this;
     }
-
-
     public AbstractStringBuilder append(char str[], int offset, int len) {
         if (len > 0)                // let arraycopy report AIOOBE for len < 0
             ensureCapacityInternal(count + len);
@@ -249,8 +188,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count += len;
         return this;
     }
-
-
     public AbstractStringBuilder append(boolean b) {
         if (b) {
             ensureCapacityInternal(count + 4);
@@ -268,16 +205,12 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         }
         return this;
     }
-
-
     @Override
     public AbstractStringBuilder append(char c) {
         ensureCapacityInternal(count + 1);
         value[count++] = c;
         return this;
     }
-
-
     public AbstractStringBuilder append(int i) {
         if (i == Integer.MIN_VALUE) {
             append("-2147483648");
@@ -291,8 +224,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count = spaceNeeded;
         return this;
     }
-
-
     public AbstractStringBuilder append(long l) {
         if (l == Long.MIN_VALUE) {
             append("-9223372036854775808");
@@ -306,20 +237,14 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count = spaceNeeded;
         return this;
     }
-
-
     public AbstractStringBuilder append(float f) {
         FloatingDecimal.appendTo(f,this);
         return this;
     }
-
-
     public AbstractStringBuilder append(double d) {
         FloatingDecimal.appendTo(d,this);
         return this;
     }
-
-
     public AbstractStringBuilder delete(int start, int end) {
         if (start < 0)
             throw new StringIndexOutOfBoundsException(start);
@@ -334,11 +259,8 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         }
         return this;
     }
-
-
     public AbstractStringBuilder appendCodePoint(int codePoint) {
         final int count = this.count;
-
         if (Character.isBmpCodePoint(codePoint)) {
             ensureCapacityInternal(count + 1);
             value[count] = (char) codePoint;
@@ -352,8 +274,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         }
         return this;
     }
-
-
     public AbstractStringBuilder deleteCharAt(int index) {
         if ((index < 0) || (index >= count))
             throw new StringIndexOutOfBoundsException(index);
@@ -361,8 +281,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count--;
         return this;
     }
-
-
     public AbstractStringBuilder replace(int start, int end, String str) {
         if (start < 0)
             throw new StringIndexOutOfBoundsException(start);
@@ -370,31 +288,23 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
             throw new StringIndexOutOfBoundsException("start > length()");
         if (start > end)
             throw new StringIndexOutOfBoundsException("start > end");
-
         if (end > count)
             end = count;
         int len = str.length();
         int newCount = count + len - (end - start);
         ensureCapacityInternal(newCount);
-
         System.arraycopy(value, end, value, start + len, count - end);
         str.getChars(value, start);
         count = newCount;
         return this;
     }
-
-
     public String substring(int start) {
         return substring(start, count);
     }
-
-
     @Override
     public CharSequence subSequence(int start, int end) {
         return substring(start, end);
     }
-
-
     public String substring(int start, int end) {
         if (start < 0)
             throw new StringIndexOutOfBoundsException(start);
@@ -404,8 +314,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
             throw new StringIndexOutOfBoundsException(end - start);
         return new String(value, start, end - start);
     }
-
-
     public AbstractStringBuilder insert(int index, char[] str, int offset,
                                         int len)
     {
@@ -421,13 +329,9 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count += len;
         return this;
     }
-
-
     public AbstractStringBuilder insert(int offset, Object obj) {
         return insert(offset, String.valueOf(obj));
     }
-
-
     public AbstractStringBuilder insert(int offset, String str) {
         if ((offset < 0) || (offset > length()))
             throw new StringIndexOutOfBoundsException(offset);
@@ -440,8 +344,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count += len;
         return this;
     }
-
-
     public AbstractStringBuilder insert(int offset, char[] str) {
         if ((offset < 0) || (offset > length()))
             throw new StringIndexOutOfBoundsException(offset);
@@ -452,8 +354,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count += len;
         return this;
     }
-
-
     public AbstractStringBuilder insert(int dstOffset, CharSequence s) {
         if (s == null)
             s = "null";
@@ -461,8 +361,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
             return this.insert(dstOffset, (String)s);
         return this.insert(dstOffset, s, 0, s.length());
     }
-
-
      public AbstractStringBuilder insert(int dstOffset, CharSequence s,
                                          int start, int end) {
         if (s == null)
@@ -482,13 +380,9 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count += len;
         return this;
     }
-
-
     public AbstractStringBuilder insert(int offset, boolean b) {
         return insert(offset, String.valueOf(b));
     }
-
-
     public AbstractStringBuilder insert(int offset, char c) {
         ensureCapacityInternal(count + 1);
         System.arraycopy(value, offset, value, offset + 1, count - offset);
@@ -496,48 +390,30 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         count += 1;
         return this;
     }
-
-
     public AbstractStringBuilder insert(int offset, int i) {
         return insert(offset, String.valueOf(i));
     }
-
-
     public AbstractStringBuilder insert(int offset, long l) {
         return insert(offset, String.valueOf(l));
     }
-
-
     public AbstractStringBuilder insert(int offset, float f) {
         return insert(offset, String.valueOf(f));
     }
-
-
     public AbstractStringBuilder insert(int offset, double d) {
         return insert(offset, String.valueOf(d));
     }
-
-
     public int indexOf(String str) {
         return indexOf(str, 0);
     }
-
-
     public int indexOf(String str, int fromIndex) {
         return String.indexOf(value, 0, count, str, fromIndex);
     }
-
-
     public int lastIndexOf(String str) {
         return lastIndexOf(str, count);
     }
-
-
     public int lastIndexOf(String str, int fromIndex) {
         return String.lastIndexOf(value, 0, count, str, fromIndex);
     }
-
-
     public AbstractStringBuilder reverse() {
         boolean hasSurrogates = false;
         int n = count - 1;
@@ -557,8 +433,6 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
         }
         return this;
     }
-
-
     private void reverseAllValidSurrogatePairs() {
         for (int i = 0; i < count - 1; i++) {
             char c2 = value[i];
@@ -571,14 +445,9 @@ abstract class AbstractStringBuilder implements Appendable, CharSequence {
             }
         }
     }
-
-
     @Override
     public abstract String toString();
-
-
     final char[] getValue() {
         return value;
     }
-
 }

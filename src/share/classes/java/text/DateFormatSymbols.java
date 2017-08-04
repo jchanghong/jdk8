@@ -1,9 +1,4 @@
-
-
-
-
 package java.text;
-
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -19,53 +14,26 @@ import sun.util.locale.provider.LocaleProviderAdapter;
 import sun.util.locale.provider.LocaleServiceProviderPool;
 import sun.util.locale.provider.ResourceBundleBasedAdapter;
 import sun.util.locale.provider.TimeZoneNameUtility;
-
-
 public class DateFormatSymbols implements Serializable, Cloneable {
-
-
     public DateFormatSymbols()
     {
         initializeData(Locale.getDefault(Locale.Category.FORMAT));
     }
-
-
     public DateFormatSymbols(Locale locale)
     {
         initializeData(locale);
     }
-
-
     private DateFormatSymbols(boolean flag) {
     }
-
-
     String eras[] = null;
-
-
     String months[] = null;
-
-
     String shortMonths[] = null;
-
-
     String weekdays[] = null;
-
-
     String shortWeekdays[] = null;
-
-
     String ampms[] = null;
-
-
     String zoneStrings[][] = null;
-
-
     transient boolean isZoneStringsSet = false;
-
-
     static final String  patternChars = "GyMdkHmsSEDFwWahKzZYuXL";
-
     static final int PATTERN_ERA                  =  0; // G
     static final int PATTERN_YEAR                 =  1; // y
     static final int PATTERN_MONTH                =  2; // M
@@ -89,29 +57,17 @@ public class DateFormatSymbols implements Serializable, Cloneable {
     static final int PATTERN_ISO_DAY_OF_WEEK      = 20; // u
     static final int PATTERN_ISO_ZONE             = 21; // X
     static final int PATTERN_MONTH_STANDALONE     = 22; // L
-
-
     String  localPatternChars = null;
-
-
     Locale locale = null;
-
-
     static final long serialVersionUID = -5987973545549424702L;
-
-
     public static Locale[] getAvailableLocales() {
         LocaleServiceProviderPool pool=
             LocaleServiceProviderPool.getPool(DateFormatSymbolsProvider.class);
         return pool.getAvailableLocales();
     }
-
-
     public static final DateFormatSymbols getInstance() {
         return getInstance(Locale.getDefault(Locale.Category.FORMAT));
     }
-
-
     public static final DateFormatSymbols getInstance(Locale locale) {
         DateFormatSymbols dfs = getProviderInstance(locale);
         if (dfs != null) {
@@ -119,8 +75,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         }
         throw new RuntimeException("DateFormatSymbols instance creation failed.");
     }
-
-
     static final DateFormatSymbols getInstanceRef(Locale locale) {
         DateFormatSymbols dfs = getProviderInstance(locale);
         if (dfs != null) {
@@ -128,7 +82,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         }
         throw new RuntimeException("DateFormatSymbols instance creation failed.");
     }
-
     private static DateFormatSymbols getProviderInstance(Locale locale) {
         LocaleProviderAdapter adapter = LocaleProviderAdapter.getAdapter(DateFormatSymbolsProvider.class, locale);
         DateFormatSymbolsProvider provider = adapter.getDateFormatSymbolsProvider();
@@ -139,79 +92,51 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         }
         return dfsyms;
     }
-
-
     public String[] getEras() {
         return Arrays.copyOf(eras, eras.length);
     }
-
-
     public void setEras(String[] newEras) {
         eras = Arrays.copyOf(newEras, newEras.length);
         cachedHashCode = 0;
     }
-
-
     public String[] getMonths() {
         return Arrays.copyOf(months, months.length);
     }
-
-
     public void setMonths(String[] newMonths) {
         months = Arrays.copyOf(newMonths, newMonths.length);
         cachedHashCode = 0;
     }
-
-
     public String[] getShortMonths() {
         return Arrays.copyOf(shortMonths, shortMonths.length);
     }
-
-
     public void setShortMonths(String[] newShortMonths) {
         shortMonths = Arrays.copyOf(newShortMonths, newShortMonths.length);
         cachedHashCode = 0;
     }
-
-
     public String[] getWeekdays() {
         return Arrays.copyOf(weekdays, weekdays.length);
     }
-
-
     public void setWeekdays(String[] newWeekdays) {
         weekdays = Arrays.copyOf(newWeekdays, newWeekdays.length);
         cachedHashCode = 0;
     }
-
-
     public String[] getShortWeekdays() {
         return Arrays.copyOf(shortWeekdays, shortWeekdays.length);
     }
-
-
     public void setShortWeekdays(String[] newShortWeekdays) {
         shortWeekdays = Arrays.copyOf(newShortWeekdays, newShortWeekdays.length);
         cachedHashCode = 0;
     }
-
-
     public String[] getAmPmStrings() {
         return Arrays.copyOf(ampms, ampms.length);
     }
-
-
     public void setAmPmStrings(String[] newAmpms) {
         ampms = Arrays.copyOf(newAmpms, newAmpms.length);
         cachedHashCode = 0;
     }
-
-
     public String[][] getZoneStrings() {
         return getZoneStringsImpl(true);
     }
-
-
     public void setZoneStrings(String[][] newZoneStrings) {
         String[][] aCopy = new String[newZoneStrings.length][];
         for (int i = 0; i < newZoneStrings.length; ++i) {
@@ -225,20 +150,14 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         isZoneStringsSet = true;
         cachedHashCode = 0;
     }
-
-
     public String getLocalPatternChars() {
         return localPatternChars;
     }
-
-
     public void setLocalPatternChars(String newLocalPatternChars) {
         // Call toString() to throw an NPE in case the argument is null
         localPatternChars = newLocalPatternChars.toString();
         cachedHashCode = 0;
     }
-
-
     public Object clone()
     {
         try
@@ -250,8 +169,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
             throw new InternalError(e);
         }
     }
-
-
     @Override
     public int hashCode() {
         int hashCode = cachedHashCode;
@@ -267,11 +184,8 @@ public class DateFormatSymbols implements Serializable, Cloneable {
             hashCode = 11 * hashCode + Objects.hashCode(localPatternChars);
             cachedHashCode = hashCode;
         }
-
         return hashCode;
     }
-
-
     public boolean equals(Object obj)
     {
         if (this == obj) return true;
@@ -289,22 +203,12 @@ public class DateFormatSymbols implements Serializable, Cloneable {
                  || (localPatternChars == null
                   && that.localPatternChars == null)));
     }
-
     // =======================privates===============================
-
-
     static final int millisPerHour = 60*60*1000;
-
-
     private static final ConcurrentMap<Locale, SoftReference<DateFormatSymbols>> cachedInstances
         = new ConcurrentHashMap<>(3);
-
     private transient int lastZoneIndex = 0;
-
-
     transient volatile int cachedHashCode = 0;
-
-
     private void initializeData(Locale locale) {
         SoftReference<DateFormatSymbols> ref = cachedInstances.get(locale);
         DateFormatSymbols dfs;
@@ -314,7 +218,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
                 cachedInstances.remove(locale, ref);
             }
             dfs = new DateFormatSymbols(false);
-
             // Initialize the fields from the ResourceBundle for locale.
             LocaleProviderAdapter adapter
                 = LocaleProviderAdapter.getAdapter(DateFormatSymbolsProvider.class, locale);
@@ -324,7 +227,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
             }
             ResourceBundle resource
                 = ((ResourceBundleBasedAdapter)adapter).getLocaleData().getDateFormatData(locale);
-
             dfs.locale = locale;
             // JRE and CLDR use different keys
             // JRE: Eras, short.Eras and narrow.Eras
@@ -340,11 +242,9 @@ public class DateFormatSymbols implements Serializable, Cloneable {
             dfs.shortMonths = resource.getStringArray("MonthAbbreviations");
             dfs.ampms = resource.getStringArray("AmPmMarkers");
             dfs.localPatternChars = resource.getString("DateTimePatternChars");
-
             // Day of week names are stored in a 1-based array.
             dfs.weekdays = toOneBasedArray(resource.getStringArray("DayNames"));
             dfs.shortWeekdays = toOneBasedArray(resource.getStringArray("DayAbbreviations"));
-
             // Put dfs in the cache
             ref = new SoftReference<>(dfs);
             SoftReference<DateFormatSymbols> x = cachedInstances.putIfAbsent(locale, ref);
@@ -369,11 +269,9 @@ public class DateFormatSymbols implements Serializable, Cloneable {
                 }
             }
         }
-
         // Copy the field values from dfs to this instance.
         copyMembers(dfs, this);
     }
-
     private static String[] toOneBasedArray(String[] src) {
         int len = src.length;
         String[] dst = new String[len + 1];
@@ -383,28 +281,19 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         }
         return dst;
     }
-
-
     final int getZoneIndex(String ID) {
         String[][] zoneStrings = getZoneStringsWrapper();
-
-
         if (lastZoneIndex < zoneStrings.length && ID.equals(zoneStrings[lastZoneIndex][0])) {
             return lastZoneIndex;
         }
-
-
         for (int index = 0; index < zoneStrings.length; index++) {
             if (ID.equals(zoneStrings[index][0])) {
                 lastZoneIndex = index;
                 return index;
             }
         }
-
         return -1;
     }
-
-
     final String[][] getZoneStringsWrapper() {
         if (isSubclassObject()) {
             return getZoneStrings();
@@ -412,16 +301,13 @@ public class DateFormatSymbols implements Serializable, Cloneable {
             return getZoneStringsImpl(false);
         }
     }
-
     private String[][] getZoneStringsImpl(boolean needsCopy) {
         if (zoneStrings == null) {
             zoneStrings = TimeZoneNameUtility.getZoneStrings(locale);
         }
-
         if (!needsCopy) {
             return zoneStrings;
         }
-
         int len = zoneStrings.length;
         String[][] aCopy = new String[len][];
         for (int i = 0; i < len; i++) {
@@ -429,12 +315,9 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         }
         return aCopy;
     }
-
     private boolean isSubclassObject() {
         return !getClass().getName().equals("java.text.DateFormatSymbols");
     }
-
-
     private void copyMembers(DateFormatSymbols src, DateFormatSymbols dst)
     {
         dst.locale = src.locale;
@@ -452,8 +335,6 @@ public class DateFormatSymbols implements Serializable, Cloneable {
         dst.localPatternChars = src.localPatternChars;
         dst.cachedHashCode = 0;
     }
-
-
     private void writeObject(ObjectOutputStream stream) throws IOException {
         if (zoneStrings == null) {
             zoneStrings = TimeZoneNameUtility.getZoneStrings(locale);

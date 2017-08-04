@@ -1,13 +1,7 @@
-
-
 package java.lang;
-
 import java.io.PrintStream;
 import java.util.Arrays;
 import sun.misc.VM;
-
-
-
 public
 class ThreadGroup implements Thread.UncaughtExceptionHandler {
     private final ThreadGroup parent;
@@ -16,31 +10,22 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
     boolean destroyed;
     boolean daemon;
     boolean vmAllowSuspension;
-
     int nUnstartedThreads = 0;
     int nthreads;
     Thread threads[];
-
     int ngroups;
     ThreadGroup groups[];
-
-
     private ThreadGroup() {     // called from C code
         this.name = "system";
         this.maxPriority = Thread.MAX_PRIORITY;
         this.parent = null;
     }
-
-
     public ThreadGroup(String name) {
         this(Thread.currentThread().getThreadGroup(), name);
     }
-
-
     public ThreadGroup(ThreadGroup parent, String name) {
         this(checkParentAccess(parent), parent, name);
     }
-
     private ThreadGroup(Void unused, ThreadGroup parent, String name) {
         this.name = name;
         this.maxPriority = parent.maxPriority;
@@ -49,47 +34,31 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
         this.parent = parent;
         parent.add(this);
     }
-
-
     private static Void checkParentAccess(ThreadGroup parent) {
         parent.checkAccess();
         return null;
     }
-
-
     public final String getName() {
         return name;
     }
-
-
     public final ThreadGroup getParent() {
         if (parent != null)
             parent.checkAccess();
         return parent;
     }
-
-
     public final int getMaxPriority() {
         return maxPriority;
     }
-
-
     public final boolean isDaemon() {
         return daemon;
     }
-
-
     public synchronized boolean isDestroyed() {
         return destroyed;
     }
-
-
     public final void setDaemon(boolean daemon) {
         checkAccess();
         this.daemon = daemon;
     }
-
-
     public final void setMaxPriority(int pri) {
         int ngroupsSnapshot;
         ThreadGroup[] groupsSnapshot;
@@ -110,8 +79,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
             groupsSnapshot[i].setMaxPriority(pri);
         }
     }
-
-
     public final boolean parentOf(ThreadGroup g) {
         for (; g != null ; g = g.parent) {
             if (g == this) {
@@ -120,16 +87,12 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
         }
         return false;
     }
-
-
     public final void checkAccess() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkAccess(this);
         }
     }
-
-
     public int activeCount() {
         int result;
         // Snapshot sub-group data so we don't hold this lock
@@ -153,19 +116,14 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
         }
         return result;
     }
-
-
     public int enumerate(Thread list[]) {
         checkAccess();
         return enumerate(list, 0, true);
     }
-
-
     public int enumerate(Thread list[], boolean recurse) {
         checkAccess();
         return enumerate(list, 0, recurse);
     }
-
     private int enumerate(Thread list[], int n, boolean recurse) {
         int ngroupsSnapshot = 0;
         ThreadGroup[] groupsSnapshot = null;
@@ -198,8 +156,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
         }
         return n;
     }
-
-
     public int activeGroupCount() {
         int ngroupsSnapshot;
         ThreadGroup[] groupsSnapshot;
@@ -220,19 +176,14 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
         }
         return n;
     }
-
-
     public int enumerate(ThreadGroup list[]) {
         checkAccess();
         return enumerate(list, 0, true);
     }
-
-
     public int enumerate(ThreadGroup list[], boolean recurse) {
         checkAccess();
         return enumerate(list, 0, recurse);
     }
-
     private int enumerate(ThreadGroup list[], int n, boolean recurse) {
         int ngroupsSnapshot = 0;
         ThreadGroup[] groupsSnapshot = null;
@@ -264,15 +215,11 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
         }
         return n;
     }
-
-
     @Deprecated
     public final void stop() {
         if (stopOrSuspend(false))
             Thread.currentThread().stop();
     }
-
-
     public final void interrupt() {
         int ngroupsSnapshot;
         ThreadGroup[] groupsSnapshot;
@@ -292,16 +239,12 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
             groupsSnapshot[i].interrupt();
         }
     }
-
-
     @Deprecated
     @SuppressWarnings("deprecation")
     public final void suspend() {
         if (stopOrSuspend(true))
             Thread.currentThread().suspend();
     }
-
-
     @SuppressWarnings("deprecation")
     private boolean stopOrSuspend(boolean suspend) {
         boolean suicide = false;
@@ -318,7 +261,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
                 else
                     threads[i].stop();
             }
-
             ngroupsSnapshot = ngroups;
             if (groups != null) {
                 groupsSnapshot = Arrays.copyOf(groups, ngroupsSnapshot);
@@ -326,11 +268,8 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
         }
         for (int i = 0 ; i < ngroupsSnapshot ; i++)
             suicide = groupsSnapshot[i].stopOrSuspend(suspend) || suicide;
-
         return suicide;
     }
-
-
     @Deprecated
     @SuppressWarnings("deprecation")
     public final void resume() {
@@ -352,8 +291,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
             groupsSnapshot[i].resume();
         }
     }
-
-
     public final void destroy() {
         int ngroupsSnapshot;
         ThreadGroup[] groupsSnapshot;
@@ -383,8 +320,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
             parent.remove(this);
         }
     }
-
-
     private final void add(ThreadGroup g){
         synchronized (this) {
             if (destroyed) {
@@ -396,14 +331,11 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
                 groups = Arrays.copyOf(groups, ngroups * 2);
             }
             groups[ngroups] = g;
-
             // This is done last so it doesn't matter in case the
             // thread is killed
             ngroups++;
         }
     }
-
-
     private void remove(ThreadGroup g) {
         synchronized (this) {
             if (destroyed) {
@@ -429,9 +361,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
             }
         }
     }
-
-
-
     void addUnstarted() {
         synchronized(this) {
             if (destroyed) {
@@ -440,8 +369,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
             nUnstartedThreads++;
         }
     }
-
-
     void add(Thread t) {
         synchronized (this) {
             if (destroyed) {
@@ -453,11 +380,9 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
                 threads = Arrays.copyOf(threads, nthreads * 2);
             }
             threads[nthreads] = t;
-
             // This is done last so it doesn't matter in case the
             // thread is killed
             nthreads++;
-
             // The thread is now a fully fledged member of the group, even
             // though it may, or may not, have been started yet. It will prevent
             // the group from being destroyed so the unstarted Threads count is
@@ -465,20 +390,15 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
             nUnstartedThreads--;
         }
     }
-
-
     void threadStartFailed(Thread t) {
         synchronized(this) {
             remove(t);
             nUnstartedThreads++;
         }
     }
-
-
     void threadTerminated(Thread t) {
         synchronized (this) {
             remove(t);
-
             if (nthreads == 0) {
                 notifyAll();
             }
@@ -489,8 +409,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
             }
         }
     }
-
-
     private void remove(Thread t) {
         synchronized (this) {
             if (destroyed) {
@@ -507,8 +425,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
             }
         }
     }
-
-
     public void list() {
         list(System.out, 0);
     }
@@ -538,8 +454,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
             groupsSnapshot[i].list(out, indent);
         }
     }
-
-
     public void uncaughtException(Thread t, Throwable e) {
         if (parent != null) {
             parent.uncaughtException(t, e);
@@ -555,8 +469,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
             }
         }
     }
-
-
     @Deprecated
     public boolean allowThreadSuspension(boolean b) {
         this.vmAllowSuspension = b;
@@ -565,8 +477,6 @@ class ThreadGroup implements Thread.UncaughtExceptionHandler {
         }
         return true;
     }
-
-
     public String toString() {
         return getClass().getName() + "[name=" + getName() + ",maxpri=" + maxPriority + "]";
     }

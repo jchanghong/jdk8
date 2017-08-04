@@ -1,21 +1,11 @@
-
-
-
-
 package java.text;
-
 import java.lang.Character;
 import java.util.Vector;
 import sun.text.CollatorUtilities;
 import sun.text.normalizer.NormalizerBase;
-
-
 public final class CollationElementIterator
 {
-
     public final static int NULLORDER = 0xffffffff;
-
-
     CollationElementIterator(String sourceText, RuleBasedCollator owner) {
         this.owner = owner;
         ordering = owner.getTables();
@@ -25,8 +15,6 @@ public final class CollationElementIterator
             text = new NormalizerBase(sourceText, mode);
         }
     }
-
-
     CollationElementIterator(CharacterIterator sourceText, RuleBasedCollator owner) {
         this.owner = owner;
         ordering = owner.getTables();
@@ -34,8 +22,6 @@ public final class CollationElementIterator
             CollatorUtilities.toNormalizerMode(owner.getDecomposition());
         text = new NormalizerBase(sourceText, mode);
     }
-
-
     public void reset()
     {
         if (text != null) {
@@ -48,8 +34,6 @@ public final class CollationElementIterator
         expIndex = 0;
         swapOrder = 0;
     }
-
-
     public int next()
     {
         if (text == null) {
@@ -62,7 +46,6 @@ public final class CollationElementIterator
         if (textMode != ownerMode) {
             text.setMode(ownerMode);
         }
-
         // if buffer contains any decomposed char values
         // return their strength orders before continuing in
         // the Normalizer's CharacterIterator.
@@ -84,12 +67,10 @@ public final class CollationElementIterator
             return order;
         }
         int ch  = text.next();
-
         // are we at the end of Normalizer's text?
         if (ch == NormalizerBase.DONE) {
             return NULLORDER;
         }
-
         int value = ordering.getUnicodeOrder(ch);
         if (value == RuleBasedCollator.UNMAPPED) {
             swapOrder = ch;
@@ -103,7 +84,6 @@ public final class CollationElementIterator
             expIndex = 0;
             value = buffer[expIndex++];
         }
-
         if (ordering.isSEAsianSwapping()) {
             int consonant;
             if (isThaiPreVowel(ch)) {
@@ -127,11 +107,8 @@ public final class CollationElementIterator
                 }
             }
         }
-
         return strengthOrder(value);
     }
-
-
     public int previous()
     {
         if (text == null) {
@@ -165,9 +142,7 @@ public final class CollationElementIterator
         if (ch == NormalizerBase.DONE) {
             return NULLORDER;
         }
-
         int value = ordering.getUnicodeOrder(ch);
-
         if (value == RuleBasedCollator.UNMAPPED) {
             swapOrder = UNMAPPEDCHARVALUE;
             return ch;
@@ -179,7 +154,6 @@ public final class CollationElementIterator
             expIndex = buffer.length;
             value = buffer[--expIndex];
         }
-
         if (ordering.isSEAsianSwapping()) {
             int vowel;
             if (isThaiBaseConsonant(ch)) {
@@ -203,29 +177,22 @@ public final class CollationElementIterator
                 }
             }
         }
-
         return strengthOrder(value);
     }
-
-
     public final static int primaryOrder(int order)
     {
         order &= RBCollationTables.PRIMARYORDERMASK;
         return (order >>> RBCollationTables.PRIMARYORDERSHIFT);
     }
-
     public final static short secondaryOrder(int order)
     {
         order = order & RBCollationTables.SECONDARYORDERMASK;
         return ((short)(order >> RBCollationTables.SECONDARYORDERSHIFT));
     }
-
     public final static short tertiaryOrder(int order)
     {
         return ((short)(order &= RBCollationTables.TERTIARYORDERMASK));
     }
-
-
     final int strengthOrder(int order)
     {
         int s = owner.getStrength();
@@ -238,8 +205,6 @@ public final class CollationElementIterator
         }
         return order;
     }
-
-
     @SuppressWarnings("deprecation") // getBeginIndex, getEndIndex and setIndex are deprecated
     public void setOffset(int newOffset)
     {
@@ -249,7 +214,6 @@ public final class CollationElementIterator
                     text.setIndexOnly(newOffset);
             } else {
                 int c = text.setIndex(newOffset);
-
                 // if the desired character isn't used in a contracting character
                 // sequence, bypass all the backing-up logic-- we're sitting on
                 // the right character already
@@ -280,21 +244,14 @@ public final class CollationElementIterator
         expIndex = 0;
         swapOrder = 0;
     }
-
-
     public int getOffset()
     {
         return (text != null) ? text.getIndex() : 0;
     }
-
-
-
     public int getMaxExpansion(int order)
     {
         return ordering.getMaxExpansion(order);
     }
-
-
     public void setText(String source)
     {
         buffer = null;
@@ -309,8 +266,6 @@ public final class CollationElementIterator
             text.setText(source);
         }
     }
-
-
     public void setText(CharacterIterator source)
     {
         buffer = null;
@@ -325,49 +280,34 @@ public final class CollationElementIterator
             text.setText(source);
         }
     }
-
     //============================================================
     // privates
     //============================================================
-
-
     private final static boolean isThaiPreVowel(int ch) {
         return (ch >= 0x0e40) && (ch <= 0x0e44);
     }
-
-
     private final static boolean isThaiBaseConsonant(int ch) {
         return (ch >= 0x0e01) && (ch <= 0x0e2e);
     }
-
-
     private final static boolean isLaoPreVowel(int ch) {
         return (ch >= 0x0ec0) && (ch <= 0x0ec4);
     }
-
-
     private final static boolean isLaoBaseConsonant(int ch) {
         return (ch >= 0x0e81) && (ch <= 0x0eae);
     }
-
-
     private int[] makeReorderedBuffer(int colFirst,
                                       int lastValue,
                                       int[] lastExpansion,
                                       boolean forward) {
-
         int[] result;
-
         int firstValue = ordering.getUnicodeOrder(colFirst);
         if (firstValue >= RuleBasedCollator.CONTRACTCHARINDEX) {
             firstValue = forward? nextContractChar(colFirst) : prevContractChar(colFirst);
         }
-
         int[] firstExpansion = null;
         if (firstValue >= RuleBasedCollator.EXPANDCHARINDEX) {
             firstExpansion = ordering.getExpandValueList(firstValue);
         }
-
         if (!forward) {
             int temp1 = firstValue;
             firstValue = lastValue;
@@ -376,7 +316,6 @@ public final class CollationElementIterator
             firstExpansion = lastExpansion;
             lastExpansion = temp2;
         }
-
         if (firstExpansion == null && lastExpansion == null) {
             result = new int [2];
             result[0] = firstValue;
@@ -386,14 +325,12 @@ public final class CollationElementIterator
             int firstLength = firstExpansion==null? 1 : firstExpansion.length;
             int lastLength = lastExpansion==null? 1 : lastExpansion.length;
             result = new int[firstLength + lastLength];
-
             if (firstExpansion == null) {
                 result[0] = firstValue;
             }
             else {
                 System.arraycopy(firstExpansion, 0, result, 0, firstLength);
             }
-
             if (lastExpansion == null) {
                 result[firstLength] = lastValue;
             }
@@ -401,17 +338,12 @@ public final class CollationElementIterator
                 System.arraycopy(lastExpansion, 0, result, firstLength, lastLength);
             }
         }
-
         return result;
     }
-
-
     final static boolean isIgnorable(int order)
     {
         return ((primaryOrder(order) == 0) ? true : false);
     }
-
-
     private int nextContractChar(int ch)
     {
         // First get the ordering of this single character,
@@ -419,17 +351,14 @@ public final class CollationElementIterator
         Vector<EntryPair> list = ordering.getContractValues(ch);
         EntryPair pair = list.firstElement();
         int order = pair.value;
-
         // find out the length of the longest contracting character sequence in the list.
         // There's logic in the builder code to make sure the longest sequence is always
         // the last.
         pair = list.lastElement();
         int maxLength = pair.entryName.length();
-
         // (the Normalizer is cloned here so that the seeking we do in the next loop
         // won't affect our real position in the text)
         NormalizerBase tempText = (NormalizerBase)text.clone();
-
         // extract the next maxLength characters in the string (we have to do this using the
         // Normalizer to ensure that our offsets correspond to those the rest of the
         // iterator is using) and store it in "fragment".
@@ -458,14 +387,12 @@ public final class CollationElementIterator
             pair = list.elementAt(i);
             if (!pair.fwd)
                 continue;
-
             if (fragment.startsWith(pair.entryName) && pair.entryName.length()
                     > maxLength) {
                 maxLength = pair.entryName.length();
                 order = pair.value;
             }
         }
-
         // seek our current iteration position to the end of the matching sequence
         // and return the appropriate collation-element value (if there was no matching
         // sequence, we're already seeked to the right position and order already contains
@@ -476,8 +403,6 @@ public final class CollationElementIterator
         }
         return order;
     }
-
-
     private int prevContractChar(int ch)
     {
         // This function is identical to nextContractChar(), except that we've
@@ -489,12 +414,9 @@ public final class CollationElementIterator
         Vector<EntryPair> list = ordering.getContractValues(ch);
         EntryPair pair = list.firstElement();
         int order = pair.value;
-
         pair = list.lastElement();
         int maxLength = pair.entryName.length();
-
         NormalizerBase tempText = (NormalizerBase)text.clone();
-
         tempText.next();
         key.setLength(0);
         int c = tempText.previous();
@@ -509,29 +431,24 @@ public final class CollationElementIterator
             c = tempText.previous();
         }
         String fragment = key.toString();
-
         maxLength = 1;
         for (int i = list.size() - 1; i > 0; i--) {
             pair = list.elementAt(i);
             if (pair.fwd)
                 continue;
-
             if (fragment.startsWith(pair.entryName) && pair.entryName.length()
                     > maxLength) {
                 maxLength = pair.entryName.length();
                 order = pair.value;
             }
         }
-
         while (maxLength > 1) {
             c = text.previous();
             maxLength -= Character.charCount(c);
         }
         return order;
     }
-
     final static int UNMAPPEDCHARVALUE = 0x7FFF0000;
-
     private NormalizerBase text = null;
     private int[] buffer = null;
     private int expIndex = 0;

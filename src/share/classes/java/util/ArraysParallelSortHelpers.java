@@ -1,22 +1,12 @@
-
 package java.util;
-
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.CountedCompleter;
-
-
  class ArraysParallelSortHelpers {
-
-
-
-
     static final class EmptyCompleter extends CountedCompleter<Void> {
         static final long serialVersionUID = 2446542900576103244L;
         EmptyCompleter(CountedCompleter<?> p) { super(p); }
         public final void compute() { }
     }
-
-
     static final class Relay extends CountedCompleter<Void> {
         static final long serialVersionUID = 2446542900576103244L;
         final CountedCompleter<?> task;
@@ -29,8 +19,6 @@ import java.util.concurrent.CountedCompleter;
             task.compute();
         }
     }
-
-
     static final class FJObject {
         static final class Sorter<T> extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
@@ -68,7 +56,6 @@ import java.util.concurrent.CountedCompleter;
                 s.tryComplete();
             }
         }
-
         static final class Merger<T> extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
             final T[] a, w; // main and workspace arrays
@@ -85,7 +72,6 @@ import java.util.concurrent.CountedCompleter;
                 this.wbase = wbase; this.gran = gran;
                 this.comparator = comparator;
             }
-
             public final void compute() {
                 Comparator<? super T> c = this.comparator;
                 T[] a = this.a, w = this.w; // localize all params
@@ -129,7 +115,6 @@ import java.util.concurrent.CountedCompleter;
                     addToPendingCount(1);
                     m.fork();
                 }
-
                 int lf = lb + ln, rf = rb + rn; // index bounds
                 while (lb < lf && rb < rf) {
                     T t, al, ar;
@@ -145,14 +130,10 @@ import java.util.concurrent.CountedCompleter;
                     System.arraycopy(a, rb, w, k, rf - rb);
                 else if (lb < lf)
                     System.arraycopy(a, lb, w, k, lf - lb);
-
                 tryComplete();
             }
-
         }
     } // FJObject
-
-
     static final class FJByte {
         static final class Sorter extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
@@ -186,7 +167,6 @@ import java.util.concurrent.CountedCompleter;
                 s.tryComplete();
             }
         }
-
         static final class Merger extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
             final byte[] a, w; // main and workspace arrays
@@ -200,7 +180,6 @@ import java.util.concurrent.CountedCompleter;
                 this.rbase = rbase; this.rsize = rsize;
                 this.wbase = wbase; this.gran = gran;
             }
-
             public final void compute() {
                 byte[] a = this.a, w = this.w; // localize all params
                 int lb = this.lbase, ln = this.lsize, rb = this.rbase,
@@ -242,7 +221,6 @@ import java.util.concurrent.CountedCompleter;
                     addToPendingCount(1);
                     m.fork();
                 }
-
                 int lf = lb + ln, rf = rb + rn; // index bounds
                 while (lb < lf && rb < rf) {
                     byte t, al, ar;
@@ -262,8 +240,6 @@ import java.util.concurrent.CountedCompleter;
             }
         }
     } // FJByte
-
-
     static final class FJChar {
         static final class Sorter extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
@@ -297,7 +273,6 @@ import java.util.concurrent.CountedCompleter;
                 s.tryComplete();
             }
         }
-
         static final class Merger extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
             final char[] a, w; // main and workspace arrays
@@ -311,7 +286,6 @@ import java.util.concurrent.CountedCompleter;
                 this.rbase = rbase; this.rsize = rsize;
                 this.wbase = wbase; this.gran = gran;
             }
-
             public final void compute() {
                 char[] a = this.a, w = this.w; // localize all params
                 int lb = this.lbase, ln = this.lsize, rb = this.rbase,
@@ -353,7 +327,6 @@ import java.util.concurrent.CountedCompleter;
                     addToPendingCount(1);
                     m.fork();
                 }
-
                 int lf = lb + ln, rf = rb + rn; // index bounds
                 while (lb < lf && rb < rf) {
                     char t, al, ar;
@@ -373,8 +346,6 @@ import java.util.concurrent.CountedCompleter;
             }
         }
     } // FJChar
-
-
     static final class FJShort {
         static final class Sorter extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
@@ -408,7 +379,6 @@ import java.util.concurrent.CountedCompleter;
                 s.tryComplete();
             }
         }
-
         static final class Merger extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
             final short[] a, w; // main and workspace arrays
@@ -422,7 +392,6 @@ import java.util.concurrent.CountedCompleter;
                 this.rbase = rbase; this.rsize = rsize;
                 this.wbase = wbase; this.gran = gran;
             }
-
             public final void compute() {
                 short[] a = this.a, w = this.w; // localize all params
                 int lb = this.lbase, ln = this.lsize, rb = this.rbase,
@@ -464,7 +433,6 @@ import java.util.concurrent.CountedCompleter;
                     addToPendingCount(1);
                     m.fork();
                 }
-
                 int lf = lb + ln, rf = rb + rn; // index bounds
                 while (lb < lf && rb < rf) {
                     short t, al, ar;
@@ -484,8 +452,6 @@ import java.util.concurrent.CountedCompleter;
             }
         }
     } // FJShort
-
-
     static final class FJInt {
         static final class Sorter extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
@@ -519,7 +485,6 @@ import java.util.concurrent.CountedCompleter;
                 s.tryComplete();
             }
         }
-
         static final class Merger extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
             final int[] a, w; // main and workspace arrays
@@ -533,7 +498,6 @@ import java.util.concurrent.CountedCompleter;
                 this.rbase = rbase; this.rsize = rsize;
                 this.wbase = wbase; this.gran = gran;
             }
-
             public final void compute() {
                 int[] a = this.a, w = this.w; // localize all params
                 int lb = this.lbase, ln = this.lsize, rb = this.rbase,
@@ -575,7 +539,6 @@ import java.util.concurrent.CountedCompleter;
                     addToPendingCount(1);
                     m.fork();
                 }
-
                 int lf = lb + ln, rf = rb + rn; // index bounds
                 while (lb < lf && rb < rf) {
                     int t, al, ar;
@@ -595,8 +558,6 @@ import java.util.concurrent.CountedCompleter;
             }
         }
     } // FJInt
-
-
     static final class FJLong {
         static final class Sorter extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
@@ -630,7 +591,6 @@ import java.util.concurrent.CountedCompleter;
                 s.tryComplete();
             }
         }
-
         static final class Merger extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
             final long[] a, w; // main and workspace arrays
@@ -644,7 +604,6 @@ import java.util.concurrent.CountedCompleter;
                 this.rbase = rbase; this.rsize = rsize;
                 this.wbase = wbase; this.gran = gran;
             }
-
             public final void compute() {
                 long[] a = this.a, w = this.w; // localize all params
                 int lb = this.lbase, ln = this.lsize, rb = this.rbase,
@@ -686,7 +645,6 @@ import java.util.concurrent.CountedCompleter;
                     addToPendingCount(1);
                     m.fork();
                 }
-
                 int lf = lb + ln, rf = rb + rn; // index bounds
                 while (lb < lf && rb < rf) {
                     long t, al, ar;
@@ -706,8 +664,6 @@ import java.util.concurrent.CountedCompleter;
             }
         }
     } // FJLong
-
-
     static final class FJFloat {
         static final class Sorter extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
@@ -741,7 +697,6 @@ import java.util.concurrent.CountedCompleter;
                 s.tryComplete();
             }
         }
-
         static final class Merger extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
             final float[] a, w; // main and workspace arrays
@@ -755,7 +710,6 @@ import java.util.concurrent.CountedCompleter;
                 this.rbase = rbase; this.rsize = rsize;
                 this.wbase = wbase; this.gran = gran;
             }
-
             public final void compute() {
                 float[] a = this.a, w = this.w; // localize all params
                 int lb = this.lbase, ln = this.lsize, rb = this.rbase,
@@ -797,7 +751,6 @@ import java.util.concurrent.CountedCompleter;
                     addToPendingCount(1);
                     m.fork();
                 }
-
                 int lf = lb + ln, rf = rb + rn; // index bounds
                 while (lb < lf && rb < rf) {
                     float t, al, ar;
@@ -817,8 +770,6 @@ import java.util.concurrent.CountedCompleter;
             }
         }
     } // FJFloat
-
-
     static final class FJDouble {
         static final class Sorter extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
@@ -852,7 +803,6 @@ import java.util.concurrent.CountedCompleter;
                 s.tryComplete();
             }
         }
-
         static final class Merger extends CountedCompleter<Void> {
             static final long serialVersionUID = 2446542900576103244L;
             final double[] a, w; // main and workspace arrays
@@ -866,7 +816,6 @@ import java.util.concurrent.CountedCompleter;
                 this.rbase = rbase; this.rsize = rsize;
                 this.wbase = wbase; this.gran = gran;
             }
-
             public final void compute() {
                 double[] a = this.a, w = this.w; // localize all params
                 int lb = this.lbase, ln = this.lsize, rb = this.rbase,
@@ -908,7 +857,6 @@ import java.util.concurrent.CountedCompleter;
                     addToPendingCount(1);
                     m.fork();
                 }
-
                 int lf = lb + ln, rf = rb + rn; // index bounds
                 while (lb < lf && rb < rf) {
                     double t, al, ar;
@@ -928,5 +876,4 @@ import java.util.concurrent.CountedCompleter;
             }
         }
     } // FJDouble
-
 }

@@ -1,8 +1,4 @@
-
-
-
 package java.time.zone;
-
 import java.io.ByteArrayInputStream;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -19,18 +15,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-
-
 final class TzdbZoneRulesProvider extends ZoneRulesProvider {
-
-
     private List<String> regionIds;
-
     private String versionId;
-
     private final Map<String, Object> regionToRules = new ConcurrentHashMap<>();
-
-
     public TzdbZoneRulesProvider() {
         try {
             String libDir = System.getProperty("java.home") + File.separator + "lib";
@@ -43,12 +31,10 @@ final class TzdbZoneRulesProvider extends ZoneRulesProvider {
             throw new ZoneRulesException("Unable to load TZDB time-zone rules", ex);
         }
     }
-
     @Override
     protected Set<String> provideZoneIds() {
         return new HashSet<>(regionIds);
     }
-
     @Override
     protected ZoneRules provideRules(String zoneId, boolean forCaching) {
         // forCaching flag is ignored because this is not a dynamic provider
@@ -68,7 +54,6 @@ final class TzdbZoneRulesProvider extends ZoneRulesProvider {
             throw new ZoneRulesException("Invalid binary time-zone data: TZDB:" + zoneId + ", version: " + versionId, ex);
         }
     }
-
     @Override
     protected NavigableMap<String, ZoneRules> provideVersions(String zoneId) {
         TreeMap<String, ZoneRules> map = new TreeMap<>();
@@ -78,8 +63,6 @@ final class TzdbZoneRulesProvider extends ZoneRulesProvider {
         }
         return map;
     }
-
-
     private void load(DataInputStream dis) throws Exception {
         if (dis.readByte() != 1) {
             throw new StreamCorruptedException("File format not recognised");
@@ -120,7 +103,6 @@ final class TzdbZoneRulesProvider extends ZoneRulesProvider {
             }
         }
     }
-
     @Override
     public String toString() {
         return "TZDB[" + versionId + "]";

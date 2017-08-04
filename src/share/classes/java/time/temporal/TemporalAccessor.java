@@ -1,18 +1,8 @@
-
-
-
 package java.time.temporal;
-
 import java.time.DateTimeException;
 import java.util.Objects;
-
-
 public interface TemporalAccessor {
-
-
     boolean isSupported(TemporalField field);
-
-
     default ValueRange range(TemporalField field) {
         if (field instanceof ChronoField) {
             if (isSupported(field)) {
@@ -23,8 +13,6 @@ public interface TemporalAccessor {
         Objects.requireNonNull(field, "field");
         return field.rangeRefinedBy(this);
     }
-
-
     default int get(TemporalField field) {
         ValueRange range = range(field);
         if (range.isIntValue() == false) {
@@ -36,11 +24,7 @@ public interface TemporalAccessor {
         }
         return (int) value;
     }
-
-
     long getLong(TemporalField field);
-
-
     default <R> R query(TemporalQuery<R> query) {
         if (query == TemporalQueries.zoneId()
                 || query == TemporalQueries.chronology()
@@ -49,5 +33,4 @@ public interface TemporalAccessor {
         }
         return query.queryFrom(this);
     }
-
 }

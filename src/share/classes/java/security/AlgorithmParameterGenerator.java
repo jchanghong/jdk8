@@ -1,23 +1,12 @@
-
-
 package java.security;
-
 import java.security.spec.AlgorithmParameterSpec;
-
-
-
 public class AlgorithmParameterGenerator {
-
     // The provider
     private Provider provider;
-
     // The provider implementation (delegate)
     private AlgorithmParameterGeneratorSpi paramGenSpi;
-
     // The algorithm
     private String algorithm;
-
-
     protected AlgorithmParameterGenerator
     (AlgorithmParameterGeneratorSpi paramGenSpi, Provider provider,
      String algorithm) {
@@ -25,13 +14,9 @@ public class AlgorithmParameterGenerator {
         this.provider = provider;
         this.algorithm = algorithm;
     }
-
-
     public final String getAlgorithm() {
         return this.algorithm;
     }
-
-
     public static AlgorithmParameterGenerator getInstance(String algorithm)
         throws NoSuchAlgorithmException {
             try {
@@ -46,8 +31,6 @@ public class AlgorithmParameterGenerator {
                 throw new NoSuchAlgorithmException(algorithm + " not found");
             }
     }
-
-
     public static AlgorithmParameterGenerator getInstance(String algorithm,
                                                           String provider)
         throws NoSuchAlgorithmException, NoSuchProviderException
@@ -61,8 +44,6 @@ public class AlgorithmParameterGenerator {
             ((AlgorithmParameterGeneratorSpi)objs[0], (Provider)objs[1],
              algorithm);
     }
-
-
     public static AlgorithmParameterGenerator getInstance(String algorithm,
                                                           Provider provider)
         throws NoSuchAlgorithmException
@@ -76,36 +57,24 @@ public class AlgorithmParameterGenerator {
             ((AlgorithmParameterGeneratorSpi)objs[0], (Provider)objs[1],
              algorithm);
     }
-
-
     public final Provider getProvider() {
         return this.provider;
     }
-
-
     public final void init(int size) {
         paramGenSpi.engineInit(size, new SecureRandom());
     }
-
-
     public final void init(int size, SecureRandom random) {
         paramGenSpi.engineInit(size, random);
     }
-
-
     public final void init(AlgorithmParameterSpec genParamSpec)
         throws InvalidAlgorithmParameterException {
             paramGenSpi.engineInit(genParamSpec, new SecureRandom());
     }
-
-
     public final void init(AlgorithmParameterSpec genParamSpec,
                            SecureRandom random)
         throws InvalidAlgorithmParameterException {
             paramGenSpi.engineInit(genParamSpec, random);
     }
-
-
     public final AlgorithmParameters generateParameters() {
         return paramGenSpi.engineGenerateParameters();
     }

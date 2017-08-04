@@ -1,26 +1,13 @@
-
-
 package java.awt;
-
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
 import java.beans.ConstructorProperties;
-
-
 public final class RadialGradientPaint extends MultipleGradientPaint {
-
-
     private final Point2D focus;
-
-
     private final Point2D center;
-
-
     private final float radius;
-
-
     public RadialGradientPaint(float cx, float cy, float radius,
                                float[] fractions, Color[] colors)
     {
@@ -31,8 +18,6 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
              colors,
              CycleMethod.NO_CYCLE);
     }
-
-
     public RadialGradientPaint(Point2D center, float radius,
                                float[] fractions, Color[] colors)
     {
@@ -43,8 +28,6 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
              colors,
              CycleMethod.NO_CYCLE);
     }
-
-
     public RadialGradientPaint(float cx, float cy, float radius,
                                float[] fractions, Color[] colors,
                                CycleMethod cycleMethod)
@@ -56,8 +39,6 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
              colors,
              cycleMethod);
     }
-
-
     public RadialGradientPaint(Point2D center, float radius,
                                float[] fractions, Color[] colors,
                                CycleMethod cycleMethod)
@@ -69,8 +50,6 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
              colors,
              cycleMethod);
     }
-
-
     public RadialGradientPaint(float cx, float cy, float radius,
                                float fx, float fy,
                                float[] fractions, Color[] colors,
@@ -83,8 +62,6 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
              colors,
              cycleMethod);
     }
-
-
     public RadialGradientPaint(Point2D center, float radius,
                                Point2D focus,
                                float[] fractions, Color[] colors,
@@ -99,8 +76,6 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
              ColorSpaceType.SRGB,
              new AffineTransform());
     }
-
-
     @ConstructorProperties({ "centerPoint", "radius", "focusPoint", "fractions", "colors", "cycleMethod", "colorSpace", "transform" })
     public RadialGradientPaint(Point2D center,
                                float radius,
@@ -111,28 +86,22 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
                                AffineTransform gradientTransform)
     {
         super(fractions, colors, cycleMethod, colorSpace, gradientTransform);
-
         // check input arguments
         if (center == null) {
             throw new NullPointerException("Center point must be non-null");
         }
-
         if (focus == null) {
             throw new NullPointerException("Focus point must be non-null");
         }
-
         if (radius <= 0) {
             throw new IllegalArgumentException("Radius must be greater " +
                                                "than zero");
         }
-
         // copy parameters
         this.center = new Point2D.Double(center.getX(), center.getY());
         this.focus = new Point2D.Double(focus.getX(), focus.getY());
         this.radius = radius;
     }
-
-
     public RadialGradientPaint(Rectangle2D gradientBounds,
                                float[] fractions, Color[] colors,
                                CycleMethod cycleMethod)
@@ -150,13 +119,11 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
              cycleMethod,
              ColorSpaceType.SRGB,
              createGradientTransform(gradientBounds));
-
         if (gradientBounds.isEmpty()) {
             throw new IllegalArgumentException("Gradient bounds must be " +
                                                "non-empty");
         }
     }
-
     private static AffineTransform createGradientTransform(Rectangle2D r) {
         double cx = r.getCenterX();
         double cy = r.getCenterY();
@@ -165,8 +132,6 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
         xform.translate(-cx, -cy);
         return xform;
     }
-
-
     public PaintContext createContext(ColorModel cm,
                                       Rectangle deviceBounds,
                                       Rectangle2D userBounds,
@@ -177,7 +142,6 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
         transform = new AffineTransform(transform);
         // incorporate the gradient transform
         transform.concatenate(gradientTransform);
-
         return new RadialGradientPaintContext(this, cm,
                                               deviceBounds, userBounds,
                                               transform, hints,
@@ -189,18 +153,12 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
                                               fractions, colors,
                                               cycleMethod, colorSpace);
     }
-
-
     public Point2D getCenterPoint() {
         return new Point2D.Double(center.getX(), center.getY());
     }
-
-
     public Point2D getFocusPoint() {
         return new Point2D.Double(focus.getX(), focus.getY());
     }
-
-
     public float getRadius() {
         return radius;
     }

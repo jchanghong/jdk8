@@ -1,18 +1,9 @@
-
-
 package java.io;
-
-
 public abstract class OutputStream implements Closeable, Flushable {
-
     public abstract void write(int b) throws IOException;
-
-
     public void write(byte b[]) throws IOException {
         write(b, 0, b.length);
     }
-
-
     public void write(byte b[], int off, int len) throws IOException {
         if (b == null) {
             throw new NullPointerException();
@@ -26,13 +17,8 @@ public abstract class OutputStream implements Closeable, Flushable {
             write(b[off + i]);
         }
     }
-
-
     public void flush() throws IOException {
     }
-
-
     public void close() throws IOException {
     }
-
 }

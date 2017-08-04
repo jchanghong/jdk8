@@ -1,14 +1,7 @@
-
-
-
-
 package java.text;
-
 import java.text.Normalizer;
 import java.util.Vector;
 import java.util.Locale;
-
-
 public class RuleBasedCollator extends Collator{
     // IMPLEMENTATION NOTES:  The implementation of the collation algorithm is
     // divided across three classes: RuleBasedCollator, RBCollationTables, and
@@ -31,50 +24,35 @@ public class RuleBasedCollator extends Collator{
     // uses to map from characters to collation elements.  A single RBCollationTables
     // object is shared among all RuleBasedCollators for the same locale, and
     // thus by all the CollationElementIterators they create.
-
-
     public RuleBasedCollator(String rules) throws ParseException {
         this(rules, Collator.CANONICAL_DECOMPOSITION);
     }
-
-
     RuleBasedCollator(String rules, int decomp) throws ParseException {
         setStrength(Collator.TERTIARY);
         setDecomposition(decomp);
         tables = new RBCollationTables(rules, decomp);
     }
-
-
     private RuleBasedCollator(RuleBasedCollator that) {
         setStrength(that.getStrength());
         setDecomposition(that.getDecomposition());
         tables = that.tables;
     }
-
-
     public String getRules()
     {
         return tables.getRules();
     }
-
-
     public CollationElementIterator getCollationElementIterator(String source) {
         return new CollationElementIterator( source, this );
     }
-
-
     public CollationElementIterator getCollationElementIterator(
                                                 CharacterIterator source) {
         return new CollationElementIterator( source, this );
     }
-
-
     public synchronized int compare(String source, String target)
     {
         if (source == null || target == null) {
             throw new NullPointerException();
         }
-
         // The basic algorithm here is that we use CollationElementIterators
         // to step through both the source and target strings.  We compare each
         // collation element in the source string against the corresponding one
@@ -93,9 +71,7 @@ public class RuleBasedCollator extends Collator{
         // so far.  When we find a difference whose strength is greater than
         // strengthResult, it overrides the last difference (if any) that
         // was found.
-
         int result = Collator.EQUAL;
-
         if (sourceCursor == null) {
             sourceCursor = getCollationElementIterator(source);
         } else {
@@ -106,29 +82,22 @@ public class RuleBasedCollator extends Collator{
         } else {
             targetCursor.setText(target);
         }
-
         int sOrder = 0, tOrder = 0;
-
         boolean initialCheckSecTer = getStrength() >= Collator.SECONDARY;
         boolean checkSecTer = initialCheckSecTer;
         boolean checkTertiary = getStrength() >= Collator.TERTIARY;
-
         boolean gets = true, gett = true;
-
         while(true) {
             // Get the next collation element in each of the strings, unless
             // we've been requested to skip it.
             if (gets) sOrder = sourceCursor.next(); else gets = true;
             if (gett) tOrder = targetCursor.next(); else gett = true;
-
             // If we've hit the end of one of the strings, jump out of the loop
             if ((sOrder == CollationElementIterator.NULLORDER)||
                 (tOrder == CollationElementIterator.NULLORDER))
                 break;
-
             int pSOrder = CollationElementIterator.primaryOrder(sOrder);
             int pTOrder = CollationElementIterator.primaryOrder(tOrder);
-
             // If there's no difference at this position, we can skip it
             if (sOrder == tOrder) {
                 if (tables.isFrenchSec() && pSOrder != 0) {
@@ -143,7 +112,6 @@ public class RuleBasedCollator extends Collator{
                 }
                 continue;
             }
-
             // Compare primary differences first.
             if ( pSOrder != pTOrder )
             {
@@ -157,10 +125,8 @@ public class RuleBasedCollator extends Collator{
                     gets = false;
                     continue;
                 }
-
                 // The source and target elements aren't ignorable, but it's still possible
                 // for the primary component of one of the elements to be ignorable....
-
                 if (pSOrder == 0)  // primary order in source is ignorable
                 {
                     // The source's primary is ignorable, but the target's isn't.  We treat ignorables
@@ -195,7 +161,6 @@ public class RuleBasedCollator extends Collator{
                 // primary order is the same, but complete order is different. So there
                 // are no base elements at this point, only ignorables (Since the strings are
                 // normalized)
-
                 if (checkSecTer) {
                     // a secondary or tertiary difference may still matter
                     short secSOrder = CollationElementIterator.secondaryOrder(sOrder);
@@ -221,10 +186,8 @@ public class RuleBasedCollator extends Collator{
                         }
                     }
                 } // if (checkSecTer)
-
             }  // if ( pSOrder != pTOrder )
         } // while()
-
         if (sOrder != CollationElementIterator.NULLORDER) {
             // (tOrder must be CollationElementIterator::NULLORDER,
             //  since this point is only reached when sOrder or tOrder is NULLORDER.)
@@ -260,7 +223,6 @@ public class RuleBasedCollator extends Collator{
                 }
             } while ((tOrder = targetCursor.next()) != CollationElementIterator.NULLORDER);
         }
-
         // For IDENTICAL comparisons, we use a bitwise character comparison
         // as a tiebreaker if all else is equal
         if (result == 0 && getStrength() == IDENTICAL) {
@@ -273,15 +235,12 @@ public class RuleBasedCollator extends Collator{
             } else {
                 return source.compareTo(target);
             }
-
             String sourceDecomposition = Normalizer.normalize(source, form);
             String targetDecomposition = Normalizer.normalize(target, form);
             return sourceDecomposition.compareTo(targetDecomposition);
         }
         return result;
     }
-
-
     public synchronized CollationKey getCollationKey(String source)
     {
         //
@@ -316,7 +275,6 @@ public class RuleBasedCollator extends Collator{
         //
         if (source == null)
             return null;
-
         if (primResult == null) {
             primResult = new StringBuffer();
             secResult = new StringBuffer();
@@ -332,13 +290,11 @@ public class RuleBasedCollator extends Collator{
         int secOrder = CollationElementIterator.NULLORDER;
         int terOrder = CollationElementIterator.NULLORDER;
         int preSecIgnore = 0;
-
         if (sourceCursor == null) {
             sourceCursor = getCollationElementIterator(source);
         } else {
             sourceCursor.setText(source);
         }
-
         // walk through each character
         while ((order = sourceCursor.next()) !=
                CollationElementIterator.NULLORDER)
@@ -349,7 +305,6 @@ public class RuleBasedCollator extends Collator{
             {
                 primResult.append((char) (CollationElementIterator.primaryOrder(order)
                                     + COLLATIONKEYOFFSET));
-
                 if (compareSec) {
                     //
                     // accumulate all of the ignorable/secondary characters attached
@@ -396,7 +351,6 @@ public class RuleBasedCollator extends Collator{
         secResult.append((char)0);
         secResult.append(terResult.toString());
         primResult.append(secResult.toString());
-
         if (getStrength() == IDENTICAL) {
             primResult.append((char)0);
             int mode = getDecomposition();
@@ -410,8 +364,6 @@ public class RuleBasedCollator extends Collator{
         }
         return new RuleBasedCollationKey(source, primResult.toString());
     }
-
-
     public Object clone() {
         // if we know we're not actually a subclass of RuleBasedCollator
         // (this class really should have been made final), bypass
@@ -429,8 +381,6 @@ public class RuleBasedCollator extends Collator{
             return result;
         }
     }
-
-
     public boolean equals(Object obj) {
         if (obj == null) return false;
         if (!super.equals(obj)) return false;  // super does class check
@@ -438,30 +388,21 @@ public class RuleBasedCollator extends Collator{
         // all other non-transient information is also contained in rules.
         return (getRules().equals(other.getRules()));
     }
-
-
     public int hashCode() {
         return getRules().hashCode();
     }
-
-
     RBCollationTables getTables() {
         return tables;
     }
-
     // ==============================================================
     // private
     // ==============================================================
-
     final static int CHARINDEX = 0x70000000;  // need look up in .commit()
     final static int EXPANDCHARINDEX = 0x7E000000; // Expand index follows
     final static int CONTRACTCHARINDEX = 0x7F000000;  // contract indexes follow
     final static int UNMAPPED = 0xFFFFFFFF;
-
     private final static int COLLATIONKEYOFFSET = 1;
-
     private RBCollationTables tables = null;
-
     // Internal objects that are cached across calls so that they don't have to
     // be created/destroyed on every call to compare() and getCollationKey()
     private StringBuffer primResult = null;

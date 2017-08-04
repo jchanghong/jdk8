@@ -1,21 +1,11 @@
-
-
-
-
 package java.text;
-
 import java.io.InvalidObjectException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Arrays;
-
-
 public class ChoiceFormat extends NumberFormat {
-
     // Proclaim serial compatibility with 1.1 FCS
     private static final long serialVersionUID = 1795184449645032964L;
-
-
     public void applyPattern(String newPattern) {
         StringBuffer[] segments = new StringBuffer[2];
         for (int i = 0; i < segments.length; ++i) {
@@ -95,8 +85,6 @@ public class ChoiceFormat extends NumberFormat {
         choiceFormats = new String[count];
         System.arraycopy(newChoiceFormats, 0, choiceFormats, 0, count);
     }
-
-
     public String toPattern() {
         StringBuffer result = new StringBuffer();
         for (int i = 0; i < choiceLimits.length; ++i) {
@@ -109,7 +97,6 @@ public class ChoiceFormat extends NumberFormat {
             double less = previousDouble(choiceLimits[i]);
             double tryLessOrEqual = Math.abs(Math.IEEEremainder(choiceLimits[i], 1.0d));
             double tryLess = Math.abs(Math.IEEEremainder(less, 1.0d));
-
             if (tryLessOrEqual < tryLess) {
                 result.append(""+choiceLimits[i]);
                 result.append('#');
@@ -143,18 +130,12 @@ public class ChoiceFormat extends NumberFormat {
         }
         return result.toString();
     }
-
-
     public ChoiceFormat(String newPattern)  {
         applyPattern(newPattern);
     }
-
-
     public ChoiceFormat(double[] limits, String[] formats) {
         setChoices(limits, formats);
     }
-
-
     public void setChoices(double[] limits, String formats[]) {
         if (limits.length != formats.length) {
             throw new IllegalArgumentException(
@@ -163,28 +144,19 @@ public class ChoiceFormat extends NumberFormat {
         choiceLimits = Arrays.copyOf(limits, limits.length);
         choiceFormats = Arrays.copyOf(formats, formats.length);
     }
-
-
     public double[] getLimits() {
         double[] newLimits = Arrays.copyOf(choiceLimits, choiceLimits.length);
         return newLimits;
     }
-
-
     public Object[] getFormats() {
         Object[] newFormats = Arrays.copyOf(choiceFormats, choiceFormats.length);
         return newFormats;
     }
-
     // Overrides
-
-
     public StringBuffer format(long number, StringBuffer toAppendTo,
                                FieldPosition status) {
         return format((double)number, toAppendTo, status);
     }
-
-
    public StringBuffer format(double number, StringBuffer toAppendTo,
                                FieldPosition status) {
         // find the number
@@ -200,8 +172,6 @@ public class ChoiceFormat extends NumberFormat {
         // return either a formatted number, or a string
         return toAppendTo.append(choiceFormats[i]);
     }
-
-
     public Number parse(String text, ParsePosition status) {
         // find the best number (defined as the one with the longest parse)
         int start = status.index;
@@ -226,18 +196,12 @@ public class ChoiceFormat extends NumberFormat {
         }
         return new Double(bestNumber);
     }
-
-
     public static final double nextDouble (double d) {
         return nextDouble(d,true);
     }
-
-
     public static final double previousDouble (double d) {
         return nextDouble(d,false);
     }
-
-
     public Object clone()
     {
         ChoiceFormat other = (ChoiceFormat) super.clone();
@@ -246,8 +210,6 @@ public class ChoiceFormat extends NumberFormat {
         other.choiceFormats = choiceFormats.clone();
         return other;
     }
-
-
     public int hashCode() {
         int result = choiceLimits.length;
         if (choiceFormats.length > 0) {
@@ -256,8 +218,6 @@ public class ChoiceFormat extends NumberFormat {
         }
         return result;
     }
-
-
     public boolean equals(Object obj) {
         if (obj == null) return false;
         if (this == obj)                      // quick check
@@ -268,8 +228,6 @@ public class ChoiceFormat extends NumberFormat {
         return (Arrays.equals(choiceLimits, other.choiceLimits)
              && Arrays.equals(choiceFormats, other.choiceFormats));
     }
-
-
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         if (choiceLimits.length != choiceFormats.length) {
@@ -277,30 +235,16 @@ public class ChoiceFormat extends NumberFormat {
                     "limits and format arrays of different length.");
         }
     }
-
     // ===============privates===========================
-
-
     private double[] choiceLimits;
-
-
     private String[] choiceFormats;
-
-
-
     static final long SIGN                = 0x8000000000000000L;
     static final long EXPONENT            = 0x7FF0000000000000L;
     static final long POSITIVEINFINITY    = 0x7FF0000000000000L;
-
-
     public static double nextDouble (double d, boolean positive) {
-
-
         if (Double.isNaN(d)) {
             return d;
         }
-
-
         if (d == 0.0) {
             double smallestPositiveDouble = Double.longBitsToDouble(1L);
             if (positive) {
@@ -309,43 +253,29 @@ public class ChoiceFormat extends NumberFormat {
                 return -smallestPositiveDouble;
             }
         }
-
-
-
-
         long bits = Double.doubleToLongBits(d);
-
-
         long magnitude = bits & ~SIGN;
-
-
         if ((bits > 0) == positive) {
             if (magnitude != POSITIVEINFINITY) {
                 magnitude += 1;
             }
         }
-
         else {
             magnitude -= 1;
         }
-
-
         long signbit = bits & SIGN;
         return Double.longBitsToDouble (magnitude | signbit);
     }
-
     private static double[] doubleArraySize(double[] array) {
         int oldSize = array.length;
         double[] newArray = new double[oldSize * 2];
         System.arraycopy(array, 0, newArray, 0, oldSize);
         return newArray;
     }
-
     private String[] doubleArraySize(String[] array) {
         int oldSize = array.length;
         String[] newArray = new String[oldSize * 2];
         System.arraycopy(array, 0, newArray, 0, oldSize);
         return newArray;
     }
-
 }

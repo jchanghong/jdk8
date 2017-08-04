@@ -1,29 +1,17 @@
-
-
 package java.util.spi;
-
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle.Control;
-
-
 public abstract class CurrencyNameProvider extends LocaleServiceProvider {
-
-
     protected CurrencyNameProvider() {
     }
-
-
     public abstract String getSymbol(String currencyCode, Locale locale);
-
-
     public String getDisplayName(String currencyCode, Locale locale) {
         if (currencyCode == null || locale == null) {
             throw new NullPointerException();
         }
-
         // Check whether the currencyCode is valid
         char[] charray = currencyCode.toCharArray();
         if (charray.length != 3) {
@@ -34,7 +22,6 @@ public abstract class CurrencyNameProvider extends LocaleServiceProvider {
                 throw new IllegalArgumentException("The currencyCode is not in the form of three upper-case letters.");
             }
         }
-
         // Check whether the locale is valid
         Control c = Control.getNoFallbackControl(Control.FORMAT_DEFAULT);
         for (Locale l : getAvailableLocales()) {
@@ -42,7 +29,6 @@ public abstract class CurrencyNameProvider extends LocaleServiceProvider {
                 return null;
             }
         }
-
         throw new IllegalArgumentException("The locale is not available");
     }
 }

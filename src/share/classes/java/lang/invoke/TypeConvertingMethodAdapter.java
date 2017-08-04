@@ -1,36 +1,24 @@
-
-
 package java.lang.invoke;
-
 import jdk.internal.org.objectweb.asm.MethodVisitor;
 import jdk.internal.org.objectweb.asm.Opcodes;
 import jdk.internal.org.objectweb.asm.Type;
 import sun.invoke.util.BytecodeDescriptor;
 import sun.invoke.util.Wrapper;
 import static sun.invoke.util.Wrapper.*;
-
 class TypeConvertingMethodAdapter extends MethodVisitor {
-
     TypeConvertingMethodAdapter(MethodVisitor mv) {
         super(Opcodes.ASM5, mv);
     }
-
     private static final int NUM_WRAPPERS = Wrapper.values().length;
-
     private static final String NAME_OBJECT = "java/lang/Object";
     private static final String WRAPPER_PREFIX = "Ljava/lang/";
-
     // Same for all primitives; name of the boxing method
     private static final String NAME_BOX_METHOD = "valueOf";
-
     // Table of opcodes for widening primitive conversions; NOP = no conversion
     private static final int[][] wideningOpcodes = new int[NUM_WRAPPERS][NUM_WRAPPERS];
-
     private static final Wrapper[] FROM_WRAPPER_NAME = new Wrapper[16];
-
     // Table of wrappers for primitives, indexed by ASM type sorts
     private static final Wrapper[] FROM_TYPE_SORT = new Wrapper[16];
-
     static {
         for (Wrapper w : Wrapper.values()) {
             if (w.basicTypeChar() != 'L') {
@@ -39,13 +27,11 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
                 FROM_WRAPPER_NAME[wi] = w;
             }
         }
-
         for (int i = 0; i < NUM_WRAPPERS; i++) {
             for (int j = 0; j < NUM_WRAPPERS; j++) {
                 wideningOpcodes[i][j] = Opcodes.NOP;
             }
         }
-
         initWidening(LONG,   Opcodes.I2L, BYTE, SHORT, INT, CHAR);
         initWidening(LONG,   Opcodes.F2L, FLOAT);
         initWidening(FLOAT,  Opcodes.I2F, BYTE, SHORT, INT, CHAR);
@@ -53,7 +39,6 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
         initWidening(DOUBLE, Opcodes.I2D, BYTE, SHORT, INT, CHAR);
         initWidening(DOUBLE, Opcodes.F2D, FLOAT);
         initWidening(DOUBLE, Opcodes.L2D, LONG);
-
         FROM_TYPE_SORT[Type.BYTE] = Wrapper.BYTE;
         FROM_TYPE_SORT[Type.SHORT] = Wrapper.SHORT;
         FROM_TYPE_SORT[Type.INT] = Wrapper.INT;
@@ -63,21 +48,17 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
         FROM_TYPE_SORT[Type.DOUBLE] = Wrapper.DOUBLE;
         FROM_TYPE_SORT[Type.BOOLEAN] = Wrapper.BOOLEAN;
     }
-
     private static void initWidening(Wrapper to, int opcode, Wrapper... from) {
         for (Wrapper f : from) {
             wideningOpcodes[f.ordinal()][to.ordinal()] = opcode;
         }
     }
-
-
     private static int hashWrapperName(String xn) {
         if (xn.length() < 3) {
             return 0;
         }
         return (3 * xn.charAt(1) + xn.charAt(2)) % 16;
     }
-
     private Wrapper wrapperOrNullFromDescriptor(String desc) {
         if (!desc.startsWith(WRAPPER_PREFIX)) {
             // Not a class type (array or method), so not a boxed type
@@ -94,30 +75,24 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
             return null;
         }
     }
-
     private static String wrapperName(Wrapper w) {
         return "java/lang/" + w.wrapperSimpleName();
     }
-
     private static String unboxMethod(Wrapper w) {
         return w.primitiveSimpleName() + "Value";
     }
-
     private static String boxingDescriptor(Wrapper w) {
         return String.format("(%s)L%s;", w.basicTypeChar(), wrapperName(w));
     }
-
     private static String unboxingDescriptor(Wrapper w) {
         return "()" + w.basicTypeChar();
     }
-
     void boxIfTypePrimitive(Type t) {
         Wrapper w = FROM_TYPE_SORT[t.getSort()];
         if (w != null) {
             box(w);
         }
     }
-
     void widen(Wrapper ws, Wrapper wt) {
         if (ws != wt) {
             int opcode = wideningOpcodes[ws.ordinal()][wt.ordinal()];
@@ -126,22 +101,18 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
             }
         }
     }
-
     void box(Wrapper w) {
         visitMethodInsn(Opcodes.INVOKESTATIC,
                 wrapperName(w),
                 NAME_BOX_METHOD,
                 boxingDescriptor(w), false);
     }
-
-
     void unbox(String sname, Wrapper wt) {
         visitMethodInsn(Opcodes.INVOKEVIRTUAL,
                 sname,
                 unboxMethod(wt),
                 unboxingDescriptor(wt), false);
     }
-
     private String descriptorToName(String desc) {
         int last = desc.length() - 1;
         if (desc.charAt(0) == 'L' && desc.charAt(last) == ';') {
@@ -152,7 +123,6 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
             return desc;
         }
     }
-
     void cast(String ds, String dt) {
         String ns = descriptorToName(ds);
         String nt = descriptorToName(dt);
@@ -160,11 +130,9 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
             visitTypeInsn(Opcodes.CHECKCAST, nt);
         }
     }
-
     private boolean isPrimitive(Wrapper w) {
         return w != OBJECT;
     }
-
     private Wrapper toWrapper(String desc) {
         char first = desc.charAt(0);
         if (first == '[' || first == '(') {
@@ -172,8 +140,6 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
         }
         return Wrapper.forBasicType(first);
     }
-
-
     void convertType(Class<?> arg, Class<?> target, Class<?> functional) {
         if (arg.equals(target) && arg.equals(functional)) {
             return;
@@ -244,8 +210,6 @@ class TypeConvertingMethodAdapter extends MethodVisitor {
             }
         }
     }
-
-
     void iconst(final int cst) {
         if (cst >= -1 && cst <= 5) {
             mv.visitInsn(Opcodes.ICONST_0 + cst);

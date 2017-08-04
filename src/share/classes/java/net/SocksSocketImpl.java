@@ -1,4 +1,3 @@
-
 package java.net;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,10 +8,6 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedExceptionAction;
 import sun.net.SocksProxy;
 import sun.net.www.ParseUtil;
-
-
-
-
 class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
     private String server = null;
     private int serverPort = DEFAULT_PORT;
@@ -21,19 +16,14 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
     private Socket cmdsock = null;
     private InputStream cmdIn = null;
     private OutputStream cmdOut = null;
-
     private boolean applicationSetProxy;
-
-
     SocksSocketImpl() {
         // Nothing needed
     }
-
     SocksSocketImpl(String server, int port) {
         this.server = server;
         this.serverPort = (port == -1 ? DEFAULT_PORT : port);
     }
-
     SocksSocketImpl(Proxy proxy) {
         SocketAddress a = proxy.address();
         if (a instanceof InetSocketAddress) {
@@ -43,11 +33,9 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
             serverPort = ad.getPort();
         }
     }
-
     void setV4() {
         useV4 = true;
     }
-
     private synchronized void privilegedConnect(final String host,
                                               final int port,
                                               final int timeout)
@@ -67,27 +55,21 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
             throw (IOException) pae.getException();
         }
     }
-
     private void superConnectServer(String host, int port,
                                     int timeout) throws IOException {
         super.connect(new InetSocketAddress(host, port), timeout);
     }
-
     private static int remainingMillis(long deadlineMillis) throws IOException {
         if (deadlineMillis == 0L)
             return 0;
-
         final long remaining = deadlineMillis - System.currentTimeMillis();
         if (remaining > 0)
             return (int) remaining;
-
         throw new SocketTimeoutException();
     }
-
     private int readSocksReply(InputStream in, byte[] data) throws IOException {
         return readSocksReply(in, data, 0L);
     }
-
     private int readSocksReply(InputStream in, byte[] data, long deadlineMillis) throws IOException {
         int len = data.length;
         int received = 0;
@@ -104,20 +86,16 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         }
         return received;
     }
-
-
     private boolean authenticate(byte method, InputStream in,
                                  BufferedOutputStream out) throws IOException {
         return authenticate(method, in, out, 0L);
     }
-
     private boolean authenticate(byte method, InputStream in,
                                  BufferedOutputStream out,
                                  long deadlineMillis) throws IOException {
         // No Authentication required. We're done then!
         if (method == NO_AUTH)
             return true;
-
         if (method == USER_PASSW) {
             String userName;
             String password = null;
@@ -159,15 +137,12 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
             byte[] data = new byte[2];
             int i = readSocksReply(in, data, deadlineMillis);
             if (i != 2 || data[1] != 0) {
-
                 out.close();
                 in.close();
                 return false;
             }
-
             return true;
         }
-
 //      if (method == GSSAPI) {
 //          try {
 //              GSSManager manager = GSSManager.getInstance();
@@ -218,7 +193,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
 //      }
         return false;
     }
-
     private void connectV4(InputStream in, OutputStream out,
                            InetSocketAddress endpoint,
                            long deadlineMillis) throws IOException {
@@ -269,19 +243,15 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
             throw ex;
         }
     }
-
-
     @Override
     protected void connect(SocketAddress endpoint, int timeout) throws IOException {
         final long deadlineMillis;
-
         if (timeout == 0) {
             deadlineMillis = 0L;
         } else {
             long finish = System.currentTimeMillis() + timeout;
             deadlineMillis = finish < 0 ? Long.MAX_VALUE : finish;
         }
-
         SecurityManager security = System.getSecurityManager();
         if (endpoint == null || !(endpoint instanceof InetSocketAddress))
             throw new IllegalArgumentException("Unsupported address type");
@@ -305,7 +275,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                         }
                     });
             if (sel == null) {
-
                 super.connect(epoint, remainingMillis(deadlineMillis));
                 return;
             }
@@ -338,7 +307,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                     super.connect(epoint, remainingMillis(deadlineMillis));
                     return;
                 }
-
                 if (!(p.address() instanceof InetSocketAddress))
                     throw new SocketException("Unknown address type for proxy: " + p);
                 // Use getHostString() to avoid reverse lookups
@@ -349,7 +317,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                         useV4 = true;
                     }
                 }
-
                 // Connects to the SOCKS server
                 try {
                     privilegedConnect(server, serverPort, remainingMillis(deadlineMillis));
@@ -364,8 +331,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                     // Will continue the while loop and try the next proxy
                 }
             }
-
-
             if (server == null) {
                 throw new SocketException("Can't connect to SOCKS proxy:"
                                           + savedExc.getMessage());
@@ -378,11 +343,9 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                 throw new SocketException(e.getMessage());
             }
         }
-
         // cmdIn & cmdOut were initialized during the privilegedConnect() call
         BufferedOutputStream out = new BufferedOutputStream(cmdOut, 512);
         InputStream in = cmdIn;
-
         if (useV4) {
             // SOCKS Protocol version 4 doesn't know how to deal with
             // DOMAIN type of addresses (unresolved addresses here)
@@ -391,7 +354,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
             connectV4(in, out, epoint, deadlineMillis);
             return;
         }
-
         // This is SOCKS V5
         out.write(PROTO_VERS);
         out.write(2);
@@ -418,7 +380,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         out.write(PROTO_VERS);
         out.write(CONNECT);
         out.write(0);
-
         if (epoint.isUnresolved()) {
             out.write(DOMAIN_NAME);
             out.write(epoint.getHostName().length());
@@ -521,7 +482,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         }
         external_address = epoint;
     }
-
     private void bindV4(InputStream in, OutputStream out,
                         InetAddress baddr,
                         int lport) throws IOException {
@@ -530,14 +490,12 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         }
         super.bind(baddr, lport);
         byte[] addr1 = baddr.getAddress();
-
         InetAddress naddr = baddr;
         if (naddr.isAnyLocalAddress()) {
             naddr = AccessController.doPrivileged(
                         new PrivilegedAction<InetAddress>() {
                             public InetAddress run() {
                                 return cmdsock.getLocalAddress();
-
                             }
                         });
             addr1 = naddr.getAddress();
@@ -585,19 +543,14 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
             out.close();
             throw ex;
         }
-
     }
-
-
     protected synchronized void socksBind(InetSocketAddress saddr) throws IOException {
         if (socket != null) {
             // this is a client socket, not a server socket, don't
             // call the SOCKS proxy for a bind!
             return;
         }
-
         // Connects to the SOCKS server
-
         if (server == null) {
             // This is the general case
             // server is not null only when the socket was created with a
@@ -609,7 +562,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                         }
                     });
             if (sel == null) {
-
                 return;
             }
             URI uri;
@@ -639,7 +591,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                 if (p == null || p.type() != Proxy.Type.SOCKS) {
                     return;
                 }
-
                 if (!(p.address() instanceof InetSocketAddress))
                     throw new SocketException("Unknown address type for proxy: " + p);
                 // Use getHostString() to avoid reverse lookups
@@ -650,7 +601,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                         useV4 = true;
                     }
                 }
-
                 // Connects to the SOCKS server
                 try {
                     AccessController.doPrivileged(
@@ -673,8 +623,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
                     // Will continue the while loop and try the next proxy
                 }
             }
-
-
             if (server == null || cmdsock == null) {
                 throw new SocketException("Can't connect to SOCKS proxy:"
                                           + savedExc.getMessage());
@@ -841,8 +789,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         cmdIn = in;
         cmdOut = out;
     }
-
-
     protected void acceptFrom(SocketImpl s, InetSocketAddress saddr) throws IOException {
         if (cmdsock == null) {
             // Not a Socks ServerSocket.
@@ -921,8 +867,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
             cmdsock = null;
             throw ex;
         }
-
-
         if (s instanceof SocksSocketImpl) {
             ((SocksSocketImpl)s).external_address = real_end;
         }
@@ -939,16 +883,12 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
             s.port = cmdsock.getImpl().port;
             s.localport = cmdsock.getImpl().localport;
         }
-
         // Need to do that so that the socket won't be closed
         // when the ServerSocket is closed by the user.
         // It kinds of detaches the Socket because it is now
         // used elsewhere.
         cmdsock = null;
     }
-
-
-
     @Override
     protected InetAddress getInetAddress() {
         if (external_address != null)
@@ -956,8 +896,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         else
             return super.getInetAddress();
     }
-
-
     @Override
     protected int getPort() {
         if (external_address != null)
@@ -965,7 +903,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         else
             return super.getPort();
     }
-
     @Override
     protected int getLocalPort() {
         if (socket != null)
@@ -975,7 +912,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         else
             return super.getLocalPort();
     }
-
     @Override
     protected void close() throws IOException {
         if (cmdsock != null)
@@ -983,7 +919,6 @@ class SocksSocketImpl extends PlainSocketImpl implements SocksConsts {
         cmdsock = null;
         super.close();
     }
-
     private String getUserName() {
         String userName = "";
         if (applicationSetProxy) {

@@ -1,18 +1,11 @@
-
-
 package java.io;
-
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Vector;
-
-
 public
 class SequenceInputStream extends InputStream {
     Enumeration<? extends InputStream> e;
     InputStream in;
-
-
     public SequenceInputStream(Enumeration<? extends InputStream> e) {
         this.e = e;
         try {
@@ -22,11 +15,8 @@ class SequenceInputStream extends InputStream {
             throw new Error("panic");
         }
     }
-
-
     public SequenceInputStream(InputStream s1, InputStream s2) {
         Vector<InputStream> v = new Vector<>(2);
-
         v.addElement(s1);
         v.addElement(s2);
         e = v.elements();
@@ -37,31 +27,23 @@ class SequenceInputStream extends InputStream {
             throw new Error("panic");
         }
     }
-
-
     final void nextStream() throws IOException {
         if (in != null) {
             in.close();
         }
-
         if (e.hasMoreElements()) {
             in = (InputStream) e.nextElement();
             if (in == null)
                 throw new NullPointerException();
         }
         else in = null;
-
     }
-
-
     public int available() throws IOException {
         if (in == null) {
             return 0; // no way to signal EOF from available()
         }
         return in.available();
     }
-
-
     public int read() throws IOException {
         while (in != null) {
             int c = in.read();
@@ -72,8 +54,6 @@ class SequenceInputStream extends InputStream {
         }
         return -1;
     }
-
-
     public int read(byte b[], int off, int len) throws IOException {
         if (in == null) {
             return -1;
@@ -93,8 +73,6 @@ class SequenceInputStream extends InputStream {
         } while (in != null);
         return -1;
     }
-
-
     public void close() throws IOException {
         do {
             nextStream();

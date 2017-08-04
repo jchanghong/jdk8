@@ -1,7 +1,4 @@
-
-
 package java.net;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InvalidObjectException;
@@ -11,68 +8,32 @@ import java.io.ObjectInputStream.GetField;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import sun.security.util.SecurityConstants;
-
-
 public final class URL implements java.io.Serializable {
-
     static final String BUILTIN_HANDLERS_PREFIX = "sun.net.www.protocol";
     static final long serialVersionUID = -7627629688361524110L;
-
-
     private static final String protocolPathProp = "java.protocol.handler.pkgs";
-
-
     private String protocol;
-
-
     private String host;
-
-
     private int port = -1;
-
-
     private String file;
-
-
     private transient String query;
-
-
     private String authority;
-
-
     private transient String path;
-
-
     private transient String userInfo;
-
-
     private String ref;
-
-
     transient InetAddress hostAddress;
-
-
     transient URLStreamHandler handler;
-
-
     private int hashCode = -1;
-
     private transient UrlDeserializedState tempState;
-
-
     public URL(String protocol, String host, int port, String file)
         throws MalformedURLException
     {
         this(protocol, host, port, file, null);
     }
-
-
     public URL(String protocol, String host, String file)
             throws MalformedURLException {
         this(protocol, host, -1, file);
     }
-
-
     public URL(String protocol, String host, int port, String file,
                URLStreamHandler handler) throws MalformedURLException {
         if (handler != null) {
@@ -82,17 +43,13 @@ public final class URL implements java.io.Serializable {
                 checkSpecifyHandler(sm);
             }
         }
-
         protocol = protocol.toLowerCase();
         this.protocol = protocol;
         if (host != null) {
-
-
             if (host.indexOf(':') >= 0 && !host.startsWith("[")) {
                 host = "["+host+"]";
             }
             this.host = host;
-
             if (port < -1) {
                 throw new MalformedURLException("Invalid port number :" +
                                                     port);
@@ -100,18 +57,15 @@ public final class URL implements java.io.Serializable {
             this.port = port;
             authority = (port == -1) ? host : host + ":" + port;
         }
-
         Parts parts = new Parts(file);
         path = parts.getPath();
         query = parts.getQuery();
-
         if (query != null) {
             this.file = path + "?" + query;
         } else {
             this.file = path;
         }
         ref = parts.getRef();
-
         // Note: we don't do validation of the URL here. Too risky to change
         // right now, but worth considering for future reference. -br
         if (handler == null &&
@@ -120,18 +74,12 @@ public final class URL implements java.io.Serializable {
         }
         this.handler = handler;
     }
-
-
     public URL(String spec) throws MalformedURLException {
         this(null, spec);
     }
-
-
     public URL(URL context, String spec) throws MalformedURLException {
         this(context, spec, null);
     }
-
-
     public URL(URL context, String spec, URLStreamHandler handler)
         throws MalformedURLException
     {
@@ -141,7 +89,6 @@ public final class URL implements java.io.Serializable {
         String newProtocol = null;
         boolean aRef=false;
         boolean isRelative = false;
-
         // Check for permission to specify a handler
         if (handler != null) {
             SecurityManager sm = System.getSecurityManager();
@@ -149,7 +96,6 @@ public final class URL implements java.io.Serializable {
                 checkSpecifyHandler(sm);
             }
         }
-
         try {
             limit = spec.length();
             while ((limit > 0) && (spec.charAt(limit - 1) <= ' ')) {
@@ -158,18 +104,15 @@ public final class URL implements java.io.Serializable {
             while ((start < limit) && (spec.charAt(start) <= ' ')) {
                 start++;        // eliminate leading whitespace
             }
-
             if (spec.regionMatches(true, start, "url:", 0, 4)) {
                 start += 4;
             }
             if (start < spec.length() && spec.charAt(start) == '#') {
-
                 aRef=true;
             }
             for (i = start ; !aRef && (i < limit) &&
                      ((c = spec.charAt(i)) != '/') ; i++) {
                 if (c == ':') {
-
                     String s = spec.substring(start, i).toLowerCase();
                     if (isValidProtocol(s)) {
                         newProtocol = s;
@@ -178,7 +121,6 @@ public final class URL implements java.io.Serializable {
                     break;
                 }
             }
-
             // Only use our context if the protocols match.
             protocol = newProtocol;
             if ((context != null) && ((newProtocol == null) ||
@@ -188,14 +130,12 @@ public final class URL implements java.io.Serializable {
                 if (handler == null) {
                     handler = context.handler;
                 }
-
                 // If the context is a hierarchical URL scheme and the spec
                 // contains a matching scheme then maintain backwards
                 // compatibility and treat it as if the spec didn't contain
                 // the scheme; see 5.2.3 of RFC2396
                 if (context.path != null && context.path.startsWith("/"))
                     newProtocol = null;
-
                 if (newProtocol == null) {
                     protocol = context.protocol;
                     authority = context.authority;
@@ -207,36 +147,28 @@ public final class URL implements java.io.Serializable {
                     isRelative = true;
                 }
             }
-
             if (protocol == null) {
                 throw new MalformedURLException("no protocol: "+original);
             }
-
             // Get the protocol handler if not specified or the protocol
             // of the context could not be used
             if (handler == null &&
                 (handler = getURLStreamHandler(protocol)) == null) {
                 throw new MalformedURLException("unknown protocol: "+protocol);
             }
-
             this.handler = handler;
-
             i = spec.indexOf('#', start);
             if (i >= 0) {
                 ref = spec.substring(i + 1, limit);
                 limit = i;
             }
-
-
             if (isRelative && start == limit) {
                 query = context.query;
                 if (ref == null) {
                     ref = context.ref;
                 }
             }
-
             handler.parseURL(this, spec, start, limit);
-
         } catch(MalformedURLException e) {
             throw e;
         } catch(Exception e) {
@@ -245,8 +177,6 @@ public final class URL implements java.io.Serializable {
             throw exception;
         }
     }
-
-
     private boolean isValidProtocol(String protocol) {
         int len = protocol.length();
         if (len < 1)
@@ -263,13 +193,9 @@ public final class URL implements java.io.Serializable {
         }
         return true;
     }
-
-
     private void checkSpecifyHandler(SecurityManager sm) {
         sm.checkPermission(SecurityConstants.SPECIFY_HANDLER_PERMISSION);
     }
-
-
     void set(String protocol, String host, int port,
              String file, String ref) {
         synchronized (this) {
@@ -279,7 +205,6 @@ public final class URL implements java.io.Serializable {
             this.port = port;
             this.file = file;
             this.ref = ref;
-
             hashCode = -1;
             hostAddress = null;
             int q = file.lastIndexOf('?');
@@ -290,8 +215,6 @@ public final class URL implements java.io.Serializable {
                 path = file;
         }
     }
-
-
     void set(String protocol, String host, int port,
              String authority, String userInfo, String path,
              String query, String ref) {
@@ -303,114 +226,74 @@ public final class URL implements java.io.Serializable {
             this.userInfo = userInfo;
             this.path = path;
             this.ref = ref;
-
             hashCode = -1;
             hostAddress = null;
             this.query = query;
             this.authority = authority;
         }
     }
-
-
     public String getQuery() {
         return query;
     }
-
-
     public String getPath() {
         return path;
     }
-
-
     public String getUserInfo() {
         return userInfo;
     }
-
-
     public String getAuthority() {
         return authority;
     }
-
-
     public int getPort() {
         return port;
     }
-
-
     public int getDefaultPort() {
         return handler.getDefaultPort();
     }
-
-
     public String getProtocol() {
         return protocol;
     }
-
-
     public String getHost() {
         return host;
     }
-
-
     public String getFile() {
         return file;
     }
-
-
     public String getRef() {
         return ref;
     }
-
-
     public boolean equals(Object obj) {
         if (!(obj instanceof URL))
             return false;
         URL u2 = (URL)obj;
-
         return handler.equals(this, u2);
     }
-
-
     public synchronized int hashCode() {
         if (hashCode != -1)
             return hashCode;
-
         hashCode = handler.hashCode(this);
         return hashCode;
     }
-
-
     public boolean sameFile(URL other) {
         return handler.sameFile(this, other);
     }
-
-
     public String toString() {
         return toExternalForm();
     }
-
-
     public String toExternalForm() {
         return handler.toExternalForm(this);
     }
-
-
     public URI toURI() throws URISyntaxException {
         return new URI (toString());
     }
-
-
     public URLConnection openConnection() throws java.io.IOException {
         return handler.openConnection(this);
     }
-
-
     public URLConnection openConnection(Proxy proxy)
         throws java.io.IOException {
         if (proxy == null) {
             throw new IllegalArgumentException("proxy can not be null");
         }
-
         // Create a copy of Proxy as a security measure
         Proxy p = proxy == Proxy.NO_PROXY ? Proxy.NO_PROXY : sun.net.ApplicationProxy.create(proxy);
         SecurityManager sm = System.getSecurityManager();
@@ -424,27 +307,17 @@ public final class URL implements java.io.Serializable {
         }
         return handler.openConnection(this, p);
     }
-
-
     public final InputStream openStream() throws java.io.IOException {
         return openConnection().getInputStream();
     }
-
-
     public final Object getContent() throws java.io.IOException {
         return openConnection().getContent();
     }
-
-
     public final Object getContent(Class[] classes)
     throws java.io.IOException {
         return openConnection().getContent(classes);
     }
-
-
     static URLStreamHandlerFactory factory;
-
-
     public static void setURLStreamHandlerFactory(URLStreamHandlerFactory fac) {
         synchronized (streamHandlerLock) {
             if (factory != null) {
@@ -458,29 +331,20 @@ public final class URL implements java.io.Serializable {
             factory = fac;
         }
     }
-
-
     static Hashtable<String,URLStreamHandler> handlers = new Hashtable<>();
     private static Object streamHandlerLock = new Object();
-
-
     static URLStreamHandler getURLStreamHandler(String protocol) {
-
         URLStreamHandler handler = handlers.get(protocol);
         if (handler == null) {
-
             boolean checkedWithFactory = false;
-
             // Use the factory (if any)
             if (factory != null) {
                 handler = factory.createURLStreamHandler(protocol);
                 checkedWithFactory = true;
             }
-
             // Try java protocol handler
             if (handler == null) {
                 String packagePrefixList = null;
-
                 packagePrefixList
                     = java.security.AccessController.doPrivileged(
                     new sun.security.action.GetPropertyAction(
@@ -488,17 +352,13 @@ public final class URL implements java.io.Serializable {
                 if (packagePrefixList != "") {
                     packagePrefixList += "|";
                 }
-
                 // REMIND: decide whether to allow the "null" class prefix
                 // or not.
                 packagePrefixList += "sun.net.www.protocol";
-
                 StringTokenizer packagePrefixIter =
                     new StringTokenizer(packagePrefixList, "|");
-
                 while (handler == null &&
                        packagePrefixIter.hasMoreTokens()) {
-
                     String packagePrefix =
                       packagePrefixIter.nextToken().trim();
                     try {
@@ -522,45 +382,33 @@ public final class URL implements java.io.Serializable {
                     }
                 }
             }
-
             synchronized (streamHandlerLock) {
-
                 URLStreamHandler handler2 = null;
-
                 // Check again with hashtable just in case another
                 // thread created a handler since we last checked
                 handler2 = handlers.get(protocol);
-
                 if (handler2 != null) {
                     return handler2;
                 }
-
                 // Check with factory if another thread set a
                 // factory since our last check
                 if (!checkedWithFactory && factory != null) {
                     handler2 = factory.createURLStreamHandler(protocol);
                 }
-
                 if (handler2 != null) {
                     // The handler from the factory must be given more
                     // importance. Discard the default handler that
                     // this thread created.
                     handler = handler2;
                 }
-
                 // Insert this handler into the hashtable
                 if (handler != null) {
                     handlers.put(protocol, handler);
                 }
-
             }
         }
-
         return handler;
-
     }
-
-
     private static final ObjectStreamField[] serialPersistentFields = {
         new ObjectStreamField("protocol", String.class),
         new ObjectStreamField("host", String.class),
@@ -569,15 +417,11 @@ public final class URL implements java.io.Serializable {
         new ObjectStreamField("file", String.class),
         new ObjectStreamField("ref", String.class),
         new ObjectStreamField("hashCode", int.class), };
-
-
     private synchronized void writeObject(java.io.ObjectOutputStream s)
         throws IOException
     {
         s.defaultWriteObject(); // write the fields
     }
-
-
     private synchronized void readObject(java.io.ObjectInputStream s)
             throws IOException, ClassNotFoundException {
         GetField gf = s.readFields();
@@ -600,15 +444,10 @@ public final class URL implements java.io.Serializable {
         tempState = new UrlDeserializedState(protocol, host, port, authority,
                file, ref, hashCode);
     }
-
-
-
    private Object readResolve() throws ObjectStreamException {
-
         URLStreamHandler handler = null;
         // already been checked in readObject
         handler = getURLStreamHandler(tempState.getProtocol());
-
         URL replacementURL = null;
         if (isBuiltinStreamHandler(handler.getClass().getName())) {
             replacementURL = fabricateNewURL();
@@ -617,7 +456,6 @@ public final class URL implements java.io.Serializable {
         }
         return replacementURL;
     }
-
     private URL setDeserializedFields(URLStreamHandler handler) {
         URL replacementURL;
         String userInfo = null;
@@ -628,15 +466,12 @@ public final class URL implements java.io.Serializable {
         String file = tempState.getFile();
         String ref = tempState.getRef();
         int hashCode = tempState.getHashCode();
-
-
         // Construct authority part
         if (authority == null
             && ((host != null && host.length() > 0) || port != -1)) {
             if (host == null)
                 host = "";
             authority = (port == -1) ? host : host + ":" + port;
-
             // Handle hosts with userInfo in them
             int at = host.lastIndexOf('@');
             if (at != -1) {
@@ -649,7 +484,6 @@ public final class URL implements java.io.Serializable {
             if (ind != -1)
                 userInfo = authority.substring(0, ind);
         }
-
         // Construct path and query part
         String path = null;
         String query = null;
@@ -662,7 +496,6 @@ public final class URL implements java.io.Serializable {
             } else
                 path = file;
         }
-
         // Set the object fields.
         this.protocol = protocol;
         this.host = host;
@@ -678,13 +511,11 @@ public final class URL implements java.io.Serializable {
         replacementURL = this;
         return replacementURL;
     }
-
     private URL fabricateNewURL()
                 throws InvalidObjectException {
         // create URL string from deserialized object
         URL replacementURL = null;
         String urlString = tempState.reconstituteUrlString();
-
         try {
             replacementURL = new URL(urlString);
         } catch (MalformedURLException mEx) {
@@ -698,11 +529,9 @@ public final class URL implements java.io.Serializable {
         resetState();
         return replacementURL;
     }
-
     private boolean isBuiltinStreamHandler(String handlerClassName) {
         return (handlerClassName.startsWith(BUILTIN_HANDLERS_PREFIX));
     }
-
     private void resetState() {
         this.protocol = null;
         this.host = null;
@@ -717,15 +546,12 @@ public final class URL implements java.io.Serializable {
         this.userInfo = null;
         this.tempState = null;
     }
-
     private void setSerializedHashCode(int hc) {
         this.hashCode = hc;
     }
 }
-
 class Parts {
     String path, query, ref;
-
     Parts(String file) {
         int ind = file.indexOf('#');
         ref = ind < 0 ? null: file.substring(ind + 1);
@@ -738,20 +564,16 @@ class Parts {
             path = file;
         }
     }
-
     String getPath() {
         return path;
     }
-
     String getQuery() {
         return query;
     }
-
     String getRef() {
         return ref;
     }
 }
-
 final class UrlDeserializedState {
     private final String protocol;
     private final String host;
@@ -760,7 +582,6 @@ final class UrlDeserializedState {
     private final String file;
     private final String ref;
     private final int hashCode;
-
     public UrlDeserializedState(String protocol,
                                 String host, int port,
                                 String authority, String file,
@@ -773,37 +594,28 @@ final class UrlDeserializedState {
         this.ref = ref;
         this.hashCode = hashCode;
     }
-
     String getProtocol() {
         return protocol;
     }
-
     String getHost() {
         return host;
     }
-
     String getAuthority () {
         return authority;
     }
-
     int getPort() {
         return port;
     }
-
     String getFile () {
         return file;
     }
-
     String getRef () {
         return ref;
     }
-
     int getHashCode () {
         return hashCode;
     }
-
     String reconstituteUrlString() {
-
         // pre-compute length of StringBuilder
         int len = protocol.length() + 1;
         if (authority != null && authority.length() > 0)

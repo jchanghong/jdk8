@@ -1,30 +1,14 @@
-
-
 package java.security;
-
 import java.nio.ByteBuffer;
-
 import sun.security.jca.JCAUtil;
-
-
-
 public abstract class MessageDigestSpi {
-
     // for re-use in engineUpdate(ByteBuffer input)
     private byte[] tempArray;
-
-
     protected int engineGetDigestLength() {
         return 0;
     }
-
-
     protected abstract void engineUpdate(byte input);
-
-
     protected abstract void engineUpdate(byte[] input, int offset, int len);
-
-
     protected void engineUpdate(ByteBuffer input) {
         if (input.hasRemaining() == false) {
             return;
@@ -50,14 +34,9 @@ public abstract class MessageDigestSpi {
             }
         }
     }
-
-
     protected abstract byte[] engineDigest();
-
-
     protected int engineDigest(byte[] buf, int offset, int len)
                                                 throws DigestException {
-
         byte[] digest = engineDigest();
         if (len < digest.length)
                 throw new DigestException("partial digests not returned");
@@ -67,11 +46,7 @@ public abstract class MessageDigestSpi {
         System.arraycopy(digest, 0, buf, offset, digest.length);
         return digest.length;
     }
-
-
     protected abstract void engineReset();
-
-
     public Object clone() throws CloneNotSupportedException {
         if (this instanceof Cloneable) {
             return super.clone();

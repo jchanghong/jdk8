@@ -1,7 +1,4 @@
-
-
 package java.nio.file;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -10,14 +7,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.nio.file.FileTreeWalker.Event;
-
-
-
 class FileTreeIterator implements Iterator<Event>, Closeable {
     private final FileTreeWalker walker;
     private Event next;
-
-
     FileTreeIterator(Path start, int maxDepth, FileVisitOption... options)
         throws IOException
     {
@@ -25,13 +17,11 @@ class FileTreeIterator implements Iterator<Event>, Closeable {
         this.next = walker.walk(start);
         assert next.type() == FileTreeWalker.EventType.ENTRY ||
                next.type() == FileTreeWalker.EventType.START_DIRECTORY;
-
         // IOException if there a problem accessing the starting file
         IOException ioe = next.ioeException();
         if (ioe != null)
             throw ioe;
     }
-
     private void fetchNextIfNeeded() {
         if (next == null) {
             FileTreeWalker.Event ev = walker.next();
@@ -39,7 +29,6 @@ class FileTreeIterator implements Iterator<Event>, Closeable {
                 IOException ioe = ev.ioeException();
                 if (ioe != null)
                     throw new UncheckedIOException(ioe);
-
                 // END_DIRECTORY events are ignored
                 if (ev.type() != FileTreeWalker.EventType.END_DIRECTORY) {
                     next = ev;
@@ -49,7 +38,6 @@ class FileTreeIterator implements Iterator<Event>, Closeable {
             }
         }
     }
-
     @Override
     public boolean hasNext() {
         if (!walker.isOpen())
@@ -57,7 +45,6 @@ class FileTreeIterator implements Iterator<Event>, Closeable {
         fetchNextIfNeeded();
         return next != null;
     }
-
     @Override
     public Event next() {
         if (!walker.isOpen())
@@ -69,7 +56,6 @@ class FileTreeIterator implements Iterator<Event>, Closeable {
         next = null;
         return result;
     }
-
     @Override
     public void close() {
         walker.close();

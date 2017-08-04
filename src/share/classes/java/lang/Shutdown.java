@@ -1,21 +1,10 @@
-
-
 package java.lang;
-
-
-
-
 class Shutdown {
-
-
     private static final int RUNNING = 0;
     private static final int HOOKS = 1;
     private static final int FINALIZERS = 2;
     private static int state = RUNNING;
-
-
     private static boolean runFinalizersOnExit = false;
-
     // The system shutdown hooks are registered with a predefined slot.
     // The list of shutdown hooks is as follows:
     // (0) Console restore hook
@@ -23,31 +12,20 @@ class Shutdown {
     // (2) DeleteOnExit hook
     private static final int MAX_SYSTEM_HOOKS = 10;
     private static final Runnable[] hooks = new Runnable[MAX_SYSTEM_HOOKS];
-
     // the index of the currently running shutdown hook to the hooks array
     private static int currentRunningHook = 0;
-
-
     private static class Lock { };
     private static Object lock = new Lock();
-
-
     private static Object haltLock = new Lock();
-
-
     static void setRunFinalizersOnExit(boolean run) {
         synchronized (lock) {
             runFinalizersOnExit = run;
         }
     }
-
-
-
     static void add(int slot, boolean registerShutdownInProgress, Runnable hook) {
         synchronized (lock) {
             if (hooks[slot] != null)
                 throw new InternalError("Shutdown hook at slot " + slot + " already registered");
-
             if (!registerShutdownInProgress) {
                 if (state > RUNNING)
                     throw new IllegalStateException("Shutdown in progress");
@@ -55,12 +33,9 @@ class Shutdown {
                 if (state > HOOKS || (state == HOOKS && slot <= currentRunningHook))
                     throw new IllegalStateException("Shutdown in progress");
             }
-
             hooks[slot] = hook;
         }
     }
-
-
     private static void runHooks() {
         for (int i=0; i < MAX_SYSTEM_HOOKS; i++) {
             try {
@@ -80,24 +55,15 @@ class Shutdown {
             }
         }
     }
-
-
     static void halt(int status) {
         synchronized (haltLock) {
             halt0(status);
         }
     }
-
     static native void halt0(int status);
-
-
     private static native void runAllFinalizers();
-
-
-
     private static void sequence() {
         synchronized (lock) {
-
             if (state != HOOKS) return;
         }
         runHooks();
@@ -108,9 +74,6 @@ class Shutdown {
         }
         if (rfoe) runAllFinalizers();
     }
-
-
-
     static void exit(int status) {
         boolean runMoreFinalizers = false;
         synchronized (lock) {
@@ -123,10 +86,8 @@ class Shutdown {
                 break;
             case FINALIZERS:
                 if (status != 0) {
-
                     halt(status);
                 } else {
-
                     runMoreFinalizers = runFinalizersOnExit;
                 }
                 break;
@@ -137,14 +98,10 @@ class Shutdown {
             halt(status);
         }
         synchronized (Shutdown.class) {
-
             sequence();
             halt(status);
         }
     }
-
-
-
     static void shutdown() {
         synchronized (lock) {
             switch (state) {
@@ -160,5 +117,4 @@ class Shutdown {
             sequence();
         }
     }
-
 }

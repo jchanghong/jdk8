@@ -1,13 +1,6 @@
-
-
 package java.security.spec;
-
 import java.math.BigInteger;
-
-
-
 public class RSAMultiPrimePrivateCrtKeySpec extends RSAPrivateKeySpec {
-
     private final BigInteger publicExponent;
     private final BigInteger primeP;
     private final BigInteger primeQ;
@@ -15,8 +8,6 @@ public class RSAMultiPrimePrivateCrtKeySpec extends RSAPrivateKeySpec {
     private final BigInteger primeExponentQ;
     private final BigInteger crtCoefficient;
     private final RSAOtherPrimeInfo otherPrimeInfo[];
-
-
     public RSAMultiPrimePrivateCrtKeySpec(BigInteger modulus,
                                 BigInteger publicExponent,
                                 BigInteger privateExponent,
@@ -74,38 +65,24 @@ public class RSAMultiPrimePrivateCrtKeySpec extends RSAPrivateKeySpec {
             this.otherPrimeInfo = otherPrimeInfo.clone();
         }
     }
-
-
     public BigInteger getPublicExponent() {
         return this.publicExponent;
     }
-
-
     public BigInteger getPrimeP() {
         return this.primeP;
     }
-
-
     public BigInteger getPrimeQ() {
         return this.primeQ;
     }
-
-
     public BigInteger getPrimeExponentP() {
         return this.primeExponentP;
     }
-
-
     public BigInteger getPrimeExponentQ() {
         return this.primeExponentQ;
     }
-
-
     public BigInteger getCrtCoefficient() {
         return this.crtCoefficient;
     }
-
-
     public RSAOtherPrimeInfo[] getOtherPrimeInfo() {
         if (otherPrimeInfo == null) return null;
         return otherPrimeInfo.clone();

@@ -1,9 +1,4 @@
-
-
-
-
 package java.util.concurrent;
-
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.AbstractQueue;
@@ -17,53 +12,25 @@ import java.util.Queue;
 import java.util.SortedSet;
 import java.util.Spliterator;
 import java.util.function.Consumer;
-
-
 @SuppressWarnings("unchecked")
 public class PriorityBlockingQueue<E> extends AbstractQueue<E>
     implements BlockingQueue<E>, java.io.Serializable {
     private static final long serialVersionUID = 5595510919245408276L;
-
-
-
-
     private static final int DEFAULT_INITIAL_CAPACITY = 11;
-
-
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
-
-
     private transient Object[] queue;
-
-
     private transient int size;
-
-
     private transient Comparator<? super E> comparator;
-
-
     private final ReentrantLock lock;
-
-
     private final Condition notEmpty;
-
-
     private transient volatile int allocationSpinLock;
-
-
     private PriorityQueue<E> q;
-
-
     public PriorityBlockingQueue() {
         this(DEFAULT_INITIAL_CAPACITY, null);
     }
-
-
     public PriorityBlockingQueue(int initialCapacity) {
         this(initialCapacity, null);
     }
-
-
     public PriorityBlockingQueue(int initialCapacity,
                                  Comparator<? super E> comparator) {
         if (initialCapacity < 1)
@@ -73,8 +40,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         this.comparator = comparator;
         this.queue = new Object[initialCapacity];
     }
-
-
     public PriorityBlockingQueue(Collection<? extends E> c) {
         this.lock = new ReentrantLock();
         this.notEmpty = lock.newCondition();
@@ -108,8 +73,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         if (heapify)
             heapify();
     }
-
-
     private void tryGrow(Object[] array, int oldCap) {
         lock.unlock(); // must release and then re-acquire main lock
         Object[] newArray = null;
@@ -140,8 +103,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             System.arraycopy(array, 0, newArray, 0, oldCap);
         }
     }
-
-
     private E dequeue() {
         int n = size - 1;
         if (n < 0)
@@ -160,8 +121,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             return result;
         }
     }
-
-
     private static <T> void siftUpComparable(int k, T x, Object[] array) {
         Comparable<? super T> key = (Comparable<? super T>) x;
         while (k > 0) {
@@ -174,7 +133,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         }
         array[k] = key;
     }
-
     private static <T> void siftUpUsingComparator(int k, T x, Object[] array,
                                        Comparator<? super T> cmp) {
         while (k > 0) {
@@ -187,8 +145,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         }
         array[k] = x;
     }
-
-
     private static <T> void siftDownComparable(int k, T x, Object[] array,
                                                int n) {
         if (n > 0) {
@@ -209,7 +165,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             array[k] = key;
         }
     }
-
     private static <T> void siftDownUsingComparator(int k, T x, Object[] array,
                                                     int n,
                                                     Comparator<? super T> cmp) {
@@ -229,8 +184,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             array[k] = x;
         }
     }
-
-
     private void heapify() {
         Object[] array = queue;
         int n = size;
@@ -245,13 +198,9 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
                 siftDownUsingComparator(i, (E) array[i], array, n, cmp);
         }
     }
-
-
     public boolean add(E e) {
         return offer(e);
     }
-
-
     public boolean offer(E e) {
         if (e == null)
             throw new NullPointerException();
@@ -274,17 +223,12 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         }
         return true;
     }
-
-
     public void put(E e) {
         offer(e); // never need to block
     }
-
-
     public boolean offer(E e, long timeout, TimeUnit unit) {
         return offer(e); // never need to block
     }
-
     public E poll() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -294,7 +238,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
     public E take() throws InterruptedException {
         final ReentrantLock lock = this.lock;
         lock.lockInterruptibly();
@@ -307,7 +250,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         }
         return result;
     }
-
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
         long nanos = unit.toNanos(timeout);
         final ReentrantLock lock = this.lock;
@@ -321,7 +263,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         }
         return result;
     }
-
     public E peek() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -331,12 +272,9 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public Comparator<? super E> comparator() {
         return comparator;
     }
-
     public int size() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -346,12 +284,9 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public int remainingCapacity() {
         return Integer.MAX_VALUE;
     }
-
     private int indexOf(Object o) {
         if (o != null) {
             Object[] array = queue;
@@ -362,8 +297,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         }
         return -1;
     }
-
-
     private void removeAt(int i) {
         Object[] array = queue;
         int n = size - 1;
@@ -386,8 +319,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         }
         size = n;
     }
-
-
     public boolean remove(Object o) {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -401,8 +332,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     void removeEQ(Object o) {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -418,8 +347,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public boolean contains(Object o) {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -429,8 +356,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public Object[] toArray() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -440,7 +365,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
     public String toString() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -461,13 +385,9 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public int drainTo(Collection<? super E> c) {
         return drainTo(c, Integer.MAX_VALUE);
     }
-
-
     public int drainTo(Collection<? super E> c, int maxElements) {
         if (c == null)
             throw new NullPointerException();
@@ -488,8 +408,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public void clear() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -503,8 +421,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public <T> T[] toArray(T[] a) {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -521,34 +437,26 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public Iterator<E> iterator() {
         return new Itr(toArray());
     }
-
-
     final class Itr implements Iterator<E> {
         final Object[] array; // Array of all elements
         int cursor;           // index of next element to return
         int lastRet;          // index of last element, or -1 if no such
-
         Itr(Object[] array) {
             lastRet = -1;
             this.array = array;
         }
-
         public boolean hasNext() {
             return cursor < array.length;
         }
-
         public E next() {
             if (cursor >= array.length)
                 throw new NoSuchElementException();
             lastRet = cursor;
             return (E)array[cursor++];
         }
-
         public void remove() {
             if (lastRet < 0)
                 throw new IllegalStateException();
@@ -556,8 +464,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lastRet = -1;
         }
     }
-
-
     private void writeObject(java.io.ObjectOutputStream s)
         throws java.io.IOException {
         lock.lock();
@@ -571,8 +477,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {
         try {
@@ -584,7 +488,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             q = null;
         }
     }
-
     // Similar to Collections.ArraySnapshotSpliterator but avoids
     // commitment to toArray until needed
     static final class PBQSpliterator<E> implements Spliterator<E> {
@@ -592,7 +495,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
         Object[] array;
         int index;
         int fence;
-
         PBQSpliterator(PriorityBlockingQueue<E> queue, Object[] array,
                        int index, int fence) {
             this.queue = queue;
@@ -600,20 +502,17 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             this.index = index;
             this.fence = fence;
         }
-
         final int getFence() {
             int hi;
             if ((hi = fence) < 0)
                 hi = fence = (array = queue.toArray()).length;
             return hi;
         }
-
         public Spliterator<E> trySplit() {
             int hi = getFence(), lo = index, mid = (lo + hi) >>> 1;
             return (lo >= mid) ? null :
                 new PBQSpliterator<E>(queue, array, lo, index = mid);
         }
-
         @SuppressWarnings("unchecked")
         public void forEachRemaining(Consumer<? super E> action) {
             Object[] a; int i, hi; // hoist accesses and checks from loop
@@ -626,7 +525,6 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
                 do { action.accept((E)a[i]); } while (++i < hi);
             }
         }
-
         public boolean tryAdvance(Consumer<? super E> action) {
             if (action == null)
                 throw new NullPointerException();
@@ -637,19 +535,14 @@ public class PriorityBlockingQueue<E> extends AbstractQueue<E>
             }
             return false;
         }
-
         public long estimateSize() { return (long)(getFence() - index); }
-
         public int characteristics() {
             return Spliterator.NONNULL | Spliterator.SIZED | Spliterator.SUBSIZED;
         }
     }
-
-
     public Spliterator<E> spliterator() {
         return new PBQSpliterator<E>(this, null, 0, -1);
     }
-
     // Unsafe mechanics
     private static final sun.misc.Unsafe UNSAFE;
     private static final long allocationSpinLockOffset;

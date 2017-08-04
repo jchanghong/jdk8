@@ -1,9 +1,5 @@
-
-
 #warn This file is preprocessed before being compiled
-
 package java.nio;
-
 #if[char]
 import java.io.IOException;
 #end[char]
@@ -12,14 +8,10 @@ import java.util.Spliterator;
 import java.util.stream.StreamSupport;
 import java.util.stream.$Streamtype$Stream;
 #end[streamableType]
-
-
-
 public abstract class $Type$Buffer
     extends Buffer
     implements Comparable<$Type$Buffer>{#if[char]?, Appendable, CharSequence, Readable}
 {
-
     // These fields are declared here rather than in Heap-X-Buffer in order to
     // reduce the number of virtual method invocations needed to access these
     // values, which is especially costly when coding small buffers.
@@ -27,7 +19,6 @@ public abstract class $Type$Buffer
     final $type$[] hb;                  // Non-null only for heap buffers
     final int offset;
     boolean isReadOnly;                 // Valid only for heap buffers
-
     // Creates a new buffer with the given mark, position, limit, capacity,
     // backing array, and array offset
     //
@@ -38,30 +29,21 @@ public abstract class $Type$Buffer
         this.hb = hb;
         this.offset = offset;
     }
-
     // Creates a new buffer with the given mark, position, limit, and capacity
     //
     $Type$Buffer(int mark, int pos, int lim, int cap) { // package-private
         this(mark, pos, lim, cap, null, 0);
     }
-
 #if[byte]
-
-
     public static $Type$Buffer allocateDirect(int capacity) {
         return new Direct$Type$Buffer(capacity);
     }
-
 #end[byte]
-
-
     public static $Type$Buffer allocate(int capacity) {
         if (capacity < 0)
             throw new IllegalArgumentException();
         return new Heap$Type$Buffer(capacity, capacity);
     }
-
-
     public static $Type$Buffer wrap($type$[] array,
                                     int offset, int length)
     {
@@ -71,15 +53,10 @@ public abstract class $Type$Buffer
             throw new IndexOutOfBoundsException();
         }
     }
-
-
     public static $Type$Buffer wrap($type$[] array) {
         return wrap(array, 0, array.length);
     }
-
 #if[char]
-
-
     public int read(CharBuffer target) throws IOException {
         // Determine the number of bytes n that can be transferred
         int targetRemaining = target.remaining();
@@ -99,8 +76,6 @@ public abstract class $Type$Buffer
         }
         return n;
     }
-
-
     public static CharBuffer wrap(CharSequence csq, int start, int end) {
         try {
             return new StringCharBuffer(csq, start, end);
@@ -108,47 +83,22 @@ public abstract class $Type$Buffer
             throw new IndexOutOfBoundsException();
         }
     }
-
-
     public static CharBuffer wrap(CharSequence csq) {
         return wrap(csq, 0, csq.length());
     }
-
 #end[char]
-
-
     public abstract $Type$Buffer slice();
-
-
     public abstract $Type$Buffer duplicate();
-
-
     public abstract $Type$Buffer asReadOnlyBuffer();
-
-
     // -- Singleton get/put methods --
-
-
     public abstract $type$ get();
-
-
     public abstract $Type$Buffer put($type$ $x$);
-
-
     public abstract $type$ get(int index);
-
 #if[streamableType]
-
     abstract $type$ getUnchecked(int index);   // package-private
 #end[streamableType]
-
-
     public abstract $Type$Buffer put(int index, $type$ $x$);
-
-
     // -- Bulk get operations --
-
-
     public $Type$Buffer get($type$[] dst, int offset, int length) {
         checkBounds(offset, length, dst.length);
         if (length > remaining())
@@ -158,16 +108,10 @@ public abstract class $Type$Buffer
             dst[i] = get();
         return this;
     }
-
-
     public $Type$Buffer get($type$[] dst) {
         return get(dst, 0, dst.length);
     }
-
-
     // -- Bulk put operations --
-
-
     public $Type$Buffer put($Type$Buffer src) {
         if (src == this)
             throw new IllegalArgumentException();
@@ -180,8 +124,6 @@ public abstract class $Type$Buffer
             put(src.get());
         return this;
     }
-
-
     public $Type$Buffer put($type$[] src, int offset, int length) {
         checkBounds(offset, length, src.length);
         if (length > remaining())
@@ -191,15 +133,10 @@ public abstract class $Type$Buffer
             this.put(src[i]);
         return this;
     }
-
-
     public final $Type$Buffer put($type$[] src) {
         return put(src, 0, src.length);
     }
-
 #if[char]
-
-
     public $Type$Buffer put(String src, int start, int end) {
         checkBounds(start, end - start, src.length());
         if (isReadOnly())
@@ -210,23 +147,14 @@ public abstract class $Type$Buffer
             this.put(src.charAt(i));
         return this;
     }
-
-
     public final $Type$Buffer put(String src) {
         return put(src, 0, src.length());
     }
-
 #end[char]
-
-
     // -- Other stuff --
-
-
     public final boolean hasArray() {
         return (hb != null) && !isReadOnly;
     }
-
-
     public final $type$[] array() {
         if (hb == null)
             throw new UnsupportedOperationException();
@@ -234,8 +162,6 @@ public abstract class $Type$Buffer
             throw new ReadOnlyBufferException();
         return hb;
     }
-
-
     public final int arrayOffset() {
         if (hb == null)
             throw new UnsupportedOperationException();
@@ -243,16 +169,9 @@ public abstract class $Type$Buffer
             throw new ReadOnlyBufferException();
         return offset;
     }
-
-
     public abstract $Type$Buffer compact();
-
-
     public abstract boolean isDirect();
-
 #if[!char]
-
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append(getClass().getName());
@@ -265,13 +184,8 @@ public abstract class $Type$Buffer
         sb.append("]");
         return sb.toString();
     }
-
 #end[!char]
-
-
     // ## Should really use unchecked accessors here for speed
-
-
     public int hashCode() {
         int h = 1;
         int p = position();
@@ -283,8 +197,6 @@ public abstract class $Type$Buffer
 #end[int]
         return h;
     }
-
-
     public boolean equals(Object ob) {
         if (this == ob)
             return true;
@@ -299,7 +211,6 @@ public abstract class $Type$Buffer
                 return false;
         return true;
     }
-
     private static boolean equals($type$ x, $type$ y) {
 #if[floatingPointType]
         return (x == y) || ($Fulltype$.isNaN(x) && $Fulltype$.isNaN(y));
@@ -307,8 +218,6 @@ public abstract class $Type$Buffer
         return x == y;
 #end[floatingPointType]
     }
-
-
     public int compareTo($Type$Buffer that) {
         int n = this.position() + Math.min(this.remaining(), that.remaining());
         for (int i = this.position(), j = that.position(); i < n; i++, j++) {
@@ -318,7 +227,6 @@ public abstract class $Type$Buffer
         }
         return this.remaining() - that.remaining();
     }
-
     private static int compare($type$ x, $type$ y) {
 #if[floatingPointType]
         return ((x < y)  ? -1 :
@@ -329,102 +237,63 @@ public abstract class $Type$Buffer
         return $Fulltype$.compare(x, y);
 #end[floatingPointType]
     }
-
     // -- Other char stuff --
-
 #if[char]
-
-
     public String toString() {
         return toString(position(), limit());
     }
-
     abstract String toString(int start, int end);       // package-private
-
-
     // --- Methods to support CharSequence ---
-
-
     public final int length() {
         return remaining();
     }
-
-
     public final char charAt(int index) {
         return get(position() + checkIndex(index, 1));
     }
-
-
     public abstract CharBuffer subSequence(int start, int end);
-
-
     // --- Methods to support Appendable ---
-
-
     public $Type$Buffer append(CharSequence csq) {
         if (csq == null)
             return put("null");
         else
             return put(csq.toString());
     }
-
-
     public $Type$Buffer append(CharSequence csq, int start, int end) {
         CharSequence cs = (csq == null ? "null" : csq);
         return put(cs.subSequence(start, end).toString());
     }
-
-
     public $Type$Buffer append($type$ $x$) {
         return put($x$);
     }
-
 #end[char]
-
-
     // -- Other byte stuff: Access to binary data --
-
 #if[!byte]
-
-
     public abstract ByteOrder order();
-
 #end[!byte]
-
 #if[byte]
-
     boolean bigEndian                                   // package-private
         = true;
     boolean nativeByteOrder                             // package-private
         = (Bits.byteOrder() == ByteOrder.BIG_ENDIAN);
-
-
     public final ByteOrder order() {
         return bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
     }
-
-
     public final $Type$Buffer order(ByteOrder bo) {
         bigEndian = (bo == ByteOrder.BIG_ENDIAN);
         nativeByteOrder =
             (bigEndian == (Bits.byteOrder() == ByteOrder.BIG_ENDIAN));
         return this;
     }
-
     // Unchecked accessors, for use by ByteBufferAs-X-Buffer classes
     //
     abstract byte _get(int i);                          // package-private
     abstract void _put(int i, byte b);                  // package-private
-
     // #BIN
     //
     // Binary-data access methods  for short, char, int, long, float,
     // and double will be inserted here
-
 #end[byte]
-
 #if[streamableType]
-
 #if[char]
     @Override
 #end[char]
@@ -432,7 +301,5 @@ public abstract class $Type$Buffer
         return StreamSupport.$streamtype$Stream(() -> new $Type$BufferSpliterator(this),
             Buffer.SPLITERATOR_CHARACTERISTICS, false);
     }
-
 #end[streamableType]
-
 }

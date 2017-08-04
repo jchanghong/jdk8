@@ -1,98 +1,51 @@
-
-
 package java.security;
-
 import java.io.*;
 import java.util.*;
-
 import java.security.KeyStore.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
-
 import javax.crypto.SecretKey;
-
 import javax.security.auth.callback.*;
-
-
-
 public abstract class KeyStoreSpi {
-
-
     public abstract Key engineGetKey(String alias, char[] password)
         throws NoSuchAlgorithmException, UnrecoverableKeyException;
-
-
     public abstract Certificate[] engineGetCertificateChain(String alias);
-
-
     public abstract Certificate engineGetCertificate(String alias);
-
-
     public abstract Date engineGetCreationDate(String alias);
-
-
     public abstract void engineSetKeyEntry(String alias, Key key,
                                            char[] password,
                                            Certificate[] chain)
         throws KeyStoreException;
-
-
     public abstract void engineSetKeyEntry(String alias, byte[] key,
                                            Certificate[] chain)
         throws KeyStoreException;
-
-
     public abstract void engineSetCertificateEntry(String alias,
                                                    Certificate cert)
         throws KeyStoreException;
-
-
     public abstract void engineDeleteEntry(String alias)
         throws KeyStoreException;
-
-
     public abstract Enumeration<String> engineAliases();
-
-
     public abstract boolean engineContainsAlias(String alias);
-
-
     public abstract int engineSize();
-
-
     public abstract boolean engineIsKeyEntry(String alias);
-
-
     public abstract boolean engineIsCertificateEntry(String alias);
-
-
     public abstract String engineGetCertificateAlias(Certificate cert);
-
-
     public abstract void engineStore(OutputStream stream, char[] password)
         throws IOException, NoSuchAlgorithmException, CertificateException;
-
-
     public void engineStore(KeyStore.LoadStoreParameter param)
                 throws IOException, NoSuchAlgorithmException,
                 CertificateException {
         throw new UnsupportedOperationException();
     }
-
-
     public abstract void engineLoad(InputStream stream, char[] password)
         throws IOException, NoSuchAlgorithmException, CertificateException;
-
-
     public void engineLoad(KeyStore.LoadStoreParameter param)
                 throws IOException, NoSuchAlgorithmException,
                 CertificateException {
-
         if (param == null) {
             engineLoad((InputStream)null, (char[])null);
             return;
         }
-
         if (param instanceof KeyStore.SimpleLoadStoreParameter) {
             ProtectionParameter protection = param.getProtectionParameter();
             char[] password;
@@ -122,20 +75,15 @@ public abstract class KeyStoreSpi {
             engineLoad(null, password);
             return;
         }
-
         throw new UnsupportedOperationException();
     }
-
-
     public KeyStore.Entry engineGetEntry(String alias,
                         KeyStore.ProtectionParameter protParam)
                 throws KeyStoreException, NoSuchAlgorithmException,
                 UnrecoverableEntryException {
-
         if (!engineContainsAlias(alias)) {
             return null;
         }
-
         if (protParam == null) {
             if (engineIsCertificateEntry(alias)) {
                 return new KeyStore.TrustedCertificateEntry
@@ -145,7 +93,6 @@ public abstract class KeyStoreSpi {
                         ("requested entry requires a password");
             }
         }
-
         if (protParam instanceof KeyStore.PasswordProtection) {
             if (engineIsCertificateEntry(alias)) {
                 throw new UnsupportedOperationException
@@ -154,7 +101,6 @@ public abstract class KeyStoreSpi {
                 KeyStore.PasswordProtection pp =
                         (KeyStore.PasswordProtection)protParam;
                 char[] password = pp.getPassword();
-
                 Key key = engineGetKey(alias, password);
                 if (key instanceof PrivateKey) {
                     Certificate[] chain = engineGetCertificateChain(alias);
@@ -164,15 +110,11 @@ public abstract class KeyStoreSpi {
                 }
             }
         }
-
         throw new UnsupportedOperationException();
     }
-
-
     public void engineSetEntry(String alias, KeyStore.Entry entry,
                         KeyStore.ProtectionParameter protParam)
                 throws KeyStoreException {
-
         // get password
         if (protParam != null &&
             !(protParam instanceof KeyStore.PasswordProtection)) {
@@ -182,7 +124,6 @@ public abstract class KeyStoreSpi {
         if (protParam != null) {
             pProtect = (KeyStore.PasswordProtection)protParam;
         }
-
         // set entry
         if (entry instanceof KeyStore.TrustedCertificateEntry) {
             if (protParam != null && pProtect.getPassword() != null) {
@@ -222,12 +163,9 @@ public abstract class KeyStoreSpi {
                 return;
             }
         }
-
         throw new KeyStoreException
                 ("unsupported entry type: " + entry.getClass().getName());
     }
-
-
     public boolean
         engineEntryInstanceOf(String alias,
                               Class<? extends KeyStore.Entry> entryClass)

@@ -1,29 +1,16 @@
-
-
-
-
 package java.text;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import sun.misc.FloatingDecimal;
-
-
 final class DigitList implements Cloneable {
-
     public static final int MAX_COUNT = 19; // == Long.toString(Long.MAX_VALUE).length()
-
-
     public int decimalAt = 0;
     public int count = 0;
     public char[] digits = new char[MAX_COUNT];
-
     private char[] data;
     private RoundingMode roundingMode = RoundingMode.HALF_EVEN;
     private boolean isNegative = false;
-
-
     boolean isZero() {
         for (int i=0; i < count; ++i) {
             if (digits[i] != '0') {
@@ -32,19 +19,13 @@ final class DigitList implements Cloneable {
         }
         return true;
     }
-
-
     void setRoundingMode(RoundingMode r) {
         roundingMode = r;
     }
-
-
     public void clear () {
         decimalAt = 0;
         count = 0;
     }
-
-
     public void append(char digit) {
         if (count == digits.length) {
             char[] data = new char[count + 100];
@@ -53,13 +34,10 @@ final class DigitList implements Cloneable {
         }
         digits[count++] = digit;
     }
-
-
     public final double getDouble() {
         if (count == 0) {
             return 0.0;
         }
-
         StringBuffer temp = getStringBuffer();
         temp.append('.');
         temp.append(digits, 0, count);
@@ -67,22 +45,17 @@ final class DigitList implements Cloneable {
         temp.append(decimalAt);
         return Double.parseDouble(temp.toString());
     }
-
-
     public final long getLong() {
         // for now, simple implementation; later, do proper IEEE native stuff
-
         if (count == 0) {
             return 0;
         }
-
         // We have to check for this, because this is the one NEGATIVE value
         // we represent.  If we tried to just pass the digits off to parseLong,
         // we'd get a parse failure.
         if (isLongMIN_VALUE()) {
             return Long.MIN_VALUE;
         }
-
         StringBuffer temp = getStringBuffer();
         temp.append(digits, 0, count);
         for (int i = count; i < decimalAt; ++i) {
@@ -90,7 +63,6 @@ final class DigitList implements Cloneable {
         }
         return Long.parseLong(temp.toString());
     }
-
     public final BigDecimal getBigDecimal() {
         if (count == 0) {
             if (decimalAt == 0) {
@@ -99,39 +71,31 @@ final class DigitList implements Cloneable {
                 return new BigDecimal("0E" + decimalAt);
             }
         }
-
        if (decimalAt == count) {
            return new BigDecimal(digits, 0, count);
        } else {
            return new BigDecimal(digits, 0, count).scaleByPowerOfTen(decimalAt - count);
        }
     }
-
-
     boolean fitsIntoLong(boolean isPositive, boolean ignoreNegativeZero) {
         // Figure out if the result will fit in a long.  We have to
         // first look for nonzero digits after the decimal point;
         // then check the size.  If the digit count is 18 or less, then
         // the value can definitely be represented as a long.  If it is 19
         // then it may be too large.
-
         // Trim trailing zeros.  This does not change the represented value.
         while (count > 0 && digits[count - 1] == '0') {
             --count;
         }
-
         if (count == 0) {
             // Positive zero fits into a long, but negative zero can only
             // be represented as a double. - bug 4162852
             return isPositive || ignoreNegativeZero;
         }
-
         if (decimalAt < count || decimalAt > MAX_COUNT) {
             return false;
         }
-
         if (decimalAt < MAX_COUNT) return true;
-
         // At this point we have decimalAt == count, and count == MAX_COUNT.
         // The number will overflow if it is larger than 9223372036854775807
         // or smaller than -9223372036854775808.
@@ -140,46 +104,34 @@ final class DigitList implements Cloneable {
             if (dig > max) return false;
             if (dig < max) return true;
         }
-
         // At this point the first count digits match.  If decimalAt is less
         // than count, then the remaining digits are zero, and we return true.
         if (count < decimalAt) return true;
-
         // Now we have a representation of Long.MIN_VALUE, without the leading
         // negative sign.  If this represents a positive value, then it does
         // not fit; otherwise it fits.
         return !isPositive;
     }
-
-
     final void set(boolean isNegative, double source, int maximumFractionDigits) {
         set(isNegative, source, maximumFractionDigits, true);
     }
-
-
     final void set(boolean isNegative, double source, int maximumDigits, boolean fixedPoint) {
-
         FloatingDecimal.BinaryToASCIIConverter fdConverter  = FloatingDecimal.getBinaryToASCIIConverter(source);
         boolean hasBeenRoundedUp = fdConverter.digitsRoundedUp();
         boolean valueExactAsDecimal = fdConverter.decimalDigitsExact();
         assert !fdConverter.isExceptional();
         String digitsString = fdConverter.toJavaFormatString();
-
         set(isNegative, digitsString,
             hasBeenRoundedUp, valueExactAsDecimal,
             maximumDigits, fixedPoint);
     }
-
-
     private void set(boolean isNegative, String s,
                      boolean roundedUp, boolean valueExactAsDecimal,
                      int maximumDigits, boolean fixedPoint) {
-
         this.isNegative = isNegative;
         int len = s.length();
         char[] source = getDataChars(len);
         s.getChars(0, len, source, 0);
-
         decimalAt = -1;
         count = 0;
         int exponent = 0;
@@ -187,7 +139,6 @@ final class DigitList implements Cloneable {
         // decimal point, for numbers < 1.
         int leadingZerosAfterDecimal = 0;
         boolean nonZeroDigitSeen = false;
-
         for (int i = 0; i < len; ) {
             char c = source[i++];
             if (c == '.') {
@@ -212,7 +163,6 @@ final class DigitList implements Cloneable {
         if (nonZeroDigitSeen) {
             decimalAt += exponent - leadingZerosAfterDecimal;
         }
-
         if (fixedPoint) {
             // The negative of the exponent represents the number of leading
             // zeros between the decimal and the first non-zero digit, for
@@ -238,20 +188,15 @@ final class DigitList implements Cloneable {
             }
             // else fall through
         }
-
         // Eliminate trailing zeros.
         while (count > 1 && digits[count - 1] == '0') {
             --count;
         }
-
         // Eliminate digits beyond maximum digits to be displayed.
         // Round up if appropriate.
         round(fixedPoint ? (maximumDigits + decimalAt) : maximumDigits,
               roundedUp, valueExactAsDecimal);
-
      }
-
-
     private final void round(int maximumDigits,
                              boolean alreadyRounded,
                              boolean valueExactAsDecimal) {
@@ -272,7 +217,6 @@ final class DigitList implements Cloneable {
                         maximumDigits = 0; // Adjust the count
                         break;
                     }
-
                     ++digits[maximumDigits];
                     if (digits[maximumDigits] <= '9') break;
                     // digits[maximumDigits] = '0'; // Unnecessary since we'll truncate this
@@ -280,22 +224,16 @@ final class DigitList implements Cloneable {
                 ++maximumDigits; // Increment for use as count
             }
             count = maximumDigits;
-
             // Eliminate trailing zeros.
             while (count > 1 && digits[count-1] == '0') {
                 --count;
             }
         }
     }
-
-
-
     private boolean shouldRoundUp(int maximumDigits,
                                   boolean alreadyRounded,
                                   boolean valueExactAsDecimal) {
         if (maximumDigits < count) {
-
-
             switch(roundingMode) {
             case UP:
                 for (int i=maximumDigits; i<count; ++i) {
@@ -358,7 +296,6 @@ final class DigitList implements Cloneable {
                             // If FloatingDecimal rounded up (value was below tie),
                             // then we should not round up again.
                             return false;
-
                         if (!valueExactAsDecimal)
                             // Otherwise if the digits don't represent exact value,
                             // value was above tie and FloatingDecimal truncated
@@ -394,16 +331,11 @@ final class DigitList implements Cloneable {
         }
         return false;
     }
-
-
     final void set(boolean isNegative, long source) {
         set(isNegative, source, 0);
     }
-
-
     final void set(boolean isNegative, long source, int maximumDigits) {
         this.isNegative = isNegative;
-
         // This method does not expect a negative number. However,
         // "source" can be a Long.MIN_VALUE (-9223372036854775808),
         // if the number being formatted is a Long.MIN_VALUE.  In that
@@ -436,37 +368,28 @@ final class DigitList implements Cloneable {
         }
         if (maximumDigits > 0) round(maximumDigits, false, true);
     }
-
-
     final void set(boolean isNegative, BigDecimal source, int maximumDigits, boolean fixedPoint) {
         String s = source.toString();
         extendDigits(s.length());
-
         set(isNegative, s,
             false, true,
             maximumDigits, fixedPoint);
     }
-
-
     final void set(boolean isNegative, BigInteger source, int maximumDigits) {
         this.isNegative = isNegative;
         String s = source.toString();
         int len = s.length();
         extendDigits(len);
         s.getChars(0, len, digits, 0);
-
         decimalAt = len;
         int right;
         for (right = len - 1; right >= 0 && digits[right] == '0'; --right)
             ;
         count = right + 1;
-
         if (maximumDigits > 0) {
             round(maximumDigits, false, true);
         }
     }
-
-
     public boolean equals(Object obj) {
         if (this == obj)                      // quick check
             return true;
@@ -481,19 +404,13 @@ final class DigitList implements Cloneable {
                 return false;
         return true;
     }
-
-
     public int hashCode() {
         int hashcode = decimalAt;
-
         for (int i = 0; i < count; i++) {
             hashcode = hashcode * 37 + digits[i];
         }
-
         return hashcode;
     }
-
-
     public Object clone() {
         try {
             DigitList other = (DigitList) super.clone();
@@ -506,20 +423,15 @@ final class DigitList implements Cloneable {
             throw new InternalError(e);
         }
     }
-
-
     private boolean isLongMIN_VALUE() {
         if (decimalAt != count || count != MAX_COUNT) {
             return false;
         }
-
         for (int i = 0; i < count; ++i) {
             if (digits[i] != LONG_MIN_REP[i]) return false;
         }
-
         return true;
     }
-
     private static final int parseInt(char[] str, int offset, int strLen) {
         char c;
         boolean positive = true;
@@ -529,7 +441,6 @@ final class DigitList implements Cloneable {
         } else if (c == '+') {
             offset++;
         }
-
         int value = 0;
         while (offset < strLen) {
             c = str[offset++];
@@ -541,10 +452,8 @@ final class DigitList implements Cloneable {
         }
         return positive ? value : -value;
     }
-
     // The digit part of -9223372036854775808L
     private static final char[] LONG_MIN_REP = "9223372036854775808".toCharArray();
-
     public String toString() {
         if (isZero()) {
             return "0";
@@ -556,9 +465,7 @@ final class DigitList implements Cloneable {
         buf.append(decimalAt);
         return buf.toString();
     }
-
     private StringBuffer tempBuffer;
-
     private StringBuffer getStringBuffer() {
         if (tempBuffer == null) {
             tempBuffer = new StringBuffer(MAX_COUNT);
@@ -567,13 +474,11 @@ final class DigitList implements Cloneable {
         }
         return tempBuffer;
     }
-
     private void extendDigits(int len) {
         if (len > digits.length) {
             digits = new char[len];
         }
     }
-
     private final char[] getDataChars(int length) {
         if (data == null || data.length < length) {
             data = new char[length];

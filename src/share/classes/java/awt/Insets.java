@@ -1,50 +1,28 @@
-
-
 package java.awt;
-
-
 public class Insets implements Cloneable, java.io.Serializable {
-
-
     public int top;
-
-
     public int left;
-
-
     public int bottom;
-
-
     public int right;
-
-
     private static final long serialVersionUID = -2272572637695466749L;
-
     static {
-
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
             initIDs();
         }
     }
-
-
     public Insets(int top, int left, int bottom, int right) {
         this.top = top;
         this.left = left;
         this.bottom = bottom;
         this.right = right;
     }
-
-
     public void set(int top, int left, int bottom, int right) {
         this.top = top;
         this.left = left;
         this.bottom = bottom;
         this.right = right;
     }
-
-
     public boolean equals(Object obj) {
         if (obj instanceof Insets) {
             Insets insets = (Insets)obj;
@@ -53,8 +31,6 @@ public class Insets implements Cloneable, java.io.Serializable {
         }
         return false;
     }
-
-
     public int hashCode() {
         int sum1 = left + bottom;
         int sum2 = right + top;
@@ -63,13 +39,9 @@ public class Insets implements Cloneable, java.io.Serializable {
         int sum3 = val1 + val2;
         return sum3 * (sum3 + 1)/2 + val2;
     }
-
-
     public String toString() {
         return getClass().getName() + "[top="  + top + ",left=" + left + ",bottom=" + bottom + ",right=" + right + "]";
     }
-
-
     public Object clone() {
         try {
             return super.clone();
@@ -78,7 +50,5 @@ public class Insets implements Cloneable, java.io.Serializable {
             throw new InternalError(e);
         }
     }
-
     private static native void initIDs();
-
 }

@@ -1,18 +1,10 @@
-
-
 package java.nio.file;
-
-
-
 public class InvalidPathException
     extends IllegalArgumentException
 {
     static final long serialVersionUID = 4355821422286746137L;
-
     private String input;
     private int index;
-
-
     public InvalidPathException(String input, String reason, int index) {
         super(reason);
         if ((input == null) || (reason == null))
@@ -22,28 +14,18 @@ public class InvalidPathException
         this.input = input;
         this.index = index;
     }
-
-
     public InvalidPathException(String input, String reason) {
         this(input, reason, -1);
     }
-
-
     public String getInput() {
         return input;
     }
-
-
     public String getReason() {
         return super.getMessage();
     }
-
-
     public int getIndex() {
         return index;
     }
-
-
     public String getMessage() {
         StringBuffer sb = new StringBuffer();
         sb.append(getReason());

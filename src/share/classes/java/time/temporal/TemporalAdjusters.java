@@ -1,29 +1,18 @@
-
-
-
 package java.time.temporal;
-
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
 import static java.time.temporal.ChronoField.DAY_OF_YEAR;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.YEARS;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
-
-
 public final class TemporalAdjusters {
-
-
     private TemporalAdjusters() {
     }
-
     //-----------------------------------------------------------------------
-
     public static TemporalAdjuster ofDateAdjuster(UnaryOperator<LocalDate> dateBasedAdjuster) {
         Objects.requireNonNull(dateBasedAdjuster, "dateBasedAdjuster");
         return (temporal) -> {
@@ -32,51 +21,33 @@ public final class TemporalAdjusters {
             return temporal.with(output);
         };
     }
-
     //-----------------------------------------------------------------------
-
     public static TemporalAdjuster firstDayOfMonth() {
         return (temporal) -> temporal.with(DAY_OF_MONTH, 1);
     }
-
-
     public static TemporalAdjuster lastDayOfMonth() {
         return (temporal) -> temporal.with(DAY_OF_MONTH, temporal.range(DAY_OF_MONTH).getMaximum());
     }
-
-
     public static TemporalAdjuster firstDayOfNextMonth() {
         return (temporal) -> temporal.with(DAY_OF_MONTH, 1).plus(1, MONTHS);
     }
-
     //-----------------------------------------------------------------------
-
     public static TemporalAdjuster firstDayOfYear() {
         return (temporal) -> temporal.with(DAY_OF_YEAR, 1);
     }
-
-
     public static TemporalAdjuster lastDayOfYear() {
         return (temporal) -> temporal.with(DAY_OF_YEAR, temporal.range(DAY_OF_YEAR).getMaximum());
     }
-
-
     public static TemporalAdjuster firstDayOfNextYear() {
         return (temporal) -> temporal.with(DAY_OF_YEAR, 1).plus(1, YEARS);
     }
-
     //-----------------------------------------------------------------------
-
     public static TemporalAdjuster firstInMonth(DayOfWeek dayOfWeek) {
         return TemporalAdjusters.dayOfWeekInMonth(1, dayOfWeek);
     }
-
-
     public static TemporalAdjuster lastInMonth(DayOfWeek dayOfWeek) {
         return TemporalAdjusters.dayOfWeekInMonth(-1, dayOfWeek);
     }
-
-
     public static TemporalAdjuster dayOfWeekInMonth(int ordinal, DayOfWeek dayOfWeek) {
         Objects.requireNonNull(dayOfWeek, "dayOfWeek");
         int dowValue = dayOfWeek.getValue();
@@ -99,9 +70,7 @@ public final class TemporalAdjusters {
             };
         }
     }
-
     //-----------------------------------------------------------------------
-
     public static TemporalAdjuster next(DayOfWeek dayOfWeek) {
         int dowValue = dayOfWeek.getValue();
         return (temporal) -> {
@@ -110,8 +79,6 @@ public final class TemporalAdjusters {
             return temporal.plus(daysDiff >= 0 ? 7 - daysDiff : -daysDiff, DAYS);
         };
     }
-
-
     public static TemporalAdjuster nextOrSame(DayOfWeek dayOfWeek) {
         int dowValue = dayOfWeek.getValue();
         return (temporal) -> {
@@ -123,8 +90,6 @@ public final class TemporalAdjusters {
             return temporal.plus(daysDiff >= 0 ? 7 - daysDiff : -daysDiff, DAYS);
         };
     }
-
-
     public static TemporalAdjuster previous(DayOfWeek dayOfWeek) {
         int dowValue = dayOfWeek.getValue();
         return (temporal) -> {
@@ -133,8 +98,6 @@ public final class TemporalAdjusters {
             return temporal.minus(daysDiff >= 0 ? 7 - daysDiff : -daysDiff, DAYS);
         };
     }
-
-
     public static TemporalAdjuster previousOrSame(DayOfWeek dayOfWeek) {
         int dowValue = dayOfWeek.getValue();
         return (temporal) -> {
@@ -146,5 +109,4 @@ public final class TemporalAdjusters {
             return temporal.minus(daysDiff >= 0 ? 7 - daysDiff : -daysDiff, DAYS);
         };
     }
-
 }

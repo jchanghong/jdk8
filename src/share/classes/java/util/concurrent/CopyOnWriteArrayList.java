@@ -1,7 +1,3 @@
-
-
-
-
 package java.util.concurrent;
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -20,34 +16,20 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
-
-
 public class CopyOnWriteArrayList<E>
     implements List<E>, RandomAccess, Cloneable, java.io.Serializable {
     private static final long serialVersionUID = 8673264195747942595L;
-
-
     final transient ReentrantLock lock = new ReentrantLock();
-
-
     private transient volatile Object[] array;
-
-
     final Object[] getArray() {
         return array;
     }
-
-
     final void setArray(Object[] a) {
         array = a;
     }
-
-
     public CopyOnWriteArrayList() {
         setArray(new Object[0]);
     }
-
-
     public CopyOnWriteArrayList(Collection<? extends E> c) {
         Object[] elements;
         if (c.getClass() == CopyOnWriteArrayList.class)
@@ -60,28 +42,18 @@ public class CopyOnWriteArrayList<E>
         }
         setArray(elements);
     }
-
-
     public CopyOnWriteArrayList(E[] toCopyIn) {
         setArray(Arrays.copyOf(toCopyIn, toCopyIn.length, Object[].class));
     }
-
-
     public int size() {
         return getArray().length;
     }
-
-
     public boolean isEmpty() {
         return size() == 0;
     }
-
-
     private static boolean eq(Object o1, Object o2) {
         return (o1 == null) ? o2 == null : o1.equals(o2);
     }
-
-
     private static int indexOf(Object o, Object[] elements,
                                int index, int fence) {
         if (o == null) {
@@ -95,8 +67,6 @@ public class CopyOnWriteArrayList<E>
         }
         return -1;
     }
-
-
     private static int lastIndexOf(Object o, Object[] elements, int index) {
         if (o == null) {
             for (int i = index; i >= 0; i--)
@@ -109,38 +79,26 @@ public class CopyOnWriteArrayList<E>
         }
         return -1;
     }
-
-
     public boolean contains(Object o) {
         Object[] elements = getArray();
         return indexOf(o, elements, 0, elements.length) >= 0;
     }
-
-
     public int indexOf(Object o) {
         Object[] elements = getArray();
         return indexOf(o, elements, 0, elements.length);
     }
-
-
     public int indexOf(E e, int index) {
         Object[] elements = getArray();
         return indexOf(e, elements, index, elements.length);
     }
-
-
     public int lastIndexOf(Object o) {
         Object[] elements = getArray();
         return lastIndexOf(o, elements, elements.length - 1);
     }
-
-
     public int lastIndexOf(E e, int index) {
         Object[] elements = getArray();
         return lastIndexOf(e, elements, index);
     }
-
-
     public Object clone() {
         try {
             @SuppressWarnings("unchecked")
@@ -153,14 +111,10 @@ public class CopyOnWriteArrayList<E>
             throw new InternalError();
         }
     }
-
-
     public Object[] toArray() {
         Object[] elements = getArray();
         return Arrays.copyOf(elements, elements.length);
     }
-
-
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T a[]) {
         Object[] elements = getArray();
@@ -174,27 +128,20 @@ public class CopyOnWriteArrayList<E>
             return a;
         }
     }
-
     // Positional Access Operations
-
     @SuppressWarnings("unchecked")
     private E get(Object[] a, int index) {
         return (E) a[index];
     }
-
-
     public E get(int index) {
         return get(getArray(), index);
     }
-
-
     public E set(int index, E element) {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
             Object[] elements = getArray();
             E oldValue = get(elements, index);
-
             if (oldValue != element) {
                 int len = elements.length;
                 Object[] newElements = Arrays.copyOf(elements, len);
@@ -209,8 +156,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     public boolean add(E e) {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -225,8 +170,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     public void add(int index, E element) {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -252,8 +195,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     public E remove(int index) {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -276,15 +217,11 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     public boolean remove(Object o) {
         Object[] snapshot = getArray();
         int index = indexOf(o, snapshot, 0, snapshot.length);
         return (index < 0) ? false : remove(o, snapshot, index);
     }
-
-
     private boolean remove(Object o, Object[] snapshot, int index) {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -318,15 +255,12 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     void removeRange(int fromIndex, int toIndex) {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
             Object[] elements = getArray();
             int len = elements.length;
-
             if (fromIndex < 0 || toIndex > len || toIndex < fromIndex)
                 throw new IndexOutOfBoundsException();
             int newlen = len - (toIndex - fromIndex);
@@ -344,15 +278,11 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     public boolean addIfAbsent(E e) {
         Object[] snapshot = getArray();
         return indexOf(e, snapshot, 0, snapshot.length) >= 0 ? false :
             addIfAbsent(e, snapshot);
     }
-
-
     private boolean addIfAbsent(E e, Object[] snapshot) {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -376,8 +306,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     public boolean containsAll(Collection<?> c) {
         Object[] elements = getArray();
         int len = elements.length;
@@ -387,8 +315,6 @@ public class CopyOnWriteArrayList<E>
         }
         return true;
     }
-
-
     public boolean removeAll(Collection<?> c) {
         if (c == null) throw new NullPointerException();
         final ReentrantLock lock = this.lock;
@@ -415,8 +341,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     public boolean retainAll(Collection<?> c) {
         if (c == null) throw new NullPointerException();
         final ReentrantLock lock = this.lock;
@@ -443,8 +367,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     public int addAllAbsent(Collection<? extends E> c) {
         Object[] cs = c.toArray();
         if (cs.length == 0)
@@ -472,8 +394,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     public void clear() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -483,8 +403,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     public boolean addAll(Collection<? extends E> c) {
         Object[] cs = (c.getClass() == CopyOnWriteArrayList.class) ?
             ((CopyOnWriteArrayList<?>)c).getArray() : c.toArray();
@@ -507,8 +425,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     public boolean addAll(int index, Collection<? extends E> c) {
         Object[] cs = c.toArray();
         final ReentrantLock lock = this.lock;
@@ -539,7 +455,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
     public void forEach(Consumer<? super E> action) {
         if (action == null) throw new NullPointerException();
         Object[] elements = getArray();
@@ -549,7 +464,6 @@ public class CopyOnWriteArrayList<E>
             action.accept(e);
         }
     }
-
     public boolean removeIf(Predicate<? super E> filter) {
         if (filter == null) throw new NullPointerException();
         final ReentrantLock lock = this.lock;
@@ -575,7 +489,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
     public void replaceAll(UnaryOperator<E> operator) {
         if (operator == null) throw new NullPointerException();
         final ReentrantLock lock = this.lock;
@@ -593,7 +506,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
     public void sort(Comparator<? super E> c) {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -607,53 +519,37 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     private void writeObject(java.io.ObjectOutputStream s)
         throws java.io.IOException {
-
         s.defaultWriteObject();
-
         Object[] elements = getArray();
         // Write out array length
         s.writeInt(elements.length);
-
         // Write out all elements in the proper order.
         for (Object element : elements)
             s.writeObject(element);
     }
-
-
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {
-
         s.defaultReadObject();
-
         // bind to new lock
         resetLock();
-
         // Read in array length and allocate array
         int len = s.readInt();
         Object[] elements = new Object[len];
-
         // Read in all elements in the proper order.
         for (int i = 0; i < len; i++)
             elements[i] = s.readObject();
         setArray(elements);
     }
-
-
     public String toString() {
         return Arrays.toString(getArray());
     }
-
-
     public boolean equals(Object o) {
         if (o == this)
             return true;
         if (!(o instanceof List))
             return false;
-
         List<?> list = (List<?>)(o);
         Iterator<?> it = list.iterator();
         Object[] elements = getArray();
@@ -665,8 +561,6 @@ public class CopyOnWriteArrayList<E>
             return false;
         return true;
     }
-
-
     public int hashCode() {
         int hashCode = 1;
         Object[] elements = getArray();
@@ -677,89 +571,63 @@ public class CopyOnWriteArrayList<E>
         }
         return hashCode;
     }
-
-
     public Iterator<E> iterator() {
         return new COWIterator<E>(getArray(), 0);
     }
-
-
     public ListIterator<E> listIterator() {
         return new COWIterator<E>(getArray(), 0);
     }
-
-
     public ListIterator<E> listIterator(int index) {
         Object[] elements = getArray();
         int len = elements.length;
         if (index < 0 || index > len)
             throw new IndexOutOfBoundsException("Index: "+index);
-
         return new COWIterator<E>(elements, index);
     }
-
-
     public Spliterator<E> spliterator() {
         return Spliterators.spliterator
             (getArray(), Spliterator.IMMUTABLE | Spliterator.ORDERED);
     }
-
     static final class COWIterator<E> implements ListIterator<E> {
-
         private final Object[] snapshot;
-
         private int cursor;
-
         private COWIterator(Object[] elements, int initialCursor) {
             cursor = initialCursor;
             snapshot = elements;
         }
-
         public boolean hasNext() {
             return cursor < snapshot.length;
         }
-
         public boolean hasPrevious() {
             return cursor > 0;
         }
-
         @SuppressWarnings("unchecked")
         public E next() {
             if (! hasNext())
                 throw new NoSuchElementException();
             return (E) snapshot[cursor++];
         }
-
         @SuppressWarnings("unchecked")
         public E previous() {
             if (! hasPrevious())
                 throw new NoSuchElementException();
             return (E) snapshot[--cursor];
         }
-
         public int nextIndex() {
             return cursor;
         }
-
         public int previousIndex() {
             return cursor-1;
         }
-
-
         public void remove() {
             throw new UnsupportedOperationException();
         }
-
-
         public void set(E e) {
             throw new UnsupportedOperationException();
         }
-
-
         public void add(E e) {
             throw new UnsupportedOperationException();
         }
-
         @Override
         public void forEachRemaining(Consumer<? super E> action) {
             Objects.requireNonNull(action);
@@ -772,8 +640,6 @@ public class CopyOnWriteArrayList<E>
             cursor = size;
         }
     }
-
-
     public List<E> subList(int fromIndex, int toIndex) {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -787,8 +653,6 @@ public class CopyOnWriteArrayList<E>
             lock.unlock();
         }
     }
-
-
     private static class COWSubList<E>
         extends AbstractList<E>
         implements RandomAccess
@@ -797,7 +661,6 @@ public class CopyOnWriteArrayList<E>
         private final int offset;
         private int size;
         private Object[] expectedArray;
-
         // only call this holding l's lock
         COWSubList(CopyOnWriteArrayList<E> list,
                    int fromIndex, int toIndex) {
@@ -806,20 +669,17 @@ public class CopyOnWriteArrayList<E>
             offset = fromIndex;
             size = toIndex - fromIndex;
         }
-
         // only call this holding l's lock
         private void checkForComodification() {
             if (l.getArray() != expectedArray)
                 throw new ConcurrentModificationException();
         }
-
         // only call this holding l's lock
         private void rangeCheck(int index) {
             if (index < 0 || index >= size)
                 throw new IndexOutOfBoundsException("Index: "+index+
                                                     ",Size: "+size);
         }
-
         public E set(int index, E element) {
             final ReentrantLock lock = l.lock;
             lock.lock();
@@ -833,7 +693,6 @@ public class CopyOnWriteArrayList<E>
                 lock.unlock();
             }
         }
-
         public E get(int index) {
             final ReentrantLock lock = l.lock;
             lock.lock();
@@ -845,7 +704,6 @@ public class CopyOnWriteArrayList<E>
                 lock.unlock();
             }
         }
-
         public int size() {
             final ReentrantLock lock = l.lock;
             lock.lock();
@@ -856,7 +714,6 @@ public class CopyOnWriteArrayList<E>
                 lock.unlock();
             }
         }
-
         public void add(int index, E element) {
             final ReentrantLock lock = l.lock;
             lock.lock();
@@ -871,7 +728,6 @@ public class CopyOnWriteArrayList<E>
                 lock.unlock();
             }
         }
-
         public void clear() {
             final ReentrantLock lock = l.lock;
             lock.lock();
@@ -884,7 +740,6 @@ public class CopyOnWriteArrayList<E>
                 lock.unlock();
             }
         }
-
         public E remove(int index) {
             final ReentrantLock lock = l.lock;
             lock.lock();
@@ -899,7 +754,6 @@ public class CopyOnWriteArrayList<E>
                 lock.unlock();
             }
         }
-
         public boolean remove(Object o) {
             int index = indexOf(o);
             if (index == -1)
@@ -907,7 +761,6 @@ public class CopyOnWriteArrayList<E>
             remove(index);
             return true;
         }
-
         public Iterator<E> iterator() {
             final ReentrantLock lock = l.lock;
             lock.lock();
@@ -918,7 +771,6 @@ public class CopyOnWriteArrayList<E>
                 lock.unlock();
             }
         }
-
         public ListIterator<E> listIterator(int index) {
             final ReentrantLock lock = l.lock;
             lock.lock();
@@ -932,7 +784,6 @@ public class CopyOnWriteArrayList<E>
                 lock.unlock();
             }
         }
-
         public List<E> subList(int fromIndex, int toIndex) {
             final ReentrantLock lock = l.lock;
             lock.lock();
@@ -946,7 +797,6 @@ public class CopyOnWriteArrayList<E>
                 lock.unlock();
             }
         }
-
         public void forEach(Consumer<? super E> action) {
             if (action == null) throw new NullPointerException();
             int lo = offset;
@@ -961,7 +811,6 @@ public class CopyOnWriteArrayList<E>
                 action.accept(e);
             }
         }
-
         public void replaceAll(UnaryOperator<E> operator) {
             if (operator == null) throw new NullPointerException();
             final ReentrantLock lock = l.lock;
@@ -985,7 +834,6 @@ public class CopyOnWriteArrayList<E>
                 lock.unlock();
             }
         }
-
         public void sort(Comparator<? super E> c) {
             final ReentrantLock lock = l.lock;
             lock.lock();
@@ -1006,7 +854,6 @@ public class CopyOnWriteArrayList<E>
                 lock.unlock();
             }
         }
-
         public boolean removeAll(Collection<?> c) {
             if (c == null) throw new NullPointerException();
             boolean removed = false;
@@ -1046,7 +893,6 @@ public class CopyOnWriteArrayList<E>
             }
             return removed;
         }
-
         public boolean retainAll(Collection<?> c) {
             if (c == null) throw new NullPointerException();
             boolean removed = false;
@@ -1086,7 +932,6 @@ public class CopyOnWriteArrayList<E>
             }
             return removed;
         }
-
         public boolean removeIf(Predicate<? super E> filter) {
             if (filter == null) throw new NullPointerException();
             boolean removed = false;
@@ -1126,7 +971,6 @@ public class CopyOnWriteArrayList<E>
             }
             return removed;
         }
-
         public Spliterator<E> spliterator() {
             int lo = offset;
             int hi = offset + size;
@@ -1138,62 +982,49 @@ public class CopyOnWriteArrayList<E>
             return Spliterators.spliterator
                 (a, lo, hi, Spliterator.IMMUTABLE | Spliterator.ORDERED);
         }
-
     }
-
     private static class COWSubListIterator<E> implements ListIterator<E> {
         private final ListIterator<E> it;
         private final int offset;
         private final int size;
-
         COWSubListIterator(List<E> l, int index, int offset, int size) {
             this.offset = offset;
             this.size = size;
             it = l.listIterator(index+offset);
         }
-
         public boolean hasNext() {
             return nextIndex() < size;
         }
-
         public E next() {
             if (hasNext())
                 return it.next();
             else
                 throw new NoSuchElementException();
         }
-
         public boolean hasPrevious() {
             return previousIndex() >= 0;
         }
-
         public E previous() {
             if (hasPrevious())
                 return it.previous();
             else
                 throw new NoSuchElementException();
         }
-
         public int nextIndex() {
             return it.nextIndex() - offset;
         }
-
         public int previousIndex() {
             return it.previousIndex() - offset;
         }
-
         public void remove() {
             throw new UnsupportedOperationException();
         }
-
         public void set(E e) {
             throw new UnsupportedOperationException();
         }
-
         public void add(E e) {
             throw new UnsupportedOperationException();
         }
-
         @Override
         public void forEachRemaining(Consumer<? super E> action) {
             Objects.requireNonNull(action);
@@ -1204,7 +1035,6 @@ public class CopyOnWriteArrayList<E>
             }
         }
     }
-
     // Support for resetting lock while deserializing
     private void resetLock() {
         UNSAFE.putObjectVolatile(this, lockOffset, new ReentrantLock());

@@ -1,93 +1,51 @@
-
-
 package java.awt.geom;
-
 import java.awt.Shape;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import sun.awt.geom.Curve;
-
-
 public abstract class QuadCurve2D implements Shape, Cloneable {
-
-
     public static class Float extends QuadCurve2D implements Serializable {
-
         public float x1;
-
-
         public float y1;
-
-
         public float ctrlx;
-
-
         public float ctrly;
-
-
         public float x2;
-
-
         public float y2;
-
-
         public Float() {
         }
-
-
         public Float(float x1, float y1,
                      float ctrlx, float ctrly,
                      float x2, float y2)
         {
             setCurve(x1, y1, ctrlx, ctrly, x2, y2);
         }
-
-
         public double getX1() {
             return (double) x1;
         }
-
-
         public double getY1() {
             return (double) y1;
         }
-
-
         public Point2D getP1() {
             return new Point2D.Float(x1, y1);
         }
-
-
         public double getCtrlX() {
             return (double) ctrlx;
         }
-
-
         public double getCtrlY() {
             return (double) ctrly;
         }
-
-
         public Point2D getCtrlPt() {
             return new Point2D.Float(ctrlx, ctrly);
         }
-
-
         public double getX2() {
             return (double) x2;
         }
-
-
         public double getY2() {
             return (double) y2;
         }
-
-
         public Point2D getP2() {
             return new Point2D.Float(x2, y2);
         }
-
-
         public void setCurve(double x1, double y1,
                              double ctrlx, double ctrly,
                              double x2, double y2)
@@ -99,8 +57,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
             this.x2    = (float) x2;
             this.y2    = (float) y2;
         }
-
-
         public void setCurve(float x1, float y1,
                              float ctrlx, float ctrly,
                              float x2, float y2)
@@ -112,8 +68,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
             this.x2    = x2;
             this.y2    = y2;
         }
-
-
         public Rectangle2D getBounds2D() {
             float left   = Math.min(Math.min(x1, x2), ctrlx);
             float top    = Math.min(Math.min(y1, y2), ctrly);
@@ -122,89 +76,50 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
             return new Rectangle2D.Float(left, top,
                                          right - left, bottom - top);
         }
-
-
         private static final long serialVersionUID = -8511188402130719609L;
     }
-
-
     public static class Double extends QuadCurve2D implements Serializable {
-
         public double x1;
-
-
         public double y1;
-
-
         public double ctrlx;
-
-
         public double ctrly;
-
-
         public double x2;
-
-
         public double y2;
-
-
         public Double() {
         }
-
-
         public Double(double x1, double y1,
                       double ctrlx, double ctrly,
                       double x2, double y2)
         {
             setCurve(x1, y1, ctrlx, ctrly, x2, y2);
         }
-
-
         public double getX1() {
             return x1;
         }
-
-
         public double getY1() {
             return y1;
         }
-
-
         public Point2D getP1() {
             return new Point2D.Double(x1, y1);
         }
-
-
         public double getCtrlX() {
             return ctrlx;
         }
-
-
         public double getCtrlY() {
             return ctrly;
         }
-
-
         public Point2D getCtrlPt() {
             return new Point2D.Double(ctrlx, ctrly);
         }
-
-
         public double getX2() {
             return x2;
         }
-
-
         public double getY2() {
             return y2;
         }
-
-
         public Point2D getP2() {
             return new Point2D.Double(x2, y2);
         }
-
-
         public void setCurve(double x1, double y1,
                              double ctrlx, double ctrly,
                              double x2, double y2)
@@ -216,8 +131,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
             this.x2    = x2;
             this.y2    = y2;
         }
-
-
         public Rectangle2D getBounds2D() {
             double left   = Math.min(Math.min(x1, x2), ctrlx);
             double top    = Math.min(Math.min(y1, y2), ctrly);
@@ -226,123 +139,75 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
             return new Rectangle2D.Double(left, top,
                                           right - left, bottom - top);
         }
-
-
         private static final long serialVersionUID = 4217149928428559721L;
     }
-
-
     protected QuadCurve2D() {
     }
-
-
     public abstract double getX1();
-
-
     public abstract double getY1();
-
-
     public abstract Point2D getP1();
-
-
     public abstract double getCtrlX();
-
-
     public abstract double getCtrlY();
-
-
     public abstract Point2D getCtrlPt();
-
-
     public abstract double getX2();
-
-
     public abstract double getY2();
-
-
     public abstract Point2D getP2();
-
-
     public abstract void setCurve(double x1, double y1,
                                   double ctrlx, double ctrly,
                                   double x2, double y2);
-
-
     public void setCurve(double[] coords, int offset) {
         setCurve(coords[offset + 0], coords[offset + 1],
                  coords[offset + 2], coords[offset + 3],
                  coords[offset + 4], coords[offset + 5]);
     }
-
-
     public void setCurve(Point2D p1, Point2D cp, Point2D p2) {
         setCurve(p1.getX(), p1.getY(),
                  cp.getX(), cp.getY(),
                  p2.getX(), p2.getY());
     }
-
-
     public void setCurve(Point2D[] pts, int offset) {
         setCurve(pts[offset + 0].getX(), pts[offset + 0].getY(),
                  pts[offset + 1].getX(), pts[offset + 1].getY(),
                  pts[offset + 2].getX(), pts[offset + 2].getY());
     }
-
-
     public void setCurve(QuadCurve2D c) {
         setCurve(c.getX1(), c.getY1(),
                  c.getCtrlX(), c.getCtrlY(),
                  c.getX2(), c.getY2());
     }
-
-
     public static double getFlatnessSq(double x1, double y1,
                                        double ctrlx, double ctrly,
                                        double x2, double y2) {
         return Line2D.ptSegDistSq(x1, y1, x2, y2, ctrlx, ctrly);
     }
-
-
     public static double getFlatness(double x1, double y1,
                                      double ctrlx, double ctrly,
                                      double x2, double y2) {
         return Line2D.ptSegDist(x1, y1, x2, y2, ctrlx, ctrly);
     }
-
-
     public static double getFlatnessSq(double coords[], int offset) {
         return Line2D.ptSegDistSq(coords[offset + 0], coords[offset + 1],
                                   coords[offset + 4], coords[offset + 5],
                                   coords[offset + 2], coords[offset + 3]);
     }
-
-
     public static double getFlatness(double coords[], int offset) {
         return Line2D.ptSegDist(coords[offset + 0], coords[offset + 1],
                                 coords[offset + 4], coords[offset + 5],
                                 coords[offset + 2], coords[offset + 3]);
     }
-
-
     public double getFlatnessSq() {
         return Line2D.ptSegDistSq(getX1(), getY1(),
                                   getX2(), getY2(),
                                   getCtrlX(), getCtrlY());
     }
-
-
     public double getFlatness() {
         return Line2D.ptSegDist(getX1(), getY1(),
                                 getX2(), getY2(),
                                 getCtrlX(), getCtrlY());
     }
-
-
     public void subdivide(QuadCurve2D left, QuadCurve2D right) {
         subdivide(this, left, right);
     }
-
-
     public static void subdivide(QuadCurve2D src,
                                  QuadCurve2D left,
                                  QuadCurve2D right) {
@@ -365,8 +230,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
             right.setCurve(ctrlx, ctrly, ctrlx2, ctrly2, x2, y2);
         }
     }
-
-
     public static void subdivide(double src[], int srcoff,
                                  double left[], int leftoff,
                                  double right[], int rightoff) {
@@ -403,13 +266,9 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
             right[rightoff + 3] = y2;
         }
     }
-
-
     public static int solveQuadratic(double eqn[]) {
         return solveQuadratic(eqn, eqn);
     }
-
-
     public static int solveQuadratic(double eqn[], double res[]) {
         double a = eqn[2];
         double b = eqn[1];
@@ -447,47 +306,35 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
         }
         return roots;
     }
-
-
     public boolean contains(double x, double y) {
-
         double x1 = getX1();
         double y1 = getY1();
         double xc = getCtrlX();
         double yc = getCtrlY();
         double x2 = getX2();
         double y2 = getY2();
-
-
         double kx = x1 - 2 * xc + x2;
         double ky = y1 - 2 * yc + y2;
         double dx = x - x1;
         double dy = y - y1;
         double dxl = x2 - x1;
         double dyl = y2 - y1;
-
         double t0 = (dx * ky - dy * kx) / (dxl * ky - dyl * kx);
         if (t0 < 0 || t0 > 1 || t0 != t0) {
             return false;
         }
-
         double xb = kx * t0 * t0 + 2 * (xc - x1) * t0 + x1;
         double yb = ky * t0 * t0 + 2 * (yc - y1) * t0 + y1;
         double xl = dxl * t0 + x1;
         double yl = dyl * t0 + y1;
-
         return (x >= xb && x < xl) ||
                (x >= xl && x < xb) ||
                (y >= yb && y < yl) ||
                (y >= yl && y < yb);
     }
-
-
     public boolean contains(Point2D p) {
         return contains(p.getX(), p.getY());
     }
-
-
     private static void fillEqn(double eqn[], double val,
                                 double c1, double cp, double c2) {
         eqn[0] = c1 - val;
@@ -495,8 +342,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
         eqn[2] = c1 - cp - cp + c2;
         return;
     }
-
-
     private static int evalQuadratic(double vals[], int num,
                                      boolean include0,
                                      boolean include1,
@@ -516,14 +361,11 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
         }
         return j;
     }
-
     private static final int BELOW = -2;
     private static final int LOWEDGE = -1;
     private static final int INSIDE = 0;
     private static final int HIGHEDGE = 1;
     private static final int ABOVE = 2;
-
-
     private static int getTag(double coord, double low, double high) {
         if (coord <= low) {
             return (coord < low ? BELOW : LOWEDGE);
@@ -533,8 +375,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
         }
         return INSIDE;
     }
-
-
     private static boolean inwards(int pttag, int opt1tag, int opt2tag) {
         switch (pttag) {
         case BELOW:
@@ -549,14 +389,11 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
             return (opt1tag <= INSIDE || opt2tag <= INSIDE);
         }
     }
-
-
     public boolean intersects(double x, double y, double w, double h) {
         // Trivially reject non-existant rectangles
         if (w <= 0 || h <= 0) {
             return false;
         }
-
         // Trivially accept if either endpoint is inside the rectangle
         // (not on its border since it may end there and not go inside)
         // Record where they lie with respect to the rectangle.
@@ -579,7 +416,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
         double ctrly = getCtrlY();
         int ctrlxtag = getTag(ctrlx, x, x+w);
         int ctrlytag = getTag(ctrly, y, y+h);
-
         // Trivially reject if all points are entirely to one side of
         // the rectangle.
         if (x1tag < INSIDE && x2tag < INSIDE && ctrlxtag < INSIDE) {
@@ -594,7 +430,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
         if (y1tag > INSIDE && y2tag > INSIDE && ctrlytag > INSIDE) {
             return false;       // All points below
         }
-
         // Test for endpoints on the edge where either the segment
         // or the curve is headed "inwards" from them
         // Note: These tests are a superset of the fast endpoint tests
@@ -612,7 +447,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
             // Second endpoint on border with either edge moving inside
             return true;
         }
-
         // Trivially accept if endpoints span directly across the rectangle
         boolean xoverlap = (x1tag * x2tag <= 0);
         boolean yoverlap = (y1tag * y2tag <= 0);
@@ -622,13 +456,11 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
         if (y1tag == INSIDE && y2tag == INSIDE && xoverlap) {
             return true;
         }
-
         // We now know that both endpoints are outside the rectangle
         // but the 3 points are not all on one side of the rectangle.
         // Therefore the curve cannot be contained inside the rectangle,
         // but the rectangle might be contained inside the curve, or
         // the curve might intersect the boundary of the rectangle.
-
         double[] eqn = new double[3];
         double[] res = new double[3];
         if (!yoverlap) {
@@ -643,7 +475,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
                                   x1, ctrlx, x2) == 2 &&
                     getTag(res[0], x, x+w) * getTag(res[1], x, x+w) <= 0);
         }
-
         // Y ranges overlap.  Now we examine the X ranges
         if (!xoverlap) {
             // Both X coordinates for the closing segment are left of
@@ -657,7 +488,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
                                   y1, ctrly, y2) == 2 &&
                     getTag(res[0], y, y+h) * getTag(res[1], y, y+h) <= 0);
         }
-
         // The X and Y ranges of the endpoints overlap the X and Y
         // ranges of the rectangle, now find out how the endpoint
         // line segment intersects the Y range of the rectangle
@@ -680,7 +510,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
         if (c1tag * c2tag <= 0) {
             return true;
         }
-
         // Now we know that both the X and Y ranges intersect and that
         // the endpoint line segment does not directly cross the rectangle.
         //
@@ -700,7 +529,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
         // the endpoint segment, and one with the curve.  If those two
         // vertical intersections overlap the Y range of the rectangle,
         // we have an intersection.  Otherwise, we don't.
-
         // c1tag = vertical intersection class of the endpoint segment
         //
         // Choose the y tag of the endpoint that was not on the same
@@ -708,7 +536,6 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
         // Note that we can "steal" the existing Y tag of that endpoint
         // since it will be provably the same as the vertical intersection.
         c1tag = ((c1tag * x1tag <= 0) ? y1tag : y2tag);
-
         // c2tag = vertical intersection class of the curve
         //
         // We have to calculate this one the straightforward way.
@@ -716,27 +543,20 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
         // to test against.
         fillEqn(eqn, (c2tag < INSIDE ? x : x+w), x1, ctrlx, x2);
         int num = solveQuadratic(eqn, res);
-
         // Note: We should be able to assert(num == 2); since the
         // X range "crosses" (not touches) the vertical boundary,
         // but we pass num to evalQuadratic for completeness.
         evalQuadratic(res, num, true, true, null, y1, ctrly, y2);
-
         // Note: We can assert(num evals == 1); since one of the
         // 2 crossings will be out of the [0,1] range.
         c2tag = getTag(res[0], y, y+h);
-
         // Finally, we have an intersection if the two crossings
         // overlap the Y range of the rectangle.
         return (c1tag * c2tag <= 0);
     }
-
-
     public boolean intersects(Rectangle2D r) {
         return intersects(r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
-
-
     public boolean contains(double x, double y, double w, double h) {
         if (w <= 0 || h <= 0) {
             return false;
@@ -748,28 +568,18 @@ public abstract class QuadCurve2D implements Shape, Cloneable {
                 contains(x + w, y + h) &&
                 contains(x, y + h));
     }
-
-
     public boolean contains(Rectangle2D r) {
         return contains(r.getX(), r.getY(), r.getWidth(), r.getHeight());
     }
-
-
     public Rectangle getBounds() {
         return getBounds2D().getBounds();
     }
-
-
     public PathIterator getPathIterator(AffineTransform at) {
         return new QuadIterator(this, at);
     }
-
-
     public PathIterator getPathIterator(AffineTransform at, double flatness) {
         return new FlatteningPathIterator(getPathIterator(at), flatness);
     }
-
-
     public Object clone() {
         try {
             return super.clone();

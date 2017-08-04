@@ -1,7 +1,4 @@
-
-
 package java.util;
-
 import java.text.DateFormat;
 import java.time.LocalDate;
 import java.io.IOException;
@@ -16,49 +13,31 @@ import sun.util.calendar.CalendarUtils;
 import sun.util.calendar.Era;
 import sun.util.calendar.Gregorian;
 import sun.util.calendar.ZoneInfo;
-
-
 public class Date
     implements java.io.Serializable, Cloneable, Comparable<Date>
 {
     private static final BaseCalendar gcal =
                                 CalendarSystem.getGregorianCalendar();
     private static BaseCalendar jcal;
-
     private transient long fastTime;
-
-
     private transient BaseCalendar.Date cdate;
-
     // Initialized just before the value is used. See parse().
     private static int defaultCenturyStart;
-
-
     private static final long serialVersionUID = 7523967970034938905L;
-
-
     public Date() {
         this(System.currentTimeMillis());
     }
-
-
     public Date(long date) {
         fastTime = date;
     }
-
-
     @Deprecated
     public Date(int year, int month, int date) {
         this(year, month, date, 0, 0, 0);
     }
-
-
     @Deprecated
     public Date(int year, int month, int date, int hrs, int min) {
         this(year, month, date, hrs, min, 0);
     }
-
-
     @Deprecated
     public Date(int year, int month, int date, int hrs, int min, int sec) {
         int y = year + 1900;
@@ -76,14 +55,10 @@ public class Date
         getTimeImpl();
         cdate = null;
     }
-
-
     @Deprecated
     public Date(String s) {
         this(parse(s));
     }
-
-
     public Object clone() {
         Date d = null;
         try {
@@ -94,8 +69,6 @@ public class Date
         } catch (CloneNotSupportedException e) {} // Won't happen
         return d;
     }
-
-
     @Deprecated
     public static long UTC(int year, int month, int date,
                            int hrs, int min, int sec) {
@@ -112,15 +85,12 @@ public class Date
         BaseCalendar cal = getCalendarSystem(y);
         BaseCalendar.Date udate = (BaseCalendar.Date) cal.newCalendarDate(null);
         udate.setNormalizedDate(y, m, date).setTimeOfDay(hrs, min, sec, 0);
-
         // Use a Date instance to perform normalization. Its fastTime
         // is the UTC value after the normalization.
         Date d = new Date(0);
         d.normalize(udate);
         return d.fastTime;
     }
-
-
     @Deprecated
     public static long parse(String s) {
         int year = Integer.MIN_VALUE;
@@ -305,26 +275,18 @@ public class Date
         10000 + 7 * 60, 10000 + 6 * 60,     // MST/MDT
         10000 + 8 * 60, 10000 + 7 * 60      // PST/PDT
     };
-
-
     @Deprecated
     public int getYear() {
         return normalize().getYear() - 1900;
     }
-
-
     @Deprecated
     public void setYear(int year) {
         getCalendarDate().setNormalizedYear(year + 1900);
     }
-
-
     @Deprecated
     public int getMonth() {
         return normalize().getMonth() - 1; // adjust 1-based to 0-based
     }
-
-
     @Deprecated
     public void setMonth(int month) {
         int y = 0;
@@ -341,95 +303,64 @@ public class Date
         }
         d.setMonth(month + 1); // adjust 0-based to 1-based month numbering
     }
-
-
     @Deprecated
     public int getDate() {
         return normalize().getDayOfMonth();
     }
-
-
     @Deprecated
     public void setDate(int date) {
         getCalendarDate().setDayOfMonth(date);
     }
-
-
     @Deprecated
     public int getDay() {
         return normalize().getDayOfWeek() - BaseCalendar.SUNDAY;
     }
-
-
     @Deprecated
     public int getHours() {
         return normalize().getHours();
     }
-
-
     @Deprecated
     public void setHours(int hours) {
         getCalendarDate().setHours(hours);
     }
-
-
     @Deprecated
     public int getMinutes() {
         return normalize().getMinutes();
     }
-
-
     @Deprecated
     public void setMinutes(int minutes) {
         getCalendarDate().setMinutes(minutes);
     }
-
-
     @Deprecated
     public int getSeconds() {
         return normalize().getSeconds();
     }
-
-
     @Deprecated
     public void setSeconds(int seconds) {
         getCalendarDate().setSeconds(seconds);
     }
-
-
     public long getTime() {
         return getTimeImpl();
     }
-
     private final long getTimeImpl() {
         if (cdate != null && !cdate.isNormalized()) {
             normalize();
         }
         return fastTime;
     }
-
-
     public void setTime(long time) {
         fastTime = time;
         cdate = null;
     }
-
-
     public boolean before(Date when) {
         return getMillisOf(this) < getMillisOf(when);
     }
-
-
     public boolean after(Date when) {
         return getMillisOf(this) > getMillisOf(when);
     }
-
-
     public boolean equals(Object obj) {
         return obj instanceof Date && getTime() == ((Date) obj).getTime();
     }
-
-
     static final long getMillisOf(Date date) {
         if (date.cdate == null || date.cdate.isNormalized()) {
             return date.fastTime;
@@ -437,21 +368,15 @@ public class Date
         BaseCalendar.Date d = (BaseCalendar.Date) date.cdate.clone();
         return gcal.getTime(d);
     }
-
-
     public int compareTo(Date anotherDate) {
         long thisTime = getMillisOf(this);
         long anotherTime = getMillisOf(anotherDate);
         return (thisTime<anotherTime ? -1 : (thisTime==anotherTime ? 0 : 1));
     }
-
-
     public int hashCode() {
         long ht = this.getTime();
         return (int) ht ^ (int) (ht >> 32);
     }
-
-
     public String toString() {
         // "EEE MMM dd HH:mm:ss zzz yyyy";
         BaseCalendar.Date date = normalize();
@@ -463,7 +388,6 @@ public class Date
         convertToAbbr(sb, wtb[index]).append(' ');                        // EEE
         convertToAbbr(sb, wtb[date.getMonth() - 1 + 2 + 7]).append(' ');  // MMM
         CalendarUtils.sprintf0d(sb, date.getDayOfMonth(), 2).append(' '); // dd
-
         CalendarUtils.sprintf0d(sb, date.getHours(), 2).append(':');   // HH
         CalendarUtils.sprintf0d(sb, date.getMinutes(), 2).append(':'); // mm
         CalendarUtils.sprintf0d(sb, date.getSeconds(), 2).append(' '); // ss
@@ -476,22 +400,16 @@ public class Date
         sb.append(' ').append(date.getYear());  // yyyy
         return sb.toString();
     }
-
-
     private static final StringBuilder convertToAbbr(StringBuilder sb, String name) {
         sb.append(Character.toUpperCase(name.charAt(0)));
         sb.append(name.charAt(1)).append(name.charAt(2));
         return sb;
     }
-
-
     @Deprecated
     public String toLocaleString() {
         DateFormat formatter = DateFormat.getDateTimeInstance();
         return formatter.format(this);
     }
-
-
     @Deprecated
     public String toGMTString() {
         // d MMM yyyy HH:mm:ss 'GMT'
@@ -509,8 +427,6 @@ public class Date
         sb.append(" GMT");                                                // ' GMT'
         return sb.toString();
     }
-
-
     @Deprecated
     public int getTimezoneOffset() {
         int zoneOffset;
@@ -527,7 +443,6 @@ public class Date
         }
         return -zoneOffset/60000;  // convert to minutes
     }
-
     private final BaseCalendar.Date getCalendarDate() {
         if (cdate == null) {
             BaseCalendar cal = getCalendarSystem(fastTime);
@@ -536,7 +451,6 @@ public class Date
         }
         return cdate;
     }
-
     private final BaseCalendar.Date normalize() {
         if (cdate == null) {
             BaseCalendar cal = getCalendarSystem(fastTime);
@@ -544,13 +458,11 @@ public class Date
                                                             TimeZone.getDefaultRef());
             return cdate;
         }
-
         // Normalize cdate with the TimeZone in cdate first. This is
         // required for the compatible behavior.
         if (!cdate.isNormalized()) {
             cdate = normalize(cdate);
         }
-
         // If the default TimeZone has changed, then recalculate the
         // fields with the new TimeZone.
         TimeZone tz = TimeZone.getDefaultRef();
@@ -561,7 +473,6 @@ public class Date
         }
         return cdate;
     }
-
     // fastTime and the returned data are in sync upon return.
     private final BaseCalendar.Date normalize(BaseCalendar.Date date) {
         int y = date.getNormalizedYear();
@@ -572,7 +483,6 @@ public class Date
         int ss = date.getSeconds();
         int ms = date.getMillis();
         TimeZone tz = date.getZone();
-
         // If the specified year can't be handled using a long value
         // in milliseconds, GregorianCalendar is used for full
         // compatibility with underflow and overflow. This is required
@@ -594,7 +504,6 @@ public class Date
             date = (BaseCalendar.Date) cal.getCalendarDate(fastTime, tz);
             return date;
         }
-
         BaseCalendar cal = getCalendarSystem(y);
         if (cal != getCalendarSystem(date)) {
             date = (BaseCalendar.Date) cal.newCalendarDate(tz);
@@ -602,7 +511,6 @@ public class Date
         }
         // Perform the GregorianCalendar-style normalization.
         fastTime = cal.getTime(date);
-
         // In case the normalized date requires the other calendar
         // system, we need to recalculate it using the other one.
         BaseCalendar ncal = getCalendarSystem(fastTime);
@@ -613,15 +521,12 @@ public class Date
         }
         return date;
     }
-
-
     private static final BaseCalendar getCalendarSystem(int year) {
         if (year >= 1582) {
             return gcal;
         }
         return getJulianCalendar();
     }
-
     private static final BaseCalendar getCalendarSystem(long utc) {
         // Quickly check if the time stamp given by `utc' is the Epoch
         // or later. If it's before 1970, we convert the cutover to
@@ -633,7 +538,6 @@ public class Date
         }
         return getJulianCalendar();
     }
-
     private static final BaseCalendar getCalendarSystem(BaseCalendar.Date cdate) {
         if (jcal == null) {
             return gcal;
@@ -643,29 +547,22 @@ public class Date
         }
         return gcal;
     }
-
     synchronized private static final BaseCalendar getJulianCalendar() {
         if (jcal == null) {
             jcal = (BaseCalendar) CalendarSystem.forName("julian");
         }
         return jcal;
     }
-
-
     private void writeObject(ObjectOutputStream s)
          throws IOException
     {
         s.writeLong(getTimeImpl());
     }
-
-
     private void readObject(ObjectInputStream s)
          throws IOException, ClassNotFoundException
     {
         fastTime = s.readLong();
     }
-
-
     public static Date from(Instant instant) {
         try {
             return new Date(instant.toEpochMilli());
@@ -673,8 +570,6 @@ public class Date
             throw new IllegalArgumentException(ex);
         }
     }
-
-
     public Instant toInstant() {
         return Instant.ofEpochMilli(getTime());
     }

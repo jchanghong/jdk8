@@ -1,9 +1,5 @@
-
-
 package java.util;
-
 class LocaleISOData {
-
     static final String isoLanguageTable =
           "aa" + "aar"  // Afar
         + "ab" + "abk"  // Abkhazian
@@ -194,8 +190,6 @@ class LocaleISOData {
         + "zh" + "zho"  // Chinese
         + "zu" + "zul"  // Zulu
         ;
-
-
     static final String isoCountryTable =
           "AD" + "AND"  // Andorra, Principality of
         + "AE" + "ARE"  // United Arab Emirates
@@ -449,7 +443,6 @@ class LocaleISOData {
         + "ZM" + "ZMB"  // Zambia, Republic of
         + "ZW" + "ZWE"  // Zimbabwe
         ;
-
     private LocaleISOData() {
     }
 }

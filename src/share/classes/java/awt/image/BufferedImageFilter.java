@@ -1,13 +1,7 @@
-
-
 package java.awt.image;
-
 import java.util.Hashtable;
 import java.awt.image.ImageConsumer;
 import java.awt.image.ImageFilter;
-
-
-
 public class BufferedImageFilter extends ImageFilter implements Cloneable {
     BufferedImageOp bufferedImageOp;
     ColorModel model;
@@ -15,8 +9,6 @@ public class BufferedImageFilter extends ImageFilter implements Cloneable {
     int height;
     byte[] bytePixels;
     int[] intPixels;
-
-
     public BufferedImageFilter (BufferedImageOp op) {
         super();
         if (op == null) {
@@ -24,13 +16,9 @@ public class BufferedImageFilter extends ImageFilter implements Cloneable {
         }
         bufferedImageOp = op;
     }
-
-
     public BufferedImageOp getBufferedImageOp() {
         return bufferedImageOp;
     }
-
-
     public void setDimensions(int width, int height) {
         if (width <= 0 || height <= 0) {
             imageComplete(STATICIMAGEDONE);
@@ -39,12 +27,9 @@ public class BufferedImageFilter extends ImageFilter implements Cloneable {
         this.width  = width;
         this.height = height;
     }
-
-
     public void setColorModel(ColorModel model) {
         this.model = model;
     }
-
     private void convertToRGB() {
         int size = width * height;
         int newpixels[] = new int[size];
@@ -61,8 +46,6 @@ public class BufferedImageFilter extends ImageFilter implements Cloneable {
         intPixels = newpixels;
         this.model = ColorModel.getRGBdefault();
     }
-
-
     public void setPixels(int x, int y, int w, int h,
                           ColorModel model, byte pixels[], int off,
                           int scansize) {
@@ -134,7 +117,6 @@ public class BufferedImageFilter extends ImageFilter implements Cloneable {
             }
         }
     }
-
     public void setPixels(int x, int y, int w, int h,
                           ColorModel model, int pixels[], int off,
                           int scansize) {
@@ -178,7 +160,6 @@ public class BufferedImageFilter extends ImageFilter implements Cloneable {
                 return;
             }
         }
-
         if (intPixels == null) {
             if (bytePixels == null) {
                 intPixels = new int[width * height];
@@ -209,8 +190,6 @@ public class BufferedImageFilter extends ImageFilter implements Cloneable {
             }
         }
     }
-
-
     public void imageComplete(int status) {
         WritableRaster wr;
         switch(status) {
@@ -223,7 +202,6 @@ public class BufferedImageFilter extends ImageFilter implements Cloneable {
             intPixels  = null;
             bytePixels = null;
             break;
-
         case SINGLEFRAMEDONE:
         case STATICIMAGEDONE:
             if (width <= 0 || height <= 0) break;
@@ -271,7 +249,6 @@ public class BufferedImageFilter extends ImageFilter implements Cloneable {
         }
         consumer.imageComplete(status);
     }
-
     private final WritableRaster createDCMraster() {
         WritableRaster wr;
         DirectColorModel dcm = (DirectColorModel) model;
@@ -288,5 +265,4 @@ public class BufferedImageFilter extends ImageFilter implements Cloneable {
                                        bandMasks, null);
         return wr;
     }
-
 }

@@ -1,48 +1,30 @@
-
-
-
-
 package java.util.concurrent;
 import java.util.*;
-
-
 public abstract class AbstractExecutorService implements ExecutorService {
-
-
     protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
         return new FutureTask<T>(runnable, value);
     }
-
-
     protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
         return new FutureTask<T>(callable);
     }
-
-
     public Future<?> submit(Runnable task) {
         if (task == null) throw new NullPointerException();
         RunnableFuture<Void> ftask = newTaskFor(task, null);
         execute(ftask);
         return ftask;
     }
-
-
     public <T> Future<T> submit(Runnable task, T result) {
         if (task == null) throw new NullPointerException();
         RunnableFuture<T> ftask = newTaskFor(task, result);
         execute(ftask);
         return ftask;
     }
-
-
     public <T> Future<T> submit(Callable<T> task) {
         if (task == null) throw new NullPointerException();
         RunnableFuture<T> ftask = newTaskFor(task);
         execute(ftask);
         return ftask;
     }
-
-
     private <T> T doInvokeAny(Collection<? extends Callable<T>> tasks,
                               boolean timed, long nanos)
         throws InterruptedException, ExecutionException, TimeoutException {
@@ -54,25 +36,21 @@ public abstract class AbstractExecutorService implements ExecutorService {
         ArrayList<Future<T>> futures = new ArrayList<Future<T>>(ntasks);
         ExecutorCompletionService<T> ecs =
             new ExecutorCompletionService<T>(this);
-
         // For efficiency, especially in executors with limited
         // parallelism, check to see if previously submitted tasks are
         // done before submitting more of them. This interleaving
         // plus the exception mechanics account for messiness of main
         // loop.
-
         try {
             // Record exceptions so that if we fail to obtain any
             // result, we can throw the last exception we got.
             ExecutionException ee = null;
             final long deadline = timed ? System.nanoTime() + nanos : 0L;
             Iterator<? extends Callable<T>> it = tasks.iterator();
-
             // Start one task for sure; the rest incrementally
             futures.add(ecs.submit(it.next()));
             --ntasks;
             int active = 1;
-
             for (;;) {
                 Future<T> f = ecs.poll();
                 if (f == null) {
@@ -103,17 +81,14 @@ public abstract class AbstractExecutorService implements ExecutorService {
                     }
                 }
             }
-
             if (ee == null)
                 ee = new ExecutionException();
             throw ee;
-
         } finally {
             for (int i = 0, size = futures.size(); i < size; i++)
                 futures.get(i).cancel(true);
         }
     }
-
     public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
         throws InterruptedException, ExecutionException {
         try {
@@ -123,13 +98,11 @@ public abstract class AbstractExecutorService implements ExecutorService {
             return null;
         }
     }
-
     public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
                            long timeout, TimeUnit unit)
         throws InterruptedException, ExecutionException, TimeoutException {
         return doInvokeAny(tasks, true, unit.toNanos(timeout));
     }
-
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
         throws InterruptedException {
         if (tasks == null)
@@ -160,7 +133,6 @@ public abstract class AbstractExecutorService implements ExecutorService {
                     futures.get(i).cancel(true);
         }
     }
-
     public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
                                          long timeout, TimeUnit unit)
         throws InterruptedException {
@@ -172,10 +144,8 @@ public abstract class AbstractExecutorService implements ExecutorService {
         try {
             for (Callable<T> t : tasks)
                 futures.add(newTaskFor(t));
-
             final long deadline = System.nanoTime() + nanos;
             final int size = futures.size();
-
             // Interleave time checks and calls to execute in case
             // executor doesn't have any/much parallelism.
             for (int i = 0; i < size; i++) {
@@ -184,7 +154,6 @@ public abstract class AbstractExecutorService implements ExecutorService {
                 if (nanos <= 0L)
                     return futures;
             }
-
             for (int i = 0; i < size; i++) {
                 Future<T> f = futures.get(i);
                 if (!f.isDone()) {
@@ -208,5 +177,4 @@ public abstract class AbstractExecutorService implements ExecutorService {
                     futures.get(i).cancel(true);
         }
     }
-
 }

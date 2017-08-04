@@ -1,33 +1,19 @@
-
-
 package java.net;
-
-
 public class InterfaceAddress {
     private InetAddress address = null;
     private Inet4Address broadcast = null;
     private short        maskLength = 0;
-
-
     InterfaceAddress() {
     }
-
-
     public InetAddress getAddress() {
         return address;
     }
-
-
     public InetAddress getBroadcast() {
         return broadcast;
     }
-
-
      public short getNetworkPrefixLength() {
         return maskLength;
     }
-
-
     public boolean equals(Object obj) {
         if (!(obj instanceof InterfaceAddress)) {
             return false;
@@ -41,15 +27,10 @@ public class InterfaceAddress {
             return false;
         return true;
     }
-
-
     public int hashCode() {
         return address.hashCode() + ((broadcast != null) ? broadcast.hashCode() : 0) + maskLength;
     }
-
-
     public String toString() {
         return address + "/" + maskLength + " [" + broadcast + "]";
     }
-
 }

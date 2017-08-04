@@ -1,23 +1,10 @@
-
-
 package java.awt.image;
-
 import java.awt.image.ImageConsumer;
 import java.awt.image.ColorModel;
-
-
 public abstract class RGBImageFilter extends ImageFilter {
-
-
     protected ColorModel origmodel;
-
-
     protected ColorModel newmodel;
-
-
     protected boolean canFilterIndexColorModel;
-
-
     public void setColorModel(ColorModel model) {
         if (canFilterIndexColorModel && (model instanceof IndexColorModel)) {
             ColorModel newcm = filterIndexColorModel((IndexColorModel)model);
@@ -27,14 +14,10 @@ public abstract class RGBImageFilter extends ImageFilter {
             consumer.setColorModel(ColorModel.getRGBdefault());
         }
     }
-
-
     public void substituteColorModel(ColorModel oldcm, ColorModel newcm) {
         origmodel = oldcm;
         newmodel = newcm;
     }
-
-
     public IndexColorModel filterIndexColorModel(IndexColorModel icm) {
         int mapsize = icm.getMapSize();
         byte r[] = new byte[mapsize];
@@ -65,8 +48,6 @@ public abstract class RGBImageFilter extends ImageFilter {
                                        r, g, b, trans);
         }
     }
-
-
     public void filterRGBPixels(int x, int y, int w, int h,
                                 int pixels[], int off, int scansize) {
         int index = off;
@@ -80,8 +61,6 @@ public abstract class RGBImageFilter extends ImageFilter {
         consumer.setPixels(x, y, w, h, ColorModel.getRGBdefault(),
                            pixels, off, scansize);
     }
-
-
     public void setPixels(int x, int y, int w, int h,
                           ColorModel model, byte pixels[], int off,
                           int scansize) {
@@ -100,8 +79,6 @@ public abstract class RGBImageFilter extends ImageFilter {
             }
         }
     }
-
-
     public void setPixels(int x, int y, int w, int h,
                           ColorModel model, int pixels[], int off,
                           int scansize) {
@@ -120,7 +97,5 @@ public abstract class RGBImageFilter extends ImageFilter {
             }
         }
     }
-
-
     public abstract int filterRGB(int x, int y, int rgb);
 }

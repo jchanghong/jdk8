@@ -1,7 +1,4 @@
-
-
 package java.lang;
-
 import java.io.ObjectStreamField;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -15,41 +12,23 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-
-
 public final class String
     implements java.io.Serializable, Comparable<String>, CharSequence {
-
     private final char value[];
-
-
     private int hash; // Default to 0
-
-
     private static final long serialVersionUID = -6849794470754667710L;
-
-
     private static final ObjectStreamField[] serialPersistentFields =
         new ObjectStreamField[0];
-
-
     public String() {
         this.value = "".value;
     }
-
-
     public String(String original) {
         this.value = original.value;
         this.hash = original.hash;
     }
-
-
     public String(char value[]) {
         this.value = Arrays.copyOf(value, value.length);
     }
-
-
     public String(char value[], int offset, int count) {
         if (offset < 0) {
             throw new StringIndexOutOfBoundsException(offset);
@@ -69,8 +48,6 @@ public final class String
         }
         this.value = Arrays.copyOfRange(value, offset, offset+count);
     }
-
-
     public String(int[] codePoints, int offset, int count) {
         if (offset < 0) {
             throw new StringIndexOutOfBoundsException(offset);
@@ -88,9 +65,7 @@ public final class String
         if (offset > codePoints.length - count) {
             throw new StringIndexOutOfBoundsException(offset + count);
         }
-
         final int end = offset + count;
-
         // Pass 1: Compute precise size of char[]
         int n = count;
         for (int i = offset; i < end; i++) {
@@ -101,10 +76,8 @@ public final class String
                 n++;
             else throw new IllegalArgumentException(Integer.toString(c));
         }
-
         // Pass 2: Allocate and fill in char[]
         final char[] v = new char[n];
-
         for (int i = offset, j = 0; i < end; i++, j++) {
             int c = codePoints[i];
             if (Character.isBmpCodePoint(c))
@@ -112,16 +85,12 @@ public final class String
             else
                 Character.toSurrogates(c, v, j++);
         }
-
         this.value = v;
     }
-
-
     @Deprecated
     public String(byte ascii[], int hibyte, int offset, int count) {
         checkBounds(ascii, offset, count);
         char value[] = new char[count];
-
         if (hibyte == 0) {
             for (int i = count; i-- > 0;) {
                 value[i] = (char)(ascii[i + offset] & 0xff);
@@ -134,14 +103,10 @@ public final class String
         }
         this.value = value;
     }
-
-
     @Deprecated
     public String(byte ascii[], int hibyte) {
         this(ascii, hibyte, 0, ascii.length);
     }
-
-
     private static void checkBounds(byte[] bytes, int offset, int length) {
         if (length < 0)
             throw new StringIndexOutOfBoundsException(length);
@@ -150,8 +115,6 @@ public final class String
         if (offset > bytes.length - length)
             throw new StringIndexOutOfBoundsException(offset + length);
     }
-
-
     public String(byte bytes[], int offset, int length, String charsetName)
             throws UnsupportedEncodingException {
         if (charsetName == null)
@@ -159,82 +122,56 @@ public final class String
         checkBounds(bytes, offset, length);
         this.value = StringCoding.decode(charsetName, bytes, offset, length);
     }
-
-
     public String(byte bytes[], int offset, int length, Charset charset) {
         if (charset == null)
             throw new NullPointerException("charset");
         checkBounds(bytes, offset, length);
         this.value =  StringCoding.decode(charset, bytes, offset, length);
     }
-
-
     public String(byte bytes[], String charsetName)
             throws UnsupportedEncodingException {
         this(bytes, 0, bytes.length, charsetName);
     }
-
-
     public String(byte bytes[], Charset charset) {
         this(bytes, 0, bytes.length, charset);
     }
-
-
     public String(byte bytes[], int offset, int length) {
         checkBounds(bytes, offset, length);
         this.value = StringCoding.decode(bytes, offset, length);
     }
-
-
     public String(byte bytes[]) {
         this(bytes, 0, bytes.length);
     }
-
-
     public String(StringBuffer buffer) {
         synchronized(buffer) {
             this.value = Arrays.copyOf(buffer.getValue(), buffer.length());
         }
     }
-
-
     public String(StringBuilder builder) {
         this.value = Arrays.copyOf(builder.getValue(), builder.length());
     }
-
-
     String(char[] value, boolean share) {
         // assert share : "unshared not supported";
         this.value = value;
     }
-
-
     public int length() {
         return value.length;
     }
-
-
     public boolean isEmpty() {
         return value.length == 0;
     }
-
-
     public char charAt(int index) {
         if ((index < 0) || (index >= value.length)) {
             throw new StringIndexOutOfBoundsException(index);
         }
         return value[index];
     }
-
-
     public int codePointAt(int index) {
         if ((index < 0) || (index >= value.length)) {
             throw new StringIndexOutOfBoundsException(index);
         }
         return Character.codePointAtImpl(value, index, value.length);
     }
-
-
     public int codePointBefore(int index) {
         int i = index - 1;
         if ((i < 0) || (i >= value.length)) {
@@ -242,16 +179,12 @@ public final class String
         }
         return Character.codePointBeforeImpl(value, index, 0);
     }
-
-
     public int codePointCount(int beginIndex, int endIndex) {
         if (beginIndex < 0 || endIndex > value.length || beginIndex > endIndex) {
             throw new IndexOutOfBoundsException();
         }
         return Character.codePointCountImpl(value, beginIndex, endIndex - beginIndex);
     }
-
-
     public int offsetByCodePoints(int index, int codePointOffset) {
         if (index < 0 || index > value.length) {
             throw new IndexOutOfBoundsException();
@@ -259,13 +192,9 @@ public final class String
         return Character.offsetByCodePointsImpl(value, 0, value.length,
                 index, codePointOffset);
     }
-
-
     void getChars(char dst[], int dstBegin) {
         System.arraycopy(value, 0, dst, dstBegin, value.length);
     }
-
-
     public void getChars(int srcBegin, int srcEnd, char dst[], int dstBegin) {
         if (srcBegin < 0) {
             throw new StringIndexOutOfBoundsException(srcBegin);
@@ -278,8 +207,6 @@ public final class String
         }
         System.arraycopy(value, srcBegin, dst, dstBegin, srcEnd - srcBegin);
     }
-
-
     @Deprecated
     public void getBytes(int srcBegin, int srcEnd, byte dst[], int dstBegin) {
         if (srcBegin < 0) {
@@ -292,36 +219,26 @@ public final class String
             throw new StringIndexOutOfBoundsException(srcEnd - srcBegin);
         }
         Objects.requireNonNull(dst);
-
         int j = dstBegin;
         int n = srcEnd;
         int i = srcBegin;
         char[] val = value;
-
         while (i < n) {
             dst[j++] = (byte)val[i++];
         }
     }
-
-
     public byte[] getBytes(String charsetName)
             throws UnsupportedEncodingException {
         if (charsetName == null) throw new NullPointerException();
         return StringCoding.encode(charsetName, value, 0, value.length);
     }
-
-
     public byte[] getBytes(Charset charset) {
         if (charset == null) throw new NullPointerException();
         return StringCoding.encode(charset, value, 0, value.length);
     }
-
-
     public byte[] getBytes() {
         return StringCoding.encode(value, 0, value.length);
     }
-
-
     public boolean equals(Object anObject) {
         if (this == anObject) {
             return true;
@@ -343,12 +260,9 @@ public final class String
         }
         return false;
     }
-
-
     public boolean contentEquals(StringBuffer sb) {
         return contentEquals((CharSequence)sb);
     }
-
     private boolean nonSyncContentEquals(AbstractStringBuilder sb) {
         char v1[] = value;
         char v2[] = sb.getValue();
@@ -363,8 +277,6 @@ public final class String
         }
         return true;
     }
-
-
     public boolean contentEquals(CharSequence cs) {
         // Argument is a StringBuffer, StringBuilder
         if (cs instanceof AbstractStringBuilder) {
@@ -393,23 +305,18 @@ public final class String
         }
         return true;
     }
-
-
     public boolean equalsIgnoreCase(String anotherString) {
         return (this == anotherString) ? true
                 : (anotherString != null)
                 && (anotherString.value.length == value.length)
                 && regionMatches(true, 0, anotherString, 0, value.length);
     }
-
-
     public int compareTo(String anotherString) {
         int len1 = value.length;
         int len2 = anotherString.value.length;
         int lim = Math.min(len1, len2);
         char v1[] = value;
         char v2[] = anotherString.value;
-
         int k = 0;
         while (k < lim) {
             char c1 = v1[k];
@@ -421,15 +328,12 @@ public final class String
         }
         return len1 - len2;
     }
-
-
     public static final Comparator<String> CASE_INSENSITIVE_ORDER
                                          = new CaseInsensitiveComparator();
     private static class CaseInsensitiveComparator
             implements Comparator<String>, java.io.Serializable {
         // use serialVersionUID from JDK 1.2.2 for interoperability
         private static final long serialVersionUID = 8575799808933029326L;
-
         public int compare(String s1, String s2) {
             int n1 = s1.length();
             int n2 = s2.length();
@@ -452,17 +356,11 @@ public final class String
             }
             return n1 - n2;
         }
-
-
         private Object readResolve() { return CASE_INSENSITIVE_ORDER; }
     }
-
-
     public int compareToIgnoreCase(String str) {
         return CASE_INSENSITIVE_ORDER.compare(this, str);
     }
-
-
     public boolean regionMatches(int toffset, String other, int ooffset,
             int len) {
         char ta[] = value;
@@ -482,8 +380,6 @@ public final class String
         }
         return true;
     }
-
-
     public boolean regionMatches(boolean ignoreCase, int toffset,
             String other, int ooffset, int len) {
         char ta[] = value;
@@ -524,8 +420,6 @@ public final class String
         }
         return true;
     }
-
-
     public boolean startsWith(String prefix, int toffset) {
         char ta[] = value;
         int to = toffset;
@@ -543,23 +437,16 @@ public final class String
         }
         return true;
     }
-
-
     public boolean startsWith(String prefix) {
         return startsWith(prefix, 0);
     }
-
-
     public boolean endsWith(String suffix) {
         return startsWith(suffix, value.length - suffix.value.length);
     }
-
-
     public int hashCode() {
         int h = hash;
         if (h == 0 && value.length > 0) {
             char val[] = value;
-
             for (int i = 0; i < value.length; i++) {
                 h = 31 * h + val[i];
             }
@@ -567,13 +454,9 @@ public final class String
         }
         return h;
     }
-
-
     public int indexOf(int ch) {
         return indexOf(ch, 0);
     }
-
-
     public int indexOf(int ch, int fromIndex) {
         final int max = value.length;
         if (fromIndex < 0) {
@@ -582,7 +465,6 @@ public final class String
             // Note: fromIndex might be near -1>>>1.
             return -1;
         }
-
         if (ch < Character.MIN_SUPPLEMENTARY_CODE_POINT) {
             // handle most cases here (ch is a BMP code point or a
             // negative value (invalid code point))
@@ -597,8 +479,6 @@ public final class String
             return indexOfSupplementary(ch, fromIndex);
         }
     }
-
-
     private int indexOfSupplementary(int ch, int fromIndex) {
         if (Character.isValidCodePoint(ch)) {
             final char[] value = this.value;
@@ -613,13 +493,9 @@ public final class String
         }
         return -1;
     }
-
-
     public int lastIndexOf(int ch) {
         return lastIndexOf(ch, value.length - 1);
     }
-
-
     public int lastIndexOf(int ch, int fromIndex) {
         if (ch < Character.MIN_SUPPLEMENTARY_CODE_POINT) {
             // handle most cases here (ch is a BMP code point or a
@@ -636,8 +512,6 @@ public final class String
             return lastIndexOfSupplementary(ch, fromIndex);
         }
     }
-
-
     private int lastIndexOfSupplementary(int ch, int fromIndex) {
         if (Character.isValidCodePoint(ch)) {
             final char[] value = this.value;
@@ -652,27 +526,19 @@ public final class String
         }
         return -1;
     }
-
-
     public int indexOf(String str) {
         return indexOf(str, 0);
     }
-
-
     public int indexOf(String str, int fromIndex) {
         return indexOf(value, 0, value.length,
                 str.value, 0, str.value.length, fromIndex);
     }
-
-
     static int indexOf(char[] source, int sourceOffset, int sourceCount,
             String target, int fromIndex) {
         return indexOf(source, sourceOffset, sourceCount,
                        target.value, 0, target.value.length,
                        fromIndex);
     }
-
-
     static int indexOf(char[] source, int sourceOffset, int sourceCount,
             char[] target, int targetOffset, int targetCount,
             int fromIndex) {
@@ -685,56 +551,40 @@ public final class String
         if (targetCount == 0) {
             return fromIndex;
         }
-
         char first = target[targetOffset];
         int max = sourceOffset + (sourceCount - targetCount);
-
         for (int i = sourceOffset + fromIndex; i <= max; i++) {
-
             if (source[i] != first) {
                 while (++i <= max && source[i] != first);
             }
-
-
             if (i <= max) {
                 int j = i + 1;
                 int end = j + targetCount - 1;
                 for (int k = targetOffset + 1; j < end && source[j]
                         == target[k]; j++, k++);
-
                 if (j == end) {
-
                     return i - sourceOffset;
                 }
             }
         }
         return -1;
     }
-
-
     public int lastIndexOf(String str) {
         return lastIndexOf(str, value.length);
     }
-
-
     public int lastIndexOf(String str, int fromIndex) {
         return lastIndexOf(value, 0, value.length,
                 str.value, 0, str.value.length, fromIndex);
     }
-
-
     static int lastIndexOf(char[] source, int sourceOffset, int sourceCount,
             String target, int fromIndex) {
         return lastIndexOf(source, sourceOffset, sourceCount,
                        target.value, 0, target.value.length,
                        fromIndex);
     }
-
-
     static int lastIndexOf(char[] source, int sourceOffset, int sourceCount,
             char[] target, int targetOffset, int targetCount,
             int fromIndex) {
-
         int rightIndex = sourceCount - targetCount;
         if (fromIndex < 0) {
             return -1;
@@ -742,16 +592,13 @@ public final class String
         if (fromIndex > rightIndex) {
             fromIndex = rightIndex;
         }
-
         if (targetCount == 0) {
             return fromIndex;
         }
-
         int strLastIndex = targetOffset + targetCount - 1;
         char strLastChar = target[strLastIndex];
         int min = sourceOffset + targetCount - 1;
         int i = min + fromIndex;
-
     startSearchForLastChar:
         while (true) {
             while (i >= min && source[i] != strLastChar) {
@@ -763,7 +610,6 @@ public final class String
             int j = i - 1;
             int start = j - (targetCount - 1);
             int k = strLastIndex - 1;
-
             while (j > start) {
                 if (source[j--] != target[k--]) {
                     i--;
@@ -773,8 +619,6 @@ public final class String
             return start - sourceOffset + 1;
         }
     }
-
-
     public String substring(int beginIndex) {
         if (beginIndex < 0) {
             throw new StringIndexOutOfBoundsException(beginIndex);
@@ -785,8 +629,6 @@ public final class String
         }
         return (beginIndex == 0) ? this : new String(value, beginIndex, subLen);
     }
-
-
     public String substring(int beginIndex, int endIndex) {
         if (beginIndex < 0) {
             throw new StringIndexOutOfBoundsException(beginIndex);
@@ -801,13 +643,9 @@ public final class String
         return ((beginIndex == 0) && (endIndex == value.length)) ? this
                 : new String(value, beginIndex, subLen);
     }
-
-
     public CharSequence subSequence(int beginIndex, int endIndex) {
         return this.substring(beginIndex, endIndex);
     }
-
-
     public String concat(String str) {
         int otherLen = str.length();
         if (otherLen == 0) {
@@ -818,14 +656,11 @@ public final class String
         str.getChars(buf, len);
         return new String(buf, true);
     }
-
-
     public String replace(char oldChar, char newChar) {
         if (oldChar != newChar) {
             int len = value.length;
             int i = -1;
             char[] val = value;
-
             while (++i < len) {
                 if (val[i] == oldChar) {
                     break;
@@ -846,36 +681,23 @@ public final class String
         }
         return this;
     }
-
-
     public boolean matches(String regex) {
         return Pattern.matches(regex, this);
     }
-
-
     public boolean contains(CharSequence s) {
         return indexOf(s.toString()) > -1;
     }
-
-
     public String replaceFirst(String regex, String replacement) {
         return Pattern.compile(regex).matcher(this).replaceFirst(replacement);
     }
-
-
     public String replaceAll(String regex, String replacement) {
         return Pattern.compile(regex).matcher(this).replaceAll(replacement);
     }
-
-
     public String replace(CharSequence target, CharSequence replacement) {
         return Pattern.compile(target.toString(), Pattern.LITERAL).matcher(
                 this).replaceAll(Matcher.quoteReplacement(replacement.toString()));
     }
-
-
     public String[] split(String regex, int limit) {
-
         char ch = 0;
         if (((regex.value.length == 1 &&
              ".$|()[{^?*+\\".indexOf(ch = regex.charAt(0)) == -1) ||
@@ -905,11 +727,9 @@ public final class String
             // If no match was found, return this
             if (off == 0)
                 return new String[]{this};
-
             // Add remaining segment
             if (!limited || list.size() < limit)
                 list.add(substring(off, value.length));
-
             // Construct result
             int resultSize = list.size();
             if (limit == 0) {
@@ -922,13 +742,9 @@ public final class String
         }
         return Pattern.compile(regex).split(this, limit);
     }
-
-
     public String[] split(String regex) {
         return split(regex, 0);
     }
-
-
     public static String join(CharSequence delimiter, CharSequence... elements) {
         Objects.requireNonNull(delimiter);
         Objects.requireNonNull(elements);
@@ -939,8 +755,6 @@ public final class String
         }
         return joiner.toString();
     }
-
-
     public static String join(CharSequence delimiter,
             Iterable<? extends CharSequence> elements) {
         Objects.requireNonNull(delimiter);
@@ -951,17 +765,12 @@ public final class String
         }
         return joiner.toString();
     }
-
-
     public String toLowerCase(Locale locale) {
         if (locale == null) {
             throw new NullPointerException();
         }
-
         int firstUpper;
         final int len = value.length;
-
-
         scan: {
             for (firstUpper = 0 ; firstUpper < len; ) {
                 char c = value[firstUpper];
@@ -981,13 +790,9 @@ public final class String
             }
             return this;
         }
-
         char[] result = new char[len];
         int resultOffset = 0;
-
-
         System.arraycopy(value, 0, result, 0, firstUpper);
-
         String lang = locale.getLanguage();
         boolean localeDependent =
                 (lang == "tr" || lang == "az" || lang == "lt");
@@ -1022,8 +827,6 @@ public final class String
                 } else {
                     lowerCharArray = Character.toChars(lowerChar);
                 }
-
-
                 int mapLen = lowerCharArray.length;
                 if (mapLen > srcCount) {
                     char[] result2 = new char[result.length + mapLen - srcCount];
@@ -1040,22 +843,15 @@ public final class String
         }
         return new String(result, 0, len + resultOffset);
     }
-
-
     public String toLowerCase() {
         return toLowerCase(Locale.getDefault());
     }
-
-
     public String toUpperCase(Locale locale) {
         if (locale == null) {
             throw new NullPointerException();
         }
-
         int firstLower;
         final int len = value.length;
-
-
         scan: {
             for (firstLower = 0 ; firstLower < len; ) {
                 int c = (int)value[firstLower];
@@ -1076,14 +872,9 @@ public final class String
             }
             return this;
         }
-
-
         int resultOffset = 0;
         char[] result = new char[len];
-
-
         System.arraycopy(value, 0, result, 0, firstLower);
-
         String lang = locale.getLanguage();
         boolean localeDependent =
                 (lang == "tr" || lang == "az" || lang == "lt");
@@ -1120,8 +911,6 @@ public final class String
                 } else {
                     upperCharArray = Character.toChars(upperChar);
                 }
-
-
                 int mapLen = upperCharArray.length;
                 if (mapLen > srcCount) {
                     char[] result2 = new char[result.length + mapLen - srcCount];
@@ -1138,18 +927,13 @@ public final class String
         }
         return new String(result, 0, len + resultOffset);
     }
-
-
     public String toUpperCase() {
         return toUpperCase(Locale.getDefault());
     }
-
-
     public String trim() {
         int len = value.length;
         int st = 0;
         char[] val = value;
-
         while ((st < len) && (val[st] <= ' ')) {
             st++;
         }
@@ -1158,86 +942,54 @@ public final class String
         }
         return ((st > 0) || (len < value.length)) ? substring(st, len) : this;
     }
-
-
     public String toString() {
         return this;
     }
-
-
     public char[] toCharArray() {
         // Cannot use Arrays.copyOf because of class initialization order issues
         char result[] = new char[value.length];
         System.arraycopy(value, 0, result, 0, value.length);
         return result;
     }
-
-
     public static String format(String format, Object... args) {
         return new Formatter().format(format, args).toString();
     }
-
-
     public static String format(Locale l, String format, Object... args) {
         return new Formatter(l).format(format, args).toString();
     }
-
-
     public static String valueOf(Object obj) {
         return (obj == null) ? "null" : obj.toString();
     }
-
-
     public static String valueOf(char data[]) {
         return new String(data);
     }
-
-
     public static String valueOf(char data[], int offset, int count) {
         return new String(data, offset, count);
     }
-
-
     public static String copyValueOf(char data[], int offset, int count) {
         return new String(data, offset, count);
     }
-
-
     public static String copyValueOf(char data[]) {
         return new String(data);
     }
-
-
     public static String valueOf(boolean b) {
         return b ? "true" : "false";
     }
-
-
     public static String valueOf(char c) {
         char data[] = {c};
         return new String(data, true);
     }
-
-
     public static String valueOf(int i) {
         return Integer.toString(i);
     }
-
-
     public static String valueOf(long l) {
         return Long.toString(l);
     }
-
-
     public static String valueOf(float f) {
         return Float.toString(f);
     }
-
-
     public static String valueOf(double d) {
         return Double.toString(d);
     }
-
-
     public native String intern();
 }

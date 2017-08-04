@@ -1,57 +1,43 @@
-
-
 package java.lang.invoke;
-
 import java.security.*;
 import java.lang.reflect.*;
 import java.lang.invoke.MethodHandleNatives.Constants;
 import java.lang.invoke.MethodHandles.Lookup;
 import static java.lang.invoke.MethodHandleStatics.*;
-
-
-
 final
 class InfoFromMemberName implements MethodHandleInfo {
     private final MemberName member;
     private final int referenceKind;
-
     InfoFromMemberName(Lookup lookup, MemberName member, byte referenceKind) {
         assert(member.isResolved() || member.isMethodHandleInvoke());
         assert(member.referenceKindIsConsistentWith(referenceKind));
         this.member = member;
         this.referenceKind = referenceKind;
     }
-
     @Override
     public Class<?> getDeclaringClass() {
         return member.getDeclaringClass();
     }
-
     @Override
     public String getName() {
         return member.getName();
     }
-
     @Override
     public MethodType getMethodType() {
         return member.getMethodOrFieldType();
     }
-
     @Override
     public int getModifiers() {
         return member.getModifiers();
     }
-
     @Override
     public int getReferenceKind() {
         return referenceKind;
     }
-
     @Override
     public String toString() {
         return MethodHandleInfo.toString(getReferenceKind(), getDeclaringClass(), getName(), getMethodType());
     }
-
     @Override
     public <T extends Member> T reflectAs(Class<T> expected, Lookup lookup) {
         if (member.isMethodHandleInvoke() && !member.isVarargs()) {
@@ -80,7 +66,6 @@ class InfoFromMemberName implements MethodHandleInfo {
         }
         return expected.cast(mem);
     }
-
     private Member reflectUnchecked() throws ReflectiveOperationException {
         byte refKind = (byte) getReferenceKind();
         Class<?> defc = getDeclaringClass();
@@ -104,7 +89,6 @@ class InfoFromMemberName implements MethodHandleInfo {
             throw new IllegalArgumentException("referenceKind="+refKind);
         }
     }
-
     private static MemberName convertToMemberName(byte refKind, Member mem) throws IllegalAccessException {
         if (mem instanceof Method) {
             boolean wantSpecial = (refKind == REF_invokeSpecial);

@@ -1,7 +1,4 @@
-
-
 package java.net;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.FilePermission;
@@ -30,16 +27,9 @@ import sun.misc.Resource;
 import sun.misc.URLClassPath;
 import sun.net.www.ParseUtil;
 import sun.security.util.SecurityConstants;
-
-
 public class URLClassLoader extends SecureClassLoader implements Closeable {
-
     private final URLClassPath ucp;
-
-
     private final AccessControlContext acc;
-
-
     public URLClassLoader(URL[] urls, ClassLoader parent) {
         super(parent);
         // this is to make the stack depth consistent with 1.1
@@ -50,7 +40,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         this.acc = AccessController.getContext();
         ucp = new URLClassPath(urls, acc);
     }
-
     URLClassLoader(URL[] urls, ClassLoader parent,
                    AccessControlContext acc) {
         super(parent);
@@ -62,8 +51,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         this.acc = acc;
         ucp = new URLClassPath(urls, acc);
     }
-
-
     public URLClassLoader(URL[] urls) {
         super();
         // this is to make the stack depth consistent with 1.1
@@ -74,7 +61,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         this.acc = AccessController.getContext();
         ucp = new URLClassPath(urls, acc);
     }
-
     URLClassLoader(URL[] urls, AccessControlContext acc) {
         super();
         // this is to make the stack depth consistent with 1.1
@@ -85,8 +71,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         this.acc = acc;
         ucp = new URLClassPath(urls, acc);
     }
-
-
     public URLClassLoader(URL[] urls, ClassLoader parent,
                           URLStreamHandlerFactory factory) {
         super(parent);
@@ -98,13 +82,8 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         acc = AccessController.getContext();
         ucp = new URLClassPath(urls, factory, acc);
     }
-
-
-
     private WeakHashMap<Closeable,Void>
         closeables = new WeakHashMap<>();
-
-
     public InputStream getResourceAsStream(String name) {
         URL url = getResource(name);
         try {
@@ -131,17 +110,13 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
             return null;
         }
     }
-
-
     public void close() throws IOException {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkPermission(new RuntimePermission("closeClassLoader"));
         }
         List<IOException> errors = ucp.closeLoaders();
-
         // now close any remaining streams.
-
         synchronized (closeables) {
             Set<Closeable> keys = closeables.keySet();
             for (Closeable c : keys) {
@@ -153,32 +128,22 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
             }
             closeables.clear();
         }
-
         if (errors.isEmpty()) {
             return;
         }
-
         IOException firstex = errors.remove(0);
-
         // Suppress any remaining exceptions
-
         for (IOException error: errors) {
             firstex.addSuppressed(error);
         }
         throw firstex;
     }
-
-
     protected void addURL(URL url) {
         ucp.addURL(url);
     }
-
-
     public URL[] getURLs() {
         return ucp.getURLs();
     }
-
-
     protected Class<?> findClass(final String name)
         throws ClassNotFoundException
     {
@@ -208,8 +173,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         }
         return result;
     }
-
-
     private Package getAndVerifyPackage(String pkgname,
                                         Manifest man, URL url) {
         Package pkg = getPackage(pkgname);
@@ -233,7 +196,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         }
         return pkg;
     }
-
     // Also called by VM to define Package for classes loaded from the CDS
     // archive
     private void definePackageInternal(String pkgname, Manifest man, URL url)
@@ -256,8 +218,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
             }
         }
     }
-
-
     private Class<?> defineClass(String name, Resource res) throws IOException {
         long t0 = System.nanoTime();
         int i = name.lastIndexOf('.');
@@ -285,8 +245,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
             return defineClass(name, b, 0, b.length, cs);
         }
     }
-
-
     protected Package definePackage(String name, Manifest man, URL url)
         throws IllegalArgumentException
     {
@@ -295,7 +253,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         String implTitle = null, implVersion = null, implVendor = null;
         String sealed = null;
         URL sealBase = null;
-
         Attributes attr = man.getAttributes(path);
         if (attr != null) {
             specTitle   = attr.getValue(Name.SPECIFICATION_TITLE);
@@ -336,8 +293,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         return definePackage(name, specTitle, specVersion, specVendor,
                              implTitle, implVersion, implVendor, sealBase);
     }
-
-
     private boolean isSealed(String name, Manifest man) {
         String path = name.replace('.', '/').concat("/");
         Attributes attr = man.getAttributes(path);
@@ -352,29 +307,21 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         }
         return "true".equalsIgnoreCase(sealed);
     }
-
-
     public URL findResource(final String name) {
-
         URL url = AccessController.doPrivileged(
             new PrivilegedAction<URL>() {
                 public URL run() {
                     return ucp.findResource(name, true);
                 }
             }, acc);
-
         return url != null ? ucp.checkURL(url) : null;
     }
-
-
     public Enumeration<URL> findResources(final String name)
         throws IOException
     {
         final Enumeration<URL> e = ucp.findResources(name, true);
-
         return new Enumeration<URL>() {
             private URL url = null;
-
             private boolean next() {
                 if (url != null) {
                     return true;
@@ -394,7 +341,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
                 } while (url == null);
                 return url != null;
             }
-
             public URL nextElement() {
                 if (!next()) {
                     throw new NoSuchElementException();
@@ -403,23 +349,17 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
                 url = null;
                 return u;
             }
-
             public boolean hasMoreElements() {
                 return next();
             }
         };
     }
-
-
     protected PermissionCollection getPermissions(CodeSource codesource)
     {
         PermissionCollection perms = super.getPermissions(codesource);
-
         URL url = codesource.getLocation();
-
         Permission p;
         URLConnection urlConnection;
-
         try {
             urlConnection = url.openConnection();
             p = urlConnection.getPermission();
@@ -427,7 +367,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
             p = null;
             urlConnection = null;
         }
-
         if (p instanceof FilePermission) {
             // if the permission has a separator char on the end,
             // it means the codebase is a directory, and we need
@@ -444,7 +383,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
                 path += "-";
             p =  new FilePermission(path, SecurityConstants.FILE_READ_ACTION);
         } else {
-
             URL locUrl = url;
             if (urlConnection instanceof JarURLConnection) {
                 locUrl = ((JarURLConnection)urlConnection).getJarFileURL();
@@ -454,10 +392,8 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
                 p = new SocketPermission(host,
                                          SecurityConstants.SOCKET_CONNECT_ACCEPT_ACTION);
         }
-
         // make sure the person that created this class loader
         // would have this permission
-
         if (p != null) {
             final SecurityManager sm = System.getSecurityManager();
             if (sm != null) {
@@ -473,8 +409,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         }
         return perms;
     }
-
-
     public static URLClassLoader newInstance(final URL[] urls,
                                              final ClassLoader parent) {
         // Save the caller's context
@@ -488,8 +422,6 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
             });
         return ucl;
     }
-
-
     public static URLClassLoader newInstance(final URL[] urls) {
         // Save the caller's context
         final AccessControlContext acc = AccessController.getContext();
@@ -502,14 +434,12 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
             });
         return ucl;
     }
-
     static {
         sun.misc.SharedSecrets.setJavaNetAccess (
             new sun.misc.JavaNetAccess() {
                 public URLClassPath getURLClassPath (URLClassLoader u) {
                     return u.ucp;
                 }
-
                 public String getOriginalHostName(InetAddress ia) {
                     return ia.holder.getOriginalHostName();
                 }
@@ -518,22 +448,17 @@ public class URLClassLoader extends SecureClassLoader implements Closeable {
         ClassLoader.registerAsParallelCapable();
     }
 }
-
 final class FactoryURLClassLoader extends URLClassLoader {
-
     static {
         ClassLoader.registerAsParallelCapable();
     }
-
     FactoryURLClassLoader(URL[] urls, ClassLoader parent,
                           AccessControlContext acc) {
         super(urls, parent, acc);
     }
-
     FactoryURLClassLoader(URL[] urls, AccessControlContext acc) {
         super(urls, acc);
     }
-
     public final Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException
     {

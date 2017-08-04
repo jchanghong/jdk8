@@ -1,9 +1,4 @@
-
-
-
-
 package java.util;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.time.Instant;
@@ -17,35 +12,20 @@ import sun.util.calendar.Era;
 import sun.util.calendar.Gregorian;
 import sun.util.calendar.JulianCalendar;
 import sun.util.calendar.ZoneInfo;
-
-
 public class GregorianCalendar extends Calendar {
-
-
 //////////////////
 // Class Variables
 //////////////////
-
-
     public static final int BC = 0;
-
-
     static final int BCE = 0;
-
-
     public static final int AD = 1;
-
-
     static final int CE = 1;
-
     private static final int EPOCH_OFFSET   = 719163; // Fixed date of January 1, 1970 (Gregorian)
     private static final int EPOCH_YEAR     = 1970;
-
     static final int MONTH_LENGTH[]
         = {31,28,31,30,31,30,31,31,30,31,30,31}; // 0-based
     static final int LEAP_MONTH_LENGTH[]
         = {31,29,31,30,31,30,31,31,30,31,30,31}; // 0-based
-
     // Useful millisecond constants.  Although ONE_DAY and ONE_WEEK can fit
     // into ints, they must be longs in order to prevent arithmetic overflow
     // when performing (bug 4173516).
@@ -54,8 +34,6 @@ public class GregorianCalendar extends Calendar {
     private static final int  ONE_HOUR   = 60*ONE_MINUTE;
     private static final long ONE_DAY    = 24*ONE_HOUR;
     private static final long ONE_WEEK   = 7*ONE_DAY;
-
-
     static final int MIN_VALUES[] = {
         BCE,            // ERA
         1,              // YEAR
@@ -113,103 +91,62 @@ public class GregorianCalendar extends Calendar {
         14*ONE_HOUR,    // ZONE_OFFSET
         2*ONE_HOUR      // DST_OFFSET (double summer time)
     };
-
     // Proclaim serialization compatibility with JDK 1.1
     @SuppressWarnings("FieldNameHidesFieldInSuperclass")
     static final long serialVersionUID = -8125100834729963327L;
-
     // Reference to the sun.util.calendar.Gregorian instance (singleton).
     private static final Gregorian gcal =
                                 CalendarSystem.getGregorianCalendar();
-
     // Reference to the JulianCalendar instance (singleton), set as needed. See
     // getJulianCalendarSystem().
     private static JulianCalendar jcal;
-
     // JulianCalendar eras. See getJulianCalendarSystem().
     private static Era[] jeras;
-
     // The default value of gregorianCutover.
     static final long DEFAULT_GREGORIAN_CUTOVER = -12219292800000L;
-
 /////////////////////
 // Instance Variables
 /////////////////////
-
-
     private long gregorianCutover = DEFAULT_GREGORIAN_CUTOVER;
-
-
     private transient long gregorianCutoverDate =
         (((DEFAULT_GREGORIAN_CUTOVER + 1)/ONE_DAY) - 1) + EPOCH_OFFSET; // == 577736
-
-
     private transient int gregorianCutoverYear = 1582;
-
-
     private transient int gregorianCutoverYearJulian = 1582;
-
-
     private transient BaseCalendar.Date gdate;
-
-
     private transient BaseCalendar.Date cdate;
-
-
     private transient BaseCalendar calsys;
-
-
     private transient int[] zoneOffsets;
-
-
     private transient int[] originalFields;
-
 ///////////////
 // Constructors
 ///////////////
-
-
     public GregorianCalendar() {
         this(TimeZone.getDefaultRef(), Locale.getDefault(Locale.Category.FORMAT));
         setZoneShared(true);
     }
-
-
     public GregorianCalendar(TimeZone zone) {
         this(zone, Locale.getDefault(Locale.Category.FORMAT));
     }
-
-
     public GregorianCalendar(Locale aLocale) {
         this(TimeZone.getDefaultRef(), aLocale);
         setZoneShared(true);
     }
-
-
     public GregorianCalendar(TimeZone zone, Locale aLocale) {
         super(zone, aLocale);
         gdate = (BaseCalendar.Date) gcal.newCalendarDate(zone);
         setTimeInMillis(System.currentTimeMillis());
     }
-
-
     public GregorianCalendar(int year, int month, int dayOfMonth) {
         this(year, month, dayOfMonth, 0, 0, 0, 0);
     }
-
-
     public GregorianCalendar(int year, int month, int dayOfMonth, int hourOfDay,
                              int minute) {
         this(year, month, dayOfMonth, hourOfDay, minute, 0, 0);
     }
-
-
     public GregorianCalendar(int year, int month, int dayOfMonth, int hourOfDay,
                              int minute, int second) {
         this(year, month, dayOfMonth, hourOfDay, minute, second, 0);
     }
-
-
     GregorianCalendar(int year, int month, int dayOfMonth,
                       int hourOfDay, int minute, int second, int millis) {
         super();
@@ -217,7 +154,6 @@ public class GregorianCalendar extends Calendar {
         this.set(YEAR, year);
         this.set(MONTH, month);
         this.set(DAY_OF_MONTH, dayOfMonth);
-
         // Set AM_PM and HOUR here to set their stamp values before
         // setting HOUR_OF_DAY (6178071).
         if (hourOfDay >= 12 && hourOfDay <= 23) {
@@ -233,7 +169,6 @@ public class GregorianCalendar extends Calendar {
         }
         // The stamp values of AM_PM and HOUR must be COMPUTED. (6440854)
         setFieldsComputed(HOUR_MASK|AM_PM_MASK);
-
         this.set(HOUR_OF_DAY, hourOfDay);
         this.set(MINUTE, minute);
         this.set(SECOND, second);
@@ -241,18 +176,13 @@ public class GregorianCalendar extends Calendar {
         // public.
         this.internalSet(MILLISECOND, millis);
     }
-
-
     GregorianCalendar(TimeZone zone, Locale locale, boolean flag) {
         super(zone, locale);
         gdate = (BaseCalendar.Date) gcal.newCalendarDate(getZone());
     }
-
 /////////////////
 // Public methods
 /////////////////
-
-
     public void setGregorianChange(Date date) {
         long cutoverTime = date.getTime();
         if (cutoverTime == gregorianCutover) {
@@ -263,12 +193,10 @@ public class GregorianCalendar extends Calendar {
         complete();
         setGregorianChange(cutoverTime);
     }
-
     private void setGregorianChange(long cutoverTime) {
         gregorianCutover = cutoverTime;
         gregorianCutoverDate = CalendarUtils.floorDivide(cutoverTime, ONE_DAY)
                                 + EPOCH_OFFSET;
-
         // To provide the "pure" Julian calendar as advertised.
         // Strictly speaking, the last millisecond should be a
         // Gregorian date. However, the API doc specifies that setting
@@ -277,35 +205,26 @@ public class GregorianCalendar extends Calendar {
         if (cutoverTime == Long.MAX_VALUE) {
             gregorianCutoverDate++;
         }
-
         BaseCalendar.Date d = getGregorianCutoverDate();
-
         // Set the cutover year (in the Gregorian year numbering)
         gregorianCutoverYear = d.getYear();
-
         BaseCalendar julianCal = getJulianCalendarSystem();
         d = (BaseCalendar.Date) julianCal.newCalendarDate(TimeZone.NO_TIMEZONE);
         julianCal.getCalendarDateFromFixedDate(d, gregorianCutoverDate - 1);
         gregorianCutoverYearJulian = d.getNormalizedYear();
-
         if (time < gregorianCutover) {
             // The field values are no longer valid under the new
             // cutover date.
             setUnnormalized();
         }
     }
-
-
     public final Date getGregorianChange() {
         return new Date(gregorianCutover);
     }
-
-
     public boolean isLeapYear(int year) {
         if ((year & 3) != 0) {
             return false;
         }
-
         if (year > gregorianCutoverYear) {
             return (year%100 != 0) || (year%400 == 0); // Gregorian
         }
@@ -323,28 +242,20 @@ public class GregorianCalendar extends Calendar {
         }
         return gregorian ? (year%100 != 0) || (year%400 == 0) : true;
     }
-
-
     @Override
     public String getCalendarType() {
         return "gregory";
     }
-
-
     @Override
     public boolean equals(Object obj) {
         return obj instanceof GregorianCalendar &&
             super.equals(obj) &&
             gregorianCutover == ((GregorianCalendar)obj).gregorianCutover;
     }
-
-
     @Override
     public int hashCode() {
         return super.hashCode() ^ (int)gregorianCutoverDate;
     }
-
-
     @Override
     public void add(int field, int amount) {
         // If amount == 0, do nothing even the given field is out of
@@ -352,14 +263,11 @@ public class GregorianCalendar extends Calendar {
         if (amount == 0) {
             return;   // Do nothing!
         }
-
         if (field < 0 || field >= ZONE_OFFSET) {
             throw new IllegalArgumentException();
         }
-
         // Sync the time and calendar fields.
         complete();
-
         if (field == YEAR) {
             int year = internalGet(YEAR);
             if (internalGetEra() == CE) {
@@ -387,7 +295,6 @@ public class GregorianCalendar extends Calendar {
             int month = internalGet(MONTH) + amount;
             int year = internalGet(YEAR);
             int y_amount;
-
             if (month >= 0) {
                 y_amount = month/12;
             } else {
@@ -415,7 +322,6 @@ public class GregorianCalendar extends Calendar {
                     }
                 }
             }
-
             if (month >= 0) {
                 set(MONTH,  month % 12);
             } else {
@@ -446,18 +352,14 @@ public class GregorianCalendar extends Calendar {
             case HOUR_OF_DAY:
                 delta *= 60 * 60 * 1000;        // hours to minutes
                 break;
-
             case MINUTE:
                 delta *= 60 * 1000;             // minutes to seconds
                 break;
-
             case SECOND:
                 delta *= 1000;                  // seconds to milliseconds
                 break;
-
             case MILLISECOND:
                 break;
-
             // Handle week, day and AM_PM fields which involves
             // time zone offset change adjustment. Convert the
             // given amount to the number of days.
@@ -466,12 +368,10 @@ public class GregorianCalendar extends Calendar {
             case DAY_OF_WEEK_IN_MONTH:
                 delta *= 7;
                 break;
-
             case DAY_OF_MONTH: // synonym of DATE
             case DAY_OF_YEAR:
             case DAY_OF_WEEK:
                 break;
-
             case AM_PM:
                 // Convert the amount to the number of days (delta)
                 // and +12 or -12 hours (timeOfDay).
@@ -479,18 +379,15 @@ public class GregorianCalendar extends Calendar {
                 timeOfDay = 12 * (amount % 2);
                 break;
             }
-
             // The time fields don't require time zone offset change
             // adjustment.
             if (field >= HOUR) {
                 setTimeInMillis(time + delta);
                 return;
             }
-
             // The rest of the fields (week, day or AM_PM fields)
             // require time zone offset (both GMT and DST) change
             // adjustment.
-
             // Translate the current time to the fixed date and time
             // of the day.
             long fd = getCurrentFixedDate();
@@ -508,7 +405,6 @@ public class GregorianCalendar extends Calendar {
                 fd--;
                 timeOfDay += ONE_DAY;
             }
-
             fd += delta; // fd is the expected fixed date after the calculation
             int zoneOffset = internalGet(ZONE_OFFSET) + internalGet(DST_OFFSET);
             setTimeInMillis((fd - EPOCH_OFFSET) * ONE_DAY + timeOfDay - zoneOffset);
@@ -525,14 +421,10 @@ public class GregorianCalendar extends Calendar {
             }
         }
     }
-
-
     @Override
     public void roll(int field, boolean up) {
         roll(field, up ? +1 : -1);
     }
-
-
     @Override
     public void roll(int field, int amount) {
         // If amount == 0, do nothing even the given field is out of
@@ -540,17 +432,13 @@ public class GregorianCalendar extends Calendar {
         if (amount == 0) {
             return;
         }
-
         if (field < 0 || field >= ZONE_OFFSET) {
             throw new IllegalArgumentException();
         }
-
         // Sync the time and calendar fields.
         complete();
-
         int min = getMinimum(field);
         int max = getMaximum(field);
-
         switch (field) {
         case AM_PM:
         case ERA:
@@ -563,7 +451,6 @@ public class GregorianCalendar extends Calendar {
             // fields are complicated, since the range within they must roll
             // varies depending on the date.
             break;
-
         case HOUR:
         case HOUR_OF_DAY:
             {
@@ -574,7 +461,6 @@ public class GregorianCalendar extends Calendar {
                     nh += unit;
                 }
                 time += ONE_HOUR * (nh - h);
-
                 // The day might have changed, which could happen if
                 // the daylight saving time transition brings it to
                 // the next day, although it's very unlikely. But we
@@ -598,7 +484,6 @@ public class GregorianCalendar extends Calendar {
                     internalSet(AM_PM, hourOfDay / 12);
                     internalSet(HOUR, hourOfDay % 12);
                 }
-
                 // Time zone offset and/or daylight saving might have changed.
                 int zoneOffset = d.getZoneOffset();
                 int saving = d.getDaylightSaving();
@@ -606,7 +491,6 @@ public class GregorianCalendar extends Calendar {
                 internalSet(DST_OFFSET, saving);
                 return;
             }
-
         case MONTH:
             // Rolling the month involves both pinning the final value to [0, 11]
             // and adjusting the DAY_OF_MONTH if necessary.  We only adjust the
@@ -619,7 +503,6 @@ public class GregorianCalendar extends Calendar {
                         mon += 12;
                     }
                     set(MONTH, mon);
-
                     // Keep the day of month in the range.  We don't want to spill over
                     // into the next month; e.g., we don't want jan31 + 1 mo -> feb31 ->
                     // mar3.
@@ -643,7 +526,6 @@ public class GregorianCalendar extends Calendar {
                 }
                 return;
             }
-
         case WEEK_OF_YEAR:
             {
                 int y = cdate.getNormalizedYear();
@@ -667,7 +549,6 @@ public class GregorianCalendar extends Calendar {
                         if (calsys.getYearFromFixedDate(day1) != y) {
                             min++;
                         }
-
                         // Make sure the same thing for the max week
                         fd += 7 * (max - internalGet(WEEK_OF_YEAR));
                         if (calsys.getYearFromFixedDate(fd) != y) {
@@ -691,7 +572,6 @@ public class GregorianCalendar extends Calendar {
                     set(field, getRolledValue(woy, amount, min, max));
                     return;
                 }
-
                 // Handle cutover here.
                 long fd = getCurrentFixedDate();
                 BaseCalendar cal;
@@ -707,7 +587,6 @@ public class GregorianCalendar extends Calendar {
                 if (cal.getYearFromFixedDate(day1) != y) {
                     min++;
                 }
-
                 // Make sure the same thing for the max week
                 fd += 7 * (max - woy);
                 cal = (fd >= gregorianCutoverDate) ? gcal : getJulianCalendarSystem();
@@ -722,7 +601,6 @@ public class GregorianCalendar extends Calendar {
                 set(DAY_OF_MONTH, d.getDayOfMonth());
                 return;
             }
-
         case WEEK_OF_MONTH:
             {
                 boolean isCutoverYear = isCutoverYear(cdate.getNormalizedYear());
@@ -731,7 +609,6 @@ public class GregorianCalendar extends Calendar {
                 if (dow < 0) {
                     dow += 7;
                 }
-
                 long fd = getCurrentFixedDate();
                 long month1;     // fixed date of the first day (usually 1) of the month
                 int monthLength; // actual month length
@@ -742,7 +619,6 @@ public class GregorianCalendar extends Calendar {
                     month1 = fd - internalGet(DAY_OF_MONTH) + 1;
                     monthLength = calsys.getMonthLength(cdate);
                 }
-
                 // the first day of week of the month.
                 long monthDay1st = BaseCalendar.getDayOfWeekDateOnOrBefore(month1 + 6,
                                                                            getFirstDayOfWeek());
@@ -752,13 +628,10 @@ public class GregorianCalendar extends Calendar {
                     monthDay1st -= 7;
                 }
                 max = getActualMaximum(field);
-
                 // value: the new WEEK_OF_MONTH value
                 int value = getRolledValue(internalGet(field), amount, 1, max) - 1;
-
                 // nfd: fixed date of the rolled date
                 long nfd = monthDay1st + value * 7 + dow;
-
                 // Unlike WEEK_OF_YEAR, we need to change day of week if the
                 // nfd is out of the month.
                 if (nfd < month1) {
@@ -778,14 +651,12 @@ public class GregorianCalendar extends Calendar {
                 set(DAY_OF_MONTH, dayOfMonth);
                 return;
             }
-
         case DAY_OF_MONTH:
             {
                 if (!isCutoverYear(cdate.getNormalizedYear())) {
                     max = calsys.getMonthLength(cdate);
                     break;
                 }
-
                 // Cutover year handling
                 long fd = getCurrentFixedDate();
                 long month1 = getFixedDateMonth1(cdate, fd);
@@ -798,14 +669,12 @@ public class GregorianCalendar extends Calendar {
                 set(DAY_OF_MONTH, d.getDayOfMonth());
                 return;
             }
-
         case DAY_OF_YEAR:
             {
                 max = getActualMaximum(field);
                 if (!isCutoverYear(cdate.getNormalizedYear())) {
                     break;
                 }
-
                 // Handle cutover here.
                 long fd = getCurrentFixedDate();
                 long jan1 = fd - internalGet(DAY_OF_YEAR) + 1;
@@ -815,7 +684,6 @@ public class GregorianCalendar extends Calendar {
                 set(DAY_OF_MONTH, d.getDayOfMonth());
                 return;
             }
-
         case DAY_OF_WEEK:
             {
                 if (!isCutoverYear(cdate.getNormalizedYear())) {
@@ -828,7 +696,6 @@ public class GregorianCalendar extends Calendar {
                         break;
                     }
                 }
-
                 // We need to handle it in a different way around year
                 // boundaries and in the cutover year. Note that
                 // changing era and year values violates the roll
@@ -850,7 +717,6 @@ public class GregorianCalendar extends Calendar {
                 set(d.getYear(), d.getMonth() - 1, d.getDayOfMonth());
                 return;
             }
-
         case DAY_OF_WEEK_IN_MONTH:
             {
                 min = 1; // after normalized, min should be 1.
@@ -866,7 +732,6 @@ public class GregorianCalendar extends Calendar {
                     set(DAY_OF_WEEK, internalGet(DAY_OF_WEEK));
                     break;
                 }
-
                 // Cutover year handling
                 long fd = getCurrentFixedDate();
                 long month1 = getFixedDateMonth1(cdate, fd);
@@ -886,17 +751,12 @@ public class GregorianCalendar extends Calendar {
                 return;
             }
         }
-
         set(field, getRolledValue(internalGet(field), amount, min, max));
     }
-
-
     @Override
     public int getMinimum(int field) {
         return MIN_VALUES[field];
     }
-
-
     @Override
     public int getMaximum(int field) {
         switch (field) {
@@ -926,8 +786,6 @@ public class GregorianCalendar extends Calendar {
         }
         return MAX_VALUES[field];
     }
-
-
     @Override
     public int getGreatestMinimum(int field) {
         if (field == DAY_OF_MONTH) {
@@ -938,8 +796,6 @@ public class GregorianCalendar extends Calendar {
         }
         return MIN_VALUES[field];
     }
-
-
     @Override
     public int getLeastMaximum(int field) {
         switch (field) {
@@ -962,8 +818,6 @@ public class GregorianCalendar extends Calendar {
         }
         return LEAST_MAX_VALUES[field];
     }
-
-
     @Override
     public int getActualMinimum(int field) {
         if (field == DAY_OF_MONTH) {
@@ -977,8 +831,6 @@ public class GregorianCalendar extends Calendar {
         }
         return getMinimum(field);
     }
-
-
     @Override
     public int getActualMaximum(int field) {
         final int fieldsForFixedMax = ERA_MASK|DAY_OF_WEEK_MASK|HOUR_MASK|AM_PM_MASK|
@@ -987,12 +839,10 @@ public class GregorianCalendar extends Calendar {
         if ((fieldsForFixedMax & (1<<field)) != 0) {
             return getMaximum(field);
         }
-
         GregorianCalendar gc = getNormalizedCalendar();
         BaseCalendar.Date date = gc.cdate;
         BaseCalendar cal = gc.calsys;
         int normalizedYear = date.getNormalizedYear();
-
         int value = -1;
         switch (field) {
         case MONTH:
@@ -1001,7 +851,6 @@ public class GregorianCalendar extends Calendar {
                     value = DECEMBER;
                     break;
                 }
-
                 // January 1 of the next year may or may not exist.
                 long nextJan1;
                 do {
@@ -1012,14 +861,12 @@ public class GregorianCalendar extends Calendar {
                 value = d.getMonth() - 1;
             }
             break;
-
         case DAY_OF_MONTH:
             {
                 value = cal.getMonthLength(date);
                 if (!gc.isCutoverYear(normalizedYear) || date.getDayOfMonth() == value) {
                     break;
                 }
-
                 // Handle cutover year.
                 long fd = gc.getCurrentFixedDate();
                 if (fd >= gregorianCutoverDate) {
@@ -1032,14 +879,12 @@ public class GregorianCalendar extends Calendar {
                 value = d.getDayOfMonth();
             }
             break;
-
         case DAY_OF_YEAR:
             {
                 if (!gc.isCutoverYear(normalizedYear)) {
                     value = cal.getYearLength(date);
                     break;
                 }
-
                 // Handle cutover year.
                 long jan1;
                 if (gregorianCutoverYear == gregorianCutoverYearJulian) {
@@ -1062,7 +907,6 @@ public class GregorianCalendar extends Calendar {
                 value = (int)(nextJan1 - jan1);
             }
             break;
-
         case WEEK_OF_YEAR:
             {
                 if (!gc.isCutoverYear(normalizedYear)) {
@@ -1083,7 +927,6 @@ public class GregorianCalendar extends Calendar {
                     }
                     break;
                 }
-
                 if (gc == this) {
                     gc = (GregorianCalendar) gc.clone();
                 }
@@ -1096,7 +939,6 @@ public class GregorianCalendar extends Calendar {
                 }
             }
             break;
-
         case WEEK_OF_MONTH:
             {
                 if (!gc.isCutoverYear(normalizedYear)) {
@@ -1122,7 +964,6 @@ public class GregorianCalendar extends Calendar {
                     }
                     break;
                 }
-
                 // Cutover year handling
                 if (gc == this) {
                     gc = (GregorianCalendar) gc.clone();
@@ -1135,7 +976,6 @@ public class GregorianCalendar extends Calendar {
                 } while (gc.get(YEAR) == y && gc.get(MONTH) == m);
             }
             break;
-
         case DAY_OF_WEEK_IN_MONTH:
             {
                 // may be in the Gregorian cutover month
@@ -1164,20 +1004,16 @@ public class GregorianCalendar extends Calendar {
                 value = (ndays + 6) / 7;
             }
             break;
-
         case YEAR:
-
             {
                 if (gc == this) {
                     gc = (GregorianCalendar) clone();
                 }
-
                 // Calculate the millisecond offset from the beginning
                 // of the year of this calendar and adjust the max
                 // year value if we are beyond the limit in the max
                 // year.
                 long current = gc.getYearOffsetInMillis();
-
                 if (gc.internalGetEra() == CE) {
                     gc.setTimeInMillis(Long.MAX_VALUE);
                     value = gc.get(YEAR);
@@ -1207,14 +1043,11 @@ public class GregorianCalendar extends Calendar {
                 }
             }
             break;
-
         default:
             throw new ArrayIndexOutOfBoundsException(field);
         }
         return value;
     }
-
-
     private long getYearOffsetInMillis() {
         long t = (internalGet(DAY_OF_YEAR) - 1) * 24;
         t += internalGet(HOUR_OF_DAY);
@@ -1226,12 +1059,10 @@ public class GregorianCalendar extends Calendar {
         return t + internalGet(MILLISECOND) -
             (internalGet(ZONE_OFFSET) + internalGet(DST_OFFSET));
     }
-
     @Override
     public Object clone()
     {
         GregorianCalendar other = (GregorianCalendar) super.clone();
-
         other.gdate = (BaseCalendar.Date) gdate.clone();
         if (cdate != null) {
             if (cdate != gdate) {
@@ -1244,7 +1075,6 @@ public class GregorianCalendar extends Calendar {
         other.zoneOffsets = null;
         return other;
     }
-
     @Override
     public TimeZone getTimeZone() {
         TimeZone zone = super.getTimeZone();
@@ -1255,7 +1085,6 @@ public class GregorianCalendar extends Calendar {
         }
         return zone;
     }
-
     @Override
     public void setTimeZone(TimeZone zone) {
         super.setTimeZone(zone);
@@ -1265,21 +1094,16 @@ public class GregorianCalendar extends Calendar {
             cdate.setZone(zone);
         }
     }
-
-
     @Override
     public final boolean isWeekDateSupported() {
         return true;
     }
-
-
     @Override
     public int getWeekYear() {
         int year = get(YEAR); // implicitly calls complete()
         if (internalGetEra() == BCE) {
             year = 1 - year;
         }
-
         // Fast path for the Gregorian calendar years that are never
         // affected by the Julian-Gregorian transition
         if (year > gregorianCutoverYear + 1) {
@@ -1295,18 +1119,15 @@ public class GregorianCalendar extends Calendar {
             }
             return year;
         }
-
         // General (slow) path
         int dayOfYear = internalGet(DAY_OF_YEAR);
         int maxDayOfYear = getActualMaximum(DAY_OF_YEAR);
         int minimalDays = getMinimalDaysInFirstWeek();
-
         // Quickly check the possibility of year adjustments before
         // cloning this GregorianCalendar.
         if (dayOfYear > minimalDays && dayOfYear < (maxDayOfYear - 6)) {
             return year;
         }
-
         // Create a clone to work on the calculation
         GregorianCalendar cal = (GregorianCalendar) clone();
         cal.setLenient(true);
@@ -1316,7 +1137,6 @@ public class GregorianCalendar extends Calendar {
         // Go to the first day of the year, which is usually January 1.
         cal.set(DAY_OF_YEAR, 1);
         cal.complete();
-
         // Get the first day of the first day-of-week in the year.
         int delta = getFirstDayOfWeek() - cal.get(DAY_OF_WEEK);
         if (delta != 0) {
@@ -1354,14 +1174,11 @@ public class GregorianCalendar extends Calendar {
         }
         return year;
     }
-
-
     @Override
     public void setWeekDate(int weekYear, int weekOfYear, int dayOfWeek) {
         if (dayOfWeek < SUNDAY || dayOfWeek > SATURDAY) {
             throw new IllegalArgumentException("invalid dayOfWeek: " + dayOfWeek);
         }
-
         // To avoid changing the time of day fields by date
         // calculations, use a clone with the GMT time zone.
         GregorianCalendar gc = (GregorianCalendar) clone();
@@ -1383,26 +1200,21 @@ public class GregorianCalendar extends Calendar {
         } else {
             gc.complete();
         }
-
         if (!isLenient() &&
             (gc.getWeekYear() != weekYear
              || gc.internalGet(WEEK_OF_YEAR) != weekOfYear
              || gc.internalGet(DAY_OF_WEEK) != dayOfWeek)) {
             throw new IllegalArgumentException();
         }
-
         set(ERA, gc.internalGet(ERA));
         set(YEAR, gc.internalGet(YEAR));
         set(MONTH, gc.internalGet(MONTH));
         set(DAY_OF_MONTH, gc.internalGet(DAY_OF_MONTH));
-
         // to avoid throwing an IllegalArgumentException in
         // non-lenient, set WEEK_OF_YEAR internally
         internalSet(WEEK_OF_YEAR, weekOfYear);
         complete();
     }
-
-
     @Override
     public int getWeeksInWeekYear() {
         GregorianCalendar gc = getNormalizedCalendar();
@@ -1410,7 +1222,6 @@ public class GregorianCalendar extends Calendar {
         if (weekYear == gc.internalGet(YEAR)) {
             return gc.getActualMaximum(WEEK_OF_YEAR);
         }
-
         // Use the 2nd week for calculating the max of WEEK_OF_YEAR
         if (gc == this) {
             gc = (GregorianCalendar) gc.clone();
@@ -1418,15 +1229,10 @@ public class GregorianCalendar extends Calendar {
         gc.setWeekDate(weekYear, 2, internalGet(DAY_OF_WEEK));
         return gc.getActualMaximum(WEEK_OF_YEAR);
     }
-
 /////////////////////////////
 // Time => Fields computation
 /////////////////////////////
-
-
     transient private long cachedFixedDate = Long.MIN_VALUE;
-
-
     @Override
     protected void computeFields() {
         int mask;
@@ -1448,8 +1254,6 @@ public class GregorianCalendar extends Calendar {
         // After computing all the fields, set the field state to `COMPUTED'.
         setFieldsComputed(mask);
     }
-
-
     private int computeFields(int fieldMask, int tzMask) {
         int zoneOffset = 0;
         TimeZone tz = getZone();
@@ -1474,7 +1278,6 @@ public class GregorianCalendar extends Calendar {
             }
             zoneOffset = zoneOffsets[0] + zoneOffsets[1];
         }
-
         // By computing time and zoneOffset separately, we can take
         // the wider range of time+zoneOffset than the previous
         // implementation.
@@ -1492,7 +1295,6 @@ public class GregorianCalendar extends Calendar {
             }
         }
         fixedDate += EPOCH_OFFSET;
-
         int era = CE;
         int year;
         if (fixedDate >= gregorianCutoverDate) {
@@ -1512,13 +1314,11 @@ public class GregorianCalendar extends Calendar {
                                                  gdate.getDayOfMonth(),
                                                  gdate) +
                           ", date=" + gdate;
-
             // See if we can use gdate to avoid date calculation.
             if (fixedDate != cachedFixedDate) {
                 gcal.getCalendarDateFromFixedDate(gdate, fixedDate);
                 cachedFixedDate = fixedDate;
             }
-
             year = gdate.getYear();
             if (year <= 0) {
                 year = 1 - year;
@@ -1538,15 +1338,12 @@ public class GregorianCalendar extends Calendar {
             }
             year = cdate.getYear();
         }
-
         // Always set the ERA and YEAR values.
         internalSet(ERA, era);
         internalSet(YEAR, year);
         int mask = fieldMask | (ERA_MASK|YEAR_MASK);
-
         int month =  cdate.getMonth() - 1; // 0-based
         int dayOfMonth = cdate.getDayOfMonth();
-
         // Set the basic date fields.
         if ((fieldMask & (MONTH_MASK|DAY_OF_MONTH_MASK|DAY_OF_WEEK_MASK))
             != 0) {
@@ -1555,7 +1352,6 @@ public class GregorianCalendar extends Calendar {
             internalSet(DAY_OF_WEEK, cdate.getDayOfWeek());
             mask |= MONTH_MASK|DAY_OF_MONTH_MASK|DAY_OF_WEEK_MASK;
         }
-
         if ((fieldMask & (HOUR_OF_DAY_MASK|AM_PM_MASK|HOUR_MASK
                           |MINUTE_MASK|SECOND_MASK|MILLISECOND_MASK)) != 0) {
             if (timeOfDay != 0) {
@@ -1579,13 +1375,11 @@ public class GregorianCalendar extends Calendar {
             mask |= (HOUR_OF_DAY_MASK|AM_PM_MASK|HOUR_MASK
                      |MINUTE_MASK|SECOND_MASK|MILLISECOND_MASK);
         }
-
         if ((fieldMask & (ZONE_OFFSET_MASK|DST_OFFSET_MASK)) != 0) {
             internalSet(ZONE_OFFSET, zoneOffsets[0]);
             internalSet(DST_OFFSET, zoneOffsets[1]);
             mask |= (ZONE_OFFSET_MASK|DST_OFFSET_MASK);
         }
-
         if ((fieldMask & (DAY_OF_YEAR_MASK|WEEK_OF_YEAR_MASK|WEEK_OF_MONTH_MASK|DAY_OF_WEEK_IN_MONTH_MASK)) != 0) {
             int normalizedYear = cdate.getNormalizedYear();
             long fixedDateJan1 = calsys.getFixedDate(normalizedYear, 1, 1, cdate);
@@ -1594,7 +1388,6 @@ public class GregorianCalendar extends Calendar {
             int cutoverGap = 0;
             int cutoverYear = (calsys == gcal) ? gregorianCutoverYear : gregorianCutoverYearJulian;
             int relativeDayOfMonth = dayOfMonth - 1;
-
             // If we are in the cutover year, we need some special handling.
             if (normalizedYear == cutoverYear) {
                 // Need to take care of the "missing" days.
@@ -1614,9 +1407,7 @@ public class GregorianCalendar extends Calendar {
             }
             internalSet(DAY_OF_YEAR, dayOfYear);
             internalSet(DAY_OF_WEEK_IN_MONTH, relativeDayOfMonth / 7 + 1);
-
             int weekOfYear = getWeekNumber(fixedDateJan1, fixedDate);
-
             // The spec is to calculate WEEK_OF_YEAR in the
             // ISO8601-style. This creates problems, though.
             if (weekOfYear == 0) {
@@ -1689,7 +1480,6 @@ public class GregorianCalendar extends Calendar {
                     if (nextYear == gregorianCutoverYear) {
                         calForJan1 = getCutoverCalendarSystem();
                     }
-
                     long nextJan1;
                     if (nextYear > gregorianCutoverYear
                         || gregorianCutoverYearJulian == gregorianCutoverYear
@@ -1702,7 +1492,6 @@ public class GregorianCalendar extends Calendar {
                         nextJan1 = gregorianCutoverDate;
                         calForJan1 = gcal;
                     }
-
                     long nextJan1st = BaseCalendar.getDayOfWeekDateOnOrBefore(nextJan1 + 6,
                                                                               getFirstDayOfWeek());
                     int ndays = (int)(nextJan1st - nextJan1);
@@ -1718,8 +1507,6 @@ public class GregorianCalendar extends Calendar {
         }
         return mask;
     }
-
-
     private int getWeekNumber(long fixedDay1, long fixedDate) {
         // We can always use `gcal' since Julian and Gregorian are the
         // same thing for this calculation.
@@ -1736,8 +1523,6 @@ public class GregorianCalendar extends Calendar {
         }
         return CalendarUtils.floorDivide(normalizedDayOfPeriod, 7) + 1;
     }
-
-
     @Override
     protected void computeTime() {
         // In non-lenient mode, perform brief checking of calendar
@@ -1759,16 +1544,13 @@ public class GregorianCalendar extends Calendar {
                 originalFields[field] = value;
             }
         }
-
         // Let the super class determine which calendar fields to be
         // used to calculate the time.
         int fieldMask = selectFields();
-
         // The year defaults to the epoch start. We don't check
         // fieldMask for YEAR because YEAR is a mandatory field to
         // determine the date.
         int year = isSet(YEAR) ? internalGet(YEAR) : EPOCH_YEAR;
-
         int era = internalGetEra();
         if (era == BCE) {
             year = 1 - year;
@@ -1779,13 +1561,11 @@ public class GregorianCalendar extends Calendar {
             // unchanged for compatibility as of 1.5.)
             throw new IllegalArgumentException("Invalid era");
         }
-
         // If year is 0 or negative, we need to set the ERA value later.
         if (year <= 0 && !isSet(ERA)) {
             fieldMask |= ERA_MASK;
             setFieldsComputed(ERA_MASK);
         }
-
         // Calculate the time of day. We rely on the convention that
         // an UNSET field has 0.
         long timeOfDay = 0;
@@ -1804,7 +1584,6 @@ public class GregorianCalendar extends Calendar {
         timeOfDay += internalGet(SECOND);
         timeOfDay *= 1000;
         timeOfDay += internalGet(MILLISECOND);
-
         // Convert the time of day to the number of days and the
         // millisecond offset from midnight.
         long fixedDate = timeOfDay / ONE_DAY;
@@ -1813,7 +1592,6 @@ public class GregorianCalendar extends Calendar {
             timeOfDay += ONE_DAY;
             --fixedDate;
         }
-
         // Calculate the fixed date since January 1, 1 (Gregorian).
         calculateFixedDate: {
             long gfd, jfd;
@@ -1835,9 +1613,7 @@ public class GregorianCalendar extends Calendar {
                 jfd = fixedDate + getFixedDate(getJulianCalendarSystem(), year, fieldMask);
                 gfd = fixedDate + getFixedDate(gcal, year, fieldMask);
             }
-
             // Now we have to determine which calendar date it is.
-
             // If the date is relative from the beginning of the year
             // in the Julian calendar, then use jfd;
             if (isFieldSet(fieldMask, DAY_OF_YEAR) || isFieldSet(fieldMask, WEEK_OF_YEAR)) {
@@ -1849,7 +1625,6 @@ public class GregorianCalendar extends Calendar {
                     break calculateFixedDate;
                 }
             }
-
             if (gfd >= gregorianCutoverDate) {
                 if (jfd >= gregorianCutoverDate) {
                     fixedDate = gfd;
@@ -1877,10 +1652,8 @@ public class GregorianCalendar extends Calendar {
                 }
             }
         }
-
         // millis represents local wall-clock time in milliseconds.
         long millis = (fixedDate - EPOCH_OFFSET) * ONE_DAY + timeOfDay;
-
         // Compute the time zone offset and DST offset.  There are two potential
         // ambiguities here.  We'll assume a 2:00 am (wall time) switchover time
         // for discussion purposes here.
@@ -1916,15 +1689,11 @@ public class GregorianCalendar extends Calendar {
                 zoneOffsets[1] = internalGet(DST_OFFSET);
             }
         }
-
         // Adjust the time zone offset values to get the UTC time.
         millis -= zoneOffsets[0] + zoneOffsets[1];
-
         // Set this calendar's time in milliseconds
         time = millis;
-
         int mask = computeFields(fieldMask | getSetStateFields(), tzMask);
-
         if (!isLenient()) {
             for (int field = 0; field < FIELD_COUNT; field++) {
                 if (!isExternallySet(field)) {
@@ -1940,15 +1709,12 @@ public class GregorianCalendar extends Calendar {
         }
         setFieldsNormalized(mask);
     }
-
-
     private long getFixedDate(BaseCalendar cal, int year, int fieldMask) {
         int month = JANUARY;
         if (isFieldSet(fieldMask, MONTH)) {
             // No need to check if MONTH has been set (no isSet(MONTH)
             // call) since its unset value happens to be JANUARY (0).
             month = internalGet(MONTH);
-
             // If the month is out of range, adjust it into range
             if (month > DECEMBER) {
                 year += month / 12;
@@ -1959,7 +1725,6 @@ public class GregorianCalendar extends Calendar {
                 month = rem[0];
             }
         }
-
         // Get the fixed date since Jan 1, 1 (Gregorian). We are on
         // the first day of either `month' or January in 'year'.
         long fixedDate = cal.getFixedDate(year, month + 1, 1,
@@ -2057,11 +1822,8 @@ public class GregorianCalendar extends Calendar {
                 fixedDate = firstDayOfWeek + 7 * ((long)internalGet(WEEK_OF_YEAR) - 1);
             }
         }
-
         return fixedDate;
     }
-
-
     private GregorianCalendar getNormalizedCalendar() {
         GregorianCalendar gc;
         if (isFullyNormalized()) {
@@ -2074,8 +1836,6 @@ public class GregorianCalendar extends Calendar {
         }
         return gc;
     }
-
-
     private static synchronized BaseCalendar getJulianCalendarSystem() {
         if (jcal == null) {
             jcal = (JulianCalendar) CalendarSystem.forName("julian");
@@ -2083,22 +1843,16 @@ public class GregorianCalendar extends Calendar {
         }
         return jcal;
     }
-
-
     private BaseCalendar getCutoverCalendarSystem() {
         if (gregorianCutoverYearJulian < gregorianCutoverYear) {
             return gcal;
         }
         return getJulianCalendarSystem();
     }
-
-
     private boolean isCutoverYear(int normalizedYear) {
         int cutoverYear = (calsys == gcal) ? gregorianCutoverYear : gregorianCutoverYearJulian;
         return normalizedYear == cutoverYear;
     }
-
-
     private long getFixedDateJan1(BaseCalendar.Date date, long fixedDate) {
         assert date.getNormalizedYear() == gregorianCutoverYear ||
             date.getNormalizedYear() == gregorianCutoverYearJulian;
@@ -2115,8 +1869,6 @@ public class GregorianCalendar extends Calendar {
         BaseCalendar juliancal = getJulianCalendarSystem();
         return juliancal.getFixedDate(date.getNormalizedYear(), BaseCalendar.JANUARY, 1, null);
     }
-
-
     private long getFixedDateMonth1(BaseCalendar.Date date, long fixedDate) {
         assert date.getNormalizedYear() == gregorianCutoverYear ||
             date.getNormalizedYear() == gregorianCutoverYearJulian;
@@ -2126,7 +1878,6 @@ public class GregorianCalendar extends Calendar {
             // The cutover happened on January 1.
             return fixedDate - date.getDayOfMonth() + 1;
         }
-
         long fixedDateMonth1;
         // The cutover happened sometime during the year.
         if (date.getMonth() == gCutover.getMonth()) {
@@ -2147,34 +1898,23 @@ public class GregorianCalendar extends Calendar {
             // The cutover happened before the month.
             fixedDateMonth1 = fixedDate - date.getDayOfMonth() + 1;
         }
-
         return fixedDateMonth1;
     }
-
-
     private BaseCalendar.Date getCalendarDate(long fd) {
         BaseCalendar cal = (fd >= gregorianCutoverDate) ? gcal : getJulianCalendarSystem();
         BaseCalendar.Date d = (BaseCalendar.Date) cal.newCalendarDate(TimeZone.NO_TIMEZONE);
         cal.getCalendarDateFromFixedDate(d, fd);
         return d;
     }
-
-
     private BaseCalendar.Date getGregorianCutoverDate() {
         return getCalendarDate(gregorianCutoverDate);
     }
-
-
     private BaseCalendar.Date getLastJulianDate() {
         return getCalendarDate(gregorianCutoverDate - 1);
     }
-
-
     private int monthLength(int month, int year) {
         return isLeapYear(year) ? LEAP_MONTH_LENGTH[month] : MONTH_LENGTH[month];
     }
-
-
     private int monthLength(int month) {
         int year = internalGet(YEAR);
         if (internalGetEra() == BCE) {
@@ -2182,7 +1922,6 @@ public class GregorianCalendar extends Calendar {
         }
         return monthLength(month, year);
     }
-
     private int actualMonthLength() {
         int year = cdate.getNormalizedYear();
         if (year != gregorianCutoverYear && year != gregorianCutoverYearJulian) {
@@ -2202,13 +1941,9 @@ public class GregorianCalendar extends Calendar {
         next1 = getFixedDateMonth1(date, next1);
         return (int)(next1 - month1);
     }
-
-
     private int yearLength(int year) {
         return isLeapYear(year) ? 366 : 365;
     }
-
-
     private int yearLength() {
         int year = internalGet(YEAR);
         if (internalGetEra() == BCE) {
@@ -2216,8 +1951,6 @@ public class GregorianCalendar extends Calendar {
         }
         return yearLength(year);
     }
-
-
     private void pinDayOfMonth() {
         int year = internalGet(YEAR);
         int monthLen;
@@ -2232,13 +1965,9 @@ public class GregorianCalendar extends Calendar {
             set(DAY_OF_MONTH, monthLen);
         }
     }
-
-
     private long getCurrentFixedDate() {
         return (calsys == gcal) ? cachedFixedDate : calsys.getFixedDate(cdate);
     }
-
-
     private static int getRolledValue(int value, int amount, int min, int max) {
         assert value >= min && value <= max;
         int range = max - min + 1;
@@ -2252,13 +1981,9 @@ public class GregorianCalendar extends Calendar {
         assert n >= min && n <= max;
         return n;
     }
-
-
     private int internalGetEra() {
         return isSet(ERA) ? internalGet(ERA) : CE;
     }
-
-
     private void readObject(ObjectInputStream stream)
             throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
@@ -2268,14 +1993,10 @@ public class GregorianCalendar extends Calendar {
         }
         setGregorianChange(gregorianCutover);
     }
-
-
     public ZonedDateTime toZonedDateTime() {
         return ZonedDateTime.ofInstant(Instant.ofEpochMilli(getTimeInMillis()),
                                        getTimeZone().toZoneId());
     }
-
-
     public static GregorianCalendar from(ZonedDateTime zdt) {
         GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone(zdt.getZone()));
         cal.setGregorianChange(new Date(Long.MIN_VALUE));

@@ -1,6 +1,4 @@
-
 package java.awt;
-
 import java.awt.peer.FramePeer;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -16,159 +14,81 @@ import sun.awt.SunToolkit;
 import sun.awt.AWTAccessor;
 import java.lang.ref.WeakReference;
 import javax.accessibility.*;
-
-
 public class Frame extends Window implements MenuContainer {
-
-
-
-
     @Deprecated
     public static final int     DEFAULT_CURSOR                  = Cursor.DEFAULT_CURSOR;
-
-
-
     @Deprecated
     public static final int     CROSSHAIR_CURSOR                = Cursor.CROSSHAIR_CURSOR;
-
-
     @Deprecated
     public static final int     TEXT_CURSOR                     = Cursor.TEXT_CURSOR;
-
-
     @Deprecated
     public static final int     WAIT_CURSOR                     = Cursor.WAIT_CURSOR;
-
-
     @Deprecated
     public static final int     SW_RESIZE_CURSOR                = Cursor.SW_RESIZE_CURSOR;
-
-
     @Deprecated
     public static final int     SE_RESIZE_CURSOR                = Cursor.SE_RESIZE_CURSOR;
-
-
     @Deprecated
     public static final int     NW_RESIZE_CURSOR                = Cursor.NW_RESIZE_CURSOR;
-
-
     @Deprecated
     public static final int     NE_RESIZE_CURSOR                = Cursor.NE_RESIZE_CURSOR;
-
-
     @Deprecated
     public static final int     N_RESIZE_CURSOR                 = Cursor.N_RESIZE_CURSOR;
-
-
     @Deprecated
     public static final int     S_RESIZE_CURSOR                 = Cursor.S_RESIZE_CURSOR;
-
-
     @Deprecated
     public static final int     W_RESIZE_CURSOR                 = Cursor.W_RESIZE_CURSOR;
-
-
     @Deprecated
     public static final int     E_RESIZE_CURSOR                 = Cursor.E_RESIZE_CURSOR;
-
-
     @Deprecated
     public static final int     HAND_CURSOR                     = Cursor.HAND_CURSOR;
-
-
     @Deprecated
     public static final int     MOVE_CURSOR                     = Cursor.MOVE_CURSOR;
-
-
-
     public static final int NORMAL = 0;
-
-
     public static final int ICONIFIED = 1;
-
-
     public static final int MAXIMIZED_HORIZ = 2;
-
-
     public static final int MAXIMIZED_VERT = 4;
-
-
     public static final int MAXIMIZED_BOTH = MAXIMIZED_VERT | MAXIMIZED_HORIZ;
-
-
     Rectangle maximizedBounds;
-
-
-
     String      title = "Untitled";
-
-
     MenuBar     menuBar;
-
-
     boolean     resizable = true;
-
-
     boolean undecorated = false;
-
-
     boolean     mbManagement = false;
-
     // XXX: uwe: abuse old field for now
     // will need to take care of serialization
     private int state = NORMAL;
-
-
     Vector<Window> ownedWindows;
-
     private static final String base = "frame";
     private static int nameCounter = 0;
-
-
      private static final long serialVersionUID = 2673458971256075116L;
-
     static {
-
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
             initIDs();
         }
     }
-
-
     public Frame() throws HeadlessException {
         this("");
     }
-
-
     public Frame(GraphicsConfiguration gc) {
         this("", gc);
     }
-
-
     public Frame(String title) throws HeadlessException {
         init(title, null);
     }
-
-
     public Frame(String title, GraphicsConfiguration gc) {
         super(gc);
         init(title, gc);
     }
-
     private void init(String title, GraphicsConfiguration gc) {
         this.title = title;
         SunToolkit.checkAndSetPolicy(this);
     }
-
-
     String constructComponentName() {
         synchronized (Frame.class) {
             return base + nameCounter++;
         }
     }
-
-
     public void addNotify() {
         synchronized (getTreeLock()) {
             if (peer == null) {
@@ -185,20 +105,14 @@ public class Frame extends Window implements MenuContainer {
             super.addNotify();
         }
     }
-
-
     public String getTitle() {
         return title;
     }
-
-
     public void setTitle(String title) {
         String oldTitle = this.title;
         if (title == null) {
             title = "";
         }
-
-
         synchronized(this) {
             this.title = title;
             FramePeer peer = (FramePeer)this.peer;
@@ -208,8 +122,6 @@ public class Frame extends Window implements MenuContainer {
         }
         firePropertyChange("title", oldTitle, title);
     }
-
-
     public Image getIconImage() {
         java.util.List<Image> icons = this.icons;
         if (icons != null) {
@@ -219,18 +131,12 @@ public class Frame extends Window implements MenuContainer {
         }
         return null;
     }
-
-
     public void setIconImage(Image image) {
         super.setIconImage(image);
     }
-
-
     public MenuBar getMenuBar() {
         return menuBar;
     }
-
-
     public void setMenuBar(MenuBar mb) {
         synchronized (getTreeLock()) {
             if (menuBar == mb) {
@@ -245,7 +151,6 @@ public class Frame extends Window implements MenuContainer {
             menuBar = mb;
             if (menuBar != null) {
                 menuBar.parent = this;
-
                 FramePeer peer = (FramePeer)this.peer;
                 if (peer != null) {
                     mbManagement = true;
@@ -256,17 +161,12 @@ public class Frame extends Window implements MenuContainer {
             }
         }
     }
-
-
     public boolean isResizable() {
         return resizable;
     }
-
-
     public void setResizable(boolean resizable) {
         boolean oldResizable = this.resizable;
         boolean testvalid = false;
-
         synchronized (this) {
             this.resizable = resizable;
             FramePeer peer = (FramePeer)this.peer;
@@ -275,7 +175,6 @@ public class Frame extends Window implements MenuContainer {
                 testvalid = true;
             }
         }
-
         // On some platforms, changing the resizable state affects
         // the insets of the Frame. If we could, we'd call invalidate()
         // from the peer, but we need to guarantee that we're not holding
@@ -285,9 +184,6 @@ public class Frame extends Window implements MenuContainer {
         }
         firePropertyChange("resizable", oldResizable, resizable);
     }
-
-
-
     public synchronized void setState(int state) {
         int current = getExtendedState();
         if (state == ICONIFIED && (current & ICONIFIED) == 0) {
@@ -297,8 +193,6 @@ public class Frame extends Window implements MenuContainer {
             setExtendedState(current & ~ICONIFIED);
         }
     }
-
-
     public void setExtendedState(int state) {
         if ( !isFrameStateSupported( state ) ) {
             return;
@@ -329,20 +223,14 @@ public class Frame extends Window implements MenuContainer {
         }
         return true;
     }
-
-
     public synchronized int getState() {
         return (getExtendedState() & ICONIFIED) != 0 ? ICONIFIED : NORMAL;
     }
-
-
-
     public int getExtendedState() {
         synchronized (getObjectLock()) {
             return state;
         }
     }
-
     static {
         AWTAccessor.setFrameAccessor(
             new AWTAccessor.FrameAccessor() {
@@ -364,8 +252,6 @@ public class Frame extends Window implements MenuContainer {
             }
         );
     }
-
-
     public void setMaximizedBounds(Rectangle bounds) {
         synchronized(getObjectLock()) {
             this.maximizedBounds = bounds;
@@ -375,18 +261,12 @@ public class Frame extends Window implements MenuContainer {
             peer.setMaximizedBounds(bounds);
         }
     }
-
-
     public Rectangle getMaximizedBounds() {
         synchronized(getObjectLock()) {
             return maximizedBounds;
         }
     }
-
-
-
     public void setUndecorated(boolean undecorated) {
-
         synchronized (getTreeLock()) {
             if (isDisplayable()) {
                 throw new IllegalComponentStateException("The frame is displayable.");
@@ -406,13 +286,9 @@ public class Frame extends Window implements MenuContainer {
             this.undecorated = undecorated;
         }
     }
-
-
     public boolean isUndecorated() {
         return undecorated;
     }
-
-
     @Override
     public void setOpacity(float opacity) {
         synchronized (getTreeLock()) {
@@ -422,8 +298,6 @@ public class Frame extends Window implements MenuContainer {
             super.setOpacity(opacity);
         }
     }
-
-
     @Override
     public void setShape(Shape shape) {
         synchronized (getTreeLock()) {
@@ -433,8 +307,6 @@ public class Frame extends Window implements MenuContainer {
             super.setShape(shape);
         }
     }
-
-
     @Override
     public void setBackground(Color bgColor) {
         synchronized (getTreeLock()) {
@@ -444,8 +316,6 @@ public class Frame extends Window implements MenuContainer {
             super.setBackground(bgColor);
         }
     }
-
-
     public void remove(MenuComponent m) {
         if (m == null) {
             return;
@@ -466,15 +336,12 @@ public class Frame extends Window implements MenuContainer {
             }
         }
     }
-
-
     public void removeNotify() {
         synchronized (getTreeLock()) {
             FramePeer peer = (FramePeer)this.peer;
             if (peer != null) {
                 // get the latest Frame state before disposing
                 getState();
-
                 if (menuBar != null) {
                     mbManagement = true;
                     peer.setMenuBar(null);
@@ -484,7 +351,6 @@ public class Frame extends Window implements MenuContainer {
             super.removeNotify();
         }
     }
-
     void postProcessKeyEvent(KeyEvent e) {
         if (menuBar != null && menuBar.handleShortcut(e)) {
             e.consume();
@@ -492,8 +358,6 @@ public class Frame extends Window implements MenuContainer {
         }
         super.postProcessKeyEvent(e);
     }
-
-
     protected String paramString() {
         String str = super.paramString();
         if (title != null) {
@@ -522,8 +386,6 @@ public class Frame extends Window implements MenuContainer {
         }
         return str;
     }
-
-
     @Deprecated
     public void setCursor(int cursorType) {
         if (cursorType < DEFAULT_CURSOR || cursorType > MOVE_CURSOR) {
@@ -531,24 +393,18 @@ public class Frame extends Window implements MenuContainer {
         }
         setCursor(Cursor.getPredefinedCursor(cursorType));
     }
-
-
     @Deprecated
     public int getCursorType() {
         return (getCursor().getType());
     }
-
-
     public static Frame[] getFrames() {
         Window[] allWindows = Window.getWindows();
-
         int frameCount = 0;
         for (Window w : allWindows) {
             if (w instanceof Frame) {
                 frameCount++;
             }
         }
-
         Frame[] frames = new Frame[frameCount];
         int c = 0;
         for (Window w : allWindows) {
@@ -556,16 +412,9 @@ public class Frame extends Window implements MenuContainer {
                 frames[c++] = (Frame)w;
             }
         }
-
         return frames;
     }
-
-
-
-
     private int frameSerializedDataVersion = 1;
-
-
     private void writeObject(ObjectOutputStream s)
       throws IOException
     {
@@ -579,8 +428,6 @@ public class Frame extends Window implements MenuContainer {
         }
         s.writeObject(null);
     }
-
-
     private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException
     {
@@ -597,17 +444,14 @@ public class Frame extends Window implements MenuContainer {
           // 1.6 and later instances serialize icons in the Window class
           // e.eof will be true to indicate that there is no more
           // data available for this object.
-
           // If e.eof is not true, throw the exception as it
           // might have been caused by unrelated reasons.
           if (!e.eof) {
               throw (e);
           }
       }
-
       if (menuBar != null)
         menuBar.parent = this;
-
       // Ensure 1.1 serialized Frames can read & hook-up
       // owned windows properly
       //
@@ -618,32 +462,19 @@ public class Frame extends Window implements MenuContainer {
           ownedWindows = null;
       }
     }
-
-
     private static native void initIDs();
-
-
-
-
     public AccessibleContext getAccessibleContext() {
         if (accessibleContext == null) {
             accessibleContext = new AccessibleAWTFrame();
         }
         return accessibleContext;
     }
-
-
     protected class AccessibleAWTFrame extends AccessibleAWTWindow
     {
-
         private static final long serialVersionUID = -6172960752956030250L;
-
-
         public AccessibleRole getAccessibleRole() {
             return AccessibleRole.FRAME;
         }
-
-
         public AccessibleStateSet getAccessibleStateSet() {
             AccessibleStateSet states = super.getAccessibleStateSet();
             if (getFocusOwner() != null) {
@@ -654,8 +485,5 @@ public class Frame extends Window implements MenuContainer {
             }
             return states;
         }
-
-
     } // inner class AccessibleAWTFrame
-
 }

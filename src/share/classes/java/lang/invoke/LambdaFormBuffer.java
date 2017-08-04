@@ -1,13 +1,8 @@
-
-
 package java.lang.invoke;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import static java.lang.invoke.LambdaForm.*;
 import static java.lang.invoke.LambdaForm.BasicType.*;
-
-
 final class LambdaFormBuffer {
     private int arity, length;
     private Name[] names;
@@ -17,9 +12,7 @@ final class LambdaFormBuffer {
     private Name resultName;
     private String debugName;
     private ArrayList<Name> dups;
-
     private static final int F_TRANS = 0x10, F_OWNED = 0x03;
-
     LambdaFormBuffer(LambdaForm lf) {
         this.arity = lf.arity;
         setNames(lf.names);
@@ -30,34 +23,28 @@ final class LambdaFormBuffer {
         debugName = lf.debugName;
         assert(lf.nameRefsAreLegal());
     }
-
     private LambdaForm lambdaForm() {
         assert(!inTrans());  // need endEdit call to tidy things up
         return new LambdaForm(debugName, arity, nameArray(), resultIndex());
     }
-
     Name name(int i) {
         assert(i < length);
         return names[i];
     }
-
     Name[] nameArray() {
         return Arrays.copyOf(names, length);
     }
-
     int resultIndex() {
         if (resultName == null)  return VOID_RESULT;
         int index = indexOf(resultName, names);
         assert(index >= 0);
         return index;
     }
-
     void setNames(Name[] names2) {
         names = originalNames = names2;  // keep a record of where everything was to start with
         length = names2.length;
         flags = 0;
     }
-
     private boolean verifyArity() {
         for (int i = 0; i < arity && i < firstChange; i++) {
             assert(names[i].isParam()) : "#" + i + "=" + names[i];
@@ -76,7 +63,6 @@ final class LambdaFormBuffer {
         }
         return true;
     }
-
     private boolean verifyFirstChange() {
         assert(inTrans());
         for (int i = 0; i < length; i++) {
@@ -88,29 +74,24 @@ final class LambdaFormBuffer {
         assert(firstChange == length) : Arrays.asList(firstChange, Arrays.asList(names));
         return true;
     }
-
     private static int indexOf(NamedFunction fn, NamedFunction[] fns) {
         for (int i = 0; i < fns.length; i++) {
             if (fns[i] == fn)  return i;
         }
         return -1;
     }
-
     private static int indexOf(Name n, Name[] ns) {
         for (int i = 0; i < ns.length; i++) {
             if (ns[i] == n)  return i;
         }
         return -1;
     }
-
     boolean inTrans() {
         return (flags & F_TRANS) != 0;
     }
-
     int ownedCount() {
         return flags & F_OWNED;
     }
-
     void growNames(int insertPos, int growLength) {
         int oldLength = length;
         int newLength = oldLength + growLength;
@@ -145,7 +126,6 @@ final class LambdaFormBuffer {
             firstChange += growLength;
         }
     }
-
     int lastIndexOf(Name n) {
         int result = -1;
         for (int i = 0; i < length; i++) {
@@ -153,8 +133,6 @@ final class LambdaFormBuffer {
         }
         return result;
     }
-
-
     private void noteDuplicate(int pos1, int pos2) {
         Name n = names[pos1];
         assert(n == names[pos2]);
@@ -165,8 +143,6 @@ final class LambdaFormBuffer {
         }
         dups.add(n);
     }
-
-
     private void clearDuplicatesAndNulls() {
         if (dups != null) {
             // Remove duplicates.
@@ -195,8 +171,6 @@ final class LambdaFormBuffer {
         }
         assert(!Arrays.asList(names).subList(0, length).contains(null));
     }
-
-
     void startEdit() {
         assert(verifyArity());
         int oc = ownedCount();
@@ -219,7 +193,6 @@ final class LambdaFormBuffer {
         firstChange = length;
         assert(inTrans());
     }
-
     private void changeName(int i, Name name) {
         assert(inTrans());
         assert(i < length);
@@ -236,14 +209,10 @@ final class LambdaFormBuffer {
             resultName = name;
         }
     }
-
-
     void setResult(Name name) {
         assert(name == null || lastIndexOf(name) >= 0);
         resultName = name;
     }
-
-
     LambdaForm endEdit() {
         assert(verifyFirstChange());
         // Assuming names have been changed pairwise from originalNames[i] to names[i],
@@ -286,14 +255,11 @@ final class LambdaFormBuffer {
         assert(verifyArity());
         return lambdaForm();
     }
-
     private Name[] copyNamesInto(Name[] buffer) {
         System.arraycopy(names, 0, buffer, 0, length);
         Arrays.fill(buffer, length, buffer.length, null);
         return buffer;
     }
-
-
     LambdaFormBuffer replaceFunctions(NamedFunction[] oldFns, NamedFunction[] newFns,
                                       Object... forArguments) {
         assert(inTrans());
@@ -307,7 +273,6 @@ final class LambdaFormBuffer {
         }
         return this;
     }
-
     private void replaceName(int pos, Name binding) {
         assert(inTrans());
         assert(verifyArity());
@@ -317,30 +282,23 @@ final class LambdaFormBuffer {
         assert(param.type == binding.type);
         changeName(pos, binding);
     }
-
-
     LambdaFormBuffer renameParameter(int pos, Name newParam) {
         assert(newParam.isParam());
         replaceName(pos, newParam);
         return this;
     }
-
-
     LambdaFormBuffer replaceParameterByNewExpression(int pos, Name binding) {
         assert(!binding.isParam());
         assert(lastIndexOf(binding) < 0);  // else use replaceParameterByCopy
         replaceName(pos, binding);
         return this;
     }
-
-
     LambdaFormBuffer replaceParameterByCopy(int pos, int valuePos) {
         assert(pos != valuePos);
         replaceName(pos, names[valuePos]);
         noteDuplicate(pos, valuePos);  // temporarily, will occur twice in the names array
         return this;
     }
-
     private void insertName(int pos, Name expr, boolean isParameter) {
         assert(inTrans());
         assert(verifyArity());
@@ -349,15 +307,11 @@ final class LambdaFormBuffer {
         if (isParameter)  arity += 1;
         changeName(pos, expr);
     }
-
-
     LambdaFormBuffer insertExpression(int pos, Name expr) {
         assert(!expr.isParam());
         insertName(pos, expr, false);
         return this;
     }
-
-
     LambdaFormBuffer insertParameter(int pos, Name param) {
         assert(param.isParam());
         insertName(pos, param, true);

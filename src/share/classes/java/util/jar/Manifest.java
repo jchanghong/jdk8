@@ -1,7 +1,4 @@
-
-
 package java.util.jar;
-
 import java.io.FilterInputStream;
 import java.io.DataOutputStream;
 import java.io.InputStream;
@@ -10,52 +7,33 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
-
-
 public class Manifest implements Cloneable {
     // manifest main attributes
     private Attributes attr = new Attributes();
-
     // manifest entries
     private Map<String, Attributes> entries = new HashMap<>();
-
-
     public Manifest() {
     }
-
-
     public Manifest(InputStream is) throws IOException {
         read(is);
     }
-
-
     public Manifest(Manifest man) {
         attr.putAll(man.getMainAttributes());
         entries.putAll(man.getEntries());
     }
-
-
     public Attributes getMainAttributes() {
         return attr;
     }
-
-
     public Map<String,Attributes> getEntries() {
         return entries;
     }
-
-
     public Attributes getAttributes(String name) {
         return getEntries().get(name);
     }
-
-
     public void clear() {
         attr.clear();
         entries.clear();
     }
-
-
     public void write(OutputStream out) throws IOException {
         DataOutputStream dos = new DataOutputStream(out);
         // Write out the main attributes for the manifest
@@ -78,8 +56,6 @@ public class Manifest implements Cloneable {
         }
         dos.flush();
     }
-
-
     static void make72Safe(StringBuffer line) {
         int length = line.length();
         if (length > 72) {
@@ -92,8 +68,6 @@ public class Manifest implements Cloneable {
         }
         return;
     }
-
-
     public void read(InputStream is) throws IOException {
         // Buffered input stream for reading manifest data
         FastInputStream fis = new FastInputStream(is);
@@ -110,7 +84,6 @@ public class Manifest implements Cloneable {
         String name = null;
         boolean skipEmptyLines = true;
         byte[] lastline = null;
-
         while ((len = fis.readLine(lbuf)) != -1) {
             if (lbuf[--len] != '\n') {
                 throw new IOException("manifest line too long");
@@ -122,7 +95,6 @@ public class Manifest implements Cloneable {
                 continue;
             }
             skipEmptyLines = false;
-
             if (name == null) {
                 name = parseName(lbuf, len);
                 if (name == null) {
@@ -159,12 +131,10 @@ public class Manifest implements Cloneable {
             // you get an Attributes object with an initial
             // capacity of 0, which tickles a bug in HashMap.
             asize = Math.max(2, acount / ecount);
-
             name = null;
             skipEmptyLines = true;
         }
     }
-
     private String parseName(byte[] lbuf, int len) {
         if (toLower(lbuf[0]) == 'n' && toLower(lbuf[1]) == 'a' &&
             toLower(lbuf[2]) == 'm' && toLower(lbuf[3]) == 'e' &&
@@ -177,12 +147,9 @@ public class Manifest implements Cloneable {
         }
         return null;
     }
-
     private int toLower(int c) {
         return (c >= 'A' && c <= 'Z') ? 'a' + (c - 'A') : c;
     }
-
-
     public boolean equals(Object o) {
         if (o instanceof Manifest) {
             Manifest m = (Manifest)o;
@@ -192,32 +159,23 @@ public class Manifest implements Cloneable {
             return false;
         }
     }
-
-
     public int hashCode() {
         return attr.hashCode() + entries.hashCode();
     }
-
-
     public Object clone() {
         return new Manifest(this);
     }
-
-
     static class FastInputStream extends FilterInputStream {
         private byte buf[];
         private int count = 0;
         private int pos = 0;
-
         FastInputStream(InputStream in) {
             this(in, 8192);
         }
-
         FastInputStream(InputStream in, int size) {
             super(in);
             buf = new byte[size];
         }
-
         public int read() throws IOException {
             if (pos >= count) {
                 fill();
@@ -227,7 +185,6 @@ public class Manifest implements Cloneable {
             }
             return Byte.toUnsignedInt(buf[pos++]);
         }
-
         public int read(byte[] b, int off, int len) throws IOException {
             int avail = count - pos;
             if (avail <= 0) {
@@ -247,8 +204,6 @@ public class Manifest implements Cloneable {
             pos += len;
             return len;
         }
-
-
         public int readLine(byte[] b, int off, int len) throws IOException {
             byte[] tbuf = this.buf;
             int total = 0;
@@ -279,7 +234,6 @@ public class Manifest implements Cloneable {
             }
             return total;
         }
-
         public byte peek() throws IOException {
             if (pos == count)
                 fill();
@@ -287,11 +241,9 @@ public class Manifest implements Cloneable {
                 return -1; // nothing left in buffer
             return buf[pos];
         }
-
         public int readLine(byte[] b) throws IOException {
             return readLine(b, 0, b.length);
         }
-
         public long skip(long n) throws IOException {
             if (n <= 0) {
                 return 0;
@@ -306,11 +258,9 @@ public class Manifest implements Cloneable {
             pos += n;
             return n;
         }
-
         public int available() throws IOException {
             return (count - pos) + in.available();
         }
-
         public void close() throws IOException {
             if (in != null) {
                 in.close();
@@ -318,7 +268,6 @@ public class Manifest implements Cloneable {
                 buf = null;
             }
         }
-
         private void fill() throws IOException {
             count = pos = 0;
             int n = in.read(buf, 0, buf.length);

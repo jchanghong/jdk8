@@ -1,7 +1,4 @@
-
-
 package java.util;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -13,44 +10,26 @@ import java.io.OutputStreamWriter;
 import java.io.BufferedWriter;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-
 import sun.util.spi.XmlPropertiesProvider;
-
-
 public
 class Properties extends Hashtable<Object,Object> {
-
      private static final long serialVersionUID = 4112578634029874840L;
-
-
     protected Properties defaults;
-
-
     public Properties() {
         this(null);
     }
-
-
     public Properties(Properties defaults) {
         this.defaults = defaults;
     }
-
-
     public synchronized Object setProperty(String key, String value) {
         return put(key, value);
     }
-
-
-
     public synchronized void load(Reader reader) throws IOException {
         load0(new LineReader(reader));
     }
-
-
     public synchronized void load(InputStream inStream) throws IOException {
         load0(new LineReader(inStream));
     }
-
     private void load0 (LineReader lr) throws IOException {
         char[] convtBuf = new char[1024];
         int limit;
@@ -59,13 +38,11 @@ class Properties extends Hashtable<Object,Object> {
         char c;
         boolean hasSep;
         boolean precedingBackslash;
-
         while ((limit = lr.readLine()) >= 0) {
             c = 0;
             keyLen = 0;
             valueStart = limit;
             hasSep = false;
-
             //System.out.println("line=<" + new String(lineBuf, 0, limit) + ">");
             precedingBackslash = false;
             while (keyLen < limit) {
@@ -102,19 +79,15 @@ class Properties extends Hashtable<Object,Object> {
             put(key, value);
         }
     }
-
-
     class LineReader {
         public LineReader(InputStream inStream) {
             this.inStream = inStream;
             inByteBuf = new byte[8192];
         }
-
         public LineReader(Reader reader) {
             this.reader = reader;
             inCharBuf = new char[8192];
         }
-
         byte[] inByteBuf;
         char[] inCharBuf;
         char[] lineBuf = new char[1024];
@@ -122,18 +95,15 @@ class Properties extends Hashtable<Object,Object> {
         int inOff = 0;
         InputStream inStream;
         Reader reader;
-
         int readLine() throws IOException {
             int len = 0;
             char c = 0;
-
             boolean skipWhiteSpace = true;
             boolean isCommentLine = false;
             boolean isNewLine = true;
             boolean appendedLineBegin = false;
             boolean precedingBackslash = false;
             boolean skipLF = false;
-
             while (true) {
                 if (inOff >= inLimit) {
                     inLimit = (inStream==null)?reader.read(inCharBuf)
@@ -179,7 +149,6 @@ class Properties extends Hashtable<Object,Object> {
                         continue;
                     }
                 }
-
                 if (c != '\n' && c != '\r') {
                     lineBuf[len++] = c;
                     if (len == lineBuf.length) {
@@ -235,8 +204,6 @@ class Properties extends Hashtable<Object,Object> {
             }
         }
     }
-
-
     private String loadConvert (char[] in, int off, int len, char[] convtBuf) {
         if (convtBuf.length < len) {
             int newLen = len * 2;
@@ -249,7 +216,6 @@ class Properties extends Hashtable<Object,Object> {
         char[] out = convtBuf;
         int outLen = 0;
         int end = off + len;
-
         while (off < end) {
             aChar = in[off++];
             if (aChar == '\\') {
@@ -291,8 +257,6 @@ class Properties extends Hashtable<Object,Object> {
         }
         return new String (out, 0, outLen);
     }
-
-
     private String saveConvert(String theString,
                                boolean escapeSpace,
                                boolean escapeUnicode) {
@@ -302,7 +266,6 @@ class Properties extends Hashtable<Object,Object> {
             bufLen = Integer.MAX_VALUE;
         }
         StringBuffer outBuffer = new StringBuffer(bufLen);
-
         for(int x=0; x<len; x++) {
             char aChar = theString.charAt(x);
             // Handle common case first, selecting largest block that
@@ -350,7 +313,6 @@ class Properties extends Hashtable<Object,Object> {
         }
         return outBuffer.toString();
     }
-
     private static void writeComments(BufferedWriter bw, String comments)
         throws IOException {
         bw.write("#");
@@ -391,8 +353,6 @@ class Properties extends Hashtable<Object,Object> {
             bw.write(comments.substring(last, current));
         bw.newLine();
     }
-
-
     @Deprecated
     public void save(OutputStream out, String comments)  {
         try {
@@ -400,8 +360,6 @@ class Properties extends Hashtable<Object,Object> {
         } catch (IOException e) {
         }
     }
-
-
     public void store(Writer writer, String comments)
         throws IOException
     {
@@ -410,8 +368,6 @@ class Properties extends Hashtable<Object,Object> {
                comments,
                false);
     }
-
-
     public void store(OutputStream out, String comments)
         throws IOException
     {
@@ -419,7 +375,6 @@ class Properties extends Hashtable<Object,Object> {
                comments,
                true);
     }
-
     private void store0(BufferedWriter bw, String comments, boolean escUnicode)
         throws IOException
     {
@@ -433,7 +388,6 @@ class Properties extends Hashtable<Object,Object> {
                 String key = (String)e.nextElement();
                 String val = (String)get(key);
                 key = saveConvert(key, true, escUnicode);
-
                 val = saveConvert(val, false, escUnicode);
                 bw.write(key + "=" + val);
                 bw.newLine();
@@ -441,58 +395,42 @@ class Properties extends Hashtable<Object,Object> {
         }
         bw.flush();
     }
-
-
     public synchronized void loadFromXML(InputStream in)
         throws IOException, InvalidPropertiesFormatException
     {
         XmlSupport.load(this, Objects.requireNonNull(in));
         in.close();
     }
-
-
     public void storeToXML(OutputStream os, String comment)
         throws IOException
     {
         storeToXML(os, comment, "UTF-8");
     }
-
-
     public void storeToXML(OutputStream os, String comment, String encoding)
         throws IOException
     {
         XmlSupport.save(this, Objects.requireNonNull(os), comment,
                         Objects.requireNonNull(encoding));
     }
-
-
     public String getProperty(String key) {
         Object oval = super.get(key);
         String sval = (oval instanceof String) ? (String)oval : null;
         return ((sval == null) && (defaults != null)) ? defaults.getProperty(key) : sval;
     }
-
-
     public String getProperty(String key, String defaultValue) {
         String val = getProperty(key);
         return (val == null) ? defaultValue : val;
     }
-
-
     public Enumeration<?> propertyNames() {
         Hashtable<String,Object> h = new Hashtable<>();
         enumerate(h);
         return h.keys();
     }
-
-
     public Set<String> stringPropertyNames() {
         Hashtable<String, String> h = new Hashtable<>();
         enumerateStringProperties(h);
         return h.keySet();
     }
-
-
     public void list(PrintStream out) {
         out.println("-- listing properties --");
         Hashtable<String,Object> h = new Hashtable<>();
@@ -506,9 +444,6 @@ class Properties extends Hashtable<Object,Object> {
             out.println(key + "=" + val);
         }
     }
-
-
-
     public void list(PrintWriter out) {
         out.println("-- listing properties --");
         Hashtable<String,Object> h = new Hashtable<>();
@@ -522,8 +457,6 @@ class Properties extends Hashtable<Object,Object> {
             out.println(key + "=" + val);
         }
     }
-
-
     private synchronized void enumerate(Hashtable<String,Object> h) {
         if (defaults != null) {
             defaults.enumerate(h);
@@ -533,8 +466,6 @@ class Properties extends Hashtable<Object,Object> {
             h.put(key, get(key));
         }
     }
-
-
     private synchronized void enumerateStringProperties(Hashtable<String, String> h) {
         if (defaults != null) {
             defaults.enumerateStringProperties(h);
@@ -547,20 +478,13 @@ class Properties extends Hashtable<Object,Object> {
             }
         }
     }
-
-
     private static char toHex(int nibble) {
         return hexDigit[(nibble & 0xF)];
     }
-
-
     private static final char[] hexDigit = {
         '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
     };
-
-
     private static class XmlSupport {
-
         private static XmlPropertiesProvider loadProviderFromProperty(ClassLoader cl) {
             String cn = System.getProperty("sun.util.spi.XmlPropertiesProvider");
             if (cn == null)
@@ -574,13 +498,11 @@ class Properties extends Hashtable<Object,Object> {
                 throw new ServiceConfigurationError(null, x);
             }
         }
-
         private static XmlPropertiesProvider loadProviderAsService(ClassLoader cl) {
             Iterator<XmlPropertiesProvider> iterator =
                  ServiceLoader.load(XmlPropertiesProvider.class, cl).iterator();
             return iterator.hasNext() ? iterator.next() : null;
         }
-
         private static XmlPropertiesProvider loadProvider() {
             return AccessController.doPrivileged(
                 new PrivilegedAction<XmlPropertiesProvider>() {
@@ -595,15 +517,12 @@ class Properties extends Hashtable<Object,Object> {
                         return new jdk.internal.util.xml.BasicXmlPropertiesProvider();
                 }});
         }
-
         private static final XmlPropertiesProvider PROVIDER = loadProvider();
-
         static void load(Properties props, InputStream in)
             throws IOException, InvalidPropertiesFormatException
         {
             PROVIDER.load(props, in);
         }
-
         static void save(Properties props, OutputStream os, String comment,
                          String encoding)
             throws IOException

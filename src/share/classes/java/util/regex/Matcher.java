@@ -1,81 +1,37 @@
-
-
 package java.util.regex;
-
 import java.util.Objects;
-
-
-
 public final class Matcher implements MatchResult {
-
-
     Pattern parentPattern;
-
-
     int[] groups;
-
-
     int from, to;
-
-
     int lookbehindTo;
-
-
     CharSequence text;
-
-
     static final int ENDANCHOR = 1;
     static final int NOANCHOR = 0;
     int acceptMode = NOANCHOR;
-
-
     int first = -1, last = 0;
-
-
     int oldLast = -1;
-
-
     int lastAppendPosition = 0;
-
-
     int[] locals;
-
-
     boolean hitEnd;
-
-
     boolean requireEnd;
-
-
     boolean transparentBounds = false;
-
-
     boolean anchoringBounds = true;
-
-
     Matcher() {
     }
-
-
     Matcher(Pattern parent, CharSequence text) {
         this.parentPattern = parent;
         this.text = text;
-
         // Allocate state storage
         int parentGroupCount = Math.max(parent.capturingGroupCount, 10);
         groups = new int[parentGroupCount * 2];
         locals = new int[parent.localCount];
-
         // Put fields into initial states
         reset();
     }
-
-
     public Pattern pattern() {
         return parentPattern;
     }
-
-
     public MatchResult toMatchResult() {
         Matcher result = new Matcher(this.parentPattern, text.toString());
         result.first = this.first;
@@ -83,13 +39,10 @@ public final class Matcher implements MatchResult {
         result.groups = this.groups.clone();
         return result;
     }
-
-
     public Matcher usePattern(Pattern newPattern) {
         if (newPattern == null)
             throw new IllegalArgumentException("Pattern cannot be null");
         parentPattern = newPattern;
-
         // Reallocate state storage
         int parentGroupCount = Math.max(newPattern.capturingGroupCount, 10);
         groups = new int[parentGroupCount * 2];
@@ -100,8 +53,6 @@ public final class Matcher implements MatchResult {
             locals[i] = -1;
         return this;
     }
-
-
     public Matcher reset() {
         first = -1;
         last = 0;
@@ -115,21 +66,15 @@ public final class Matcher implements MatchResult {
         to = getTextLength();
         return this;
     }
-
-
     public Matcher reset(CharSequence input) {
         text = input;
         return reset();
     }
-
-
     public int start() {
         if (first < 0)
             throw new IllegalStateException("No match available");
         return first;
     }
-
-
     public int start(int group) {
         if (first < 0)
             throw new IllegalStateException("No match available");
@@ -137,20 +82,14 @@ public final class Matcher implements MatchResult {
             throw new IndexOutOfBoundsException("No group " + group);
         return groups[group * 2];
     }
-
-
     public int start(String name) {
         return groups[getMatchedGroupIndex(name) * 2];
     }
-
-
     public int end() {
         if (first < 0)
             throw new IllegalStateException("No match available");
         return last;
     }
-
-
     public int end(int group) {
         if (first < 0)
             throw new IllegalStateException("No match available");
@@ -158,18 +97,12 @@ public final class Matcher implements MatchResult {
             throw new IndexOutOfBoundsException("No group " + group);
         return groups[group * 2 + 1];
     }
-
-
     public int end(String name) {
         return groups[getMatchedGroupIndex(name) * 2 + 1];
     }
-
-
     public String group() {
         return group(0);
     }
-
-
     public String group(int group) {
         if (first < 0)
             throw new IllegalStateException("No match found");
@@ -179,35 +112,25 @@ public final class Matcher implements MatchResult {
             return null;
         return getSubSequence(groups[group * 2], groups[group * 2 + 1]).toString();
     }
-
-
     public String group(String name) {
         int group = getMatchedGroupIndex(name);
         if ((groups[group*2] == -1) || (groups[group*2+1] == -1))
             return null;
         return getSubSequence(groups[group * 2], groups[group * 2 + 1]).toString();
     }
-
-
     public int groupCount() {
         return parentPattern.capturingGroupCount - 1;
     }
-
-
     public boolean matches() {
         return match(from, ENDANCHOR);
     }
-
-
     public boolean find() {
         int nextSearchIndex = last;
         if (nextSearchIndex == first)
             nextSearchIndex++;
-
         // If next search starts before region, start it at region
         if (nextSearchIndex < from)
             nextSearchIndex = from;
-
         // If next search starts beyond region then it fails
         if (nextSearchIndex > to) {
             for (int i = 0; i < groups.length; i++)
@@ -216,8 +139,6 @@ public final class Matcher implements MatchResult {
         }
         return search(nextSearchIndex);
     }
-
-
     public boolean find(int start) {
         int limit = getTextLength();
         if ((start < 0) || (start > limit))
@@ -225,13 +146,9 @@ public final class Matcher implements MatchResult {
         reset();
         return search(start);
     }
-
-
     public boolean lookingAt() {
         return match(from, NOANCHOR);
     }
-
-
     public static String quoteReplacement(String s) {
         if ((s.indexOf('\\') == -1) && (s.indexOf('$') == -1))
             return s;
@@ -245,18 +162,13 @@ public final class Matcher implements MatchResult {
         }
         return sb.toString();
     }
-
-
     public Matcher appendReplacement(StringBuffer sb, String replacement) {
-
         // If no match, return error
         if (first < 0)
             throw new IllegalStateException("No match available");
-
         // Process substitution string to replace group references with groups
         int cursor = 0;
         StringBuilder result = new StringBuilder();
-
         while (cursor < replacement.length()) {
             char nextChar = replacement.charAt(cursor);
             if (nextChar == '\\') {
@@ -344,18 +256,13 @@ public final class Matcher implements MatchResult {
         sb.append(text, lastAppendPosition, first);
         // Append the match substitution
         sb.append(result);
-
         lastAppendPosition = last;
         return this;
     }
-
-
     public StringBuffer appendTail(StringBuffer sb) {
         sb.append(text, lastAppendPosition, getTextLength());
         return sb;
     }
-
-
     public String replaceAll(String replacement) {
         reset();
         boolean result = find();
@@ -370,8 +277,6 @@ public final class Matcher implements MatchResult {
         }
         return text.toString();
     }
-
-
     public String replaceFirst(String replacement) {
         if (replacement == null)
             throw new NullPointerException("replacement");
@@ -383,8 +288,6 @@ public final class Matcher implements MatchResult {
         appendTail(sb);
         return sb.toString();
     }
-
-
     public Matcher region(int start, int end) {
         if ((start < 0) || (start > getTextLength()))
             throw new IndexOutOfBoundsException("start");
@@ -397,40 +300,26 @@ public final class Matcher implements MatchResult {
         to = end;
         return this;
     }
-
-
     public int regionStart() {
         return from;
     }
-
-
     public int regionEnd() {
         return to;
     }
-
-
     public boolean hasTransparentBounds() {
         return transparentBounds;
     }
-
-
     public Matcher useTransparentBounds(boolean b) {
         transparentBounds = b;
         return this;
     }
-
-
     public boolean hasAnchoringBounds() {
         return anchoringBounds;
     }
-
-
     public Matcher useAnchoringBounds(boolean b) {
         anchoringBounds = b;
         return this;
     }
-
-
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("java.util.regex.Matcher");
@@ -444,18 +333,12 @@ public final class Matcher implements MatchResult {
         sb.append("]");
         return sb.toString();
     }
-
-
     public boolean hitEnd() {
         return hitEnd;
     }
-
-
     public boolean requireEnd() {
         return requireEnd;
     }
-
-
     boolean search(int from) {
         this.hitEnd = false;
         this.requireEnd = false;
@@ -471,8 +354,6 @@ public final class Matcher implements MatchResult {
         this.oldLast = this.last;
         return result;
     }
-
-
     boolean match(int from, int anchor) {
         this.hitEnd = false;
         this.requireEnd = false;
@@ -488,23 +369,15 @@ public final class Matcher implements MatchResult {
         this.oldLast = this.last;
         return result;
     }
-
-
     int getTextLength() {
         return text.length();
     }
-
-
     CharSequence getSubSequence(int beginIndex, int endIndex) {
         return text.subSequence(beginIndex, endIndex);
     }
-
-
     char charAt(int i) {
         return text.charAt(i);
     }
-
-
     int getMatchedGroupIndex(String name) {
         Objects.requireNonNull(name, "Group name");
         if (first < 0)

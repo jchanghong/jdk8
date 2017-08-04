@@ -1,7 +1,4 @@
-
-
 package java.awt;
-
 import java.beans.PropertyChangeEvent;
 import java.awt.event.*;
 import java.awt.peer.*;
@@ -19,136 +16,76 @@ import java.awt.dnd.peer.DragSourceContextPeer;
 import java.net.URL;
 import java.io.File;
 import java.io.FileInputStream;
-
 import java.util.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import sun.awt.AppContext;
-
 import sun.awt.HeadlessToolkit;
 import sun.awt.NullComponentPeer;
 import sun.awt.PeerEvent;
 import sun.awt.SunToolkit;
 import sun.awt.AWTAccessor;
 import sun.security.util.SecurityConstants;
-
 import sun.util.CoreResourceBundleControl;
-
-
 public abstract class Toolkit {
-
-
     protected abstract DesktopPeer createDesktopPeer(Desktop target)
       throws HeadlessException;
-
-
-
     protected abstract ButtonPeer createButton(Button target)
         throws HeadlessException;
-
-
     protected abstract TextFieldPeer createTextField(TextField target)
         throws HeadlessException;
-
-
     protected abstract LabelPeer createLabel(Label target)
         throws HeadlessException;
-
-
     protected abstract ListPeer createList(java.awt.List target)
         throws HeadlessException;
-
-
     protected abstract CheckboxPeer createCheckbox(Checkbox target)
         throws HeadlessException;
-
-
     protected abstract ScrollbarPeer createScrollbar(Scrollbar target)
         throws HeadlessException;
-
-
     protected abstract ScrollPanePeer createScrollPane(ScrollPane target)
         throws HeadlessException;
-
-
     protected abstract TextAreaPeer createTextArea(TextArea target)
         throws HeadlessException;
-
-
     protected abstract ChoicePeer createChoice(Choice target)
         throws HeadlessException;
-
-
     protected abstract FramePeer createFrame(Frame target)
         throws HeadlessException;
-
-
     protected abstract CanvasPeer       createCanvas(Canvas target);
-
-
     protected abstract PanelPeer        createPanel(Panel target);
-
-
     protected abstract WindowPeer createWindow(Window target)
         throws HeadlessException;
-
-
     protected abstract DialogPeer createDialog(Dialog target)
         throws HeadlessException;
-
-
     protected abstract MenuBarPeer createMenuBar(MenuBar target)
         throws HeadlessException;
-
-
     protected abstract MenuPeer createMenu(Menu target)
         throws HeadlessException;
-
-
     protected abstract PopupMenuPeer createPopupMenu(PopupMenu target)
         throws HeadlessException;
-
-
     protected abstract MenuItemPeer createMenuItem(MenuItem target)
         throws HeadlessException;
-
-
     protected abstract FileDialogPeer createFileDialog(FileDialog target)
         throws HeadlessException;
-
-
     protected abstract CheckboxMenuItemPeer createCheckboxMenuItem(
         CheckboxMenuItem target) throws HeadlessException;
-
-
     protected MouseInfoPeer getMouseInfoPeer() {
         throw new UnsupportedOperationException("Not implemented");
     }
-
     private static LightweightPeer lightweightMarker;
-
-
     protected LightweightPeer createComponent(Component target) {
         if (lightweightMarker == null) {
             lightweightMarker = new NullComponentPeer();
         }
         return lightweightMarker;
     }
-
-
     @Deprecated
     protected abstract FontPeer getFontPeer(String name, int style);
-
     // The following method is called by the private method
     // <code>updateSystemColors</code> in <code>SystemColor</code>.
-
-
     protected void loadSystemColors(int[] systemColors)
         throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
     }
-
-
     public void setDynamicLayout(final boolean dynamic)
         throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
@@ -156,40 +93,28 @@ public abstract class Toolkit {
             getDefaultToolkit().setDynamicLayout(dynamic);
         }
     }
-
-
     protected boolean isDynamicLayoutSet()
         throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
-
         if (this != Toolkit.getDefaultToolkit()) {
             return Toolkit.getDefaultToolkit().isDynamicLayoutSet();
         } else {
             return false;
         }
     }
-
-
     public boolean isDynamicLayoutActive()
         throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
-
         if (this != Toolkit.getDefaultToolkit()) {
             return Toolkit.getDefaultToolkit().isDynamicLayoutActive();
         } else {
             return false;
         }
     }
-
-
     public abstract Dimension getScreenSize()
         throws HeadlessException;
-
-
     public abstract int getScreenResolution()
         throws HeadlessException;
-
-
     public Insets getScreenInsets(GraphicsConfiguration gc)
         throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
@@ -199,40 +124,22 @@ public abstract class Toolkit {
             return new Insets(0, 0, 0, 0);
         }
     }
-
-
     public abstract ColorModel getColorModel()
         throws HeadlessException;
-
-
     @Deprecated
     public abstract String[] getFontList();
-
-
     @Deprecated
     public abstract FontMetrics getFontMetrics(Font font);
-
-
     public abstract void sync();
-
-
     private static Toolkit toolkit;
-
-
     private static String atNames;
-
-
     private static void initAssistiveTechnologies() {
-
         // Get accessibility properties
         final String sep = File.separator;
         final Properties properties = new Properties();
-
-
         atNames = java.security.AccessController.doPrivileged(
             new java.security.PrivilegedAction<String>() {
             public String run() {
-
                 // Try loading the per-user accessibility properties file.
                 try {
                     File propsFile = new File(
@@ -240,14 +147,12 @@ public abstract class Toolkit {
                       sep + ".accessibility.properties");
                     FileInputStream in =
                         new FileInputStream(propsFile);
-
                     // Inputstream has been buffered in Properties class
                     properties.load(in);
                     in.close();
                 } catch (Exception e) {
                     // Per-user accessibility properties file does not exist
                 }
-
                 // Try loading the system-wide accessibility properties
                 // file only if a per-user accessibility properties
                 // file does not exist or is empty.
@@ -258,7 +163,6 @@ public abstract class Toolkit {
                             sep + "accessibility.properties");
                         FileInputStream in =
                             new FileInputStream(propsFile);
-
                         // Inputstream has been buffered in Properties class
                         properties.load(in);
                         in.close();
@@ -267,7 +171,6 @@ public abstract class Toolkit {
                         // not exist;
                     }
                 }
-
                 // Get whether a screen magnifier is present.  First check
                 // the system property and then check the properties file.
                 String magPresent = System.getProperty("javax.accessibility.screen_magnifier_present");
@@ -277,7 +180,6 @@ public abstract class Toolkit {
                         System.setProperty("javax.accessibility.screen_magnifier_present", magPresent);
                     }
                 }
-
                 // Get the names of any assistive technolgies to load.  First
                 // check the system property and then check the properties
                 // file.
@@ -292,8 +194,6 @@ public abstract class Toolkit {
             }
         });
     }
-
-
     private static void loadAssistiveTechnologies() {
         // Load any assistive technologies
         if (atNames != null) {
@@ -326,8 +226,6 @@ public abstract class Toolkit {
             }
         }
     }
-
-
     public static synchronized Toolkit getDefaultToolkit() {
         if (toolkit == null) {
             java.security.AccessController.doPrivileged(
@@ -366,50 +264,27 @@ public abstract class Toolkit {
         }
         return toolkit;
     }
-
-
     public abstract Image getImage(String filename);
-
-
     public abstract Image getImage(URL url);
-
-
     public abstract Image createImage(String filename);
-
-
     public abstract Image createImage(URL url);
-
-
     public abstract boolean prepareImage(Image image, int width, int height,
                                          ImageObserver observer);
-
-
     public abstract int checkImage(Image image, int width, int height,
                                    ImageObserver observer);
-
-
     public abstract Image createImage(ImageProducer producer);
-
-
     public Image createImage(byte[] imagedata) {
         return createImage(imagedata, 0, imagedata.length);
     }
-
-
     public abstract Image createImage(byte[] imagedata,
                                       int imageoffset,
                                       int imagelength);
-
-
     public abstract PrintJob getPrintJob(Frame frame, String jobtitle,
                                          Properties props);
-
-
     public PrintJob getPrintJob(Frame frame, String jobtitle,
                                 JobAttributes jobAttributes,
                                 PageAttributes pageAttributes) {
         // Override to add printing support with new job/page control classes
-
         if (this != Toolkit.getDefaultToolkit()) {
             return Toolkit.getDefaultToolkit().getPrintJob(frame, jobtitle,
                                                            jobAttributes,
@@ -418,18 +293,11 @@ public abstract class Toolkit {
             return getPrintJob(frame, jobtitle, null);
         }
     }
-
-
     public abstract void beep();
-
-
     public abstract Clipboard getSystemClipboard()
         throws HeadlessException;
-
-
     public Clipboard getSystemSelection() throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
-
         if (this != Toolkit.getDefaultToolkit()) {
             return Toolkit.getDefaultToolkit().getSystemSelection();
         } else {
@@ -437,46 +305,33 @@ public abstract class Toolkit {
             return null;
         }
     }
-
-
     public int getMenuShortcutKeyMask() throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
-
         return Event.CTRL_MASK;
     }
-
-
     public boolean getLockingKeyState(int keyCode)
         throws UnsupportedOperationException
     {
         GraphicsEnvironment.checkHeadless();
-
         if (! (keyCode == KeyEvent.VK_CAPS_LOCK || keyCode == KeyEvent.VK_NUM_LOCK ||
                keyCode == KeyEvent.VK_SCROLL_LOCK || keyCode == KeyEvent.VK_KANA_LOCK)) {
             throw new IllegalArgumentException("invalid key for Toolkit.getLockingKeyState");
         }
         throw new UnsupportedOperationException("Toolkit.getLockingKeyState");
     }
-
-
     public void setLockingKeyState(int keyCode, boolean on)
         throws UnsupportedOperationException
     {
         GraphicsEnvironment.checkHeadless();
-
         if (! (keyCode == KeyEvent.VK_CAPS_LOCK || keyCode == KeyEvent.VK_NUM_LOCK ||
                keyCode == KeyEvent.VK_SCROLL_LOCK || keyCode == KeyEvent.VK_KANA_LOCK)) {
             throw new IllegalArgumentException("invalid key for Toolkit.setLockingKeyState");
         }
         throw new UnsupportedOperationException("Toolkit.setLockingKeyState");
     }
-
-
     protected static Container getNativeContainer(Component c) {
         return c.getNativeContainer();
     }
-
-
     public Cursor createCustomCursor(Image cursor, Point hotSpot, String name)
         throws IndexOutOfBoundsException, HeadlessException
     {
@@ -488,12 +343,9 @@ public abstract class Toolkit {
             return new Cursor(Cursor.DEFAULT_CURSOR);
         }
     }
-
-
     public Dimension getBestCursorSize(int preferredWidth,
         int preferredHeight) throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
-
         // Override to implement custom cursor support.
         if (this != Toolkit.getDefaultToolkit()) {
             return Toolkit.getDefaultToolkit().
@@ -502,11 +354,8 @@ public abstract class Toolkit {
             return new Dimension(0, 0);
         }
     }
-
-
     public int getMaximumCursorColors() throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
-
         // Override to implement custom cursor support.
         if (this != Toolkit.getDefaultToolkit()) {
             return Toolkit.getDefaultToolkit().getMaximumCursorColors();
@@ -514,13 +363,10 @@ public abstract class Toolkit {
             return 0;
         }
     }
-
-
     public boolean isFrameStateSupported(int state)
         throws HeadlessException
     {
         GraphicsEnvironment.checkHeadless();
-
         if (this != Toolkit.getDefaultToolkit()) {
             return Toolkit.getDefaultToolkit().
                 isFrameStateSupported(state);
@@ -528,20 +374,13 @@ public abstract class Toolkit {
             return (state == Frame.NORMAL); // others are not guaranteed
         }
     }
-
-
     private static ResourceBundle resources;
     private static ResourceBundle platformResources;
-
     // called by platform toolkit
     private static void setPlatformResources(ResourceBundle bundle) {
         platformResources = bundle;
     }
-
-
     private static native void initIDs();
-
-
     private static boolean loaded = false;
     static void loadLibraries() {
         if (!loaded) {
@@ -555,7 +394,6 @@ public abstract class Toolkit {
             loaded = true;
         }
     }
-
     static {
         AWTAccessor.setToolkitAccessor(
                 new AWTAccessor.ToolkitAccessor() {
@@ -564,7 +402,6 @@ public abstract class Toolkit {
                         Toolkit.setPlatformResources(bundle);
                     }
                 });
-
         java.security.AccessController.doPrivileged(
                                  new java.security.PrivilegedAction<Void>() {
             public Void run() {
@@ -578,7 +415,6 @@ public abstract class Toolkit {
                 return null;
             }
         });
-
         // ensure that the proper libraries are loaded
         loadLibraries();
         initAssistiveTechnologies();
@@ -586,8 +422,6 @@ public abstract class Toolkit {
             initIDs();
         }
     }
-
-
     public static String getProperty(String key, String defaultValue) {
         // first try platform specific bundle
         if (platformResources != null) {
@@ -596,7 +430,6 @@ public abstract class Toolkit {
             }
             catch (MissingResourceException e) {}
         }
-
         // then shared one
         if (resources != null) {
             try {
@@ -604,11 +437,8 @@ public abstract class Toolkit {
             }
             catch (MissingResourceException e) {}
         }
-
         return defaultValue;
     }
-
-
     public final EventQueue getSystemEventQueue() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -616,19 +446,11 @@ public abstract class Toolkit {
         }
         return getSystemEventQueueImpl();
     }
-
-
     protected abstract EventQueue getSystemEventQueueImpl();
-
-
     static EventQueue getEventQueue() {
         return getDefaultToolkit().getSystemEventQueueImpl();
     }
-
-
     public abstract DragSourceContextPeer createDragSourceContextPeer(DragGestureEvent dge) throws InvalidDnDOperationException;
-
-
     public <T extends DragGestureRecognizer> T
         createDragGestureRecognizer(Class<T> abstractRecognizerClass,
                                     DragSource ds, Component c, int srcActions,
@@ -636,8 +458,6 @@ public abstract class Toolkit {
     {
         return null;
     }
-
-
     public final synchronized Object getDesktopProperty(String propertyName) {
         // This is a workaround for headless toolkits.  It would be
         // better to override this method but it is declared final.
@@ -647,37 +467,26 @@ public abstract class Toolkit {
             return ((HeadlessToolkit)this).getUnderlyingToolkit()
                 .getDesktopProperty(propertyName);
         }
-
         if (desktopProperties.isEmpty()) {
             initializeDesktopProperties();
         }
-
         Object value;
-
         // This property should never be cached
         if (propertyName.equals("awt.dynamicLayoutSupported")) {
             return getDefaultToolkit().lazilyLoadDesktopProperty(propertyName);
         }
-
         value = desktopProperties.get(propertyName);
-
         if (value == null) {
             value = lazilyLoadDesktopProperty(propertyName);
-
             if (value != null) {
                 setDesktopProperty(propertyName, value);
             }
         }
-
-
         if (value instanceof RenderingHints) {
             value = ((RenderingHints)value).clone();
         }
-
         return value;
     }
-
-
     protected final void setDesktopProperty(String name, Object newValue) {
         // This is a workaround for headless toolkits.  It would be
         // better to override this method but it is declared final.
@@ -689,77 +498,51 @@ public abstract class Toolkit {
             return;
         }
         Object oldValue;
-
         synchronized (this) {
             oldValue = desktopProperties.get(name);
             desktopProperties.put(name, newValue);
         }
-
         // Don't fire change event if old and new values are null.
         // It helps to avoid recursive resending of WM_THEMECHANGED
         if (oldValue != null || newValue != null) {
             desktopPropsSupport.firePropertyChange(name, oldValue, newValue);
         }
     }
-
-
     protected Object lazilyLoadDesktopProperty(String name) {
         return null;
     }
-
-
     protected void initializeDesktopProperties() {
     }
-
-
     public void addPropertyChangeListener(String name, PropertyChangeListener pcl) {
         desktopPropsSupport.addPropertyChangeListener(name, pcl);
     }
-
-
     public void removePropertyChangeListener(String name, PropertyChangeListener pcl) {
         desktopPropsSupport.removePropertyChangeListener(name, pcl);
     }
-
-
     public PropertyChangeListener[] getPropertyChangeListeners() {
         return desktopPropsSupport.getPropertyChangeListeners();
     }
-
-
     public PropertyChangeListener[] getPropertyChangeListeners(String propertyName) {
         return desktopPropsSupport.getPropertyChangeListeners(propertyName);
     }
-
     protected final Map<String,Object> desktopProperties =
             new HashMap<String,Object>();
     protected final PropertyChangeSupport desktopPropsSupport =
             Toolkit.createPropertyChangeSupport(this);
-
-
     public boolean isAlwaysOnTopSupported() {
         return true;
     }
-
-
     public abstract boolean isModalityTypeSupported(Dialog.ModalityType modalityType);
-
-
     public abstract boolean isModalExclusionTypeSupported(Dialog.ModalExclusionType modalExclusionType);
-
     // 8014718: logging has been removed from SunToolkit
-
     private static final int LONG_BITS = 64;
     private int[] calls = new int[LONG_BITS];
     private static volatile long enabledOnToolkitMask;
     private AWTEventListener eventListener = null;
     private WeakHashMap<AWTEventListener, SelectiveAWTEventListener> listener2SelectiveListener = new WeakHashMap<>();
-
-
     static private AWTEventListener deProxyAWTEventListener(AWTEventListener l)
     {
         AWTEventListener localL = l;
-
         if (localL == null) {
             return null;
         }
@@ -770,11 +553,8 @@ public abstract class Toolkit {
         }
         return localL;
     }
-
-
     public void addAWTEventListener(AWTEventListener listener, long eventMask) {
         AWTEventListener localL = deProxyAWTEventListener(listener);
-
         if (localL == null) {
             return;
         }
@@ -785,7 +565,6 @@ public abstract class Toolkit {
         synchronized (this) {
             SelectiveAWTEventListener selectiveListener =
                 listener2SelectiveListener.get(localL);
-
             if (selectiveListener == null) {
                 // Create a new selectiveListener.
                 selectiveListener = new SelectiveAWTEventListener(localL,
@@ -796,9 +575,7 @@ public abstract class Toolkit {
             }
             // OR the eventMask into the selectiveListener's event mask.
             selectiveListener.orEventMasks(eventMask);
-
             enabledOnToolkitMask |= eventMask;
-
             long mask = eventMask;
             for (int i=0; i<LONG_BITS; i++) {
                 // If no bits are set, break out of loop.
@@ -812,11 +589,8 @@ public abstract class Toolkit {
             }
         }
     }
-
-
     public void removeAWTEventListener(AWTEventListener listener) {
         AWTEventListener localL = deProxyAWTEventListener(listener);
-
         if (listener == null) {
             return;
         }
@@ -824,18 +598,15 @@ public abstract class Toolkit {
         if (security != null) {
             security.checkPermission(SecurityConstants.AWT.ALL_AWT_EVENTS_PERMISSION);
         }
-
         synchronized (this) {
             SelectiveAWTEventListener selectiveListener =
                 listener2SelectiveListener.get(localL);
-
             if (selectiveListener != null) {
                 listener2SelectiveListener.remove(localL);
                 int[] listenerCalls = selectiveListener.getCalls();
                 for (int i=0; i<LONG_BITS; i++) {
                     calls[i] -= listenerCalls[i];
                     assert calls[i] >= 0: "Negative Listeners count";
-
                     if (calls[i] == 0) {
                         enabledOnToolkitMask &= ~(1L<<i);
                     }
@@ -845,11 +616,9 @@ public abstract class Toolkit {
             (selectiveListener == null) ? localL : selectiveListener);
         }
     }
-
     static boolean enabledOnToolkit(long eventMask) {
         return (enabledOnToolkitMask & eventMask) != 0;
         }
-
     synchronized int countAWTEventListeners(long eventMask) {
         int ci = 0;
         for (; eventMask != 0; eventMask >>>= 1, ci++) {
@@ -857,7 +626,6 @@ public abstract class Toolkit {
         ci--;
         return calls[ci];
     }
-
     public AWTEventListener[] getAWTEventListeners() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -865,7 +633,6 @@ public abstract class Toolkit {
         }
         synchronized (this) {
             EventListener[] la = ToolkitEventMulticaster.getListeners(eventListener,AWTEventListener.class);
-
             AWTEventListener[] ret = new AWTEventListener[la.length];
             for (int i = 0; i < la.length; i++) {
                 SelectiveAWTEventListener sael = (SelectiveAWTEventListener)la[i];
@@ -878,8 +645,6 @@ public abstract class Toolkit {
             return ret;
         }
     }
-
-
     public AWTEventListener[] getAWTEventListeners(long eventMask) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -887,9 +652,7 @@ public abstract class Toolkit {
         }
         synchronized (this) {
             EventListener[] la = ToolkitEventMulticaster.getListeners(eventListener,AWTEventListener.class);
-
             java.util.List<AWTEventListenerProxy> list = new ArrayList<>(la.length);
-
             for (int i = 0; i < la.length; i++) {
                 SelectiveAWTEventListener sael = (SelectiveAWTEventListener)la[i];
                 if ((sael.getEventMask() & eventMask) == eventMask) {
@@ -901,8 +664,6 @@ public abstract class Toolkit {
             return list.toArray(new AWTEventListener[0]);
         }
     }
-
-
     void notifyAWTEventListeners(AWTEvent theEvent) {
         // This is a workaround for headless toolkits.  It would be
         // better to override this method but it is declared package private.
@@ -913,33 +674,27 @@ public abstract class Toolkit {
                 .notifyAWTEventListeners(theEvent);
             return;
         }
-
         AWTEventListener eventListener = this.eventListener;
         if (eventListener != null) {
             eventListener.eventDispatched(theEvent);
         }
     }
-
     static private class ToolkitEventMulticaster extends AWTEventMulticaster
         implements AWTEventListener {
         // Implementation cloned from AWTEventMulticaster.
-
         ToolkitEventMulticaster(AWTEventListener a, AWTEventListener b) {
             super(a, b);
         }
-
         static AWTEventListener add(AWTEventListener a,
                                     AWTEventListener b) {
             if (a == null)  return b;
             if (b == null)  return a;
             return new ToolkitEventMulticaster(a, b);
         }
-
         static AWTEventListener remove(AWTEventListener l,
                                        AWTEventListener oldl) {
             return (AWTEventListener) removeInternal(l, oldl);
         }
-
         // #4178589: must overload remove(EventListener) to call our add()
         // instead of the static addInternal() so we allocate a
         // ToolkitEventMulticaster instead of an AWTEventMulticaster.
@@ -955,24 +710,20 @@ public abstract class Toolkit {
             }
             return add(a2, b2);
         }
-
         public void eventDispatched(AWTEvent event) {
             ((AWTEventListener)a).eventDispatched(event);
             ((AWTEventListener)b).eventDispatched(event);
         }
     }
-
     private class SelectiveAWTEventListener implements AWTEventListener {
         AWTEventListener listener;
         private long eventMask;
         // This array contains the number of times to call the eventlistener
         // for each event type.
         int[] calls = new int[Toolkit.LONG_BITS];
-
         public AWTEventListener getListener() {return listener;}
         public long getEventMask() {return eventMask;}
         public int[] getCalls() {return calls;}
-
         public void orEventMasks(long mask) {
             eventMask |= mask;
             // For each event bit set in mask, increment its call count.
@@ -987,12 +738,10 @@ public abstract class Toolkit {
                 mask >>>= 1;  // Right shift, fill with zeros on left.
             }
         }
-
         SelectiveAWTEventListener(AWTEventListener l, long mask) {
             listener = l;
             eventMask = mask;
         }
-
         public void eventDispatched(AWTEvent event) {
             long eventBit = 0; // Used to save the bit of the event type.
             if (((eventBit = eventMask & AWTEvent.COMPONENT_EVENT_MASK) != 0 &&
@@ -1071,12 +820,9 @@ public abstract class Toolkit {
             }
         }
     }
-
-
     public abstract Map<java.awt.font.TextAttribute,?>
         mapInputMethodHighlight(InputMethodHighlight highlight)
         throws HeadlessException;
-
     private static PropertyChangeSupport createPropertyChangeSupport(Toolkit toolkit) {
         if (toolkit instanceof SunToolkit || toolkit instanceof HeadlessToolkit) {
             return new DesktopPropertyChangeSupport(toolkit);
@@ -1084,19 +830,15 @@ public abstract class Toolkit {
             return new PropertyChangeSupport(toolkit);
         }
     }
-
     @SuppressWarnings("serial")
     private static class DesktopPropertyChangeSupport extends PropertyChangeSupport {
-
         private static final StringBuilder PROP_CHANGE_SUPPORT_KEY =
                 new StringBuilder("desktop property change support key");
         private final Object source;
-
         public DesktopPropertyChangeSupport(Object sourceBean) {
             super(sourceBean);
             source = sourceBean;
         }
-
         @Override
         public synchronized void addPropertyChangeListener(
                 String propertyName,
@@ -1110,7 +852,6 @@ public abstract class Toolkit {
             }
             pcs.addPropertyChangeListener(propertyName, listener);
         }
-
         @Override
         public synchronized void removePropertyChangeListener(
                 String propertyName,
@@ -1122,7 +863,6 @@ public abstract class Toolkit {
                 pcs.removePropertyChangeListener(propertyName, listener);
             }
         }
-
         @Override
         public synchronized PropertyChangeListener[] getPropertyChangeListeners()
         {
@@ -1134,7 +874,6 @@ public abstract class Toolkit {
                 return new PropertyChangeListener[0];
             }
         }
-
         @Override
         public synchronized PropertyChangeListener[] getPropertyChangeListeners(String propertyName)
         {
@@ -1146,7 +885,6 @@ public abstract class Toolkit {
                 return new PropertyChangeListener[0];
             }
         }
-
         @Override
         public synchronized void addPropertyChangeListener(PropertyChangeListener listener) {
             PropertyChangeSupport pcs = (PropertyChangeSupport)
@@ -1157,7 +895,6 @@ public abstract class Toolkit {
             }
             pcs.addPropertyChangeListener(listener);
         }
-
         @Override
         public synchronized void removePropertyChangeListener(PropertyChangeListener listener) {
             PropertyChangeSupport pcs = (PropertyChangeSupport)
@@ -1166,8 +903,6 @@ public abstract class Toolkit {
                 pcs.removePropertyChangeListener(listener);
             }
         }
-
-
         @Override
         public void firePropertyChange(final PropertyChangeEvent evt) {
             Object oldValue = evt.getOldValue();
@@ -1199,11 +934,8 @@ public abstract class Toolkit {
             }
         }
     }
-
-
     public boolean areExtraMouseButtonsEnabled() throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
-
         return Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled();
     }
 }

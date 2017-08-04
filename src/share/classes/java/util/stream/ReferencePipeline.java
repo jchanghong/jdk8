@@ -1,6 +1,4 @@
-
 package java.util.stream;
-
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
@@ -21,36 +19,25 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
-
-
 abstract class ReferencePipeline<P_IN, P_OUT>
         extends AbstractPipeline<P_IN, P_OUT, Stream<P_OUT>>
         implements Stream<P_OUT>  {
-
-
     ReferencePipeline(Supplier<? extends Spliterator<?>> source,
                       int sourceFlags, boolean parallel) {
         super(source, sourceFlags, parallel);
     }
-
-
     ReferencePipeline(Spliterator<?> source,
                       int sourceFlags, boolean parallel) {
         super(source, sourceFlags, parallel);
     }
-
-
     ReferencePipeline(AbstractPipeline<?, P_IN, ?> upstream, int opFlags) {
         super(upstream, opFlags);
     }
-
     // Shape-specific methods
-
     @Override
     final StreamShape getOutputShape() {
         return StreamShape.REFERENCE;
     }
-
     @Override
     final <P_IN> Node<P_OUT> evaluateToNode(PipelineHelper<P_OUT> helper,
                                         Spliterator<P_IN> spliterator,
@@ -58,42 +45,31 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                                         IntFunction<P_OUT[]> generator) {
         return Nodes.collect(helper, spliterator, flattenTree, generator);
     }
-
     @Override
     final <P_IN> Spliterator<P_OUT> wrap(PipelineHelper<P_OUT> ph,
                                      Supplier<Spliterator<P_IN>> supplier,
                                      boolean isParallel) {
         return new StreamSpliterators.WrappingSpliterator<>(ph, supplier, isParallel);
     }
-
     @Override
     final Spliterator<P_OUT> lazySpliterator(Supplier<? extends Spliterator<P_OUT>> supplier) {
         return new StreamSpliterators.DelegatingSpliterator<>(supplier);
     }
-
     @Override
     final void forEachWithCancel(Spliterator<P_OUT> spliterator, Sink<P_OUT> sink) {
         do { } while (!sink.cancellationRequested() && spliterator.tryAdvance(sink));
     }
-
     @Override
     final Node.Builder<P_OUT> makeNodeBuilder(long exactSizeIfKnown, IntFunction<P_OUT[]> generator) {
         return Nodes.builder(exactSizeIfKnown, generator);
     }
-
-
     // BaseStream
-
     @Override
     public final Iterator<P_OUT> iterator() {
         return Spliterators.iterator(spliterator());
     }
-
-
     // Stream
-
     // Stateless intermediate operations from Stream
-
     @Override
     public Stream<P_OUT> unordered() {
         if (!isOrdered())
@@ -105,7 +81,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         };
     }
-
     @Override
     public final Stream<P_OUT> filter(Predicate<? super P_OUT> predicate) {
         Objects.requireNonNull(predicate);
@@ -118,7 +93,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                     public void begin(long size) {
                         downstream.begin(-1);
                     }
-
                     @Override
                     public void accept(P_OUT u) {
                         if (predicate.test(u))
@@ -128,7 +102,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         };
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public final <R> Stream<R> map(Function<? super P_OUT, ? extends R> mapper) {
@@ -146,7 +119,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         };
     }
-
     @Override
     public final IntStream mapToInt(ToIntFunction<? super P_OUT> mapper) {
         Objects.requireNonNull(mapper);
@@ -163,7 +135,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         };
     }
-
     @Override
     public final LongStream mapToLong(ToLongFunction<? super P_OUT> mapper) {
         Objects.requireNonNull(mapper);
@@ -180,7 +151,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         };
     }
-
     @Override
     public final DoubleStream mapToDouble(ToDoubleFunction<? super P_OUT> mapper) {
         Objects.requireNonNull(mapper);
@@ -197,7 +167,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         };
     }
-
     @Override
     public final <R> Stream<R> flatMap(Function<? super P_OUT, ? extends Stream<? extends R>> mapper) {
         Objects.requireNonNull(mapper);
@@ -211,7 +180,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                     public void begin(long size) {
                         downstream.begin(-1);
                     }
-
                     @Override
                     public void accept(P_OUT u) {
                         try (Stream<? extends R> result = mapper.apply(u)) {
@@ -224,7 +192,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         };
     }
-
     @Override
     public final IntStream flatMapToInt(Function<? super P_OUT, ? extends IntStream> mapper) {
         Objects.requireNonNull(mapper);
@@ -239,7 +206,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                     public void begin(long size) {
                         downstream.begin(-1);
                     }
-
                     @Override
                     public void accept(P_OUT u) {
                         try (IntStream result = mapper.apply(u)) {
@@ -252,7 +218,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         };
     }
-
     @Override
     public final DoubleStream flatMapToDouble(Function<? super P_OUT, ? extends DoubleStream> mapper) {
         Objects.requireNonNull(mapper);
@@ -267,7 +232,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                     public void begin(long size) {
                         downstream.begin(-1);
                     }
-
                     @Override
                     public void accept(P_OUT u) {
                         try (DoubleStream result = mapper.apply(u)) {
@@ -280,7 +244,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         };
     }
-
     @Override
     public final LongStream flatMapToLong(Function<? super P_OUT, ? extends LongStream> mapper) {
         Objects.requireNonNull(mapper);
@@ -295,7 +258,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                     public void begin(long size) {
                         downstream.begin(-1);
                     }
-
                     @Override
                     public void accept(P_OUT u) {
                         try (LongStream result = mapper.apply(u)) {
@@ -308,7 +270,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         };
     }
-
     @Override
     public final Stream<P_OUT> peek(Consumer<? super P_OUT> action) {
         Objects.requireNonNull(action);
@@ -326,31 +287,25 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         };
     }
-
     // Stateful intermediate operations from Stream
-
     @Override
     public final Stream<P_OUT> distinct() {
         return DistinctOps.makeRef(this);
     }
-
     @Override
     public final Stream<P_OUT> sorted() {
         return SortedOps.makeRef(this);
     }
-
     @Override
     public final Stream<P_OUT> sorted(Comparator<? super P_OUT> comparator) {
         return SortedOps.makeRef(this, comparator);
     }
-
     @Override
     public final Stream<P_OUT> limit(long maxSize) {
         if (maxSize < 0)
             throw new IllegalArgumentException(Long.toString(maxSize));
         return SliceOps.makeRef(this, 0, maxSize);
     }
-
     @Override
     public final Stream<P_OUT> skip(long n) {
         if (n < 0)
@@ -360,19 +315,15 @@ abstract class ReferencePipeline<P_IN, P_OUT>
         else
             return SliceOps.makeRef(this, n, -1);
     }
-
     // Terminal operations from Stream
-
     @Override
     public void forEach(Consumer<? super P_OUT> action) {
         evaluate(ForEachOps.makeRef(action, false));
     }
-
     @Override
     public void forEachOrdered(Consumer<? super P_OUT> action) {
         evaluate(ForEachOps.makeRef(action, true));
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public final <A> A[] toArray(IntFunction<A[]> generator) {
@@ -388,52 +339,42 @@ abstract class ReferencePipeline<P_IN, P_OUT>
         return (A[]) Nodes.flatten(evaluateToArrayNode(rawGenerator), rawGenerator)
                               .asArray(rawGenerator);
     }
-
     @Override
     public final Object[] toArray() {
         return toArray(Object[]::new);
     }
-
     @Override
     public final boolean anyMatch(Predicate<? super P_OUT> predicate) {
         return evaluate(MatchOps.makeRef(predicate, MatchOps.MatchKind.ANY));
     }
-
     @Override
     public final boolean allMatch(Predicate<? super P_OUT> predicate) {
         return evaluate(MatchOps.makeRef(predicate, MatchOps.MatchKind.ALL));
     }
-
     @Override
     public final boolean noneMatch(Predicate<? super P_OUT> predicate) {
         return evaluate(MatchOps.makeRef(predicate, MatchOps.MatchKind.NONE));
     }
-
     @Override
     public final Optional<P_OUT> findFirst() {
         return evaluate(FindOps.makeRef(true));
     }
-
     @Override
     public final Optional<P_OUT> findAny() {
         return evaluate(FindOps.makeRef(false));
     }
-
     @Override
     public final P_OUT reduce(final P_OUT identity, final BinaryOperator<P_OUT> accumulator) {
         return evaluate(ReduceOps.makeRef(identity, accumulator, accumulator));
     }
-
     @Override
     public final Optional<P_OUT> reduce(BinaryOperator<P_OUT> accumulator) {
         return evaluate(ReduceOps.makeRef(accumulator));
     }
-
     @Override
     public final <R> R reduce(R identity, BiFunction<R, ? super P_OUT, R> accumulator, BinaryOperator<R> combiner) {
         return evaluate(ReduceOps.makeRef(identity, accumulator, combiner));
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public final <R, A> R collect(Collector<? super P_OUT, A, R> collector) {
@@ -452,59 +393,43 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                ? (R) container
                : collector.finisher().apply(container);
     }
-
     @Override
     public final <R> R collect(Supplier<R> supplier,
                                BiConsumer<R, ? super P_OUT> accumulator,
                                BiConsumer<R, R> combiner) {
         return evaluate(ReduceOps.makeRef(supplier, accumulator, combiner));
     }
-
     @Override
     public final Optional<P_OUT> max(Comparator<? super P_OUT> comparator) {
         return reduce(BinaryOperator.maxBy(comparator));
     }
-
     @Override
     public final Optional<P_OUT> min(Comparator<? super P_OUT> comparator) {
         return reduce(BinaryOperator.minBy(comparator));
-
     }
-
     @Override
     public final long count() {
         return mapToLong(e -> 1L).sum();
     }
-
-
     //
-
-
     static class Head<E_IN, E_OUT> extends ReferencePipeline<E_IN, E_OUT> {
-
         Head(Supplier<? extends Spliterator<?>> source,
              int sourceFlags, boolean parallel) {
             super(source, sourceFlags, parallel);
         }
-
-
         Head(Spliterator<?> source,
              int sourceFlags, boolean parallel) {
             super(source, sourceFlags, parallel);
         }
-
         @Override
         final boolean opIsStateful() {
             throw new UnsupportedOperationException();
         }
-
         @Override
         final Sink<E_IN> opWrapSink(int flags, Sink<E_OUT> sink) {
             throw new UnsupportedOperationException();
         }
-
         // Optimized sequential terminal operations for the head of the pipeline
-
         @Override
         public void forEach(Consumer<? super E_OUT> action) {
             if (!isParallel()) {
@@ -514,7 +439,6 @@ abstract class ReferencePipeline<P_IN, P_OUT>
                 super.forEach(action);
             }
         }
-
         @Override
         public void forEachOrdered(Consumer<? super E_OUT> action) {
             if (!isParallel()) {
@@ -525,40 +449,31 @@ abstract class ReferencePipeline<P_IN, P_OUT>
             }
         }
     }
-
-
     abstract static class StatelessOp<E_IN, E_OUT>
             extends ReferencePipeline<E_IN, E_OUT> {
-
         StatelessOp(AbstractPipeline<?, E_IN, ?> upstream,
                     StreamShape inputShape,
                     int opFlags) {
             super(upstream, opFlags);
             assert upstream.getOutputShape() == inputShape;
         }
-
         @Override
         final boolean opIsStateful() {
             return false;
         }
     }
-
-
     abstract static class StatefulOp<E_IN, E_OUT>
             extends ReferencePipeline<E_IN, E_OUT> {
-
         StatefulOp(AbstractPipeline<?, E_IN, ?> upstream,
                    StreamShape inputShape,
                    int opFlags) {
             super(upstream, opFlags);
             assert upstream.getOutputShape() == inputShape;
         }
-
         @Override
         final boolean opIsStateful() {
             return true;
         }
-
         @Override
         abstract <P_IN> Node<E_OUT> opEvaluateParallel(PipelineHelper<E_OUT> helper,
                                                        Spliterator<P_IN> spliterator,

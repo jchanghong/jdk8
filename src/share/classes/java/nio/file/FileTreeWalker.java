@@ -1,7 +1,4 @@
-
-
 package java.nio.file;
-
 import java.nio.file.attribute.BasicFileAttributes;
 import java.io.Closeable;
 import java.io.IOException;
@@ -9,106 +6,78 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Iterator;
 import sun.nio.fs.BasicFileAttributesHolder;
-
-
-
 class FileTreeWalker implements Closeable {
     private final boolean followLinks;
     private final LinkOption[] linkOptions;
     private final int maxDepth;
     private final ArrayDeque<DirectoryNode> stack = new ArrayDeque<>();
     private boolean closed;
-
-
     private static class DirectoryNode {
         private final Path dir;
         private final Object key;
         private final DirectoryStream<Path> stream;
         private final Iterator<Path> iterator;
         private boolean skipped;
-
         DirectoryNode(Path dir, Object key, DirectoryStream<Path> stream) {
             this.dir = dir;
             this.key = key;
             this.stream = stream;
             this.iterator = stream.iterator();
         }
-
         Path directory() {
             return dir;
         }
-
         Object key() {
             return key;
         }
-
         DirectoryStream<Path> stream() {
             return stream;
         }
-
         Iterator<Path> iterator() {
             return iterator;
         }
-
         void skip() {
             skipped = true;
         }
-
         boolean skipped() {
             return skipped;
         }
     }
-
-
     static enum EventType {
-
         START_DIRECTORY,
-
         END_DIRECTORY,
-
         ENTRY;
     }
-
-
     static class Event {
         private final EventType type;
         private final Path file;
         private final BasicFileAttributes attrs;
         private final IOException ioe;
-
         private Event(EventType type, Path file, BasicFileAttributes attrs, IOException ioe) {
             this.type = type;
             this.file = file;
             this.attrs = attrs;
             this.ioe = ioe;
         }
-
         Event(EventType type, Path file, BasicFileAttributes attrs) {
             this(type, file, attrs, null);
         }
-
         Event(EventType type, Path file, IOException ioe) {
             this(type, file, null, ioe);
         }
-
         EventType type() {
             return type;
         }
-
         Path file() {
             return file;
         }
-
         BasicFileAttributes attributes() {
             return attrs;
         }
-
         IOException ioeException() {
             return ioe;
         }
     }
-
-
     FileTreeWalker(Collection<FileVisitOption> options, int maxDepth) {
         boolean fl = false;
         for (FileVisitOption option: options) {
@@ -121,14 +90,11 @@ class FileTreeWalker implements Closeable {
         }
         if (maxDepth < 0)
             throw new IllegalArgumentException("'maxDepth' is negative");
-
         this.followLinks = fl;
         this.linkOptions = (fl) ? new LinkOption[0] :
             new LinkOption[] { LinkOption.NOFOLLOW_LINKS };
         this.maxDepth = maxDepth;
     }
-
-
     private BasicFileAttributes getAttributes(Path file, boolean canUseCached)
         throws IOException
     {
@@ -142,7 +108,6 @@ class FileTreeWalker implements Closeable {
                 return cached;
             }
         }
-
         // attempt to get attributes of file. If fails and we are following
         // links then a link target might not exist so get attributes of link
         BasicFileAttributes attrs;
@@ -151,7 +116,6 @@ class FileTreeWalker implements Closeable {
         } catch (IOException ioe) {
             if (!followLinks)
                 throw ioe;
-
             // attempt to get attrmptes without following links
             attrs = Files.readAttributes(file,
                                          BasicFileAttributes.class,
@@ -159,8 +123,6 @@ class FileTreeWalker implements Closeable {
         }
         return attrs;
     }
-
-
     private boolean wouldLoop(Path dir, Object key) {
         // if this directory and ancestor has a file key then we compare
         // them; otherwise we use less efficient isSameFile test.
@@ -184,8 +146,6 @@ class FileTreeWalker implements Closeable {
         }
         return false;
     }
-
-
     private Event visit(Path entry, boolean ignoreSecurityException, boolean canUseCached) {
         // need the file attributes
         BasicFileAttributes attrs;
@@ -198,19 +158,16 @@ class FileTreeWalker implements Closeable {
                 return null;
             throw se;
         }
-
         // at maximum depth or file is not a directory
         int depth = stack.size();
         if (depth >= maxDepth || !attrs.isDirectory()) {
             return new Event(EventType.ENTRY, entry, attrs);
         }
-
         // check for cycles when following links
         if (followLinks && wouldLoop(entry, attrs.fileKey())) {
             return new Event(EventType.ENTRY, entry,
                              new FileSystemLoopException(entry.toString()));
         }
-
         // file is a directory, attempt to open it
         DirectoryStream<Path> stream = null;
         try {
@@ -222,37 +179,28 @@ class FileTreeWalker implements Closeable {
                 return null;
             throw se;
         }
-
         // push a directory node to the stack and return an event
         stack.push(new DirectoryNode(entry, attrs.fileKey(), stream));
         return new Event(EventType.START_DIRECTORY, entry, attrs);
     }
-
-
-
     Event walk(Path file) {
         if (closed)
             throw new IllegalStateException("Closed");
-
         Event ev = visit(file,
                          false,   // ignoreSecurityException
                          false);  // canUseCached
         assert ev != null;
         return ev;
     }
-
-
     Event next() {
         DirectoryNode top = stack.peek();
         if (top == null)
             return null;      // stack is empty, we are done
-
         // continue iteration of the directory at the top of the stack
         Event ev;
         do {
             Path entry = null;
             IOException ioe = null;
-
             // get next entry in the directory
             if (!top.skipped()) {
                 Iterator<Path> iterator = top.iterator();
@@ -264,7 +212,6 @@ class FileTreeWalker implements Closeable {
                     ioe = x.getCause();
                 }
             }
-
             // no next entry so close and pop directory, creating corresponding event
             if (entry == null) {
                 try {
@@ -279,18 +226,13 @@ class FileTreeWalker implements Closeable {
                 stack.pop();
                 return new Event(EventType.END_DIRECTORY, top.directory(), ioe);
             }
-
             // visit the entry
             ev = visit(entry,
                        true,   // ignoreSecurityException
                        true);  // canUseCached
-
         } while (ev == null);
-
         return ev;
     }
-
-
     void pop() {
         if (!stack.isEmpty()) {
             DirectoryNode node = stack.pop();
@@ -299,20 +241,14 @@ class FileTreeWalker implements Closeable {
             } catch (IOException ignore) { }
         }
     }
-
-
     void skipRemainingSiblings() {
         if (!stack.isEmpty()) {
             stack.peek().skip();
         }
     }
-
-
     boolean isOpen() {
         return !closed;
     }
-
-
     @Override
     public void close() {
         if (!closed) {

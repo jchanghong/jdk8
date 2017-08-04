@@ -1,18 +1,11 @@
-
-
 package java.lang.management;
-
 import javax.management.openmbean.CompositeData;
 import sun.management.MemoryUsageCompositeData;
-
-
 public class MemoryUsage {
     private final long init;
     private final long used;
     private final long committed;
     private final long max;
-
-
     public MemoryUsage(long init,
                        long used,
                        long committed,
@@ -41,45 +34,31 @@ public class MemoryUsage {
             throw new IllegalArgumentException( "committed = " + committed +
                 " should be < max = " + max);
         }
-
         this.init = init;
         this.used = used;
         this.committed = committed;
         this.max = max;
     }
-
-
     private MemoryUsage(CompositeData cd) {
         // validate the input composite data
         MemoryUsageCompositeData.validateCompositeData(cd);
-
         this.init = MemoryUsageCompositeData.getInit(cd);
         this.used = MemoryUsageCompositeData.getUsed(cd);
         this.committed = MemoryUsageCompositeData.getCommitted(cd);
         this.max = MemoryUsageCompositeData.getMax(cd);
     }
-
-
     public long getInit() {
         return init;
     }
-
-
     public long getUsed() {
         return used;
     };
-
-
     public long getCommitted() {
         return committed;
     };
-
-
     public long getMax() {
         return max;
     };
-
-
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("init = " + init + "(" + (init >> 10) + "K) ");
@@ -89,18 +68,14 @@ public class MemoryUsage {
         buf.append("max = " + max + "(" + (max >> 10) + "K)");
         return buf.toString();
     }
-
-
     public static MemoryUsage from(CompositeData cd) {
         if (cd == null) {
             return null;
         }
-
         if (cd instanceof MemoryUsageCompositeData) {
             return ((MemoryUsageCompositeData) cd).getMemoryUsage();
         } else {
             return new MemoryUsage(cd);
         }
-
     }
 }

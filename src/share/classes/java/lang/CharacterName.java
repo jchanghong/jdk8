@@ -1,7 +1,4 @@
-
-
 package java.lang;
-
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
@@ -9,12 +6,9 @@ import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-
 class CharacterName {
-
     private static SoftReference<byte[]> refStrPool;
     private static int[][] lookup;
-
     private static synchronized byte[] initNamePool() {
         byte[] strPool = null;
         if (refStrPool != null && (strPool = refStrPool.get()) != null)
@@ -28,13 +22,11 @@ class CharacterName {
                         return getClass().getResourceAsStream("uniName.dat");
                     }
                 })));
-
             lookup = new int[(Character.MAX_CODE_POINT + 1) >> 8][];
             int total = dis.readInt();
             int cpEnd = dis.readInt();
             byte ba[] = new byte[cpEnd];
             dis.readFully(ba);
-
             int nameOff = 0;
             int cpOff = 0;
             int cp = 0;
@@ -69,7 +61,6 @@ class CharacterName {
         }
         return strPool;
     }
-
     public static String get(int cp) {
         byte[] strPool = null;
         if (refStrPool == null || (strPool = refStrPool.get()) == null)

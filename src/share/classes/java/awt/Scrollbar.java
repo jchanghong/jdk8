@@ -1,6 +1,4 @@
-
 package java.awt;
-
 import java.awt.peer.ScrollbarPeer;
 import java.awt.event.*;
 import java.util.EventListener;
@@ -8,71 +6,34 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
 import javax.accessibility.*;
-
-
-
 public class Scrollbar extends Component implements Adjustable, Accessible {
-
-
     public static final int     HORIZONTAL = 0;
-
-
     public static final int     VERTICAL   = 1;
-
-
     int value;
-
-
     int maximum;
-
-
     int minimum;
-
-
     int visibleAmount;
-
-
     int orientation;
-
-
     int lineIncrement = 1;
-
-
     int pageIncrement = 10;
-
-
     transient boolean isAdjusting;
-
     transient AdjustmentListener adjustmentListener;
-
     private static final String base = "scrollbar";
     private static int nameCounter = 0;
-
-
     private static final long serialVersionUID = 8451667562882310543L;
-
-
     private static native void initIDs();
-
     static {
-
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
             initIDs();
         }
     }
-
-
     public Scrollbar() throws HeadlessException {
         this(VERTICAL, 0, 10, 0, 100);
     }
-
-
     public Scrollbar(int orientation) throws HeadlessException {
         this(orientation, 0, 10, 0, 100);
     }
-
-
     public Scrollbar(int orientation, int value, int visible, int minimum,
         int maximum) throws HeadlessException {
         GraphicsEnvironment.checkHeadless();
@@ -86,15 +47,11 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
         }
         setValues(value, visible, minimum, maximum);
     }
-
-
     String constructComponentName() {
         synchronized (Scrollbar.class) {
             return base + nameCounter++;
         }
     }
-
-
     public void addNotify() {
         synchronized (getTreeLock()) {
             if (peer == null)
@@ -102,13 +59,9 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
             super.addNotify();
         }
     }
-
-
     public int getOrientation() {
         return orientation;
     }
-
-
     public void setOrientation(int orientation) {
         synchronized (getTreeLock()) {
             if (orientation == this.orientation) {
@@ -122,7 +75,6 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
                 default:
                     throw new IllegalArgumentException("illegal scrollbar orientation");
             }
-
             if (peer != null) {
                 removeNotify();
                 addNotify();
@@ -138,139 +90,96 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
                      ? AccessibleState.VERTICAL : AccessibleState.HORIZONTAL));
         }
     }
-
-
     public int getValue() {
         return value;
     }
-
-
     public void setValue(int newValue) {
         // Use setValues so that a consistent policy relating
         // minimum, maximum, visible amount, and value is enforced.
         setValues(newValue, visibleAmount, minimum, maximum);
     }
-
-
     public int getMinimum() {
         return minimum;
     }
-
-
     public void setMinimum(int newMinimum) {
         // No checks are necessary in this method since minimum is
         // the first variable checked in the setValues function.
-
         // Use setValues so that a consistent policy relating
         // minimum, maximum, visible amount, and value is enforced.
         setValues(value, visibleAmount, newMinimum, maximum);
     }
-
-
     public int getMaximum() {
         return maximum;
     }
-
-
     public void setMaximum(int newMaximum) {
         // minimum is checked first in setValues, so we need to
         // enforce minimum and maximum checks here.
         if (newMaximum == Integer.MIN_VALUE) {
             newMaximum = Integer.MIN_VALUE + 1;
         }
-
         if (minimum >= newMaximum) {
             minimum = newMaximum - 1;
         }
-
         // Use setValues so that a consistent policy relating
         // minimum, maximum, visible amount, and value is enforced.
         setValues(value, visibleAmount, minimum, newMaximum);
     }
-
-
     public int getVisibleAmount() {
         return getVisible();
     }
-
-
     @Deprecated
     public int getVisible() {
         return visibleAmount;
     }
-
-
     public void setVisibleAmount(int newAmount) {
         // Use setValues so that a consistent policy relating
         // minimum, maximum, visible amount, and value is enforced.
         setValues(value, newAmount, minimum, maximum);
     }
-
-
     public void setUnitIncrement(int v) {
         setLineIncrement(v);
     }
-
-
     @Deprecated
     public synchronized void setLineIncrement(int v) {
         int tmp = (v < 1) ? 1 : v;
-
         if (lineIncrement == tmp) {
             return;
         }
         lineIncrement = tmp;
-
         ScrollbarPeer peer = (ScrollbarPeer)this.peer;
         if (peer != null) {
             peer.setLineIncrement(lineIncrement);
         }
     }
-
-
     public int getUnitIncrement() {
         return getLineIncrement();
     }
-
-
     @Deprecated
     public int getLineIncrement() {
         return lineIncrement;
     }
-
-
     public void setBlockIncrement(int v) {
         setPageIncrement(v);
     }
-
-
     @Deprecated
     public synchronized void setPageIncrement(int v) {
         int tmp = (v < 1) ? 1 : v;
-
         if (pageIncrement == tmp) {
             return;
         }
         pageIncrement = tmp;
-
         ScrollbarPeer peer = (ScrollbarPeer)this.peer;
         if (peer != null) {
             peer.setPageIncrement(pageIncrement);
         }
     }
-
-
     public int getBlockIncrement() {
         return getPageIncrement();
     }
-
-
     @Deprecated
     public int getPageIncrement() {
         return pageIncrement;
     }
-
-
     public void setValues(int value, int visible, int minimum, int maximum) {
         int oldValue;
         synchronized (this) {
@@ -280,7 +189,6 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
             if (maximum <= minimum) {
                 maximum = minimum + 1;
             }
-
             long maxMinusMin = (long) maximum - (long) minimum;
             if (maxMinusMin > Integer.MAX_VALUE) {
                 maxMinusMin = Integer.MAX_VALUE;
@@ -292,14 +200,12 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
             if (visible < 1) {
                 visible = 1;
             }
-
             if (value < minimum) {
                 value = minimum;
             }
             if (value > maximum - visible) {
                 value = maximum - visible;
             }
-
             oldValue = this.value;
             this.value = value;
             this.visibleAmount = visible;
@@ -310,7 +216,6 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
                 peer.setValues(value, visibleAmount, minimum, maximum);
             }
         }
-
         if ((oldValue != value) && (accessibleContext != null))  {
             accessibleContext.firePropertyChange(
                     AccessibleContext.ACCESSIBLE_VALUE_PROPERTY,
@@ -318,21 +223,15 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
                     Integer.valueOf(value));
         }
     }
-
-
     public boolean getValueIsAdjusting() {
         return isAdjusting;
     }
-
-
     public void setValueIsAdjusting(boolean b) {
         boolean oldValue;
-
         synchronized (this) {
             oldValue = isAdjusting;
             isAdjusting = b;
         }
-
         if ((oldValue != b) && (accessibleContext != null)) {
             accessibleContext.firePropertyChange(
                     AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
@@ -340,10 +239,6 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
                     ((b) ? AccessibleState.BUSY : null));
         }
     }
-
-
-
-
     public synchronized void addAdjustmentListener(AdjustmentListener l) {
         if (l == null) {
             return;
@@ -351,21 +246,15 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
         adjustmentListener = AWTEventMulticaster.add(adjustmentListener, l);
         newEventsOnly = true;
     }
-
-
     public synchronized void removeAdjustmentListener(AdjustmentListener l) {
         if (l == null) {
             return;
         }
         adjustmentListener = AWTEventMulticaster.remove(adjustmentListener, l);
     }
-
-
     public synchronized AdjustmentListener[] getAdjustmentListeners() {
         return getListeners(AdjustmentListener.class);
     }
-
-
     public <T extends EventListener> T[] getListeners(Class<T> listenerType) {
         EventListener l = null;
         if  (listenerType == AdjustmentListener.class) {
@@ -375,7 +264,6 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
         }
         return AWTEventMulticaster.getListeners(l, listenerType);
     }
-
     // REMIND: remove when filtering is done at lower level
     boolean eventEnabled(AWTEvent e) {
         if (e.id == AdjustmentEvent.ADJUSTMENT_VALUE_CHANGED) {
@@ -387,8 +275,6 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
         }
         return super.eventEnabled(e);
     }
-
-
     protected void processEvent(AWTEvent e) {
         if (e instanceof AdjustmentEvent) {
             processAdjustmentEvent((AdjustmentEvent)e);
@@ -396,16 +282,12 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
         }
         super.processEvent(e);
     }
-
-
     protected void processAdjustmentEvent(AdjustmentEvent e) {
         AdjustmentListener listener = adjustmentListener;
         if (listener != null) {
             listener.adjustmentValueChanged(e);
         }
     }
-
-
     protected String paramString() {
         return super.paramString() +
             ",val=" + value +
@@ -415,63 +297,41 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
             ((orientation == VERTICAL) ? ",vert" : ",horz") +
             ",isAdjusting=" + isAdjusting;
     }
-
-
-
-
-
     private int scrollbarSerializedDataVersion = 1;
-
-
     private void writeObject(ObjectOutputStream s)
       throws IOException
     {
       s.defaultWriteObject();
-
       AWTEventMulticaster.save(s, adjustmentListenerK, adjustmentListener);
       s.writeObject(null);
     }
-
-
     private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException
     {
       GraphicsEnvironment.checkHeadless();
       s.defaultReadObject();
-
       Object keyOrNull;
       while(null != (keyOrNull = s.readObject())) {
         String key = ((String)keyOrNull).intern();
-
         if (adjustmentListenerK == key)
           addAdjustmentListener((AdjustmentListener)(s.readObject()));
-
         else // skip value for unrecognized key
           s.readObject();
       }
     }
-
-
 /////////////////
 // Accessibility support
 ////////////////
-
-
     public AccessibleContext getAccessibleContext() {
         if (accessibleContext == null) {
             accessibleContext = new AccessibleAWTScrollBar();
         }
         return accessibleContext;
     }
-
-
     protected class AccessibleAWTScrollBar extends AccessibleAWTComponent
         implements AccessibleValue
     {
-
         private static final long serialVersionUID = -344337268523697807L;
-
-
         public AccessibleStateSet getAccessibleStateSet() {
             AccessibleStateSet states = super.getAccessibleStateSet();
             if (getValueIsAdjusting()) {
@@ -484,23 +344,15 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
             }
             return states;
         }
-
-
         public AccessibleRole getAccessibleRole() {
             return AccessibleRole.SCROLL_BAR;
         }
-
-
         public AccessibleValue getAccessibleValue() {
             return this;
         }
-
-
         public Number getCurrentAccessibleValue() {
             return Integer.valueOf(getValue());
         }
-
-
         public boolean setCurrentAccessibleValue(Number n) {
             if (n instanceof Integer) {
                 setValue(n.intValue());
@@ -509,17 +361,11 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
                 return false;
             }
         }
-
-
         public Number getMinimumAccessibleValue() {
             return Integer.valueOf(getMinimum());
         }
-
-
         public Number getMaximumAccessibleValue() {
             return Integer.valueOf(getMaximum());
         }
-
     } // AccessibleAWTScrollBar
-
 }

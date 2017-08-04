@@ -1,12 +1,5 @@
-
-
-
-
 package java.util.concurrent;
-
-
 public enum TimeUnit {
-
     NANOSECONDS {
         public long toNanos(long d)   { return d; }
         public long toMicros(long d)  { return d/(C1/C0); }
@@ -18,8 +11,6 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toNanos(d); }
         int excessNanos(long d, long m) { return (int)(d - (m*C2)); }
     },
-
-
     MICROSECONDS {
         public long toNanos(long d)   { return x(d, C1/C0, MAX/(C1/C0)); }
         public long toMicros(long d)  { return d; }
@@ -31,8 +22,6 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toMicros(d); }
         int excessNanos(long d, long m) { return (int)((d*C1) - (m*C2)); }
     },
-
-
     MILLISECONDS {
         public long toNanos(long d)   { return x(d, C2/C0, MAX/(C2/C0)); }
         public long toMicros(long d)  { return x(d, C2/C1, MAX/(C2/C1)); }
@@ -44,8 +33,6 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toMillis(d); }
         int excessNanos(long d, long m) { return 0; }
     },
-
-
     SECONDS {
         public long toNanos(long d)   { return x(d, C3/C0, MAX/(C3/C0)); }
         public long toMicros(long d)  { return x(d, C3/C1, MAX/(C3/C1)); }
@@ -57,8 +44,6 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toSeconds(d); }
         int excessNanos(long d, long m) { return 0; }
     },
-
-
     MINUTES {
         public long toNanos(long d)   { return x(d, C4/C0, MAX/(C4/C0)); }
         public long toMicros(long d)  { return x(d, C4/C1, MAX/(C4/C1)); }
@@ -70,8 +55,6 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toMinutes(d); }
         int excessNanos(long d, long m) { return 0; }
     },
-
-
     HOURS {
         public long toNanos(long d)   { return x(d, C5/C0, MAX/(C5/C0)); }
         public long toMicros(long d)  { return x(d, C5/C1, MAX/(C5/C1)); }
@@ -83,8 +66,6 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toHours(d); }
         int excessNanos(long d, long m) { return 0; }
     },
-
-
     DAYS {
         public long toNanos(long d)   { return x(d, C6/C0, MAX/(C6/C0)); }
         public long toMicros(long d)  { return x(d, C6/C1, MAX/(C6/C1)); }
@@ -96,7 +77,6 @@ public enum TimeUnit {
         public long convert(long d, TimeUnit u) { return u.toDays(d); }
         int excessNanos(long d, long m) { return 0; }
     };
-
     // Handy constants for conversion methods
     static final long C0 = 1L;
     static final long C1 = C0 * 1000L;
@@ -105,65 +85,41 @@ public enum TimeUnit {
     static final long C4 = C3 * 60L;
     static final long C5 = C4 * 60L;
     static final long C6 = C5 * 24L;
-
     static final long MAX = Long.MAX_VALUE;
-
-
     static long x(long d, long m, long over) {
         if (d >  over) return Long.MAX_VALUE;
         if (d < -over) return Long.MIN_VALUE;
         return d * m;
     }
-
     // To maintain full signature compatibility with 1.5, and to improve the
     // clarity of the generated javadoc (see 6287639: Abstract methods in
     // enum classes should not be listed as abstract), method convert
     // etc. are not declared abstract but otherwise act as abstract methods.
-
-
     public long convert(long sourceDuration, TimeUnit sourceUnit) {
         throw new AbstractMethodError();
     }
-
-
     public long toNanos(long duration) {
         throw new AbstractMethodError();
     }
-
-
     public long toMicros(long duration) {
         throw new AbstractMethodError();
     }
-
-
     public long toMillis(long duration) {
         throw new AbstractMethodError();
     }
-
-
     public long toSeconds(long duration) {
         throw new AbstractMethodError();
     }
-
-
     public long toMinutes(long duration) {
         throw new AbstractMethodError();
     }
-
-
     public long toHours(long duration) {
         throw new AbstractMethodError();
     }
-
-
     public long toDays(long duration) {
         throw new AbstractMethodError();
     }
-
-
     abstract int excessNanos(long d, long m);
-
-
     public void timedWait(Object obj, long timeout)
             throws InterruptedException {
         if (timeout > 0) {
@@ -172,8 +128,6 @@ public enum TimeUnit {
             obj.wait(ms, ns);
         }
     }
-
-
     public void timedJoin(Thread thread, long timeout)
             throws InterruptedException {
         if (timeout > 0) {
@@ -182,8 +136,6 @@ public enum TimeUnit {
             thread.join(ms, ns);
         }
     }
-
-
     public void sleep(long timeout) throws InterruptedException {
         if (timeout > 0) {
             long ms = toMillis(timeout);
@@ -191,5 +143,4 @@ public enum TimeUnit {
             Thread.sleep(ms, ns);
         }
     }
-
 }

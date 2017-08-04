@@ -1,7 +1,4 @@
-
-
 package java.util.jar;
-
 import java.io.*;
 import java.lang.ref.SoftReference;
 import java.net.URL;
@@ -18,8 +15,6 @@ import sun.security.action.GetPropertyAction;
 import sun.security.util.ManifestEntryVerifier;
 import sun.misc.SharedSecrets;
 import sun.security.util.SignatureFileVerifier;
-
-
 public
 class JarFile extends ZipFile {
     private SoftReference<Manifest> manRef;
@@ -27,60 +22,38 @@ class JarFile extends ZipFile {
     private JarVerifier jv;
     private boolean jvInitialized;
     private boolean verify;
-
     // indicates if Class-Path attribute present (only valid if hasCheckedSpecialAttributes true)
     private boolean hasClassPathAttribute;
     // true if manifest checked for special attributes
     private volatile boolean hasCheckedSpecialAttributes;
-
     // Set up JavaUtilJarAccess in SharedSecrets
     static {
         SharedSecrets.setJavaUtilJarAccess(new JavaUtilJarAccessImpl());
     }
-
-
     public static final String MANIFEST_NAME = "META-INF/MANIFEST.MF";
-
-
     public JarFile(String name) throws IOException {
         this(new File(name), true, ZipFile.OPEN_READ);
     }
-
-
     public JarFile(String name, boolean verify) throws IOException {
         this(new File(name), verify, ZipFile.OPEN_READ);
     }
-
-
     public JarFile(File file) throws IOException {
         this(file, true, ZipFile.OPEN_READ);
     }
-
-
-
     public JarFile(File file, boolean verify) throws IOException {
         this(file, verify, ZipFile.OPEN_READ);
     }
-
-
-
     public JarFile(File file, boolean verify, int mode) throws IOException {
         super(file, mode);
         this.verify = verify;
     }
-
-
     public Manifest getManifest() throws IOException {
         return getManifestFromReference();
     }
-
     private Manifest getManifestFromReference() throws IOException {
         Manifest man = manRef != null ? manRef.get() : null;
-
         if (man == null) {
-
             JarEntry manEntry = getManEntry();
-
             // If found then load the manifest
             if (manEntry != null) {
                 if (verify) {
@@ -97,15 +70,10 @@ class JarFile extends ZipFile {
         }
         return man;
     }
-
     private native String[] getMetaInfEntryNames();
-
-
     public JarEntry getJarEntry(String name) {
         return (JarEntry)getEntry(name);
     }
-
-
     public ZipEntry getEntry(String name) {
         ZipEntry ze = super.getEntry(name);
         if (ze != null) {
@@ -113,35 +81,27 @@ class JarFile extends ZipFile {
         }
         return null;
     }
-
     private class JarEntryIterator implements Enumeration<JarEntry>,
             Iterator<JarEntry>
     {
         final Enumeration<? extends ZipEntry> e = JarFile.super.entries();
-
         public boolean hasNext() {
             return e.hasMoreElements();
         }
-
         public JarEntry next() {
             ZipEntry ze = e.nextElement();
             return new JarFileEntry(ze);
         }
-
         public boolean hasMoreElements() {
             return hasNext();
         }
-
         public JarEntry nextElement() {
             return next();
         }
     }
-
-
     public Enumeration<JarEntry> entries() {
         return new JarEntryIterator();
     }
-
     @Override
     public Stream<JarEntry> stream() {
         return StreamSupport.stream(Spliterators.spliterator(
@@ -149,7 +109,6 @@ class JarFile extends ZipFile {
                 Spliterator.ORDERED | Spliterator.DISTINCT |
                         Spliterator.IMMUTABLE | Spliterator.NONNULL), false);
     }
-
     private class JarFileEntry extends JarEntry {
         JarFileEntry(ZipEntry ze) {
             super(ze);
@@ -185,13 +144,10 @@ class JarFile extends ZipFile {
             return signers == null ? null : signers.clone();
         }
     }
-
-
     private void maybeInstantiateVerifier() throws IOException {
         if (jv != null) {
             return;
         }
-
         if (verify) {
             String[] names = getMetaInfEntryNames();
             if (names != null) {
@@ -214,12 +170,8 @@ class JarFile extends ZipFile {
             verify = false;
         }
     }
-
-
-
     private void initializeVerifier() {
         ManifestEntryVerifier mev = null;
-
         // Verify "META-INF/" entries...
         try {
             String[] names = getMetaInfEntryNames();
@@ -255,17 +207,13 @@ class JarFile extends ZipFile {
                 ex.printStackTrace();
             }
         }
-
         // if after initializing the verifier we have nothing
         // signed, we null it out.
-
         if (jv != null) {
-
             jv.doneWithMeta();
             if (JarVerifier.debug != null) {
                 JarVerifier.debug.println("done with meta!");
             }
-
             if (jv.nothingToVerify()) {
                 if (JarVerifier.debug != null) {
                     JarVerifier.debug.println("nothing to verify!");
@@ -275,15 +223,11 @@ class JarFile extends ZipFile {
             }
         }
     }
-
-
     private byte[] getBytes(ZipEntry ze) throws IOException {
         try (InputStream is = super.getInputStream(ze)) {
             return IOUtils.readFully(is, (int)ze.getSize(), true);
         }
     }
-
-
     public synchronized InputStream getInputStream(ZipEntry ze)
         throws IOException
     {
@@ -300,7 +244,6 @@ class JarFile extends ZipFile {
             if (jv == null)
                 return super.getInputStream(ze);
         }
-
         // wrap a verifier stream around the real stream
         return new JarVerifier.VerifierStream(
             getManifestFromReference(),
@@ -309,14 +252,12 @@ class JarFile extends ZipFile {
             super.getInputStream(ze),
             jv);
     }
-
     // Statics for hand-coded Boyer-Moore search
     private static final char[] CLASSPATH_CHARS = {'c','l','a','s','s','-','p','a','t','h'};
     // The bad character shift for "class-path"
     private static final int[] CLASSPATH_LASTOCC;
     // The good suffix shift for "class-path"
     private static final int[] CLASSPATH_OPTOSFT;
-
     static {
         CLASSPATH_LASTOCC = new int[128];
         CLASSPATH_OPTOSFT = new int[10];
@@ -332,7 +273,6 @@ class JarFile extends ZipFile {
             CLASSPATH_OPTOSFT[i] = 10;
         CLASSPATH_OPTOSFT[9]=1;
     }
-
     private JarEntry getManEntry() {
         if (manEntry == null) {
             // First look up manifest entry using standard name
@@ -354,14 +294,10 @@ class JarFile extends ZipFile {
         }
         return manEntry;
     }
-
-
     boolean hasClassPathAttribute() throws IOException {
         checkForSpecialAttributes();
         return hasClassPathAttribute;
     }
-
-
     private boolean match(char[] src, byte[] b, int[] lastOcc, int[] optoSft) {
         int len = src.length;
         int last = b.length - len;
@@ -380,8 +316,6 @@ class JarFile extends ZipFile {
         }
         return false;
     }
-
-
     private void checkForSpecialAttributes() throws IOException {
         if (hasCheckedSpecialAttributes) return;
         if (!isKnownNotToHaveSpecialAttributes()) {
@@ -394,7 +328,6 @@ class JarFile extends ZipFile {
         }
         hasCheckedSpecialAttributes = true;
     }
-
     private static String javaHome;
     private static volatile String[] jarNames;
     private boolean isKnownNotToHaveSpecialAttributes() {
@@ -423,7 +356,6 @@ class JarFile extends ZipFile {
             names[i++] = fileSep + "sunec.jar";
             jarNames = names;
         }
-
         String name = getName();
         String localJavaHome = javaHome;
         if (name.startsWith(localJavaHome)) {
@@ -436,7 +368,6 @@ class JarFile extends ZipFile {
         }
         return false;
     }
-
     private synchronized void ensureInitialization() {
         try {
             maybeInstantiateVerifier();
@@ -448,18 +379,14 @@ class JarFile extends ZipFile {
             jvInitialized = true;
         }
     }
-
     JarEntry newEntry(ZipEntry ze) {
         return new JarFileEntry(ze);
     }
-
     Enumeration<String> entryNames(CodeSource[] cs) {
         ensureInitialization();
         if (jv != null) {
             return jv.entryNames(this, cs);
         }
-
-
         boolean includeUnsigned = false;
         for (int i = 0; i < cs.length; i++) {
             if (cs[i].getCodeSigners() == null) {
@@ -471,31 +398,24 @@ class JarFile extends ZipFile {
             return unsignedEntryNames();
         } else {
             return new Enumeration<String>() {
-
                 public boolean hasMoreElements() {
                     return false;
                 }
-
                 public String nextElement() {
                     throw new NoSuchElementException();
                 }
             };
         }
     }
-
-
     Enumeration<JarEntry> entries2() {
         ensureInitialization();
         if (jv != null) {
             return jv.entries2(this, super.entries());
         }
-
         // screen out entries which are never signed
         final Enumeration<? extends ZipEntry> enum_ = super.entries();
         return new Enumeration<JarEntry>() {
-
             ZipEntry entry;
-
             public boolean hasMoreElements() {
                 if (entry != null) {
                     return true;
@@ -510,7 +430,6 @@ class JarFile extends ZipFile {
                 }
                 return false;
             }
-
             public JarFileEntry nextElement() {
                 if (hasMoreElements()) {
                     ZipEntry ze = entry;
@@ -521,14 +440,11 @@ class JarFile extends ZipFile {
             }
         };
     }
-
     CodeSource[] getCodeSources(URL url) {
         ensureInitialization();
         if (jv != null) {
             return jv.getCodeSources(this, url);
         }
-
-
         Enumeration<String> unsigned = unsignedEntryNames();
         if (unsigned.hasMoreElements()) {
             return new CodeSource[]{JarVerifier.getUnsignedCS(url)};
@@ -536,14 +452,10 @@ class JarFile extends ZipFile {
             return null;
         }
     }
-
     private Enumeration<String> unsignedEntryNames() {
         final Enumeration<JarEntry> entries = entries();
         return new Enumeration<String>() {
-
             String name;
-
-
             public boolean hasMoreElements() {
                 if (name != null) {
                     return true;
@@ -560,7 +472,6 @@ class JarFile extends ZipFile {
                 }
                 return false;
             }
-
             public String nextElement() {
                 if (hasMoreElements()) {
                     String value = name;
@@ -571,7 +482,6 @@ class JarFile extends ZipFile {
             }
         };
     }
-
     CodeSource getCodeSource(URL url, String name) {
         ensureInitialization();
         if (jv != null) {
@@ -588,10 +498,8 @@ class JarFile extends ZipFile {
                 return jv.getCodeSource(url, name);
             }
         }
-
         return JarVerifier.getUnsignedCS(url);
     }
-
     void setEagerValidation(boolean eager) {
         try {
             maybeInstantiateVerifier();
@@ -602,7 +510,6 @@ class JarFile extends ZipFile {
             jv.setEagerValidation(eager);
         }
     }
-
     List<Object> getManifestDigests() {
         ensureInitialization();
         if (jv != null) {

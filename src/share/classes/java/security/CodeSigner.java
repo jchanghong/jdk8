@@ -1,26 +1,11 @@
-
-
 package java.security;
-
 import java.io.*;
 import java.security.cert.CertPath;
-
-
-
 public final class CodeSigner implements Serializable {
-
     private static final long serialVersionUID = 6819288105193937581L;
-
-
     private CertPath signerCertPath;
-
-
     private Timestamp timestamp;
-
-
     private transient int myhash = -1;
-
-
     public CodeSigner(CertPath signerCertPath, Timestamp timestamp) {
         if (signerCertPath == null) {
             throw new NullPointerException();
@@ -28,18 +13,12 @@ public final class CodeSigner implements Serializable {
         this.signerCertPath = signerCertPath;
         this.timestamp = timestamp;
     }
-
-
     public CertPath getSignerCertPath() {
         return signerCertPath;
     }
-
-
     public Timestamp getTimestamp() {
         return timestamp;
     }
-
-
     public int hashCode() {
         if (myhash == -1) {
             if (timestamp == null) {
@@ -50,14 +29,11 @@ public final class CodeSigner implements Serializable {
         }
         return myhash;
     }
-
-
     public boolean equals(Object obj) {
         if (obj == null || (!(obj instanceof CodeSigner))) {
             return false;
         }
         CodeSigner that = (CodeSigner)obj;
-
         if (this == that) {
             return true;
         }
@@ -74,8 +50,6 @@ public final class CodeSigner implements Serializable {
         }
         return signerCertPath.equals(that.getSignerCertPath());
     }
-
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("(");
@@ -86,7 +60,6 @@ public final class CodeSigner implements Serializable {
         sb.append(")");
         return sb.toString();
     }
-
     // Explicitly reset hash code value to -1
     private void readObject(ObjectInputStream ois)
         throws IOException, ClassNotFoundException {

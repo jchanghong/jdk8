@@ -1,74 +1,38 @@
-
-
-
 package java.awt;
-
 import java.awt.image.ColorModel;
-
 import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
-
-
 public abstract class GraphicsDevice {
-
     private Window fullScreenWindow;
     private AppContext fullScreenAppContext; // tracks which AppContext
                                              // created the FS window
     // this lock is used for making synchronous changes to the AppContext's
     // current full screen window
     private final Object fsAppContextLock = new Object();
-
     private Rectangle windowedModeBounds;
-
-
     protected GraphicsDevice() {
     }
-
-
     public final static int TYPE_RASTER_SCREEN          = 0;
-
-
     public final static int TYPE_PRINTER                = 1;
-
-
     public final static int TYPE_IMAGE_BUFFER           = 2;
-
-
     public static enum WindowTranslucency {
-
         PERPIXEL_TRANSPARENT,
-
         TRANSLUCENT,
-
         PERPIXEL_TRANSLUCENT;
     }
-
-
     public abstract int getType();
-
-
     public abstract String getIDstring();
-
-
     public abstract GraphicsConfiguration[] getConfigurations();
-
-
     public abstract GraphicsConfiguration getDefaultConfiguration();
-
-
     public GraphicsConfiguration
            getBestConfiguration(GraphicsConfigTemplate gct) {
         GraphicsConfiguration[] configs = getConfigurations();
         return gct.getBestConfiguration(configs);
     }
-
-
     public boolean isFullScreenSupported() {
         return false;
     }
-
-
     public void setFullScreenWindow(Window w) {
         if (w != null) {
             if (w.getShape() != null) {
@@ -126,8 +90,6 @@ public abstract class GraphicsDevice {
             fullScreenWindow.toFront();
         }
     }
-
-
     public Window getFullScreenWindow() {
         Window returnWindow = null;
         synchronized (fsAppContextLock) {
@@ -139,36 +101,24 @@ public abstract class GraphicsDevice {
         }
         return returnWindow;
     }
-
-
     public boolean isDisplayChangeSupported() {
         return false;
     }
-
-
     public void setDisplayMode(DisplayMode dm) {
         throw new UnsupportedOperationException("Cannot change display mode");
     }
-
-
     public DisplayMode getDisplayMode() {
         GraphicsConfiguration gc = getDefaultConfiguration();
         Rectangle r = gc.getBounds();
         ColorModel cm = gc.getColorModel();
         return new DisplayMode(r.width, r.height, cm.getPixelSize(), 0);
     }
-
-
     public DisplayMode[] getDisplayModes() {
         return new DisplayMode[] { getDisplayMode() };
     }
-
-
     public int getAvailableAcceleratedMemory() {
         return -1;
     }
-
-
     public boolean isWindowTranslucencySupported(WindowTranslucency translucencyKind) {
         switch (translucencyKind) {
             case PERPIXEL_TRANSPARENT:
@@ -180,8 +130,6 @@ public abstract class GraphicsDevice {
         }
         return false;
     }
-
-
     static boolean isWindowShapingSupported() {
         Toolkit curToolkit = Toolkit.getDefaultToolkit();
         if (!(curToolkit instanceof SunToolkit)) {
@@ -189,8 +137,6 @@ public abstract class GraphicsDevice {
         }
         return ((SunToolkit)curToolkit).isWindowShapingSupported();
     }
-
-
     static boolean isWindowOpacitySupported() {
         Toolkit curToolkit = Toolkit.getDefaultToolkit();
         if (!(curToolkit instanceof SunToolkit)) {
@@ -198,9 +144,7 @@ public abstract class GraphicsDevice {
         }
         return ((SunToolkit)curToolkit).isWindowOpacitySupported();
     }
-
     boolean isWindowPerpixelTranslucencySupported() {
-
         Toolkit curToolkit = Toolkit.getDefaultToolkit();
         if (!(curToolkit instanceof SunToolkit)) {
             return false;
@@ -208,11 +152,9 @@ public abstract class GraphicsDevice {
         if (!((SunToolkit)curToolkit).isWindowTranslucencySupported()) {
             return false;
         }
-
         // TODO: cache translucency capable GC
         return getTranslucencyCapableGC() != null;
     }
-
     GraphicsConfiguration getTranslucencyCapableGC() {
         // If the default GC supports translucency return true.
         // It is important to optimize the verification this way,
@@ -221,7 +163,6 @@ public abstract class GraphicsDevice {
         if (defaultGC.isTranslucencyCapable()) {
             return defaultGC;
         }
-
         // ... otherwise iterate through all the GCs.
         GraphicsConfiguration[] configs = getConfigurations();
         for (int j = 0; j < configs.length; j++) {
@@ -229,7 +170,6 @@ public abstract class GraphicsDevice {
                 return configs[j];
             }
         }
-
         return null;
     }
 }

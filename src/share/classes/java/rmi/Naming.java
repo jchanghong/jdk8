@@ -1,17 +1,10 @@
-
 package java.rmi;
-
 import java.rmi.registry.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-
 public final class Naming {
-
     private Naming() {}
-
-
     public static Remote lookup(String name)
         throws NotBoundException,
             java.net.MalformedURLException,
@@ -19,13 +12,10 @@ public final class Naming {
     {
         ParsedNamingURL parsed = parseURL(name);
         Registry registry = getRegistry(parsed);
-
         if (parsed.name == null)
             return registry;
         return registry.lookup(parsed.name);
     }
-
-
     public static void bind(String name, Remote obj)
         throws AlreadyBoundException,
             java.net.MalformedURLException,
@@ -33,14 +23,10 @@ public final class Naming {
     {
         ParsedNamingURL parsed = parseURL(name);
         Registry registry = getRegistry(parsed);
-
         if (obj == null)
             throw new NullPointerException("cannot bind to null");
-
         registry.bind(parsed.name, obj);
     }
-
-
     public static void unbind(String name)
         throws RemoteException,
             NotBoundException,
@@ -48,59 +34,45 @@ public final class Naming {
     {
         ParsedNamingURL parsed = parseURL(name);
         Registry registry = getRegistry(parsed);
-
         registry.unbind(parsed.name);
     }
-
-
     public static void rebind(String name, Remote obj)
         throws RemoteException, java.net.MalformedURLException
     {
         ParsedNamingURL parsed = parseURL(name);
         Registry registry = getRegistry(parsed);
-
         if (obj == null)
             throw new NullPointerException("cannot bind to null");
-
         registry.rebind(parsed.name, obj);
     }
-
-
     public static String[] list(String name)
         throws RemoteException, java.net.MalformedURLException
     {
         ParsedNamingURL parsed = parseURL(name);
         Registry registry = getRegistry(parsed);
-
         String prefix = "";
         if (parsed.port > 0 || !parsed.host.equals(""))
             prefix += "//" + parsed.host;
         if (parsed.port > 0)
             prefix += ":" + parsed.port;
         prefix += "/";
-
         String[] names = registry.list();
         for (int i = 0; i < names.length; i++) {
             names[i] = prefix + names[i];
         }
         return names;
     }
-
-
     private static Registry getRegistry(ParsedNamingURL parsed)
         throws RemoteException
     {
         return LocateRegistry.getRegistry(parsed.host, parsed.port);
     }
-
-
     private static ParsedNamingURL parseURL(String str)
         throws MalformedURLException
     {
         try {
             return intParseURL(str);
         } catch (URISyntaxException ex) {
-
             MalformedURLException mue = new MalformedURLException(
                 "invalid URL String: " + str);
             mue.initCause(ex);
@@ -127,7 +99,6 @@ public final class Naming {
             throw mue;
         }
     }
-
     private static ParsedNamingURL intParseURL(String str)
         throws MalformedURLException, URISyntaxException
     {
@@ -150,7 +121,6 @@ public final class Naming {
         if (scheme != null && !scheme.equals("rmi")) {
             throw new MalformedURLException("invalid URL scheme: " + str);
         }
-
         String name = uri.getPath();
         if (name != null) {
             if (name.startsWith("/")) {
@@ -160,12 +130,10 @@ public final class Naming {
                 name = null;
             }
         }
-
         String host = uri.getHost();
         if (host == null) {
             host = "";
             try {
-
                 uri.parseServerAuthority();
             } catch (URISyntaxException use) {
                 // Check if the authority is of form ':<port>'
@@ -194,13 +162,10 @@ public final class Naming {
         }
         return new ParsedNamingURL(host, port, name);
     }
-
-
     private static class ParsedNamingURL {
         String host;
         int port;
         String name;
-
         ParsedNamingURL(String host, int port, String name) {
             this.host = host;
             this.port = port;

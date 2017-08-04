@@ -1,55 +1,32 @@
-
-
 package java.nio.file.attribute;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-
-
 public final class FileTime
     implements Comparable<FileTime>
 {
-
     private final TimeUnit unit;
-
-
     private final long value;
-
-
     private Instant instant;
-
-
     private String valueAsString;
-
-
     private FileTime(long value, TimeUnit unit, Instant instant) {
         this.value = value;
         this.unit = unit;
         this.instant = instant;
     }
-
-
     public static FileTime from(long value, TimeUnit unit) {
         Objects.requireNonNull(unit, "unit");
         return new FileTime(value, unit, null);
     }
-
-
     public static FileTime fromMillis(long value) {
         return new FileTime(value, TimeUnit.MILLISECONDS, null);
     }
-
-
     public static FileTime from(Instant instant) {
         Objects.requireNonNull(instant, "instant");
         return new FileTime(0, null, instant);
     }
-
-
     public long to(TimeUnit unit) {
         Objects.requireNonNull(unit, "unit");
         if (this.unit != null) {
@@ -68,8 +45,6 @@ public final class FileTime
             return r;
         }
     }
-
-
     public long toMillis() {
         if (unit != null) {
             return unit.toMillis(value);
@@ -87,8 +62,6 @@ public final class FileTime
             return r + nanos / 1000_000;
         }
     }
-
-
     private static final long HOURS_PER_DAY      = 24L;
     private static final long MINUTES_PER_HOUR   = 60L;
     private static final long SECONDS_PER_MINUTE = 60L;
@@ -103,15 +76,11 @@ public final class FileTime
     private static final long MIN_SECOND = -31557014167219200L;
     // The epoch second of Instant.MAX.
     private static final long MAX_SECOND = 31556889864403199L;
-
-
     private static long scale(long d, long m, long over) {
         if (d >  over) return Long.MAX_VALUE;
         if (d < -over) return Long.MIN_VALUE;
         return d * m;
     }
-
-
     public Instant toInstant() {
         if (instant == null) {
             long secs = 0L;
@@ -157,20 +126,15 @@ public final class FileTime
         }
         return instant;
     }
-
-
     @Override
     public boolean equals(Object obj) {
         return (obj instanceof FileTime) ? compareTo((FileTime)obj) == 0 : false;
     }
-
-
     @Override
     public int hashCode() {
         // hashcode of instant representation to satisfy contract with equals
         return toInstant().hashCode();
     }
-
     private long toDays() {
         if (unit != null) {
             return unit.toDays(value);
@@ -178,7 +142,6 @@ public final class FileTime
             return TimeUnit.SECONDS.toDays(toInstant().getEpochSecond());
         }
     }
-
     private long toExcessNanos(long days) {
         if (unit != null) {
             return unit.toNanos(value - unit.convert(days, TimeUnit.DAYS));
@@ -187,8 +150,6 @@ public final class FileTime
                                             - TimeUnit.DAYS.toSeconds(days));
         }
     }
-
-
     @Override
     public int compareTo(FileTime other) {
         // same granularity
@@ -220,14 +181,12 @@ public final class FileTime
             return Long.compare(days, daysOther);
         }
     }
-
     // days in a 400 year cycle = 146097
     // days in a 10,000 year cycle = 146097 * 25
     // seconds per day = 86400
     private static final long DAYS_PER_10000_YEARS = 146097L * 25L;
     private static final long SECONDS_PER_10000_YEARS = 146097L * 25L * 86400L;
     private static final long SECONDS_0000_TO_1970 = ((146097L * 5L) - (30L * 365L + 7L)) * 86400L;
-
     // append year/month/day/hour/minute/second/nano with width and 0 padding
     private StringBuilder append(StringBuilder sb, int w, int d) {
         while (w > 0) {
@@ -237,8 +196,6 @@ public final class FileTime
         }
         return sb;
     }
-
-
     @Override
     public String toString() {
         if (valueAsString == null) {

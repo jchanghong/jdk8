@@ -1,25 +1,15 @@
-
-
-
-
 package java.util.concurrent.atomic;
 import java.util.function.LongBinaryOperator;
 import java.util.function.DoubleBinaryOperator;
 import java.util.concurrent.ThreadLocalRandom;
-
-
 @SuppressWarnings("serial")
 abstract class Striped64 extends Number {
-
-
-
     @sun.misc.Contended static final class Cell {
         volatile long value;
         Cell(long x) { value = x; }
         final boolean cas(long cmp, long val) {
             return UNSAFE.compareAndSwapLong(this, valueOffset, cmp, val);
         }
-
         // Unsafe mechanics
         private static final sun.misc.Unsafe UNSAFE;
         private static final long valueOffset;
@@ -34,39 +24,21 @@ abstract class Striped64 extends Number {
             }
         }
     }
-
-
     static final int NCPU = Runtime.getRuntime().availableProcessors();
-
-
     transient volatile Cell[] cells;
-
-
     transient volatile long base;
-
-
     transient volatile int cellsBusy;
-
-
     Striped64() {
     }
-
-
     final boolean casBase(long cmp, long val) {
         return UNSAFE.compareAndSwapLong(this, BASE, cmp, val);
     }
-
-
     final boolean casCellsBusy() {
         return UNSAFE.compareAndSwapInt(this, CELLSBUSY, 0, 1);
     }
-
-
     static final int getProbe() {
         return UNSAFE.getInt(Thread.currentThread(), PROBE);
     }
-
-
     static final int advanceProbe(int probe) {
         probe ^= probe << 13;   // xorshift
         probe ^= probe >>> 17;
@@ -74,8 +46,6 @@ abstract class Striped64 extends Number {
         UNSAFE.putInt(Thread.currentThread(), PROBE, probe);
         return probe;
     }
-
-
     final void longAccumulate(long x, LongBinaryOperator fn,
                               boolean wasUncontended) {
         int h;
@@ -156,8 +126,6 @@ abstract class Striped64 extends Number {
                 break;                          // Fall back on using base
         }
     }
-
-
     final void doubleAccumulate(double x, DoubleBinaryOperator fn,
                                 boolean wasUncontended) {
         int h;
@@ -248,7 +216,6 @@ abstract class Striped64 extends Number {
                 break;                          // Fall back on using base
         }
     }
-
     // Unsafe mechanics
     private static final sun.misc.Unsafe UNSAFE;
     private static final long BASE;
@@ -269,5 +236,4 @@ abstract class Striped64 extends Number {
             throw new Error(e);
         }
     }
-
 }

@@ -1,7 +1,4 @@
-
-
 package java.awt;
-
 import java.util.Vector;
 import java.awt.peer.SystemTrayPeer;
 import java.beans.PropertyChangeListener;
@@ -11,16 +8,11 @@ import sun.awt.SunToolkit;
 import sun.awt.HeadlessToolkit;
 import sun.security.util.SecurityConstants;
 import sun.awt.AWTAccessor;
-
-
 public class SystemTray {
     private static SystemTray systemTray;
     private int currentIconID = 0; // each TrayIcon added gets a unique ID
-
     transient private SystemTrayPeer peer;
-
     private static final TrayIcon[] EMPTY_TRAY_ARRAY = new TrayIcon[0];
-
     static {
         AWTAccessor.setSystemTrayAccessor(
             new AWTAccessor.SystemTrayAccessor() {
@@ -32,30 +24,21 @@ public class SystemTray {
                 }
             });
     }
-
-
     private SystemTray() {
         addNotify();
     }
-
-
     public static SystemTray getSystemTray() {
         checkSystemTrayAllowed();
         if (GraphicsEnvironment.isHeadless()) {
             throw new HeadlessException();
         }
-
         initializeSystemTrayIfNeeded();
-
         if (!isSupported()) {
             throw new UnsupportedOperationException(
                 "The system tray is not supported on the current platform.");
         }
-
         return systemTray;
     }
-
-
     public static boolean isSupported() {
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         if (toolkit instanceof SunToolkit) {
@@ -70,8 +53,6 @@ public class SystemTray {
             return false;
         }
     }
-
-
     public void add(TrayIcon trayIcon) throws AWTException {
         if (trayIcon == null) {
             throw new NullPointerException("adding null TrayIcon");
@@ -84,13 +65,11 @@ public class SystemTray {
             if (icons == null) {
                 icons = new Vector<TrayIcon>(3);
                 AppContext.getAppContext().put(TrayIcon.class, icons);
-
             } else if (icons.contains(trayIcon)) {
                 throw new IllegalArgumentException("adding TrayIcon that is already added");
             }
             icons.add(trayIcon);
             newArray = systemTray.getTrayIcons();
-
             trayIcon.setID(++currentIconID);
         }
         try {
@@ -101,8 +80,6 @@ public class SystemTray {
         }
         firePropertyChange("trayIcons", oldArray, newArray);
     }
-
-
     public void remove(TrayIcon trayIcon) {
         if (trayIcon == null) {
             return;
@@ -120,8 +97,6 @@ public class SystemTray {
         }
         firePropertyChange("trayIcons", oldArray, newArray);
     }
-
-
     public TrayIcon[] getTrayIcons() {
         Vector<TrayIcon> icons = (Vector<TrayIcon>)AppContext.getAppContext().get(TrayIcon.class);
         if (icons != null) {
@@ -129,13 +104,9 @@ public class SystemTray {
         }
         return EMPTY_TRAY_ARRAY;
     }
-
-
     public Dimension getTrayIconSize() {
         return peer.getTrayIconSize();
     }
-
-
     public synchronized void addPropertyChangeListener(String propertyName,
                                                        PropertyChangeListener listener)
     {
@@ -144,8 +115,6 @@ public class SystemTray {
         }
         getCurrentChangeSupport().addPropertyChangeListener(propertyName, listener);
     }
-
-
     public synchronized void removePropertyChangeListener(String propertyName,
                                                           PropertyChangeListener listener)
     {
@@ -154,18 +123,11 @@ public class SystemTray {
         }
         getCurrentChangeSupport().removePropertyChangeListener(propertyName, listener);
     }
-
-
     public synchronized PropertyChangeListener[] getPropertyChangeListeners(String propertyName) {
         return getCurrentChangeSupport().getPropertyChangeListeners(propertyName);
     }
-
-
     // ***************************************************************
     // ***************************************************************
-
-
-
     private void firePropertyChange(String propertyName,
                                     Object oldValue, Object newValue)
     {
@@ -174,19 +136,15 @@ public class SystemTray {
         }
         getCurrentChangeSupport().firePropertyChange(propertyName, oldValue, newValue);
     }
-
-
     private synchronized PropertyChangeSupport getCurrentChangeSupport() {
         PropertyChangeSupport changeSupport =
             (PropertyChangeSupport)AppContext.getAppContext().get(SystemTray.class);
-
         if (changeSupport == null) {
             changeSupport = new PropertyChangeSupport(this);
             AppContext.getAppContext().put(SystemTray.class, changeSupport);
         }
         return changeSupport;
     }
-
     synchronized void addNotify() {
         if (peer == null) {
             Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -197,14 +155,12 @@ public class SystemTray {
             }
         }
     }
-
     static void checkSystemTrayAllowed() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             security.checkPermission(SecurityConstants.AWT.ACCESS_SYSTEM_TRAY_PERMISSION);
         }
     }
-
     private static void initializeSystemTrayIfNeeded() {
         synchronized (SystemTray.class) {
             if (systemTray == null) {

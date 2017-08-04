@@ -1,7 +1,4 @@
-
-
 package java.nio.charset;
-
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.spi.CharsetProvider;
@@ -22,18 +19,10 @@ import sun.misc.ASCIICaseInsensitiveComparator;
 import sun.nio.cs.StandardCharsets;
 import sun.nio.cs.ThreadLocalCoders;
 import sun.security.action.GetPropertyAction;
-
-
-
-
 public abstract class Charset
     implements Comparable<Charset>
 {
-
-
-
     private static volatile String bugLevel = null;
-
     static boolean atBugLevel(String bl) {              // package-private
         String level = bugLevel;
         if (level == null) {
@@ -44,8 +33,6 @@ public abstract class Charset
         }
         return level.equals(bl);
     }
-
-
     private static void checkName(String s) {
         int n = s.length();
         if (!atBugLevel("1.4")) {
@@ -65,35 +52,27 @@ public abstract class Charset
             throw new IllegalCharsetNameException(s);
         }
     }
-
-
     private static CharsetProvider standardProvider = new StandardCharsets();
-
     // Cache of the most-recently-returned charsets,
     // along with the names that were used to find them
     //
     private static volatile Object[] cache1 = null; // "Level 1" cache
     private static volatile Object[] cache2 = null; // "Level 2" cache
-
     private static void cache(String charsetName, Charset cs) {
         cache2 = cache1;
         cache1 = new Object[] { charsetName, cs };
     }
-
     // Creates an iterator that walks over the available providers, ignoring
     // those whose lookup or instantiation causes a security exception to be
     // thrown.  Should be invoked with full privileges.
     //
     private static Iterator<CharsetProvider> providers() {
         return new Iterator<CharsetProvider>() {
-
                 ClassLoader cl = ClassLoader.getSystemClassLoader();
                 ServiceLoader<CharsetProvider> sl =
                     ServiceLoader.load(CharsetProvider.class, cl);
                 Iterator<CharsetProvider> i = sl.iterator();
-
                 CharsetProvider next = null;
-
                 private boolean getNext() {
                     while (next == null) {
                         try {
@@ -110,11 +89,9 @@ public abstract class Charset
                     }
                     return true;
                 }
-
                 public boolean hasNext() {
                     return getNext();
                 }
-
                 public CharsetProvider next() {
                     if (!getNext())
                         throw new NoSuchElementException();
@@ -122,20 +99,15 @@ public abstract class Charset
                     next = null;
                     return n;
                 }
-
                 public void remove() {
                     throw new UnsupportedOperationException();
                 }
-
             };
     }
-
     // Thread-local gate to prevent recursive provider lookups
     private static ThreadLocal<ThreadLocal<?>> gate =
             new ThreadLocal<ThreadLocal<?>>();
-
     private static Charset lookupViaProviders(final String charsetName) {
-
         // The runtime startup sequence looks up standard charsets as a
         // consequence of the VM's invocation of System.initializeSystemClass
         // in order to, e.g., set system properties and encode filenames.  At
@@ -146,13 +118,11 @@ public abstract class Charset
         //
         if (!sun.misc.VM.isBooted())
             return null;
-
         if (gate.get() != null)
             // Avoid recursive provider lookups
             return null;
         try {
             gate.set(gate);
-
             return AccessController.doPrivileged(
                 new PrivilegedAction<Charset>() {
                     public Charset run() {
@@ -166,13 +136,10 @@ public abstract class Charset
                         return null;
                     }
                 });
-
         } finally {
             gate.set(null);
         }
     }
-
-
     private static class ExtendedProviderHolder {
         static final CharsetProvider extendedProvider = extendedProvider();
         // returns ExtendedProvider, if installed
@@ -196,12 +163,10 @@ public abstract class Charset
                         });
         }
     }
-
     private static Charset lookupExtendedCharset(String charsetName) {
         CharsetProvider ecp = ExtendedProviderHolder.extendedProvider;
         return (ecp != null) ? ecp.charsetForName(charsetName) : null;
     }
-
     private static Charset lookup(String charsetName) {
         if (charsetName == null)
             throw new IllegalArgumentException("Null charset name");
@@ -213,7 +178,6 @@ public abstract class Charset
         // level 1 cache miss code in a separate method.
         return lookup2(charsetName);
     }
-
     private static Charset lookup2(String charsetName) {
         Object[] a;
         if ((a = cache2) != null && charsetName.equals(a[0])) {
@@ -229,25 +193,18 @@ public abstract class Charset
             cache(charsetName, cs);
             return cs;
         }
-
-
         checkName(charsetName);
         return null;
     }
-
-
     public static boolean isSupported(String charsetName) {
         return (lookup(charsetName) != null);
     }
-
-
     public static Charset forName(String charsetName) {
         Charset cs = lookup(charsetName);
         if (cs != null)
             return cs;
         throw new UnsupportedCharsetException(charsetName);
     }
-
     // Fold charsets from the given iterator into the given map, ignoring
     // charsets whose names already have entries in the map.
     //
@@ -258,8 +215,6 @@ public abstract class Charset
                 m.put(cs.name(), cs);
         }
     }
-
-
     public static SortedMap<String,Charset> availableCharsets() {
         return AccessController.doPrivileged(
             new PrivilegedAction<SortedMap<String,Charset>>() {
@@ -279,10 +234,7 @@ public abstract class Charset
                 }
             });
     }
-
     private static volatile Charset defaultCharset;
-
-
     public static Charset defaultCharset() {
         if (defaultCharset == null) {
             synchronized (Charset.class) {
@@ -297,15 +249,9 @@ public abstract class Charset
         }
         return defaultCharset;
     }
-
-
-
-
     private final String name;          // tickles a bug in oldjavac
     private final String[] aliases;     // tickles a bug in oldjavac
     private Set<String> aliasSet = null;
-
-
     protected Charset(String canonicalName, String[] aliases) {
         checkName(canonicalName);
         String[] as = (aliases == null) ? new String[0] : aliases;
@@ -314,13 +260,9 @@ public abstract class Charset
         this.name = canonicalName;
         this.aliases = as;
     }
-
-
     public final String name() {
         return name;
     }
-
-
     public final Set<String> aliases() {
         if (aliasSet != null)
             return aliasSet;
@@ -331,37 +273,21 @@ public abstract class Charset
         aliasSet = Collections.unmodifiableSet(hs);
         return aliasSet;
     }
-
-
     public String displayName() {
         return name;
     }
-
-
     public final boolean isRegistered() {
         return !name.startsWith("X-") && !name.startsWith("x-");
     }
-
-
     public String displayName(Locale locale) {
         return name;
     }
-
-
     public abstract boolean contains(Charset cs);
-
-
     public abstract CharsetDecoder newDecoder();
-
-
     public abstract CharsetEncoder newEncoder();
-
-
     public boolean canEncode() {
         return true;
     }
-
-
     public final CharBuffer decode(ByteBuffer bb) {
         try {
             return ThreadLocalCoders.decoderFor(this)
@@ -372,8 +298,6 @@ public abstract class Charset
             throw new Error(x);         // Can't happen
         }
     }
-
-
     public final ByteBuffer encode(CharBuffer cb) {
         try {
             return ThreadLocalCoders.encoderFor(this)
@@ -384,23 +308,15 @@ public abstract class Charset
             throw new Error(x);         // Can't happen
         }
     }
-
-
     public final ByteBuffer encode(String str) {
         return encode(CharBuffer.wrap(str));
     }
-
-
     public final int compareTo(Charset that) {
         return (name().compareToIgnoreCase(that.name()));
     }
-
-
     public final int hashCode() {
         return name().hashCode();
     }
-
-
     public final boolean equals(Object ob) {
         if (!(ob instanceof Charset))
             return false;
@@ -408,10 +324,7 @@ public abstract class Charset
             return true;
         return name.equals(((Charset)ob).name());
     }
-
-
     public final String toString() {
         return name();
     }
-
 }

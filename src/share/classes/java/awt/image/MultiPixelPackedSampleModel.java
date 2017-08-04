@@ -1,32 +1,12 @@
-
-
-
-
 package java.awt.image;
-
-
-
 public class MultiPixelPackedSampleModel extends SampleModel
 {
-
     int pixelBitStride;
-
-
     int bitMask;
-
-
     int pixelsPerDataElement;
-
-
     int dataElementSize;
-
-
     int dataBitOffset;
-
-
     int scanlineStride;
-
-
     public MultiPixelPackedSampleModel(int dataType,
                                        int w,
                                        int h,
@@ -43,8 +23,6 @@ public class MultiPixelPackedSampleModel extends SampleModel
                                                dataType);
         }
     }
-
-
     public MultiPixelPackedSampleModel(int dataType, int w, int h,
                                        int numberOfBits,
                                        int scanlineStride,
@@ -69,19 +47,13 @@ public class MultiPixelPackedSampleModel extends SampleModel
         }
         this.bitMask = (1 << numberOfBits) - 1;
     }
-
-
-
     public SampleModel createCompatibleSampleModel(int w, int h) {
       SampleModel sampleModel =
             new MultiPixelPackedSampleModel(dataType, w, h, pixelBitStride);
       return sampleModel;
     }
-
-
     public DataBuffer createDataBuffer() {
         DataBuffer dataBuffer = null;
-
         int size = (int)scanlineStride*height;
         switch (dataType) {
         case DataBuffer.TYPE_BYTE:
@@ -96,51 +68,33 @@ public class MultiPixelPackedSampleModel extends SampleModel
         }
         return dataBuffer;
     }
-
-
     public int getNumDataElements() {
         return 1;
     }
-
-
     public int[] getSampleSize() {
         int sampleSize[] = {pixelBitStride};
         return sampleSize;
     }
-
-
     public int getSampleSize(int band) {
         return pixelBitStride;
     }
-
-
     public int getOffset(int x, int y) {
         int offset = y * scanlineStride;
         offset +=  (x*pixelBitStride+dataBitOffset)/dataElementSize;
         return offset;
     }
-
-
     public int getBitOffset(int x){
        return  (x*pixelBitStride+dataBitOffset)%dataElementSize;
     }
-
-
     public int getScanlineStride() {
         return scanlineStride;
     }
-
-
     public int getPixelBitStride() {
         return pixelBitStride;
     }
-
-
     public int getDataBitOffset() {
         return dataBitOffset;
     }
-
-
     public int getTransferType() {
         if (pixelBitStride > 16)
             return DataBuffer.TYPE_INT;
@@ -149,8 +103,6 @@ public class MultiPixelPackedSampleModel extends SampleModel
         else
             return DataBuffer.TYPE_BYTE;
     }
-
-
     public SampleModel createSubsetSampleModel(int bands[]) {
         if (bands != null) {
            if (bands.length != 1)
@@ -160,8 +112,6 @@ public class MultiPixelPackedSampleModel extends SampleModel
         SampleModel sm = createCompatibleSampleModel(width, height);
         return sm;
     }
-
-
     public int getSample(int x, int y, int b, DataBuffer data) {
         // 'b' must be 0
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height) ||
@@ -175,8 +125,6 @@ public class MultiPixelPackedSampleModel extends SampleModel
                     - pixelBitStride;
         return (element >> shift) & bitMask;
     }
-
-
     public void setSample(int x, int y, int b, int s,
                           DataBuffer data) {
         // 'b' must be 0
@@ -194,75 +142,53 @@ public class MultiPixelPackedSampleModel extends SampleModel
         element |= (s & bitMask) << shift;
         data.setElem(index,element);
     }
-
-
     public Object getDataElements(int x, int y, Object obj, DataBuffer data) {
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
             throw new ArrayIndexOutOfBoundsException
                 ("Coordinate out of bounds!");
         }
-
         int type = getTransferType();
         int bitnum = dataBitOffset + x*pixelBitStride;
         int shift = dataElementSize - (bitnum & (dataElementSize-1))
                     - pixelBitStride;
         int element = 0;
-
         switch(type) {
-
         case DataBuffer.TYPE_BYTE:
-
             byte[] bdata;
-
             if (obj == null)
                 bdata = new byte[1];
             else
                 bdata = (byte[])obj;
-
             element = data.getElem(y*scanlineStride +
                                     bitnum/dataElementSize);
             bdata[0] = (byte)((element >> shift) & bitMask);
-
             obj = (Object)bdata;
             break;
-
         case DataBuffer.TYPE_USHORT:
-
             short[] sdata;
-
             if (obj == null)
                 sdata = new short[1];
             else
                 sdata = (short[])obj;
-
             element = data.getElem(y*scanlineStride +
                                    bitnum/dataElementSize);
             sdata[0] = (short)((element >> shift) & bitMask);
-
             obj = (Object)sdata;
             break;
-
         case DataBuffer.TYPE_INT:
-
             int[] idata;
-
             if (obj == null)
                 idata = new int[1];
             else
                 idata = (int[])obj;
-
             element = data.getElem(y*scanlineStride +
                                    bitnum/dataElementSize);
             idata[0] = (element >> shift) & bitMask;
-
             obj = (Object)idata;
             break;
         }
-
         return obj;
     }
-
-
     public int[] getPixel(int x, int y, int iArray[], DataBuffer data) {
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
             throw new ArrayIndexOutOfBoundsException
@@ -281,14 +207,11 @@ public class MultiPixelPackedSampleModel extends SampleModel
         pixels[0] = (element >> shift) & bitMask;
         return pixels;
     }
-
-
     public void setDataElements(int x, int y, Object obj, DataBuffer data) {
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
             throw new ArrayIndexOutOfBoundsException
                 ("Coordinate out of bounds!");
         }
-
         int type = getTransferType();
         int bitnum = dataBitOffset + x * pixelBitStride;
         int index = y * scanlineStride + (bitnum / dataElementSize);
@@ -296,33 +219,24 @@ public class MultiPixelPackedSampleModel extends SampleModel
                     - pixelBitStride;
         int element = data.getElem(index);
         element &= ~(bitMask << shift);
-
         switch(type) {
-
         case DataBuffer.TYPE_BYTE:
-
             byte[] barray = (byte[])obj;
             element |= ( ((int)(barray[0])&0xff) & bitMask) << shift;
             data.setElem(index, element);
             break;
-
         case DataBuffer.TYPE_USHORT:
-
             short[] sarray = (short[])obj;
             element |= ( ((int)(sarray[0])&0xffff) & bitMask) << shift;
             data.setElem(index, element);
             break;
-
         case DataBuffer.TYPE_INT:
-
             int[] iarray = (int[])obj;
             element |= (iarray[0] & bitMask) << shift;
             data.setElem(index, element);
             break;
         }
     }
-
-
     public void setPixel(int x, int y, int[] iArray, DataBuffer data) {
         if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) {
             throw new ArrayIndexOutOfBoundsException
@@ -337,12 +251,10 @@ public class MultiPixelPackedSampleModel extends SampleModel
         element |= (iArray[0] & bitMask) << shift;
         data.setElem(index,element);
     }
-
     public boolean equals(Object o) {
         if ((o == null) || !(o instanceof MultiPixelPackedSampleModel)) {
             return false;
         }
-
         MultiPixelPackedSampleModel that = (MultiPixelPackedSampleModel)o;
         return this.width == that.width &&
             this.height == that.height &&
@@ -355,7 +267,6 @@ public class MultiPixelPackedSampleModel extends SampleModel
             this.dataBitOffset == that.dataBitOffset &&
             this.scanlineStride == that.scanlineStride;
     }
-
     // If we implement equals() we must also implement hashCode
     public int hashCode() {
         int hash = 0;

@@ -1,41 +1,23 @@
-
-
 package java.net;
-
 import java.util.Map;
 import java.util.List;
 import java.util.Collections;
 import java.util.Comparator;
 import java.io.IOException;
 import sun.util.logging.PlatformLogger;
-
-
 public class CookieManager extends CookieHandler
 {
-
-
     private CookiePolicy policyCallback;
-
-
     private CookieStore cookieJar = null;
-
-
-
-
-
     public CookieManager() {
         this(null, null);
     }
-
-
-
     public CookieManager(CookieStore store,
                          CookiePolicy cookiePolicy)
     {
         // use default cookie policy if not specify one
         policyCallback = (cookiePolicy == null) ? CookiePolicy.ACCEPT_ORIGINAL_SERVER
                                                 : cookiePolicy;
-
         // if not specify CookieStore to use, use default one
         if (store == null) {
             cookieJar = new InMemoryCookieStore();
@@ -43,22 +25,12 @@ public class CookieManager extends CookieHandler
             cookieJar = store;
         }
     }
-
-
-
-
-
     public void setCookiePolicy(CookiePolicy cookiePolicy) {
         if (cookiePolicy != null) policyCallback = cookiePolicy;
     }
-
-
-
     public CookieStore getCookieStore() {
         return cookieJar;
     }
-
-
     public Map<String, List<String>>
         get(URI uri, Map<String, List<String>> requestHeaders)
         throws IOException
@@ -67,13 +39,11 @@ public class CookieManager extends CookieHandler
         if (uri == null || requestHeaders == null) {
             throw new IllegalArgumentException("Argument is null");
         }
-
         Map<String, List<String>> cookieMap =
                         new java.util.HashMap<String, List<String>>();
         // if there's no default CookieStore, no way for us to get any cookie
         if (cookieJar == null)
             return Collections.unmodifiableMap(cookieMap);
-
         boolean secureLink = "https".equalsIgnoreCase(uri.getScheme());
         List<HttpCookie> cookies = new java.util.ArrayList<HttpCookie>();
         String path = uri.getPath();
@@ -108,14 +78,11 @@ public class CookieManager extends CookieHandler
                 }
             }
         }
-
         // apply sort rule (RFC 2965 sec. 3.3.4)
         List<String> cookieHeader = sortByPath(cookies);
-
         cookieMap.put("Cookie", cookieHeader);
         return Collections.unmodifiableMap(cookieMap);
     }
-
     public void
         put(URI uri, Map<String, List<String>> responseHeaders)
         throws IOException
@@ -124,12 +91,9 @@ public class CookieManager extends CookieHandler
         if (uri == null || responseHeaders == null) {
             throw new IllegalArgumentException("Argument is null");
         }
-
-
         // if there's no default CookieStore, no need to remember any cookie
         if (cookieJar == null)
             return;
-
     PlatformLogger logger = PlatformLogger.getLogger("java.net.CookieManager");
         for (String headerKey : responseHeaders.keySet()) {
             // RFC 2965 3.2.2, key must be 'Set-Cookie2'
@@ -142,7 +106,6 @@ public class CookieManager extends CookieHandler
             {
                 continue;
             }
-
             for (String headerValue : responseHeaders.get(headerKey)) {
                 try {
                     List<HttpCookie> cookies;
@@ -170,7 +133,6 @@ public class CookieManager extends CookieHandler
                             }
                             cookie.setPath(path);
                         }
-
                         // As per RFC 2965, section 3.3.1:
                         // Domain  Defaults to the effective request-host.  (Note that because
                         // there is no dot at the beginning of effective request-host,
@@ -216,10 +178,6 @@ public class CookieManager extends CookieHandler
             }
         }
     }
-
-
-
-
     // to determine whether or not accept this cookie
     private boolean shouldAcceptInternal(URI uri, HttpCookie cookie) {
         try {
@@ -228,8 +186,6 @@ public class CookieManager extends CookieHandler
             return false;
         }
     }
-
-
     static private boolean isInPortList(String lst, int port) {
         int i = lst.indexOf(",");
         int val = -1;
@@ -255,8 +211,6 @@ public class CookieManager extends CookieHandler
         }
         return false;
     }
-
-
     private boolean pathMatches(String path, String pathToMatchWith) {
         if (path == pathToMatchWith)
             return true;
@@ -264,15 +218,10 @@ public class CookieManager extends CookieHandler
             return false;
         if (path.startsWith(pathToMatchWith))
             return true;
-
         return false;
     }
-
-
-
     private List<String> sortByPath(List<HttpCookie> cookies) {
         Collections.sort(cookies, new CookiePathComparator());
-
         List<String> cookieHeader = new java.util.ArrayList<String>();
         for (HttpCookie cookie : cookies) {
             // Netscape cookie spec and RFC 2965 have different format of Cookie
@@ -282,22 +231,17 @@ public class CookieManager extends CookieHandler
             if (cookies.indexOf(cookie) == 0 && cookie.getVersion() > 0) {
                 cookieHeader.add("$Version=\"1\"");
             }
-
             cookieHeader.add(cookie.toString());
         }
         return cookieHeader;
     }
-
-
     static class CookiePathComparator implements Comparator<HttpCookie> {
         public int compare(HttpCookie c1, HttpCookie c2) {
             if (c1 == c2) return 0;
             if (c1 == null) return -1;
             if (c2 == null) return 1;
-
             // path rule only applies to the cookies with same name
             if (!c1.getName().equals(c2.getName())) return 0;
-
             // those with more specific Path attributes precede those with less specific
             if (c1.getPath().startsWith(c2.getPath()))
                 return -1;

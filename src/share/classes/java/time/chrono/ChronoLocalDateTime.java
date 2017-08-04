@@ -1,13 +1,8 @@
-
-
-
 package java.time.chrono;
-
 import static java.time.temporal.ChronoField.EPOCH_DAY;
 import static java.time.temporal.ChronoField.NANO_OF_DAY;
 import static java.time.temporal.ChronoUnit.FOREVER;
 import static java.time.temporal.ChronoUnit.NANOS;
-
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -28,18 +23,12 @@ import java.time.temporal.TemporalUnit;
 import java.time.zone.ZoneRules;
 import java.util.Comparator;
 import java.util.Objects;
-
-
 public interface ChronoLocalDateTime<D extends ChronoLocalDate>
         extends Temporal, TemporalAdjuster, Comparable<ChronoLocalDateTime<?>> {
-
-
     static Comparator<ChronoLocalDateTime<?>> timeLineOrder() {
         return AbstractChronology.DATE_TIME_ORDER;
     }
-
     //-----------------------------------------------------------------------
-
     static ChronoLocalDateTime<?> from(TemporalAccessor temporal) {
         if (temporal instanceof ChronoLocalDateTime) {
             return (ChronoLocalDateTime<?>) temporal;
@@ -51,24 +40,14 @@ public interface ChronoLocalDateTime<D extends ChronoLocalDate>
         }
         return chrono.localDateTime(temporal);
     }
-
     //-----------------------------------------------------------------------
-
     default Chronology getChronology() {
         return toLocalDate().getChronology();
     }
-
-
     D toLocalDate() ;
-
-
     LocalTime toLocalTime();
-
-
     @Override
     boolean isSupported(TemporalField field);
-
-
     @Override
     default boolean isSupported(TemporalUnit unit) {
         if (unit instanceof ChronoUnit) {
@@ -76,43 +55,29 @@ public interface ChronoLocalDateTime<D extends ChronoLocalDate>
         }
         return unit != null && unit.isSupportedBy(this);
     }
-
     //-----------------------------------------------------------------------
     // override for covariant return type
-
     @Override
     default ChronoLocalDateTime<D> with(TemporalAdjuster adjuster) {
         return ChronoLocalDateTimeImpl.ensureValid(getChronology(), Temporal.super.with(adjuster));
     }
-
-
     @Override
     ChronoLocalDateTime<D> with(TemporalField field, long newValue);
-
-
     @Override
     default ChronoLocalDateTime<D> plus(TemporalAmount amount) {
         return ChronoLocalDateTimeImpl.ensureValid(getChronology(), Temporal.super.plus(amount));
     }
-
-
     @Override
     ChronoLocalDateTime<D> plus(long amountToAdd, TemporalUnit unit);
-
-
     @Override
     default ChronoLocalDateTime<D> minus(TemporalAmount amount) {
         return ChronoLocalDateTimeImpl.ensureValid(getChronology(), Temporal.super.minus(amount));
     }
-
-
     @Override
     default ChronoLocalDateTime<D> minus(long amountToSubtract, TemporalUnit unit) {
         return ChronoLocalDateTimeImpl.ensureValid(getChronology(), Temporal.super.minus(amountToSubtract, unit));
     }
-
     //-----------------------------------------------------------------------
-
     @SuppressWarnings("unchecked")
     @Override
     default <R> R query(TemporalQuery<R> query) {
@@ -129,32 +94,22 @@ public interface ChronoLocalDateTime<D extends ChronoLocalDate>
         // non-JDK classes are not permitted to make this optimization
         return query.queryFrom(this);
     }
-
-
     @Override
     default Temporal adjustInto(Temporal temporal) {
         return temporal
                 .with(EPOCH_DAY, toLocalDate().toEpochDay())
                 .with(NANO_OF_DAY, toLocalTime().toNanoOfDay());
     }
-
-
     default String format(DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         return formatter.format(this);
     }
-
     //-----------------------------------------------------------------------
-
     ChronoZonedDateTime<D> atZone(ZoneId zone);
-
     //-----------------------------------------------------------------------
-
     default Instant toInstant(ZoneOffset offset) {
         return Instant.ofEpochSecond(toEpochSecond(offset), toLocalTime().getNano());
     }
-
-
     default long toEpochSecond(ZoneOffset offset) {
         Objects.requireNonNull(offset, "offset");
         long epochDay = toLocalDate().toEpochDay();
@@ -162,9 +117,7 @@ public interface ChronoLocalDateTime<D extends ChronoLocalDate>
         secs -= offset.getTotalSeconds();
         return secs;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     default int compareTo(ChronoLocalDateTime<?> other) {
         int cmp = toLocalDate().compareTo(other.toLocalDate());
@@ -176,41 +129,28 @@ public interface ChronoLocalDateTime<D extends ChronoLocalDate>
         }
         return cmp;
     }
-
-
     default boolean isAfter(ChronoLocalDateTime<?> other) {
         long thisEpDay = this.toLocalDate().toEpochDay();
         long otherEpDay = other.toLocalDate().toEpochDay();
         return thisEpDay > otherEpDay ||
             (thisEpDay == otherEpDay && this.toLocalTime().toNanoOfDay() > other.toLocalTime().toNanoOfDay());
     }
-
-
     default boolean isBefore(ChronoLocalDateTime<?> other) {
         long thisEpDay = this.toLocalDate().toEpochDay();
         long otherEpDay = other.toLocalDate().toEpochDay();
         return thisEpDay < otherEpDay ||
             (thisEpDay == otherEpDay && this.toLocalTime().toNanoOfDay() < other.toLocalTime().toNanoOfDay());
     }
-
-
     default boolean isEqual(ChronoLocalDateTime<?> other) {
         // Do the time check first, it is cheaper than computing EPOCH day.
         return this.toLocalTime().toNanoOfDay() == other.toLocalTime().toNanoOfDay() &&
                this.toLocalDate().toEpochDay() == other.toLocalDate().toEpochDay();
     }
-
-
     @Override
     boolean equals(Object obj);
-
-
     @Override
     int hashCode();
-
     //-----------------------------------------------------------------------
-
     @Override
     String toString();
-
 }

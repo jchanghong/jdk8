@@ -1,37 +1,20 @@
-
-
 package java.awt.datatransfer;
-
 import java.io.Externalizable;
 import java.io.ObjectOutput;
 import java.io.ObjectInput;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
-
-
-
 class MimeType implements Externalizable, Cloneable {
-
-
-
     static final long serialVersionUID = -6568722458793895906L;
-
-
     public MimeType() {
     }
-
-
     public MimeType(String rawdata) throws MimeTypeParseException {
         parse(rawdata);
     }
-
-
     public MimeType(String primary, String sub) throws MimeTypeParseException {
         this(primary, sub, new MimeTypeParameterList());
     }
-
-
     public MimeType(String primary, String sub, MimeTypeParameterList mtpl) throws
 MimeTypeParseException {
         //    check to see if primary is valid
@@ -40,19 +23,15 @@ MimeTypeParseException {
         } else {
             throw new MimeTypeParseException("Primary type is invalid.");
         }
-
         //    check to see if sub is valid
         if(isValidToken(sub)) {
             subType = sub.toLowerCase(Locale.ENGLISH);
         } else {
             throw new MimeTypeParseException("Sub type is invalid.");
         }
-
         parameters = (MimeTypeParameterList)mtpl.clone();
     }
-
     public int hashCode() {
-
         // We sum up the hash codes for all of the strings. This
         // way, the order of the strings is irrelevant
         int code = 0;
@@ -61,8 +40,6 @@ MimeTypeParseException {
         code += parameters.hashCode();
         return code;
     } // hashCode()
-
-
     public boolean equals(Object thatObject) {
         if (!(thatObject instanceof MimeType)) {
             return false;
@@ -74,8 +51,6 @@ MimeTypeParseException {
              (this.parameters.equals(that.parameters)));
         return isIt;
     } // equals()
-
-
     private void parse(String rawdata) throws MimeTypeParseException {
         int slashIndex = rawdata.indexOf('/');
         int semIndex = rawdata.indexOf(';');
@@ -107,61 +82,40 @@ MimeTypeParameterList(rawdata.substring(semIndex));
             //    & a parameter list but no sub type
             throw new MimeTypeParseException("Unable to find a sub type.");
         }
-
         //    now validate the primary and sub types
-
         //    check to see if primary is valid
         if(!isValidToken(primaryType)) {
             throw new MimeTypeParseException("Primary type is invalid.");
         }
-
         //    check to see if sub is valid
         if(!isValidToken(subType)) {
             throw new MimeTypeParseException("Sub type is invalid.");
         }
     }
-
-
     public String getPrimaryType() {
         return primaryType;
     }
-
-
     public String getSubType() {
         return subType;
     }
-
-
     public MimeTypeParameterList getParameters() {
         return (MimeTypeParameterList)parameters.clone();
     }
-
-
     public String getParameter(String name) {
         return parameters.get(name);
     }
-
-
     public void setParameter(String name, String value) {
         parameters.set(name, value);
     }
-
-
     public void removeParameter(String name) {
         parameters.remove(name);
     }
-
-
     public String toString() {
         return getBaseType() + parameters.toString();
     }
-
-
     public String getBaseType() {
         return primaryType + "/" + subType;
     }
-
-
     public boolean match(MimeType type) {
         if (type == null)
             return false;
@@ -170,15 +124,11 @@ MimeTypeParameterList(rawdata.substring(semIndex));
                             || type.getSubType().equals("*")
                             || (subType.equals(type.getSubType())));
     }
-
-
     public boolean match(String rawdata) throws MimeTypeParseException {
         if (rawdata == null)
             return false;
         return match(new MimeType(rawdata));
     }
-
-
     public void writeExternal(ObjectOutput out) throws IOException {
         String s = toString(); // contains ASCII chars only
         // one-to-one correspondence between ASCII char and byte in UTF string
@@ -191,8 +141,6 @@ MimeTypeParameterList(rawdata.substring(semIndex));
             out.write(s.getBytes());
         }
     }
-
-
     public void readExternal(ObjectInput in) throws IOException,
 ClassNotFoundException {
         String s = in.readUTF();
@@ -207,9 +155,6 @@ ClassNotFoundException {
             throw new IOException(e.toString());
         }
     }
-
-
-
     public Object clone() {
         MimeType newObj = null;
         try {
@@ -219,19 +164,13 @@ ClassNotFoundException {
         newObj.parameters = (MimeTypeParameterList)parameters.clone();
         return newObj;
     }
-
     private String    primaryType;
     private String    subType;
     private MimeTypeParameterList parameters;
-
     //    below here be scary parsing related things
-
-
     private static boolean isTokenChar(char c) {
         return ((c > 040) && (c < 0177)) && (TSPECIALS.indexOf(c) < 0);
     }
-
-
     private boolean isValidToken(String s) {
         int len = s.length();
         if(len > 0) {
@@ -246,9 +185,5 @@ ClassNotFoundException {
             return false;
         }
     }
-
-
-
     private static final String TSPECIALS = "()<>@,;:\\\"/[]?=";
-
 } // class MimeType

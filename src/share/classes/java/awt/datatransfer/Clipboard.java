@@ -1,49 +1,27 @@
-
-
 package java.awt.datatransfer;
-
 import java.awt.EventQueue;
-
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
-
 import java.io.IOException;
-
 import sun.awt.EventListenerAggregate;
-
-
 public class Clipboard {
-
     String name;
-
     protected ClipboardOwner owner;
     protected Transferable contents;
-
-
     private EventListenerAggregate flavorListeners;
-
-
     private Set<DataFlavor> currentDataFlavors;
-
-
     public Clipboard(String name) {
         this.name = name;
     }
-
-
     public String getName() {
         return name;
     }
-
-
     public synchronized void setContents(Transferable contents, ClipboardOwner owner) {
         final ClipboardOwner oldOwner = this.owner;
         final Transferable oldContents = this.contents;
-
         this.owner = owner;
         this.contents = contents;
-
         if (oldOwner != null && oldOwner != owner) {
             EventQueue.invokeLater(new Runnable() {
                 public void run() {
@@ -53,14 +31,9 @@ public class Clipboard {
         }
         fireFlavorsChanged();
     }
-
-
     public synchronized Transferable getContents(Object requestor) {
         return contents;
     }
-
-
-
     public DataFlavor[] getAvailableDataFlavors() {
         Transferable cntnts = getContents(null);
         if (cntnts == null) {
@@ -68,36 +41,27 @@ public class Clipboard {
         }
         return cntnts.getTransferDataFlavors();
     }
-
-
     public boolean isDataFlavorAvailable(DataFlavor flavor) {
         if (flavor == null) {
             throw new NullPointerException("flavor");
         }
-
         Transferable cntnts = getContents(null);
         if (cntnts == null) {
             return false;
         }
         return cntnts.isDataFlavorSupported(flavor);
     }
-
-
     public Object getData(DataFlavor flavor)
         throws UnsupportedFlavorException, IOException {
         if (flavor == null) {
             throw new NullPointerException("flavor");
         }
-
         Transferable cntnts = getContents(null);
         if (cntnts == null) {
             throw new UnsupportedFlavorException(flavor);
         }
         return cntnts.getTransferData(flavor);
     }
-
-
-
     public synchronized void addFlavorListener(FlavorListener listener) {
         if (listener == null) {
             return;
@@ -108,22 +72,16 @@ public class Clipboard {
         }
         flavorListeners.add(listener);
     }
-
-
     public synchronized void removeFlavorListener(FlavorListener listener) {
         if (listener == null || flavorListeners == null) {
             return;
         }
         flavorListeners.remove(listener);
     }
-
-
     public synchronized FlavorListener[] getFlavorListeners() {
         return flavorListeners == null ? new FlavorListener[0] :
                 (FlavorListener[])flavorListeners.getListenersCopy();
     }
-
-
     private void fireFlavorsChanged() {
         if (flavorListeners == null) {
             return;
@@ -144,8 +102,6 @@ public class Clipboard {
             });
         }
     }
-
-
     private Set<DataFlavor> getAvailableDataFlavorSet() {
         Set<DataFlavor> set = new HashSet<>();
         Transferable contents = getContents(null);

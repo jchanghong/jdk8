@@ -1,107 +1,61 @@
-
-
 package java.awt.font;
-
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Set;
-
-
-
 public final class NumericShaper implements java.io.Serializable {
-
     public static enum Range {
         // The order of EUROPEAN to MOGOLIAN must be consistent
         // with the bitmask-based constants.
-
         EUROPEAN        ('\u0030', '\u0000', '\u0300'),
-
         ARABIC          ('\u0660', '\u0600', '\u0780'),
-
         EASTERN_ARABIC  ('\u06f0', '\u0600', '\u0780'),
-
         DEVANAGARI      ('\u0966', '\u0900', '\u0980'),
-
         BENGALI         ('\u09e6', '\u0980', '\u0a00'),
-
         GURMUKHI        ('\u0a66', '\u0a00', '\u0a80'),
-
         GUJARATI        ('\u0ae6', '\u0b00', '\u0b80'),
-
         ORIYA           ('\u0b66', '\u0b00', '\u0b80'),
-
         TAMIL           ('\u0be6', '\u0b80', '\u0c00'),
-
         TELUGU          ('\u0c66', '\u0c00', '\u0c80'),
-
         KANNADA         ('\u0ce6', '\u0c80', '\u0d00'),
-
         MALAYALAM       ('\u0d66', '\u0d00', '\u0d80'),
-
         THAI            ('\u0e50', '\u0e00', '\u0e80'),
-
         LAO             ('\u0ed0', '\u0e80', '\u0f00'),
-
         TIBETAN         ('\u0f20', '\u0f00', '\u1000'),
-
         MYANMAR         ('\u1040', '\u1000', '\u1080'),
-
         ETHIOPIC        ('\u1369', '\u1200', '\u1380') {
             @Override
             char getNumericBase() { return 1; }
         },
-
         KHMER           ('\u17e0', '\u1780', '\u1800'),
-
         MONGOLIAN       ('\u1810', '\u1800', '\u1900'),
         // The order of EUROPEAN to MOGOLIAN must be consistent
         // with the bitmask-based constants.
-
-
         NKO             ('\u07c0', '\u07c0', '\u0800'),
-
         MYANMAR_SHAN    ('\u1090', '\u1000', '\u10a0'),
-
         LIMBU           ('\u1946', '\u1900', '\u1950'),
-
         NEW_TAI_LUE     ('\u19d0', '\u1980', '\u19e0'),
-
         BALINESE        ('\u1b50', '\u1b00', '\u1b80'),
-
         SUNDANESE       ('\u1bb0', '\u1b80', '\u1bc0'),
-
         LEPCHA          ('\u1c40', '\u1c00', '\u1c50'),
-
         OL_CHIKI        ('\u1c50', '\u1c50', '\u1c80'),
-
         VAI             ('\ua620', '\ua500', '\ua640'),
-
         SAURASHTRA      ('\ua8d0', '\ua880', '\ua8e0'),
-
         KAYAH_LI        ('\ua900', '\ua900', '\ua930'),
-
         CHAM            ('\uaa50', '\uaa00', '\uaa60'),
-
         TAI_THAM_HORA   ('\u1a80', '\u1a20', '\u1ab0'),
-
         TAI_THAM_THAM   ('\u1a90', '\u1a20', '\u1ab0'),
-
         JAVANESE        ('\ua9d0', '\ua980', '\ua9e0'),
-
         MEETEI_MAYEK    ('\uabf0', '\uabc0', '\uac00');
-
         private static int toRangeIndex(Range script) {
             int index = script.ordinal();
             return index < NUM_KEYS ? index : -1;
         }
-
         private static Range indexToRange(int index) {
             return index < NUM_KEYS ? Range.values()[index] : null;
         }
-
         private static int toRangeMask(Set<Range> ranges) {
             int m = 0;
             for (Range range : ranges) {
@@ -112,7 +66,6 @@ public final class NumericShaper implements java.io.Serializable {
             }
             return m;
         }
-
         private static Set<Range> maskToRangeSet(int mask) {
             Set<Range> set = EnumSet.noneOf(Range.class);
             Range[] a = Range.values();
@@ -123,113 +76,54 @@ public final class NumericShaper implements java.io.Serializable {
             }
             return set;
         }
-
         // base character of range digits
         private final int base;
         // Unicode range
         private final int start, // inclusive
                           end;   // exclusive
-
         private Range(int base, int start, int end) {
             this.base = base - ('0' + getNumericBase());
             this.start = start;
             this.end = end;
         }
-
         private int getDigitBase() {
             return base;
         }
-
         char getNumericBase() {
             return 0;
         }
-
         private boolean inRange(int c) {
             return start <= c && c < end;
         }
     }
-
-
     private int key;
-
-
     private int mask;
-
-
     private Range shapingRange;
-
-
     private transient Set<Range> rangeSet;
-
-
     private transient Range[] rangeArray;
-
-
     private static final int BSEARCH_THRESHOLD = 3;
-
     private static final long serialVersionUID = -8022764705923730308L;
-
-
     public static final int EUROPEAN = 1<<0;
-
-
     public static final int ARABIC = 1<<1;
-
-
     public static final int EASTERN_ARABIC = 1<<2;
-
-
     public static final int DEVANAGARI = 1<<3;
-
-
     public static final int BENGALI = 1<<4;
-
-
     public static final int GURMUKHI = 1<<5;
-
-
     public static final int GUJARATI = 1<<6;
-
-
     public static final int ORIYA = 1<<7;
-
-
     // TAMIL DIGIT ZERO was added in Unicode 4.1
     public static final int TAMIL = 1<<8;
-
-
     public static final int TELUGU = 1<<9;
-
-
     public static final int KANNADA = 1<<10;
-
-
     public static final int MALAYALAM = 1<<11;
-
-
     public static final int THAI = 1<<12;
-
-
     public static final int LAO = 1<<13;
-
-
     public static final int TIBETAN = 1<<14;
-
-
     public static final int MYANMAR = 1<<15;
-
-
     public static final int ETHIOPIC = 1<<16;
-
-
     public static final int KHMER = 1<<17;
-
-
     public static final int MONGOLIAN = 1<<18;
-
-
     public static final int ALL_RANGES = 0x0007ffff;
-
     private static final int EUROPEAN_KEY = 0;
     private static final int ARABIC_KEY = 1;
     private static final int EASTERN_ARABIC_KEY = 2;
@@ -249,11 +143,8 @@ public final class NumericShaper implements java.io.Serializable {
     private static final int ETHIOPIC_KEY = 16;
     private static final int KHMER_KEY = 17;
     private static final int MONGOLIAN_KEY = 18;
-
     private static final int NUM_KEYS = MONGOLIAN_KEY + 1; // fixed
-
     private static final int CONTEXTUAL_MASK = 1<<31;
-
     private static final char[] bases = {
         '\u0030' - '\u0030', // EUROPEAN
         '\u0660' - '\u0030', // ARABIC-INDIC
@@ -275,9 +166,7 @@ public final class NumericShaper implements java.io.Serializable {
         '\u17e0' - '\u0030', // KHMER
         '\u1810' - '\u0030', // MONGOLIAN
     };
-
     // some ranges adjoin or overlap, rethink if we want to do a binary search on this
-
     private static final char[] contexts = {
         '\u0000', '\u0300', // 'EUROPEAN' (really latin-1 and extended)
         '\u0600', '\u0780', // ARABIC
@@ -300,13 +189,10 @@ public final class NumericShaper implements java.io.Serializable {
         '\u1800', '\u1900', // MONGOLIAN
         '\uffff',
     };
-
     // assume most characters are near each other so probing the cache is infrequent,
     // and a linear probe is ok.
-
     private static int ctCache = 0;
     private static int ctCacheLimit = contexts.length - 2;
-
     // warning, synchronize access to this as it modifies state
     private static int getContextKey(char c) {
         if (c < contexts[ctCache]) {
@@ -314,19 +200,15 @@ public final class NumericShaper implements java.io.Serializable {
         } else if (c >= contexts[ctCache + 1]) {
             while (ctCache < ctCacheLimit && c >= contexts[ctCache + 1]) ++ctCache;
         }
-
         // if we're not in a known range, then return EUROPEAN as the range key
         return (ctCache & 0x1) == 0 ? (ctCache / 2) : EUROPEAN_KEY;
     }
-
     // cache for the NumericShaper.Range version
     private transient volatile Range currentRange = Range.EUROPEAN;
-
     private Range rangeForCodePoint(final int codepoint) {
         if (currentRange.inRange(codepoint)) {
             return currentRange;
         }
-
         final Range[] ranges = rangeArray;
         if (ranges.length > BSEARCH_THRESHOLD) {
             int lo = 0;
@@ -352,8 +234,6 @@ public final class NumericShaper implements java.io.Serializable {
         }
         return Range.EUROPEAN;
     }
-
-
     private static int[] strongTable = {
         0x0000, 0x0041,
         0x005b, 0x0061,
@@ -656,12 +536,8 @@ public final class NumericShaper implements java.io.Serializable {
         0xe0001, 0xf0000,
         0x10fffe, 0x10ffff // sentinel
     };
-
-
     // use a binary search with a cache
-
     private transient volatile int stCache = 0;
-
     private boolean isStrongDirectional(char c) {
         int cachedIndex = stCache;
         if (c < strongTable[cachedIndex]) {
@@ -674,7 +550,6 @@ public final class NumericShaper implements java.io.Serializable {
         stCache = cachedIndex;
         return val;
     }
-
     private static int getKeyFromMask(int mask) {
         int key = 0;
         while (key < NUM_KEYS && ((mask & (1<<key)) == 0)) {
@@ -685,39 +560,27 @@ public final class NumericShaper implements java.io.Serializable {
         }
         return key;
     }
-
-
     public static NumericShaper getShaper(int singleRange) {
         int key = getKeyFromMask(singleRange);
         return new NumericShaper(key, singleRange);
     }
-
-
     public static NumericShaper getShaper(Range singleRange) {
         return new NumericShaper(singleRange, EnumSet.of(singleRange));
     }
-
-
     public static NumericShaper getContextualShaper(int ranges) {
         ranges |= CONTEXTUAL_MASK;
         return new NumericShaper(EUROPEAN_KEY, ranges);
     }
-
-
     public static NumericShaper getContextualShaper(Set<Range> ranges) {
         NumericShaper shaper = new NumericShaper(Range.EUROPEAN, ranges);
         shaper.mask = CONTEXTUAL_MASK;
         return shaper;
     }
-
-
     public static NumericShaper getContextualShaper(int ranges, int defaultContext) {
         int key = getKeyFromMask(defaultContext);
         ranges |= CONTEXTUAL_MASK;
         return new NumericShaper(key, ranges);
     }
-
-
     public static NumericShaper getContextualShaper(Set<Range> ranges,
                                                     Range defaultContext) {
         if (defaultContext == null) {
@@ -727,31 +590,25 @@ public final class NumericShaper implements java.io.Serializable {
         shaper.mask = CONTEXTUAL_MASK;
         return shaper;
     }
-
-
     private NumericShaper(int key, int mask) {
         this.key = key;
         this.mask = mask;
     }
-
     private NumericShaper(Range defaultContext, Set<Range> ranges) {
         shapingRange = defaultContext;
         rangeSet = EnumSet.copyOf(ranges); // throws NPE if ranges is null.
-
         // Give precedance to EASTERN_ARABIC if both ARABIC and
         // EASTERN_ARABIC are specified.
         if (rangeSet.contains(Range.EASTERN_ARABIC)
             && rangeSet.contains(Range.ARABIC)) {
             rangeSet.remove(Range.ARABIC);
         }
-
         // As well as the above case, give precedance to TAI_THAM_THAM if both
         // TAI_THAM_HORA and TAI_THAM_THAM are specified.
         if (rangeSet.contains(Range.TAI_THAM_THAM)
             && rangeSet.contains(Range.TAI_THAM_HORA)) {
             rangeSet.remove(Range.TAI_THAM_HORA);
         }
-
         rangeArray = rangeSet.toArray(new Range[rangeSet.size()]);
         if (rangeArray.length > BSEARCH_THRESHOLD) {
             // sort rangeArray for binary search
@@ -763,8 +620,6 @@ public final class NumericShaper implements java.io.Serializable {
                         });
         }
     }
-
-
     public void shape(char[] text, int start, int count) {
         checkParams(text, start, count);
         if (isContextual()) {
@@ -777,8 +632,6 @@ public final class NumericShaper implements java.io.Serializable {
             shapeNonContextually(text, start, count);
         }
     }
-
-
     public void shape(char[] text, int start, int count, int context) {
         checkParams(text, start, count);
         if (isContextual()) {
@@ -792,14 +645,11 @@ public final class NumericShaper implements java.io.Serializable {
             shapeNonContextually(text, start, count);
         }
     }
-
-
     public void shape(char[] text, int start, int count, Range context) {
         checkParams(text, start, count);
         if (context == null) {
             throw new NullPointerException("context is null");
         }
-
         if (isContextual()) {
             if (rangeSet != null) {
                 shapeContextually(text, start, count, context);
@@ -815,7 +665,6 @@ public final class NumericShaper implements java.io.Serializable {
             shapeNonContextually(text, start, count);
         }
     }
-
     private void checkParams(char[] text, int start, int count) {
         if (text == null) {
             throw new NullPointerException("text is null");
@@ -828,26 +677,18 @@ public final class NumericShaper implements java.io.Serializable {
                 "bad start or count for text of length " + text.length);
         }
     }
-
-
     public boolean isContextual() {
         return (mask & CONTEXTUAL_MASK) != 0;
     }
-
-
     public int getRanges() {
         return mask & ~CONTEXTUAL_MASK;
     }
-
-
     public Set<Range> getRangeSet() {
         if (rangeSet != null) {
             return EnumSet.copyOf(rangeSet);
         }
         return Range.maskToRangeSet(mask);
     }
-
-
     private void shapeNonContextually(char[] text, int start, int count) {
         int base;
         char minDigit = '0';
@@ -867,31 +708,24 @@ public final class NumericShaper implements java.io.Serializable {
             }
         }
     }
-
-
     private synchronized void shapeContextually(char[] text, int start, int count, int ctxKey) {
-
         // if we don't support this context, then don't shape
         if ((mask & (1<<ctxKey)) == 0) {
             ctxKey = EUROPEAN_KEY;
         }
         int lastkey = ctxKey;
-
         int base = bases[ctxKey];
         char minDigit = ctxKey == ETHIOPIC_KEY ? '1' : '0'; // Ethiopic doesn't use decimal zero
-
         synchronized (NumericShaper.class) {
             for (int i = start, e = start + count; i < e; ++i) {
                 char c = text[i];
                 if (c >= minDigit && c <= '\u0039') {
                     text[i] = (char)(c + base);
                 }
-
                 if (isStrongDirectional(c)) {
                     int newkey = getContextKey(c);
                     if (newkey != lastkey) {
                         lastkey = newkey;
-
                         ctxKey = newkey;
                         if (((mask & EASTERN_ARABIC) != 0) &&
                              (ctxKey == ARABIC_KEY ||
@@ -904,22 +738,18 @@ public final class NumericShaper implements java.io.Serializable {
                         } else if ((mask & (1<<ctxKey)) == 0) {
                             ctxKey = EUROPEAN_KEY;
                         }
-
                         base = bases[ctxKey];
-
                         minDigit = ctxKey == ETHIOPIC_KEY ? '1' : '0'; // Ethiopic doesn't use decimal zero
                     }
                 }
             }
         }
     }
-
     private void shapeContextually(char[] text, int start, int count, Range ctxKey) {
         // if we don't support the specified context, then don't shape.
         if (ctxKey == null || !rangeSet.contains(ctxKey)) {
             ctxKey = Range.EUROPEAN;
         }
-
         Range lastKey = ctxKey;
         int base = ctxKey.getDigitBase();
         char minDigit = (char)('0' + ctxKey.getNumericBase());
@@ -940,8 +770,6 @@ public final class NumericShaper implements java.io.Serializable {
             }
         }
     }
-
-
     public int hashCode() {
         int hash = mask;
         if (rangeSet != null) {
@@ -953,8 +781,6 @@ public final class NumericShaper implements java.io.Serializable {
         }
         return hash;
     }
-
-
     public boolean equals(Object o) {
         if (o != null) {
             try {
@@ -982,19 +808,14 @@ public final class NumericShaper implements java.io.Serializable {
         }
         return false;
     }
-
-
     public String toString() {
         StringBuilder buf = new StringBuilder(super.toString());
-
         buf.append("[contextual:").append(isContextual());
-
         String[] keyNames = null;
         if (isContextual()) {
             buf.append(", context:");
             buf.append(shapingRange == null ? Range.values()[key] : shapingRange);
         }
-
         if (rangeSet == null) {
             buf.append(", range(s): ");
             boolean first = true;
@@ -1012,69 +833,51 @@ public final class NumericShaper implements java.io.Serializable {
             buf.append(", range set: ").append(rangeSet);
         }
         buf.append(']');
-
         return buf.toString();
     }
-
-
     private static int getHighBit(int value) {
         if (value <= 0) {
             return -32;
         }
-
         int bit = 0;
-
         if (value >= 1 << 16) {
             value >>= 16;
             bit += 16;
         }
-
         if (value >= 1 << 8) {
             value >>= 8;
             bit += 8;
         }
-
         if (value >= 1 << 4) {
             value >>= 4;
             bit += 4;
         }
-
         if (value >= 1 << 2) {
             value >>= 2;
             bit += 2;
         }
-
         if (value >= 1 << 1) {
             bit += 1;
         }
-
         return bit;
     }
-
-
     private static int search(int value, int[] array, int start, int length)
     {
         int power = 1 << getHighBit(length);
         int extra = length - power;
         int probe = power;
         int index = start;
-
         if (value >= array[index + extra]) {
             index += extra;
         }
-
         while (probe > 1) {
             probe >>= 1;
-
             if (value >= array[index + probe]) {
                 index += probe;
             }
         }
-
         return index;
     }
-
-
     private void writeObject(ObjectOutputStream stream) throws IOException {
         if (shapingRange != null) {
             int index = Range.toRangeIndex(shapingRange);

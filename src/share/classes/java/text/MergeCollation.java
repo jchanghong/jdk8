@@ -1,29 +1,15 @@
-
-
-
-
 package java.text;
-
 import java.util.ArrayList;
-
-
-
 final class MergeCollation {
-
-
     public MergeCollation(String pattern) throws ParseException
     {
         for (int i = 0; i < statusArray.length; i++)
             statusArray[i] = 0;
         setPattern(pattern);
     }
-
-
     public String getPattern() {
         return getPattern(true);
     }
-
-
     public String getPattern(boolean withWhiteSpace) {
         StringBuffer result = new StringBuffer();
         PatternEntry tmp = null;
@@ -57,7 +43,6 @@ final class MergeCollation {
         }
         return result.toString();
     }
-
     private final PatternEntry findLastWithNoExtension(int i) {
         for (--i;i >= 0; --i) {
             PatternEntry entry = patterns.get(i);
@@ -67,13 +52,9 @@ final class MergeCollation {
         }
         return null;
     }
-
-
     public String emitPattern() {
         return emitPattern(true);
     }
-
-
     public String emitPattern(boolean withWhiteSpace) {
         StringBuffer result = new StringBuffer();
         for (int i = 0; i < patterns.size(); ++i)
@@ -85,51 +66,37 @@ final class MergeCollation {
         }
         return result.toString();
     }
-
-
     public void setPattern(String pattern) throws ParseException
     {
         patterns.clear();
         addPattern(pattern);
     }
-
-
     public void addPattern(String pattern) throws ParseException
     {
         if (pattern == null)
             return;
-
         PatternEntry.Parser parser = new PatternEntry.Parser(pattern);
-
         PatternEntry entry = parser.next();
         while (entry != null) {
             fixEntry(entry);
             entry = parser.next();
         }
     }
-
-
     public int getCount() {
         return patterns.size();
     }
-
-
     public PatternEntry getItemAt(int index) {
         return patterns.get(index);
     }
-
     //============================================================
     // privates
     //============================================================
     ArrayList<PatternEntry> patterns = new ArrayList<>(); // a list of PatternEntries
-
     private transient PatternEntry saveEntry = null;
     private transient PatternEntry lastEntry = null;
-
     // This is really used as a local variable inside fixEntry, but we cache
     // it here to avoid newing it up every time the method is called.
     private transient StringBuffer excess = new StringBuffer();
-
     //
     // When building a MergeCollation, we need to do lots of searches to see
     // whether a given entry is already in the table.  Since we're using an
@@ -142,8 +109,6 @@ final class MergeCollation {
     private final byte BITARRAYMASK = (byte)0x1;
     private final int  BYTEPOWER = 3;
     private final int  BYTEMASK = (1 << BYTEPOWER) - 1;
-
-
     private final void fixEntry(PatternEntry newEntry) throws ParseException
     {
         // check to see whether the new entry has the same characters as the previous
@@ -163,18 +128,14 @@ final class MergeCollation {
                 return;
             }
         }
-
         boolean changeLastEntry = true;
         if (newEntry.strength != PatternEntry.RESET) {
             int oldIndex = -1;
-
             if ((newEntry.chars.length() == 1)) {
-
                 char c = newEntry.chars.charAt(0);
                 int statusIndex = c >> BYTEPOWER;
                 byte bitClump = statusArray[statusIndex];
                 byte setBit = (byte)(BITARRAYMASK << (c & BYTEMASK));
-
                 if (bitClump != 0 && (bitClump & setBit) != 0) {
                     oldIndex = patterns.lastIndexOf(newEntry);
                 } else {
@@ -188,10 +149,8 @@ final class MergeCollation {
             if (oldIndex != -1) {
                 patterns.remove(oldIndex);
             }
-
             excess.setLength(0);
             int lastIndex = findLastEntry(lastEntry, excess);
-
             if (excess.length() != 0) {
                 newEntry.extension = excess + newEntry.extension;
                 if (lastIndex != patterns.size()) {
@@ -210,17 +169,14 @@ final class MergeCollation {
             lastEntry = newEntry;
         }
     }
-
     private final int findLastEntry(PatternEntry entry,
                               StringBuffer excessChars) throws ParseException
     {
         if (entry == null)
             return 0;
-
         if (entry.strength != PatternEntry.RESET) {
             // Search backwards for string that contains this one;
             // most likely entry is last one
-
             int oldIndex = -1;
             if ((entry.chars.length() == 1)) {
                 int index = entry.chars.charAt(0) >> BYTEPOWER;

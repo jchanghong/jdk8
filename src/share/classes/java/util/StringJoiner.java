@@ -1,24 +1,13 @@
-
 package java.util;
-
-
 public final class StringJoiner {
     private final String prefix;
     private final String delimiter;
     private final String suffix;
-
-
     private StringBuilder value;
-
-
     private String emptyValue;
-
-
     public StringJoiner(CharSequence delimiter) {
         this(delimiter, "", "");
     }
-
-
     public StringJoiner(CharSequence delimiter,
                         CharSequence prefix,
                         CharSequence suffix) {
@@ -31,15 +20,11 @@ public final class StringJoiner {
         this.suffix = suffix.toString();
         this.emptyValue = this.prefix + this.suffix;
     }
-
-
     public StringJoiner setEmptyValue(CharSequence emptyValue) {
         this.emptyValue = Objects.requireNonNull(emptyValue,
             "The empty value must not be null").toString();
         return this;
     }
-
-
     @Override
     public String toString() {
         if (value == null) {
@@ -56,14 +41,10 @@ public final class StringJoiner {
             }
         }
     }
-
-
     public StringJoiner add(CharSequence newElement) {
         prepareBuilder().append(newElement);
         return this;
     }
-
-
     public StringJoiner merge(StringJoiner other) {
         Objects.requireNonNull(other);
         if (other.value != null) {
@@ -76,7 +57,6 @@ public final class StringJoiner {
         }
         return this;
     }
-
     private StringBuilder prepareBuilder() {
         if (value != null) {
             value.append(delimiter);
@@ -85,8 +65,6 @@ public final class StringJoiner {
         }
         return value;
     }
-
-
     public int length() {
         // Remember that we never actually append the suffix unless we return
         // the full (present) value or some sub-string or length of it, so that

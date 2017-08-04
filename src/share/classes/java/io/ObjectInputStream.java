@@ -1,7 +1,4 @@
-
-
 package java.io;
-
 import java.io.ObjectStreamClass.WeakClassKey;
 import java.lang.ref.ReferenceQueue;
 import java.lang.reflect.Array;
@@ -17,27 +14,18 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import static java.io.ObjectStreamClass.processQueue;
-
 import sun.misc.ObjectInputFilter;
 import sun.misc.ObjectStreamClassValidator;
 import sun.misc.SharedSecrets;
 import sun.reflect.misc.ReflectUtil;
 import sun.misc.JavaOISAccess;
 import sun.util.logging.PlatformLogger;
-
-
 public class ObjectInputStream
     extends InputStream implements ObjectInput, ObjectStreamConstants
 {
-
     private static final int NULL_HANDLE = -1;
-
-
     private static final Object unsharedMarker = new Object();
-
-
     private static final HashMap<String, Class<?>> primClasses
         = new HashMap<>(8, 1.0F);
     static {
@@ -51,34 +39,23 @@ public class ObjectInputStream
         primClasses.put("double", double.class);
         primClasses.put("void", void.class);
     }
-
     private static class Caches {
-
         static final ConcurrentMap<WeakClassKey,Boolean> subclassAudits =
             new ConcurrentHashMap<>();
-
-
         static final ReferenceQueue<Class<?>> subclassAuditsQueue =
             new ReferenceQueue<>();
     }
-
     static {
-
         sun.misc.SharedSecrets.setJavaOISAccess(new JavaOISAccess() {
             public void setObjectInputFilter(ObjectInputStream stream, ObjectInputFilter filter) {
                 stream.setInternalObjectInputFilter(filter);
             }
-
             public ObjectInputFilter getObjectInputFilter(ObjectInputStream stream) {
                 return stream.getInternalObjectInputFilter();
             }
         });
     }
-
-
     private static class Logging {
-
-
         private static final PlatformLogger traceLogger;
         private static final PlatformLogger infoLogger;
         static {
@@ -89,40 +66,19 @@ public class ObjectInputStream
                 filterLog.isLoggable(PlatformLogger.Level.FINER)) ? filterLog : null;
         }
     }
-
-
     private final BlockDataInputStream bin;
-
     private final ValidationList vlist;
-
     private long depth;
-
     private long totalObjectRefs;
-
     private boolean closed;
-
-
     private final HandleTable handles;
-
     private int passHandle = NULL_HANDLE;
-
     private boolean defaultDataEnd = false;
-
-
     private byte[] primVals;
-
-
     private final boolean enableOverride;
-
     private boolean enableResolve;
-
-
     private SerialCallbackContext curContext;
-
-
     private ObjectInputFilter serialFilter;
-
-
     public ObjectInputStream(InputStream in) throws IOException {
         verifySubclass();
         bin = new BlockDataInputStream(in);
@@ -133,8 +89,6 @@ public class ObjectInputStream
         readStreamHeader();
         bin.setBlockDataMode(true);
     }
-
-
     protected ObjectInputStream() throws IOException, SecurityException {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -146,15 +100,12 @@ public class ObjectInputStream
         serialFilter = ObjectInputFilter.Config.getSerialFilter();
         enableOverride = true;
     }
-
-
     public final Object readObject()
         throws IOException, ClassNotFoundException
     {
         if (enableOverride) {
             return readObjectOverride();
         }
-
         // if nested read, passHandle contains handle of enclosing object
         int outerHandle = passHandle;
         try {
@@ -175,15 +126,11 @@ public class ObjectInputStream
             }
         }
     }
-
-
     protected Object readObjectOverride()
         throws IOException, ClassNotFoundException
     {
         return null;
     }
-
-
     public Object readUnshared() throws IOException, ClassNotFoundException {
         // if nested read, passHandle contains handle of enclosing object
         int outerHandle = passHandle;
@@ -205,8 +152,6 @@ public class ObjectInputStream
             }
         }
     }
-
-
     public void defaultReadObject()
         throws IOException, ClassNotFoundException
     {
@@ -220,7 +165,6 @@ public class ObjectInputStream
         defaultReadFields(curObj, curDesc);
         bin.setBlockDataMode(true);
         if (!curDesc.hasWriteObjectData()) {
-
             defaultDataEnd = true;
         }
         ClassNotFoundException ex = handles.lookupException(passHandle);
@@ -228,8 +172,6 @@ public class ObjectInputStream
             throw ex;
         }
     }
-
-
     public ObjectInputStream.GetField readFields()
         throws IOException, ClassNotFoundException
     {
@@ -244,14 +186,10 @@ public class ObjectInputStream
         getField.readFields();
         bin.setBlockDataMode(true);
         if (!curDesc.hasWriteObjectData()) {
-
             defaultDataEnd = true;
         }
-
         return getField;
     }
-
-
     public void registerValidation(ObjectInputValidation obj, int prio)
         throws NotActiveException, InvalidObjectException
     {
@@ -260,8 +198,6 @@ public class ObjectInputStream
         }
         vlist.register(obj, prio);
     }
-
-
     protected Class<?> resolveClass(ObjectStreamClass desc)
         throws IOException, ClassNotFoundException
     {
@@ -277,15 +213,12 @@ public class ObjectInputStream
             }
         }
     }
-
-
     protected Class<?> resolveProxyClass(String[] interfaces)
         throws IOException, ClassNotFoundException
     {
         ClassLoader latestLoader = latestUserDefinedLoader();
         ClassLoader nonPublicLoader = null;
         boolean hasNonPublicInterface = false;
-
         // define proxy in class loader of non-public interface(s), if any
         Class<?>[] classObjs = new Class<?>[interfaces.length];
         for (int i = 0; i < interfaces.length; i++) {
@@ -311,13 +244,9 @@ public class ObjectInputStream
             throw new ClassNotFoundException(null, e);
         }
     }
-
-
     protected Object resolveObject(Object obj) throws IOException {
         return obj;
     }
-
-
     protected boolean enableResolveObject(boolean enable)
         throws SecurityException
     {
@@ -333,8 +262,6 @@ public class ObjectInputStream
         enableResolve = enable;
         return !enableResolve;
     }
-
-
     protected void readStreamHeader()
         throws IOException, StreamCorruptedException
     {
@@ -345,8 +272,6 @@ public class ObjectInputStream
                 String.format("invalid stream header: %04X%04X", s0, s1));
         }
     }
-
-
     protected ObjectStreamClass readClassDescriptor()
         throws IOException, ClassNotFoundException
     {
@@ -354,13 +279,9 @@ public class ObjectInputStream
         desc.readNonProxy(this);
         return desc;
     }
-
-
     public int read() throws IOException {
         return bin.read();
     }
-
-
     public int read(byte[] buf, int off, int len) throws IOException {
         if (buf == null) {
             throw new NullPointerException();
@@ -371,78 +292,49 @@ public class ObjectInputStream
         }
         return bin.read(buf, off, len, false);
     }
-
-
     public int available() throws IOException {
         return bin.available();
     }
-
-
     public void close() throws IOException {
-
         closed = true;
         if (depth == 0) {
             clear();
         }
         bin.close();
     }
-
-
     public boolean readBoolean() throws IOException {
         return bin.readBoolean();
     }
-
-
     public byte readByte() throws IOException  {
         return bin.readByte();
     }
-
-
     public int readUnsignedByte()  throws IOException {
         return bin.readUnsignedByte();
     }
-
-
     public char readChar()  throws IOException {
         return bin.readChar();
     }
-
-
     public short readShort()  throws IOException {
         return bin.readShort();
     }
-
-
     public int readUnsignedShort() throws IOException {
         return bin.readUnsignedShort();
     }
-
-
     public int readInt()  throws IOException {
         return bin.readInt();
     }
-
-
     public long readLong()  throws IOException {
         return bin.readLong();
     }
-
-
     public float readFloat() throws IOException {
         return bin.readFloat();
     }
-
-
     public double readDouble() throws IOException {
         return bin.readDouble();
     }
-
-
     public void readFully(byte[] buf) throws IOException {
         bin.readFully(buf, 0, buf.length, false);
     }
-
-
     public void readFully(byte[] buf, int off, int len) throws IOException {
         int endoff = off + len;
         if (off < 0 || len < 0 || endoff > buf.length || endoff < 0) {
@@ -450,29 +342,19 @@ public class ObjectInputStream
         }
         bin.readFully(buf, off, len, false);
     }
-
-
     public int skipBytes(int len) throws IOException {
         return bin.skipBytes(len);
     }
-
-
     @Deprecated
     public String readLine() throws IOException {
         return bin.readLine();
     }
-
-
     public String readUTF() throws IOException {
         return bin.readUTF();
     }
-
-
     private final ObjectInputFilter getInternalObjectInputFilter() {
         return serialFilter;
     }
-
-
     private final void setInternalObjectInputFilter(ObjectInputFilter filter) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -485,8 +367,6 @@ public class ObjectInputStream
         }
         this.serialFilter = filter;
     }
-
-
     private void filterCheck(Class<?> clazz, int arrayLength)
             throws InvalidClassException {
         if (serialFilter != null) {
@@ -523,46 +403,20 @@ public class ObjectInputStream
             }
         }
     }
-
-
     public static abstract class GetField {
-
-
         public abstract ObjectStreamClass getObjectStreamClass();
-
-
         public abstract boolean defaulted(String name) throws IOException;
-
-
         public abstract boolean get(String name, boolean val)
             throws IOException;
-
-
         public abstract byte get(String name, byte val) throws IOException;
-
-
         public abstract char get(String name, char val) throws IOException;
-
-
         public abstract short get(String name, short val) throws IOException;
-
-
         public abstract int get(String name, int val) throws IOException;
-
-
         public abstract long get(String name, long val) throws IOException;
-
-
         public abstract float get(String name, float val) throws IOException;
-
-
         public abstract double get(String name, double val) throws IOException;
-
-
         public abstract Object get(String name, Object val) throws IOException;
     }
-
-
     private void verifySubclass() {
         Class<?> cl = getClass();
         if (cl == ObjectInputStream.class) {
@@ -584,8 +438,6 @@ public class ObjectInputStream
         }
         sm.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
     }
-
-
     private static boolean auditSubclass(final Class<?> subcl) {
         Boolean result = AccessController.doPrivileged(
             new PrivilegedAction<Boolean>() {
@@ -612,14 +464,10 @@ public class ObjectInputStream
         );
         return result.booleanValue();
     }
-
-
     private void clear() {
         handles.clear();
         vlist.clear();
     }
-
-
     private Object readObject0(boolean unshared) throws IOException {
         boolean oldMode = bin.getBlockDataMode();
         if (oldMode) {
@@ -627,52 +475,40 @@ public class ObjectInputStream
             if (remain > 0) {
                 throw new OptionalDataException(remain);
             } else if (defaultDataEnd) {
-
                 throw new OptionalDataException(true);
             }
             bin.setBlockDataMode(false);
         }
-
         byte tc;
         while ((tc = bin.peekByte()) == TC_RESET) {
             bin.readByte();
             handleReset();
         }
-
         depth++;
         totalObjectRefs++;
         try {
             switch (tc) {
                 case TC_NULL:
                     return readNull();
-
                 case TC_REFERENCE:
                     return readHandle(unshared);
-
                 case TC_CLASS:
                     return readClass(unshared);
-
                 case TC_CLASSDESC:
                 case TC_PROXYCLASSDESC:
                     return readClassDesc(unshared);
-
                 case TC_STRING:
                 case TC_LONGSTRING:
                     return checkResolve(readString(unshared));
-
                 case TC_ARRAY:
                     return checkResolve(readArray(unshared));
-
                 case TC_ENUM:
                     return checkResolve(readEnum(unshared));
-
                 case TC_OBJECT:
                     return checkResolve(readOrdinaryObject(unshared));
-
                 case TC_EXCEPTION:
                     IOException ex = readFatalException();
                     throw new WriteAbortedException("writing aborted", ex);
-
                 case TC_BLOCKDATA:
                 case TC_BLOCKDATALONG:
                     if (oldMode) {
@@ -684,7 +520,6 @@ public class ObjectInputStream
                         throw new StreamCorruptedException(
                             "unexpected block data");
                     }
-
                 case TC_ENDBLOCKDATA:
                     if (oldMode) {
                         throw new OptionalDataException(true);
@@ -692,7 +527,6 @@ public class ObjectInputStream
                         throw new StreamCorruptedException(
                             "unexpected end of block data");
                     }
-
                 default:
                     throw new StreamCorruptedException(
                         String.format("invalid type code: %02X", tc));
@@ -702,8 +536,6 @@ public class ObjectInputStream
             bin.setBlockDataMode(oldMode);
         }
     }
-
-
     private Object checkResolve(Object obj) throws IOException {
         if (!enableResolve || handles.lookupException(passHandle) != null) {
             return obj;
@@ -723,8 +555,6 @@ public class ObjectInputStream
         }
         return rep;
     }
-
-
     String readTypeString() throws IOException {
         int oldHandle = passHandle;
         try {
@@ -732,14 +562,11 @@ public class ObjectInputStream
             switch (tc) {
                 case TC_NULL:
                     return (String) readNull();
-
                 case TC_REFERENCE:
                     return (String) readHandle(false);
-
                 case TC_STRING:
                 case TC_LONGSTRING:
                     return readString(false);
-
                 default:
                     throw new StreamCorruptedException(
                         String.format("invalid type code: %02X", tc));
@@ -748,8 +575,6 @@ public class ObjectInputStream
             passHandle = oldHandle;
         }
     }
-
-
     private Object readNull() throws IOException {
         if (bin.readByte() != TC_NULL) {
             throw new InternalError();
@@ -757,8 +582,6 @@ public class ObjectInputStream
         passHandle = NULL_HANDLE;
         return null;
     }
-
-
     private Object readHandle(boolean unshared) throws IOException {
         if (bin.readByte() != TC_REFERENCE) {
             throw new InternalError();
@@ -774,7 +597,6 @@ public class ObjectInputStream
             throw new InvalidObjectException(
                 "cannot read back reference as unshared");
         }
-
         Object obj = handles.lookupObject(passHandle);
         if (obj == unsharedMarker) {
             // REMIND: what type of exception to throw here?
@@ -784,8 +606,6 @@ public class ObjectInputStream
         filterCheck(null, -1);       // just a check for number of references, depth, no class
         return obj;
     }
-
-
     private Class<?> readClass(boolean unshared) throws IOException {
         if (bin.readByte() != TC_CLASS) {
             throw new InternalError();
@@ -793,17 +613,13 @@ public class ObjectInputStream
         ObjectStreamClass desc = readClassDesc(false);
         Class<?> cl = desc.forClass();
         passHandle = handles.assign(unshared ? unsharedMarker : cl);
-
         ClassNotFoundException resolveEx = desc.getResolveException();
         if (resolveEx != null) {
             handles.markException(passHandle, resolveEx);
         }
-
         handles.finish(passHandle);
         return cl;
     }
-
-
     private ObjectStreamClass readClassDesc(boolean unshared)
         throws IOException
     {
@@ -831,31 +647,25 @@ public class ObjectInputStream
         }
         return descriptor;
     }
-
     private boolean isCustomSubclass() {
         // Return true if this class is a custom subclass of ObjectInputStream
         return getClass().getClassLoader()
                     != ObjectInputStream.class.getClassLoader();
     }
-
-
     private ObjectStreamClass readProxyDesc(boolean unshared)
         throws IOException
     {
         if (bin.readByte() != TC_PROXYCLASSDESC) {
             throw new InternalError();
         }
-
         ObjectStreamClass desc = new ObjectStreamClass();
         int descHandle = handles.assign(unshared ? unsharedMarker : desc);
         passHandle = NULL_HANDLE;
-
         int numIfaces = bin.readInt();
         String[] ifaces = new String[numIfaces];
         for (int i = 0; i < numIfaces; i++) {
             ifaces[i] = bin.readUTF();
         }
-
         Class<?> cl = null;
         ClassNotFoundException resolveEx = null;
         bin.setBlockDataMode(true);
@@ -879,12 +689,9 @@ public class ObjectInputStream
         } catch (ClassNotFoundException ex) {
             resolveEx = ex;
         }
-
         // Call filterCheck on the class before reading anything else
         filterCheck(cl, -1);
-
         skipCustomData();
-
         try {
             totalObjectRefs++;
             depth++;
@@ -892,24 +699,19 @@ public class ObjectInputStream
         } finally {
             depth--;
         }
-
         handles.finish(descHandle);
         passHandle = descHandle;
         return desc;
     }
-
-
     private ObjectStreamClass readNonProxyDesc(boolean unshared)
         throws IOException
     {
         if (bin.readByte() != TC_CLASSDESC) {
             throw new InternalError();
         }
-
         ObjectStreamClass desc = new ObjectStreamClass();
         int descHandle = handles.assign(unshared ? unsharedMarker : desc);
         passHandle = NULL_HANDLE;
-
         ObjectStreamClass readDesc = null;
         try {
             readDesc = readClassDescriptor();
@@ -917,7 +719,6 @@ public class ObjectInputStream
             throw (IOException) new InvalidClassException(
                 "failed to read class descriptor").initCause(ex);
         }
-
         Class<?> cl = null;
         ClassNotFoundException resolveEx = null;
         bin.setBlockDataMode(true);
@@ -931,12 +732,9 @@ public class ObjectInputStream
         } catch (ClassNotFoundException ex) {
             resolveEx = ex;
         }
-
         // Call filterCheck on the class before reading anything else
         filterCheck(cl, -1);
-
         skipCustomData();
-
         try {
             totalObjectRefs++;
             depth++;
@@ -944,14 +742,10 @@ public class ObjectInputStream
         } finally {
             depth--;
         }
-
         handles.finish(descHandle);
         passHandle = descHandle;
-
         return desc;
     }
-
-
     private String readString(boolean unshared) throws IOException {
         String str;
         byte tc = bin.readByte();
@@ -959,11 +753,9 @@ public class ObjectInputStream
             case TC_STRING:
                 str = bin.readUTF();
                 break;
-
             case TC_LONGSTRING:
                 str = bin.readLongUTF();
                 break;
-
             default:
                 throw new StreamCorruptedException(
                     String.format("invalid type code: %02X", tc));
@@ -972,31 +764,24 @@ public class ObjectInputStream
         handles.finish(passHandle);
         return str;
     }
-
-
     private Object readArray(boolean unshared) throws IOException {
         if (bin.readByte() != TC_ARRAY) {
             throw new InternalError();
         }
-
         ObjectStreamClass desc = readClassDesc(false);
         int len = bin.readInt();
-
         filterCheck(desc.forClass(), len);
-
         Object array = null;
         Class<?> cl, ccl = null;
         if ((cl = desc.forClass()) != null) {
             ccl = cl.getComponentType();
             array = Array.newInstance(ccl, len);
         }
-
         int arrayHandle = handles.assign(unshared ? unsharedMarker : array);
         ClassNotFoundException resolveEx = desc.getResolveException();
         if (resolveEx != null) {
             handles.markException(arrayHandle, resolveEx);
         }
-
         if (ccl == null) {
             for (int i = 0; i < len; i++) {
                 readObject0(false);
@@ -1028,29 +813,23 @@ public class ObjectInputStream
                 handles.markDependency(arrayHandle, passHandle);
             }
         }
-
         handles.finish(arrayHandle);
         passHandle = arrayHandle;
         return array;
     }
-
-
     private Enum<?> readEnum(boolean unshared) throws IOException {
         if (bin.readByte() != TC_ENUM) {
             throw new InternalError();
         }
-
         ObjectStreamClass desc = readClassDesc(false);
         if (!desc.isEnum()) {
             throw new InvalidClassException("non-enum class: " + desc);
         }
-
         int enumHandle = handles.assign(unshared ? unsharedMarker : null);
         ClassNotFoundException resolveEx = desc.getResolveException();
         if (resolveEx != null) {
             handles.markException(enumHandle, resolveEx);
         }
-
         String name = readString(false);
         Enum<?> result = null;
         Class<?> cl = desc.forClass();
@@ -1068,29 +847,23 @@ public class ObjectInputStream
                 handles.setObject(enumHandle, result);
             }
         }
-
         handles.finish(enumHandle);
         passHandle = enumHandle;
         return result;
     }
-
-
     private Object readOrdinaryObject(boolean unshared)
         throws IOException
     {
         if (bin.readByte() != TC_OBJECT) {
             throw new InternalError();
         }
-
         ObjectStreamClass desc = readClassDesc(false);
         desc.checkDeserialize();
-
         Class<?> cl = desc.forClass();
         if (cl == String.class || cl == Class.class
                 || cl == ObjectStreamClass.class) {
             throw new InvalidClassException("invalid class descriptor");
         }
-
         Object obj;
         try {
             obj = desc.isInstantiable() ? desc.newInstance() : null;
@@ -1099,21 +872,17 @@ public class ObjectInputStream
                 desc.forClass().getName(),
                 "unable to create instance").initCause(ex);
         }
-
         passHandle = handles.assign(unshared ? unsharedMarker : obj);
         ClassNotFoundException resolveEx = desc.getResolveException();
         if (resolveEx != null) {
             handles.markException(passHandle, resolveEx);
         }
-
         if (desc.isExternalizable()) {
             readExternalData((Externalizable) obj, desc);
         } else {
             readSerialData(obj, desc);
         }
-
         handles.finish(passHandle);
-
         if (obj != null &&
             handles.lookupException(passHandle) == null &&
             desc.hasReadResolveMethod())
@@ -1134,11 +903,8 @@ public class ObjectInputStream
                 handles.setObject(passHandle, obj = rep);
             }
         }
-
         return obj;
     }
-
-
     private void readExternalData(Externalizable obj, ObjectStreamClass desc)
         throws IOException
     {
@@ -1155,7 +921,6 @@ public class ObjectInputStream
                 try {
                     obj.readExternal(this);
                 } catch (ClassNotFoundException ex) {
-
                      handles.markException(passHandle, ex);
                 }
             }
@@ -1167,17 +932,13 @@ public class ObjectInputStream
                 oldContext.check();
             curContext = oldContext;
         }
-
     }
-
-
     private void readSerialData(Object obj, ObjectStreamClass desc)
         throws IOException
     {
         ObjectStreamClass.ClassDataSlot[] slots = desc.getClassDataLayout();
         for (int i = 0; i < slots.length; i++) {
             ObjectStreamClass slotDesc = slots[i].desc;
-
             if (slots[i].hasData) {
                 if (obj == null || handles.lookupException(passHandle) != null) {
                     defaultReadFields(null, slotDesc); // skip field values
@@ -1189,11 +950,9 @@ public class ObjectInputStream
                         oldContext.check();
                     try {
                         curContext = new SerialCallbackContext(obj, slotDesc);
-
                         bin.setBlockDataMode(true);
                         slotDesc.invokeReadObject(obj, this);
                     } catch (ClassNotFoundException ex) {
-
                         handles.markException(passHandle, ex);
                     } finally {
                         do {
@@ -1210,13 +969,10 @@ public class ObjectInputStream
                         if (t != null)
                             throw t;
                     }
-
-
                     defaultDataEnd = false;
                 } else {
                     defaultReadFields(obj, slotDesc);
                     }
-
                 if (slotDesc.hasWriteObjectData()) {
                     skipCustomData();
                 } else {
@@ -1232,8 +988,6 @@ public class ObjectInputStream
             }
         }
             }
-
-
     private void skipCustomData() throws IOException {
         int oldHandle = passHandle;
         for (;;) {
@@ -1246,20 +1000,16 @@ public class ObjectInputStream
                 case TC_BLOCKDATALONG:
                     bin.setBlockDataMode(true);
                     break;
-
                 case TC_ENDBLOCKDATA:
                     bin.readByte();
                     passHandle = oldHandle;
                     return;
-
                 default:
                     readObject0(false);
                     break;
             }
         }
     }
-
-
     private void defaultReadFields(Object obj, ObjectStreamClass desc)
         throws IOException
     {
@@ -1267,7 +1017,6 @@ public class ObjectInputStream
         if (cl != null && obj != null && !cl.isInstance(obj)) {
             throw new ClassCastException();
         }
-
         int primDataSize = desc.getPrimDataSize();
         if (primVals == null || primVals.length < primDataSize) {
             primVals = new byte[primDataSize];
@@ -1276,7 +1025,6 @@ public class ObjectInputStream
         if (obj != null) {
             desc.setPrimFieldValues(obj, primVals);
         }
-
         int objHandle = passHandle;
         ObjectStreamField[] fields = desc.getFields(false);
         Object[] objVals = new Object[desc.getNumObjFields()];
@@ -1293,8 +1041,6 @@ public class ObjectInputStream
         }
         passHandle = objHandle;
     }
-
-
     private IOException readFatalException() throws IOException {
         if (bin.readByte() != TC_EXCEPTION) {
             throw new InternalError();
@@ -1302,8 +1048,6 @@ public class ObjectInputStream
         clear();
         return (IOException) readObject0(false);
     }
-
-
     private void handleReset() throws StreamCorruptedException {
         if (depth > 0) {
             throw new StreamCorruptedException(
@@ -1311,92 +1055,66 @@ public class ObjectInputStream
         }
         clear();
     }
-
-
     // REMIND: remove once hotspot inlines Float.intBitsToFloat
     private static native void bytesToFloats(byte[] src, int srcpos,
                                              float[] dst, int dstpos,
                                              int nfloats);
-
-
     // REMIND: remove once hotspot inlines Double.longBitsToDouble
     private static native void bytesToDoubles(byte[] src, int srcpos,
                                               double[] dst, int dstpos,
                                               int ndoubles);
-
-
     private static ClassLoader latestUserDefinedLoader() {
         return sun.misc.VM.latestUserDefinedLoader();
     }
-
-
     private class GetFieldImpl extends GetField {
-
-
         private final ObjectStreamClass desc;
-
         private final byte[] primVals;
-
         private final Object[] objVals;
-
         private final int[] objHandles;
-
-
         GetFieldImpl(ObjectStreamClass desc) {
             this.desc = desc;
             primVals = new byte[desc.getPrimDataSize()];
             objVals = new Object[desc.getNumObjFields()];
             objHandles = new int[objVals.length];
         }
-
         public ObjectStreamClass getObjectStreamClass() {
             return desc;
         }
-
         public boolean defaulted(String name) throws IOException {
             return (getFieldOffset(name, null) < 0);
         }
-
         public boolean get(String name, boolean val) throws IOException {
             int off = getFieldOffset(name, Boolean.TYPE);
             return (off >= 0) ? Bits.getBoolean(primVals, off) : val;
         }
-
         public byte get(String name, byte val) throws IOException {
             int off = getFieldOffset(name, Byte.TYPE);
             return (off >= 0) ? primVals[off] : val;
         }
-
         public char get(String name, char val) throws IOException {
             int off = getFieldOffset(name, Character.TYPE);
             return (off >= 0) ? Bits.getChar(primVals, off) : val;
         }
-
         public short get(String name, short val) throws IOException {
             int off = getFieldOffset(name, Short.TYPE);
             return (off >= 0) ? Bits.getShort(primVals, off) : val;
         }
-
         public int get(String name, int val) throws IOException {
             int off = getFieldOffset(name, Integer.TYPE);
             return (off >= 0) ? Bits.getInt(primVals, off) : val;
         }
-
         public float get(String name, float val) throws IOException {
             int off = getFieldOffset(name, Float.TYPE);
             return (off >= 0) ? Bits.getFloat(primVals, off) : val;
         }
-
         public long get(String name, long val) throws IOException {
             int off = getFieldOffset(name, Long.TYPE);
             return (off >= 0) ? Bits.getLong(primVals, off) : val;
         }
-
         public double get(String name, double val) throws IOException {
             int off = getFieldOffset(name, Double.TYPE);
             return (off >= 0) ? Bits.getDouble(primVals, off) : val;
         }
-
         public Object get(String name, Object val) throws IOException {
             int off = getFieldOffset(name, Object.class);
             if (off >= 0) {
@@ -1408,11 +1126,8 @@ public class ObjectInputStream
                 return val;
             }
         }
-
-
         void readFields() throws IOException {
             bin.readFully(primVals, 0, primVals.length, false);
-
             int oldHandle = passHandle;
             ObjectStreamField[] fields = desc.getFields(false);
             int numPrimFields = fields.length - objVals.length;
@@ -1423,8 +1138,6 @@ public class ObjectInputStream
             }
             passHandle = oldHandle;
         }
-
-
         private int getFieldOffset(String name, Class<?> type) {
             ObjectStreamField field = desc.getField(name, type);
             if (field != null) {
@@ -1437,16 +1150,12 @@ public class ObjectInputStream
             }
         }
     }
-
-
     private static class ValidationList {
-
         private static class Callback {
             final ObjectInputValidation obj;
             final int priority;
             Callback next;
             final AccessControlContext acc;
-
             Callback(ObjectInputValidation obj, int priority, Callback next,
                 AccessControlContext acc)
             {
@@ -1456,22 +1165,15 @@ public class ObjectInputStream
                 this.acc = acc;
             }
         }
-
-
         private Callback list;
-
-
         ValidationList() {
         }
-
-
         void register(ObjectInputValidation obj, int priority)
             throws InvalidObjectException
         {
             if (obj == null) {
                 throw new InvalidObjectException("null callback");
             }
-
             Callback prev = null, cur = list;
             while (cur != null && priority < cur.priority) {
                 prev = cur;
@@ -1484,8 +1186,6 @@ public class ObjectInputStream
                 list = new Callback(obj, priority, list, acc);
             }
         }
-
-
         void doCallbacks() throws InvalidObjectException {
             try {
                 while (list != null) {
@@ -1504,21 +1204,16 @@ public class ObjectInputStream
                 throw (InvalidObjectException) ex.getException();
             }
         }
-
-
         public void clear() {
             list = null;
         }
     }
-
-
     static class FilterValues implements ObjectInputFilter.FilterInfo {
         final Class<?> clazz;
         final long arrayLength;
         final long totalObjectRefs;
         final long depth;
         final long streamBytes;
-
         public FilterValues(Class<?> clazz, long arrayLength, long totalObjectRefs,
                             long depth, long streamBytes) {
             this.clazz = clazz;
@@ -1527,49 +1222,34 @@ public class ObjectInputStream
             this.depth = depth;
             this.streamBytes = streamBytes;
         }
-
         @Override
         public Class<?> serialClass() {
             return clazz;
         }
-
         @Override
         public long arrayLength() {
             return arrayLength;
         }
-
         @Override
         public long references() {
             return totalObjectRefs;
         }
-
         @Override
         public long depth() {
             return depth;
         }
-
         @Override
         public long streamBytes() {
             return streamBytes;
         }
     }
-
-
     private static class PeekInputStream extends InputStream {
-
-
         private final InputStream in;
-
         private int peekb = -1;
-
         private long totalBytesRead = 0;
-
-
         PeekInputStream(InputStream in) {
             this.in = in;
         }
-
-
         int peek() throws IOException {
             if (peekb >= 0) {
                 return peekb;
@@ -1578,7 +1258,6 @@ public class ObjectInputStream
             totalBytesRead += peekb >= 0 ? 1 : 0;
             return peekb;
         }
-
         public int read() throws IOException {
             if (peekb >= 0) {
                 int v = peekb;
@@ -1590,7 +1269,6 @@ public class ObjectInputStream
                 return nbytes;
             }
         }
-
         public int read(byte[] b, int off, int len) throws IOException {
             int nbytes;
             if (len == 0) {
@@ -1608,7 +1286,6 @@ public class ObjectInputStream
                 return (nbytes >= 0) ? (nbytes + 1) : 1;
             }
         }
-
         void readFully(byte[] b, int off, int len) throws IOException {
             int n = 0;
             while (n < len) {
@@ -1619,7 +1296,6 @@ public class ObjectInputStream
                 n += count;
             }
         }
-
         public long skip(long n) throws IOException {
             if (n <= 0) {
                 return 0;
@@ -1634,63 +1310,37 @@ public class ObjectInputStream
             totalBytesRead += n;
             return n;
         }
-
         public int available() throws IOException {
             return in.available() + ((peekb >= 0) ? 1 : 0);
         }
-
         public void close() throws IOException {
             in.close();
         }
-
         public long getBytesRead() {
             return totalBytesRead;
         }
     }
-
-
     private class BlockDataInputStream
         extends InputStream implements DataInput
     {
-
         private static final int MAX_BLOCK_SIZE = 1024;
-
         private static final int MAX_HEADER_SIZE = 5;
-
         private static final int CHAR_BUF_SIZE = 256;
-
         private static final int HEADER_BLOCKED = -2;
-
-
         private final byte[] buf = new byte[MAX_BLOCK_SIZE];
-
         private final byte[] hbuf = new byte[MAX_HEADER_SIZE];
-
         private final char[] cbuf = new char[CHAR_BUF_SIZE];
-
-
         private boolean blkmode = false;
-
         // block data state fields; values meaningful only when blkmode true
-
         private int pos = 0;
-
         private int end = -1;
-
         private int unread = 0;
-
-
         private final PeekInputStream in;
-
         private final DataInputStream din;
-
-
         BlockDataInputStream(InputStream in) {
             this.in = new PeekInputStream(in);
             din = new DataInputStream(this);
         }
-
-
         boolean setBlockDataMode(boolean newmode) throws IOException {
             if (blkmode == newmode) {
                 return blkmode;
@@ -1705,13 +1355,9 @@ public class ObjectInputStream
             blkmode = newmode;
             return !blkmode;
         }
-
-
         boolean getBlockDataMode() {
             return blkmode;
         }
-
-
         void skipBlockData() throws IOException {
             if (!blkmode) {
                 throw new IllegalStateException("not in block data mode");
@@ -1720,11 +1366,8 @@ public class ObjectInputStream
                 refill();
             }
         }
-
-
         private int readBlockHeader(boolean canBlock) throws IOException {
             if (defaultDataEnd) {
-
                 return -1;
             }
             try {
@@ -1733,7 +1376,6 @@ public class ObjectInputStream
                     if (avail == 0) {
                         return HEADER_BLOCKED;
                     }
-
                     int tc = in.peek();
                     switch (tc) {
                         case TC_BLOCKDATA:
@@ -1742,7 +1384,6 @@ public class ObjectInputStream
                             }
                             in.readFully(hbuf, 0, 2);
                             return hbuf[1] & 0xFF;
-
                         case TC_BLOCKDATALONG:
                             if (avail < 5) {
                                 return HEADER_BLOCKED;
@@ -1755,13 +1396,10 @@ public class ObjectInputStream
                                     len);
                             }
                             return len;
-
-
                         case TC_RESET:
                             in.read();
                             handleReset();
                             break;
-
                         default:
                             if (tc >= 0 && (tc < TC_BASE || tc > TC_MAX)) {
                                 throw new StreamCorruptedException(
@@ -1776,8 +1414,6 @@ public class ObjectInputStream
                     "unexpected EOF while reading block data header");
             }
         }
-
-
         private void refill() throws IOException {
             try {
                 do {
@@ -1810,8 +1446,6 @@ public class ObjectInputStream
                 throw ex;
             }
         }
-
-
         int currentBlockRemaining() {
             if (blkmode) {
                 return (end >= 0) ? (end - pos) + unread : 0;
@@ -1819,8 +1453,6 @@ public class ObjectInputStream
                 throw new IllegalStateException();
             }
         }
-
-
         int peek() throws IOException {
             if (blkmode) {
                 if (pos == end) {
@@ -1831,8 +1463,6 @@ public class ObjectInputStream
                 return in.peek();
             }
         }
-
-
         byte peekByte() throws IOException {
             int val = peek();
             if (val < 0) {
@@ -1840,11 +1470,6 @@ public class ObjectInputStream
             }
             return (byte) val;
         }
-
-
-
-
-
         public int read() throws IOException {
             if (blkmode) {
                 if (pos == end) {
@@ -1855,11 +1480,9 @@ public class ObjectInputStream
                 return in.read();
             }
         }
-
         public int read(byte[] b, int off, int len) throws IOException {
             return read(b, off, len, false);
         }
-
         public long skip(long len) throws IOException {
             long remain = len;
             while (remain > 0) {
@@ -1883,7 +1506,6 @@ public class ObjectInputStream
             }
             return len - remain;
         }
-
         public int available() throws IOException {
             if (blkmode) {
                 if ((pos == end) && (unread == 0)) {
@@ -1892,12 +1514,10 @@ public class ObjectInputStream
                     switch (n) {
                         case HEADER_BLOCKED:
                             break;
-
                         case -1:
                             pos = 0;
                             end = -1;
                             break;
-
                         default:
                             pos = 0;
                             end = 0;
@@ -1913,7 +1533,6 @@ public class ObjectInputStream
                 return in.available();
             }
         }
-
         public void close() throws IOException {
             if (blkmode) {
                 pos = 0;
@@ -1922,8 +1541,6 @@ public class ObjectInputStream
             }
             in.close();
         }
-
-
         int read(byte[] b, int off, int len, boolean copy) throws IOException {
             if (len == 0) {
                 return 0;
@@ -1948,18 +1565,12 @@ public class ObjectInputStream
                 return in.read(b, off, len);
             }
         }
-
-
-
-
         public void readFully(byte[] b) throws IOException {
             readFully(b, 0, b.length, false);
         }
-
         public void readFully(byte[] b, int off, int len) throws IOException {
             readFully(b, off, len, false);
         }
-
         public void readFully(byte[] b, int off, int len, boolean copy)
             throws IOException
         {
@@ -1972,11 +1583,9 @@ public class ObjectInputStream
                 len -= n;
             }
         }
-
         public int skipBytes(int n) throws IOException {
             return din.skipBytes(n);
         }
-
         public boolean readBoolean() throws IOException {
             int v = read();
             if (v < 0) {
@@ -1984,7 +1593,6 @@ public class ObjectInputStream
             }
             return (v != 0);
         }
-
         public byte readByte() throws IOException {
             int v = read();
             if (v < 0) {
@@ -1992,7 +1600,6 @@ public class ObjectInputStream
             }
             return (byte) v;
         }
-
         public int readUnsignedByte() throws IOException {
             int v = read();
             if (v < 0) {
@@ -2000,7 +1607,6 @@ public class ObjectInputStream
             }
             return v;
         }
-
         public char readChar() throws IOException {
             if (!blkmode) {
                 pos = 0;
@@ -2012,7 +1618,6 @@ public class ObjectInputStream
             pos += 2;
             return v;
         }
-
         public short readShort() throws IOException {
             if (!blkmode) {
                 pos = 0;
@@ -2024,7 +1629,6 @@ public class ObjectInputStream
             pos += 2;
             return v;
         }
-
         public int readUnsignedShort() throws IOException {
             if (!blkmode) {
                 pos = 0;
@@ -2036,7 +1640,6 @@ public class ObjectInputStream
             pos += 2;
             return v;
         }
-
         public int readInt() throws IOException {
             if (!blkmode) {
                 pos = 0;
@@ -2048,7 +1651,6 @@ public class ObjectInputStream
             pos += 4;
             return v;
         }
-
         public float readFloat() throws IOException {
             if (!blkmode) {
                 pos = 0;
@@ -2060,7 +1662,6 @@ public class ObjectInputStream
             pos += 4;
             return v;
         }
-
         public long readLong() throws IOException {
             if (!blkmode) {
                 pos = 0;
@@ -2072,7 +1673,6 @@ public class ObjectInputStream
             pos += 8;
             return v;
         }
-
         public double readDouble() throws IOException {
             if (!blkmode) {
                 pos = 0;
@@ -2084,19 +1684,13 @@ public class ObjectInputStream
             pos += 8;
             return v;
         }
-
         public String readUTF() throws IOException {
             return readUTFBody(readUnsignedShort());
         }
-
         @SuppressWarnings("deprecation")
         public String readLine() throws IOException {
             return din.readLine();      // deprecated, not worth optimizing
         }
-
-
-
-
         void readBooleans(boolean[] v, int off, int len) throws IOException {
             int stop, endoff = off + len;
             while (off < endoff) {
@@ -2111,13 +1705,11 @@ public class ObjectInputStream
                 } else {
                     stop = Math.min(endoff, off + end - pos);
                 }
-
                 while (off < stop) {
                     v[off++] = Bits.getBoolean(buf, pos++);
                 }
             }
         }
-
         void readChars(char[] v, int off, int len) throws IOException {
             int stop, endoff = off + len;
             while (off < endoff) {
@@ -2132,14 +1724,12 @@ public class ObjectInputStream
                 } else {
                     stop = Math.min(endoff, off + ((end - pos) >> 1));
                 }
-
                 while (off < stop) {
                     v[off++] = Bits.getChar(buf, pos);
                     pos += 2;
                 }
             }
         }
-
         void readShorts(short[] v, int off, int len) throws IOException {
             int stop, endoff = off + len;
             while (off < endoff) {
@@ -2154,14 +1744,12 @@ public class ObjectInputStream
                 } else {
                     stop = Math.min(endoff, off + ((end - pos) >> 1));
                 }
-
                 while (off < stop) {
                     v[off++] = Bits.getShort(buf, pos);
                     pos += 2;
                 }
             }
         }
-
         void readInts(int[] v, int off, int len) throws IOException {
             int stop, endoff = off + len;
             while (off < endoff) {
@@ -2176,14 +1764,12 @@ public class ObjectInputStream
                 } else {
                     stop = Math.min(endoff, off + ((end - pos) >> 2));
                 }
-
                 while (off < stop) {
                     v[off++] = Bits.getInt(buf, pos);
                     pos += 4;
                 }
             }
         }
-
         void readFloats(float[] v, int off, int len) throws IOException {
             int span, endoff = off + len;
             while (off < endoff) {
@@ -2197,13 +1783,11 @@ public class ObjectInputStream
                 } else {
                     span = Math.min(endoff - off, ((end - pos) >> 2));
                 }
-
                 bytesToFloats(buf, pos, v, off, span);
                 off += span;
                 pos += span << 2;
             }
         }
-
         void readLongs(long[] v, int off, int len) throws IOException {
             int stop, endoff = off + len;
             while (off < endoff) {
@@ -2218,14 +1802,12 @@ public class ObjectInputStream
                 } else {
                     stop = Math.min(endoff, off + ((end - pos) >> 3));
                 }
-
                 while (off < stop) {
                     v[off++] = Bits.getLong(buf, pos);
                     pos += 8;
                 }
             }
         }
-
         void readDoubles(double[] v, int off, int len) throws IOException {
             int span, endoff = off + len;
             while (off < endoff) {
@@ -2239,25 +1821,19 @@ public class ObjectInputStream
                 } else {
                     span = Math.min(endoff - off, ((end - pos) >> 3));
                 }
-
                 bytesToDoubles(buf, pos, v, off, span);
                 off += span;
                 pos += span << 3;
             }
         }
-
-
         String readLongUTF() throws IOException {
             return readUTFBody(readLong());
         }
-
-
         private String readUTFBody(long utflen) throws IOException {
             StringBuilder sbuf = new StringBuilder();
             if (!blkmode) {
                 end = pos = 0;
             }
-
             while (utflen > 0) {
                 int avail = end - pos;
                 if (avail >= 3 || (long) avail == utflen) {
@@ -2277,11 +1853,8 @@ public class ObjectInputStream
                     }
                 }
             }
-
             return sbuf.toString();
         }
-
-
         private long readUTFSpan(StringBuilder sbuf, long utflen)
             throws IOException
         {
@@ -2291,7 +1864,6 @@ public class ObjectInputStream
             // stop short of last char unless all of utf bytes in buffer
             int stop = pos + ((utflen > avail) ? avail - 2 : (int) utflen);
             boolean outOfBounds = false;
-
             try {
                 while (pos < stop) {
                     int b1, b2, b3;
@@ -2307,7 +1879,6 @@ public class ObjectInputStream
                         case 7:   // 1 byte format: 0xxxxxxx
                             cbuf[cpos++] = (char) b1;
                             break;
-
                         case 12:
                         case 13:  // 2 byte format: 110xxxxx 10xxxxxx
                             b2 = buf[pos++];
@@ -2317,7 +1888,6 @@ public class ObjectInputStream
                             cbuf[cpos++] = (char) (((b1 & 0x1F) << 6) |
                                                    ((b2 & 0x3F) << 0));
                             break;
-
                         case 14:  // 3 byte format: 1110xxxx 10xxxxxx 10xxxxxx
                             b3 = buf[pos + 1];
                             b2 = buf[pos + 0];
@@ -2329,7 +1899,6 @@ public class ObjectInputStream
                                                    ((b2 & 0x3F) << 6) |
                                                    ((b3 & 0x3F) << 0));
                             break;
-
                         default:  // 10xx xxxx, 1111 xxxx
                             throw new UTFDataFormatException();
                     }
@@ -2338,17 +1907,13 @@ public class ObjectInputStream
                 outOfBounds = true;
             } finally {
                 if (outOfBounds || (pos - start) > utflen) {
-
                     pos = start + (int) utflen;
                     throw new UTFDataFormatException();
                 }
             }
-
             sbuf.append(cbuf, 0, cpos);
             return pos - start;
         }
-
-
         private int readUTFChar(StringBuilder sbuf, long utflen)
             throws IOException
         {
@@ -2365,7 +1930,6 @@ public class ObjectInputStream
                 case 7:     // 1 byte format: 0xxxxxxx
                     sbuf.append((char) b1);
                     return 1;
-
                 case 12:
                 case 13:    // 2 byte format: 110xxxxx 10xxxxxx
                     if (utflen < 2) {
@@ -2378,7 +1942,6 @@ public class ObjectInputStream
                     sbuf.append((char) (((b1 & 0x1F) << 6) |
                                         ((b2 & 0x3F) << 0)));
                     return 2;
-
                 case 14:    // 3 byte format: 1110xxxx 10xxxxxx 10xxxxxx
                     if (utflen < 3) {
                         if (utflen == 2) {
@@ -2395,46 +1958,29 @@ public class ObjectInputStream
                                         ((b2 & 0x3F) << 6) |
                                         ((b3 & 0x3F) << 0)));
                     return 3;
-
                 default:   // 10xx xxxx, 1111 xxxx
                     throw new UTFDataFormatException();
             }
         }
-
-
         long getBytesRead() {
             return in.getBytesRead();
         }
     }
-
-
     // REMIND: add full description of exception propagation algorithm?
     private static class HandleTable {
-
-
         private static final byte STATUS_OK = 1;
         private static final byte STATUS_UNKNOWN = 2;
         private static final byte STATUS_EXCEPTION = 3;
-
-
         byte[] status;
-
         Object[] entries;
-
         HandleList[] deps;
-
         int lowDep = -1;
-
         int size = 0;
-
-
         HandleTable(int initialCapacity) {
             status = new byte[initialCapacity];
             entries = new Object[initialCapacity];
             deps = new HandleList[initialCapacity];
         }
-
-
         int assign(Object obj) {
             if (size >= entries.length) {
                 grow();
@@ -2443,59 +1989,47 @@ public class ObjectInputStream
             entries[size] = obj;
             return size++;
         }
-
-
         void markDependency(int dependent, int target) {
             if (dependent == NULL_HANDLE || target == NULL_HANDLE) {
                 return;
             }
             switch (status[dependent]) {
-
                 case STATUS_UNKNOWN:
                     switch (status[target]) {
                         case STATUS_OK:
                             // ignore dependencies on objs with no exception
                             break;
-
                         case STATUS_EXCEPTION:
                             // eagerly propagate exception
                             markException(dependent,
                                 (ClassNotFoundException) entries[target]);
                             break;
-
                         case STATUS_UNKNOWN:
                             // add to dependency list of target
                             if (deps[target] == null) {
                                 deps[target] = new HandleList();
                             }
                             deps[target].add(dependent);
-
                             // remember lowest unresolved target seen
                             if (lowDep < 0 || lowDep > target) {
                                 lowDep = target;
                             }
                             break;
-
                         default:
                             throw new InternalError();
                     }
                     break;
-
                 case STATUS_EXCEPTION:
                     break;
-
                 default:
                     throw new InternalError();
             }
         }
-
-
         void markException(int handle, ClassNotFoundException ex) {
             switch (status[handle]) {
                 case STATUS_UNKNOWN:
                     status[handle] = STATUS_EXCEPTION;
                     entries[handle] = ex;
-
                     // propagate exception to dependents
                     HandleList dlist = deps[handle];
                     if (dlist != null) {
@@ -2506,16 +2040,12 @@ public class ObjectInputStream
                         deps[handle] = null;
                     }
                     break;
-
                 case STATUS_EXCEPTION:
                     break;
-
                 default:
                     throw new InternalError();
             }
         }
-
-
         void finish(int handle) {
             int end;
             if (lowDep < 0) {
@@ -2529,7 +2059,6 @@ public class ObjectInputStream
                 // unresolved backrefs present, can't resolve anything yet
                 return;
             }
-
             // change STATUS_UNKNOWN -> STATUS_OK in selected span of handles
             for (int i = handle; i < end; i++) {
                 switch (status[i]) {
@@ -2537,48 +2066,36 @@ public class ObjectInputStream
                         status[i] = STATUS_OK;
                         deps[i] = null;
                         break;
-
                     case STATUS_OK:
                     case STATUS_EXCEPTION:
                         break;
-
                     default:
                         throw new InternalError();
                 }
             }
         }
-
-
         void setObject(int handle, Object obj) {
             switch (status[handle]) {
                 case STATUS_UNKNOWN:
                 case STATUS_OK:
                     entries[handle] = obj;
                     break;
-
                 case STATUS_EXCEPTION:
                     break;
-
                 default:
                     throw new InternalError();
             }
         }
-
-
         Object lookupObject(int handle) {
             return (handle != NULL_HANDLE &&
                     status[handle] != STATUS_EXCEPTION) ?
                 entries[handle] : null;
         }
-
-
         ClassNotFoundException lookupException(int handle) {
             return (handle != NULL_HANDLE &&
                     status[handle] == STATUS_EXCEPTION) ?
                 (ClassNotFoundException) entries[handle] : null;
         }
-
-
         void clear() {
             Arrays.fill(status, 0, size, (byte) 0);
             Arrays.fill(entries, 0, size, null);
@@ -2586,37 +2103,26 @@ public class ObjectInputStream
             lowDep = -1;
             size = 0;
         }
-
-
         int size() {
             return size;
         }
-
-
         private void grow() {
             int newCapacity = (entries.length << 1) + 1;
-
             byte[] newStatus = new byte[newCapacity];
             Object[] newEntries = new Object[newCapacity];
             HandleList[] newDeps = new HandleList[newCapacity];
-
             System.arraycopy(status, 0, newStatus, 0, size);
             System.arraycopy(entries, 0, newEntries, 0, size);
             System.arraycopy(deps, 0, newDeps, 0, size);
-
             status = newStatus;
             entries = newEntries;
             deps = newDeps;
         }
-
-
         private static class HandleList {
             private int[] list = new int[4];
             private int size = 0;
-
             public HandleList() {
             }
-
             public void add(int handle) {
                 if (size >= list.length) {
                     int[] newList = new int[list.length << 1];
@@ -2625,21 +2131,17 @@ public class ObjectInputStream
                 }
                 list[size++] = handle;
             }
-
             public int get(int index) {
                 if (index >= size) {
                     throw new ArrayIndexOutOfBoundsException();
                 }
                 return list[index];
             }
-
             public int size() {
                 return size;
             }
         }
     }
-
-
     private static Object cloneArray(Object array) {
         if (array instanceof Object[]) {
             return ((Object[]) array).clone();
@@ -2663,17 +2165,14 @@ public class ObjectInputStream
             throw new AssertionError();
         }
     }
-
     private void validateDescriptor(ObjectStreamClass descriptor) {
         ObjectStreamClassValidator validating = validator;
         if (validating != null) {
             validating.validateDescriptor(descriptor);
         }
     }
-
     // controlled access to ObjectStreamClassValidator
     private volatile ObjectStreamClassValidator validator;
-
     private static void setValidator(ObjectInputStream ois, ObjectStreamClassValidator validator) {
         ois.validator = validator;
     }

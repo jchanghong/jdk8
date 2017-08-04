@@ -1,37 +1,30 @@
 <!--
  Copyright (c) 2005, 2013, Oracle and/or its affiliates. All rights reserved.
  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-
  This code is free software; you can redistribute it and/or modify it
  under the terms of the GNU General Public License version 2 only, as
  published by the Free Software Foundation.  Oracle designates this
  particular file as subject to the "Classpath" exception as provided
  by Oracle in the LICENSE file that accompanied this code.
-
  This code is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  version 2 for more details (a copy is included in the LICENSE file that
  accompanied this code).
-
  You should have received a copy of the GNU General Public License version
  2 along with this work; if not, write to the Free Software Foundation,
  Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-
  Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
  or visit www.oracle.com if you need additional information or have any
  questions.
 -->
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
 <title></title>
 </head>
 <body bgcolor=white>
-
 <h1 align=center>AWT Desktop Properties</h1>
-
 The following refers to standard AWT desktop properties that
 may be obtained via the
 <a href="../Toolkit.html#getDesktopProperty(java.lang.String)">
@@ -74,7 +67,6 @@ here, and their value types.
 <td valign="TOP">Controls if mouse events from extra buttons are to be generated or not</td>
 </tr>
 </table>
-
 <h2>Desktop Font Rendering Hints</h2>
 <b>Desktop Property: <A name="awt.font.desktophints">"awt.font.desktophints"</A></b>
 <p>
@@ -88,12 +80,10 @@ This is particularly important when creating
 <a href="../../../javax/swing/JComponent.html"> Swing components</a> which
 are required to appear consistent with native desktop components or other
 Swing components.
-
 <h3>Basic Usage</h3>
 The standard desktop property named
 <b>"awt.font.desktophints"</b>
 can be used to obtain the rendering hints that best match the desktop settings.
-
 The return value is a
 <a href="../../util/Map.html"> Map</a> of
 <a href="../RenderingHints.html"> <code>RenderingHints</code></a> which
@@ -109,7 +99,6 @@ if (map != null) {
 }
 </code></pre>
 <h3>Advanced Usage Tips</h3>
-
 <h4>Listening for changes</h4>
 <p>
 An application can listen for changes in the property
@@ -147,7 +136,6 @@ Graphics only temporarily, restoring the previous values after they
 have been applied to text rendering operations.
 The following sample code shows one way to do this.
 <pre><code>
-
 RenderingHints getRenderingHints(Graphics2D g2d,
                                   RenderingHints hintsToSave,
                                   RenderingHints savedHints) {
@@ -159,7 +147,6 @@ RenderingHints getRenderingHints(Graphics2D g2d,
      if (hintsToSave.size() == 0) {
          return savedHints;
      }
-
      for (Object o : hintsToSave.keySet()) {
          RenderingHints.Key key = (RenderingHints.Key)o;
          Object value = g2d.getRenderingHint(key);
@@ -167,8 +154,6 @@ RenderingHints getRenderingHints(Graphics2D g2d,
      }
      return savedHints;
 }
-
-
 Toolkit tk = Toolkit.getDefaultToolkit();
 Map map = (Map)(tk.getDesktopProperty("awt.font.desktophints"));
 Map oldHints;
@@ -179,7 +164,6 @@ if (map != null) {
      graphics2D.addRenderingHints(oldHints);
 }
 </code></pre>
-
 <h3>Details</h3>
 <ul>
 <li>The return value will always be null or a <code>Map</code>
@@ -245,7 +229,6 @@ If the property is set to {@code true} then
 standard buttons and, if the mouse has more
 then three buttons, it is also legal to use buttons from the range started
 from 0 up to {@link java.awt.MouseInfo#getNumberOfButtons() getNumberOfButtons()}.
-
 <li> it is legal to use standard button masks when using {@code Robot.mousePress()}
 and {@code Robot.mouseRelease()} methods and, if the mouse has more then three buttons,
 it is also legal to use masks for existing extended mouse buttons.
@@ -263,7 +246,6 @@ only: {@code NOBUTTON}, {@code BUTTON1}, {@code BUTTON2} and
 {@code InputEvent.BUTTON1_DOWN_MASK}, {@code InputEvent.BUTTON2_DOWN_MASK},
 {@code InputEvent.BUTTON3_DOWN_MASK}
 </ul>
-
 This property should be used when there is no need in listening mouse events fired as a result of
 activity with extra mouse button.
 By default this property is set to {@code true}.

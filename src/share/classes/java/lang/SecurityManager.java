@@ -1,7 +1,4 @@
-
-
 package java.lang;
-
 import java.security.*;
 import java.io.FileDescriptor;
 import java.io.File;
@@ -15,23 +12,13 @@ import java.util.Hashtable;
 import java.net.InetAddress;
 import java.lang.reflect.*;
 import java.net.URL;
-
 import sun.reflect.CallerSensitive;
 import sun.security.util.SecurityConstants;
-
-
 public
 class SecurityManager {
-
-
     @Deprecated
     protected boolean inCheck;
-
-
     private boolean initialized = false;
-
-
-
     private boolean hasAllPermission()
     {
         try {
@@ -41,14 +28,10 @@ class SecurityManager {
             return false;
         }
     }
-
-
     @Deprecated
     public boolean getInCheck() {
         return inCheck;
     }
-
-
     public SecurityManager() {
         synchronized(SecurityManager.class) {
             SecurityManager sm = System.getSecurityManager();
@@ -61,11 +44,7 @@ class SecurityManager {
             initialized = true;
         }
     }
-
-
     protected native Class[] getClassContext();
-
-
     @Deprecated
     protected ClassLoader currentClassLoader()
     {
@@ -74,10 +53,7 @@ class SecurityManager {
             cl = null;
         return cl;
     }
-
     private native ClassLoader currentClassLoader0();
-
-
     @Deprecated
     protected Class<?> currentLoadedClass() {
         Class<?> c = currentLoadedClass0();
@@ -85,12 +61,8 @@ class SecurityManager {
             c = null;
         return c;
     }
-
-
     @Deprecated
     protected native int classDepth(String name);
-
-
     @Deprecated
     protected int classLoaderDepth()
     {
@@ -103,32 +75,21 @@ class SecurityManager {
         }
         return depth;
     }
-
     private native int classLoaderDepth0();
-
-
     @Deprecated
     protected boolean inClass(String name) {
         return classDepth(name) >= 0;
     }
-
-
     @Deprecated
     protected boolean inClassLoader() {
         return currentClassLoader() != null;
     }
-
-
     public Object getSecurityContext() {
         return AccessController.getContext();
     }
-
-
     public void checkPermission(Permission perm) {
         java.security.AccessController.checkPermission(perm);
     }
-
-
     public void checkPermission(Permission perm, Object context) {
         if (context instanceof AccessControlContext) {
             ((AccessControlContext)context).checkPermission(perm);
@@ -136,16 +97,10 @@ class SecurityManager {
             throw new SecurityException();
         }
     }
-
-
     public void checkCreateClassLoader() {
         checkPermission(SecurityConstants.CREATE_CLASSLOADER_PERMISSION);
     }
-
-
-
     private static ThreadGroup rootGroup = getRootGroup();
-
     private static ThreadGroup getRootGroup() {
         ThreadGroup root =  Thread.currentThread().getThreadGroup();
         while (root.getParent() != null) {
@@ -153,8 +108,6 @@ class SecurityManager {
         }
         return root;
     }
-
-
     public void checkAccess(Thread t) {
         if (t == null) {
             throw new NullPointerException("thread can't be null");
@@ -165,7 +118,6 @@ class SecurityManager {
             // just return
         }
     }
-
     public void checkAccess(ThreadGroup g) {
         if (g == null) {
             throw new NullPointerException("thread group can't be null");
@@ -176,13 +128,9 @@ class SecurityManager {
             // just return
         }
     }
-
-
     public void checkExit(int status) {
         checkPermission(new RuntimePermission("exitVM."+status));
     }
-
-
     public void checkExec(String cmd) {
         File f = new File(cmd);
         if (f.isAbsolute()) {
@@ -193,58 +141,41 @@ class SecurityManager {
                 SecurityConstants.FILE_EXECUTE_ACTION));
         }
     }
-
-
     public void checkLink(String lib) {
         if (lib == null) {
             throw new NullPointerException("library can't be null");
         }
         checkPermission(new RuntimePermission("loadLibrary."+lib));
     }
-
-
     public void checkRead(FileDescriptor fd) {
         if (fd == null) {
             throw new NullPointerException("file descriptor can't be null");
         }
         checkPermission(new RuntimePermission("readFileDescriptor"));
     }
-
-
     public void checkRead(String file) {
         checkPermission(new FilePermission(file,
             SecurityConstants.FILE_READ_ACTION));
     }
-
-
     public void checkRead(String file, Object context) {
         checkPermission(
             new FilePermission(file, SecurityConstants.FILE_READ_ACTION),
             context);
     }
-
-
     public void checkWrite(FileDescriptor fd) {
         if (fd == null) {
             throw new NullPointerException("file descriptor can't be null");
         }
         checkPermission(new RuntimePermission("writeFileDescriptor"));
-
     }
-
-
     public void checkWrite(String file) {
         checkPermission(new FilePermission(file,
             SecurityConstants.FILE_WRITE_ACTION));
     }
-
-
     public void checkDelete(String file) {
         checkPermission(new FilePermission(file,
             SecurityConstants.FILE_DELETE_ACTION));
     }
-
-
     public void checkConnect(String host, int port) {
         if (host == null) {
             throw new NullPointerException("host can't be null");
@@ -260,8 +191,6 @@ class SecurityManager {
                 SecurityConstants.SOCKET_CONNECT_ACTION));
         }
     }
-
-
     public void checkConnect(String host, int port, Object context) {
         if (host == null) {
             throw new NullPointerException("host can't be null");
@@ -278,14 +207,10 @@ class SecurityManager {
                 SecurityConstants.SOCKET_CONNECT_ACTION),
                 context);
     }
-
-
     public void checkListen(int port) {
         checkPermission(new SocketPermission("localhost:"+port,
             SecurityConstants.SOCKET_LISTEN_ACTION));
     }
-
-
     public void checkAccept(String host, int port) {
         if (host == null) {
             throw new NullPointerException("host can't be null");
@@ -296,8 +221,6 @@ class SecurityManager {
         checkPermission(new SocketPermission(host+":"+port,
             SecurityConstants.SOCKET_ACCEPT_ACTION));
     }
-
-
     public void checkMulticast(InetAddress maddr) {
         String host = maddr.getHostAddress();
         if (!host.startsWith("[") && host.indexOf(':') != -1) {
@@ -306,8 +229,6 @@ class SecurityManager {
         checkPermission(new SocketPermission(host,
             SecurityConstants.SOCKET_CONNECT_ACCEPT_ACTION));
     }
-
-
     @Deprecated
     public void checkMulticast(InetAddress maddr, byte ttl) {
         String host = maddr.getHostAddress();
@@ -317,20 +238,14 @@ class SecurityManager {
         checkPermission(new SocketPermission(host,
             SecurityConstants.SOCKET_CONNECT_ACCEPT_ACTION));
     }
-
-
     public void checkPropertiesAccess() {
         checkPermission(new PropertyPermission("*",
             SecurityConstants.PROPERTY_RW_ACTION));
     }
-
-
     public void checkPropertyAccess(String key) {
         checkPermission(new PropertyPermission(key,
             SecurityConstants.PROPERTY_READ_ACTION));
     }
-
-
     @Deprecated
     public boolean checkTopLevelWindow(Object window) {
         if (window == null) {
@@ -348,13 +263,9 @@ class SecurityManager {
         }
         return false;
     }
-
-
     public void checkPrintJobAccess() {
         checkPermission(new RuntimePermission("queuePrintJob"));
     }
-
-
     @Deprecated
     public void checkSystemClipboardAccess() {
         Permission perm = SecurityConstants.AWT.ACCESS_CLIPBOARD_PERMISSION;
@@ -363,8 +274,6 @@ class SecurityManager {
         }
         checkPermission(perm);
     }
-
-
     @Deprecated
     public void checkAwtEventQueueAccess() {
         Permission perm = SecurityConstants.AWT.CHECK_AWT_EVENTQUEUE_PERMISSION;
@@ -373,16 +282,12 @@ class SecurityManager {
         }
         checkPermission(perm);
     }
-
-
     private static boolean packageAccessValid = false;
     private static String[] packageAccess;
     private static final Object packageAccessLock = new Object();
-
     private static boolean packageDefinitionValid = false;
     private static String[] packageDefinition;
     private static final Object packageDefinitionLock = new Object();
-
     private static String[] getPackages(String p) {
         String packages[] = null;
         if (p != null && !p.equals("")) {
@@ -398,21 +303,16 @@ class SecurityManager {
                 }
             }
         }
-
         if (packages == null)
             packages = new String[0];
         return packages;
     }
-
-
     public void checkPackageAccess(String pkg) {
         if (pkg == null) {
             throw new NullPointerException("package name can't be null");
         }
-
         String[] pkgs;
         synchronized (packageAccessLock) {
-
             if (!packageAccessValid) {
                 String tmpPropertyStr =
                     AccessController.doPrivileged(
@@ -426,13 +326,10 @@ class SecurityManager {
                 packageAccess = getPackages(tmpPropertyStr);
                 packageAccessValid = true;
             }
-
             // Using a snapshot of packageAccess -- don't care if static field
             // changes afterwards; array contents won't change.
             pkgs = packageAccess;
         }
-
-
         for (int i = 0; i < pkgs.length; i++) {
             if (pkg.startsWith(pkgs[i]) || pkgs[i].equals(pkg + ".")) {
                 checkPermission(
@@ -441,16 +338,12 @@ class SecurityManager {
             }
         }
     }
-
-
     public void checkPackageDefinition(String pkg) {
         if (pkg == null) {
             throw new NullPointerException("package name can't be null");
         }
-
         String[] pkgs;
         synchronized (packageDefinitionLock) {
-
             if (!packageDefinitionValid) {
                 String tmpPropertyStr =
                     AccessController.doPrivileged(
@@ -468,8 +361,6 @@ class SecurityManager {
             // field changes afterwards; array contents won't change.
             pkgs = packageDefinition;
         }
-
-
         for (int i = 0; i < pkgs.length; i++) {
             if (pkg.startsWith(pkgs[i]) || pkgs[i].equals(pkg + ".")) {
                 checkPermission(
@@ -478,13 +369,9 @@ class SecurityManager {
             }
         }
     }
-
-
     public void checkSetFactory() {
         checkPermission(new RuntimePermission("setFactory"));
     }
-
-
     @Deprecated
     @CallerSensitive
     public void checkMemberAccess(Class<?> clazz, int which) {
@@ -493,24 +380,17 @@ class SecurityManager {
         }
         if (which != Member.PUBLIC) {
             Class<?> stack[] = getClassContext();
-
             if ((stack.length<4) ||
                 (stack[3].getClassLoader() != clazz.getClassLoader())) {
                 checkPermission(SecurityConstants.CHECK_MEMBER_ACCESS_PERMISSION);
             }
         }
     }
-
-
     public void checkSecurityAccess(String target) {
         checkPermission(new SecurityPermission(target));
     }
-
     private native Class<?> currentLoadedClass0();
-
-
     public ThreadGroup getThreadGroup() {
         return Thread.currentThread().getThreadGroup();
     }
-
 }

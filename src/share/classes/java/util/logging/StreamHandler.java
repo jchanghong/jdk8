@@ -1,24 +1,15 @@
-
-
-
 package java.util.logging;
-
 import java.io.*;
-
-
-
 public class StreamHandler extends Handler {
     private OutputStream output;
     private boolean doneHeader;
     private volatile Writer writer;
-
     // Private method to configure a StreamHandler from LogManager
     // properties and/or default values as specified in the class
     // javadoc.
     private void configure() {
         LogManager manager = LogManager.getLogManager();
         String cname = getClass().getName();
-
         setLevel(manager.getLevelProperty(cname +".level", Level.INFO));
         setFilter(manager.getFilterProperty(cname +".filter", null));
         setFormatter(manager.getFormatterProperty(cname +".formatter", new SimpleFormatter()));
@@ -33,15 +24,11 @@ public class StreamHandler extends Handler {
             }
         }
     }
-
-
     public StreamHandler() {
         sealed = false;
         configure();
         sealed = true;
     }
-
-
     public StreamHandler(OutputStream out, Formatter formatter) {
         sealed = false;
         configure();
@@ -49,8 +36,6 @@ public class StreamHandler extends Handler {
         setOutputStream(out);
         sealed = true;
     }
-
-
     protected synchronized void setOutputStream(OutputStream out) throws SecurityException {
         if (out == null) {
             throw new NullPointerException();
@@ -71,8 +56,6 @@ public class StreamHandler extends Handler {
             }
         }
     }
-
-
     @Override
     public synchronized void setEncoding(String encoding)
                         throws SecurityException, java.io.UnsupportedEncodingException {
@@ -88,8 +71,6 @@ public class StreamHandler extends Handler {
             writer = new OutputStreamWriter(output, encoding);
         }
     }
-
-
     @Override
     public synchronized void publish(LogRecord record) {
         if (!isLoggable(record)) {
@@ -104,7 +85,6 @@ public class StreamHandler extends Handler {
             reportError(null, ex, ErrorManager.FORMAT_FAILURE);
             return;
         }
-
         try {
             if (!doneHeader) {
                 writer.write(getFormatter().getHead(this));
@@ -117,9 +97,6 @@ public class StreamHandler extends Handler {
             reportError(null, ex, ErrorManager.WRITE_FAILURE);
         }
     }
-
-
-
     @Override
     public boolean isLoggable(LogRecord record) {
         if (writer == null || record == null) {
@@ -127,8 +104,6 @@ public class StreamHandler extends Handler {
         }
         return super.isLoggable(record);
     }
-
-
     @Override
     public synchronized void flush() {
         if (writer != null) {
@@ -141,7 +116,6 @@ public class StreamHandler extends Handler {
             }
         }
     }
-
     private synchronized void flushAndClose() throws SecurityException {
         checkPermission();
         if (writer != null) {
@@ -162,8 +136,6 @@ public class StreamHandler extends Handler {
             output = null;
         }
     }
-
-
     @Override
     public synchronized void close() throws SecurityException {
         flushAndClose();

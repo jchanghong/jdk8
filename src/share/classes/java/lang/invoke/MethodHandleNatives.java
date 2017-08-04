@@ -1,54 +1,35 @@
-
-
 package java.lang.invoke;
-
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Field;
 import static java.lang.invoke.MethodHandleNatives.Constants.*;
 import static java.lang.invoke.MethodHandleStatics.*;
 import static java.lang.invoke.MethodHandles.Lookup.IMPL_LOOKUP;
-
-
 class MethodHandleNatives {
-
     private MethodHandleNatives() { } // static only
-
     /// MemberName support
-
     static native void init(MemberName self, Object ref);
     static native void expand(MemberName self);
     static native MemberName resolve(MemberName self, Class<?> caller) throws LinkageError, ClassNotFoundException;
     static native int getMembers(Class<?> defc, String matchName, String matchSig,
             int matchFlags, Class<?> caller, int skip, MemberName[] results);
-
     /// Field layout queries parallel to sun.misc.Unsafe:
     static native long objectFieldOffset(MemberName self);  // e.g., returns vmindex
     static native long staticFieldOffset(MemberName self);  // e.g., returns vmindex
     static native Object staticFieldBase(MemberName self);  // e.g., returns clazz
     static native Object getMemberVMInfo(MemberName self);  // returns {vmindex,vmtarget}
-
     /// MethodHandle support
-
-
     static native int getConstant(int which);
-
     static final boolean COUNT_GWT;
-
     /// CallSite support
-
-
     static native void setCallSiteTargetNormal(CallSite site, MethodHandle target);
     static native void setCallSiteTargetVolatile(CallSite site, MethodHandle target);
-
     private static native void registerNatives();
     static {
         registerNatives();
         COUNT_GWT                   = getConstant(Constants.GC_COUNT_GWT) != 0;
-
         // The JVM calls MethodHandleNatives.<clinit>.  Cascade the <clinit> calls as needed:
         MethodHandleImpl.initStatics();
     }
-
     // All compile-time constants go here.
     // There is an opportunity to check them against the JVM's idea of them.
     static class Constants {
@@ -57,7 +38,6 @@ class MethodHandleNatives {
         static final int // for getConstant
                 GC_COUNT_GWT = 4,
                 GC_LAMBDA_SUPPORT = 5;
-
         // MemberName
         // The JVM uses values of -2 and above for vtable indexes.
         // Field values are simple positive offsets.
@@ -75,8 +55,6 @@ class MethodHandleNatives {
                 // The SEARCH_* bits are not for MN.flags but for the matchFlags argument of MHN.getMembers:
                 MN_SEARCH_SUPERCLASSES = 0x00100000,
                 MN_SEARCH_INTERFACES   = 0x00200000;
-
-
         static final int
             T_BOOLEAN  =  4,
             T_CHAR     =  5,
@@ -91,8 +69,6 @@ class MethodHandleNatives {
             T_VOID     = 14,
             //T_ADDRESS  = 15
             T_ILLEGAL  = 99;
-
-
         static final byte
             CONSTANT_Utf8                = 1,
             CONSTANT_Integer             = 3,
@@ -109,8 +85,6 @@ class MethodHandleNatives {
             CONSTANT_MethodType          = 16,  // JSR 292
             CONSTANT_InvokeDynamic       = 18,
             CONSTANT_LIMIT               = 19;   // Limit to tags found in classfiles
-
-
         static final char
             ACC_PUBLIC                 = 0x0001,
             ACC_PRIVATE                = 0x0002,
@@ -131,8 +105,6 @@ class MethodHandleNatives {
             ACC_SUPER                  = ACC_SYNCHRONIZED,
             ACC_BRIDGE                 = ACC_VOLATILE,
             ACC_VARARGS                = ACC_TRANSIENT;
-
-
         static final byte
             REF_NONE                    = 0,  // null value
             REF_getField                = 1,
@@ -146,7 +118,6 @@ class MethodHandleNatives {
             REF_invokeInterface         = 9,
             REF_LIMIT                  = 10;
     }
-
     static boolean refKindIsValid(int refKind) {
         return (refKind > REF_NONE && refKind < REF_LIMIT);
     }
@@ -205,7 +176,6 @@ class MethodHandleNatives {
         default:                    return "REF_???";
         }
     }
-
     private static native int getNamedCon(int which, Object[] name);
     static boolean verifyConstants() {
         Object[] box = { null };
@@ -236,11 +206,8 @@ class MethodHandleNatives {
     static {
         assert(verifyConstants());
     }
-
     // Up-calls from the JVM.
     // These must NOT be public.
-
-
     static MemberName linkCallSite(Object callerObj,
                                    Object bootstrapMethodObj,
                                    Object nameObj, Object typeObj,
@@ -298,13 +265,9 @@ class MethodHandleNatives {
             throw ex;
         }
     }
-
-
     static MethodType findMethodHandleType(Class<?> rtype, Class<?>[] ptypes) {
         return MethodType.makeImpl(rtype, ptypes, true);
     }
-
-
     static MemberName linkMethod(Class<?> callerClass, int refKind,
                                  Class<?> defc, String name, Object type,
                                  Object[] appendixResult) {
@@ -348,9 +311,6 @@ class MethodHandleNatives {
             throw ex;
         }
     }
-
-
-
     static MethodHandle linkMethodHandleConstant(Class<?> callerClass, int refKind,
                                                  Class<?> defc, String name, Object type) {
         try {
@@ -376,8 +336,6 @@ class MethodHandleNatives {
             throw initCauseFrom(err, ex);
         }
     }
-
-
     static private Error initCauseFrom(Error err, Exception ex) {
         Throwable th = ex.getCause();
         if (err.getClass().isInstance(th))
@@ -385,14 +343,10 @@ class MethodHandleNatives {
         err.initCause(th == null ? ex : th);
         return err;
     }
-
-
     static boolean isCallerSensitive(MemberName mem) {
         if (!mem.isInvocable())  return false;  // fields are not caller sensitive
-
         return mem.isCallerSensitive() || canBeCalledVirtual(mem);
     }
-
     static boolean canBeCalledVirtual(MemberName mem) {
         assert(mem.isInvocable());
         Class<?> defc = mem.getDeclaringClass();
@@ -404,7 +358,6 @@ class MethodHandleNatives {
         }
         return false;
     }
-
     static boolean canBeCalledVirtual(MemberName symbolicRef, Class<?> definingClass) {
         Class<?> symbolicRefClass = symbolicRef.getDeclaringClass();
         if (symbolicRefClass == definingClass)  return true;

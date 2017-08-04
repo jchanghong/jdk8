@@ -1,11 +1,6 @@
-
-
 package java.util.zip;
-
-
 public
 class Deflater {
-
     private final ZStreamRef zsRef;
     private byte[] buf = new byte[0];
     private int off, len;
@@ -14,63 +9,31 @@ class Deflater {
     private boolean finish, finished;
     private long bytesRead;
     private long bytesWritten;
-
-
     public static final int DEFLATED = 8;
-
-
     public static final int NO_COMPRESSION = 0;
-
-
     public static final int BEST_SPEED = 1;
-
-
     public static final int BEST_COMPRESSION = 9;
-
-
     public static final int DEFAULT_COMPRESSION = -1;
-
-
     public static final int FILTERED = 1;
-
-
     public static final int HUFFMAN_ONLY = 2;
-
-
     public static final int DEFAULT_STRATEGY = 0;
-
-
     public static final int NO_FLUSH = 0;
-
-
     public static final int SYNC_FLUSH = 2;
-
-
     public static final int FULL_FLUSH = 3;
-
     static {
-
         initIDs();
     }
-
-
     public Deflater(int level, boolean nowrap) {
         this.level = level;
         this.strategy = DEFAULT_STRATEGY;
         this.zsRef = new ZStreamRef(init(level, DEFAULT_STRATEGY, nowrap));
     }
-
-
     public Deflater(int level) {
         this(level, false);
     }
-
-
     public Deflater() {
         this(DEFAULT_COMPRESSION, false);
     }
-
-
     public void setInput(byte[] b, int off, int len) {
         if (b== null) {
             throw new NullPointerException();
@@ -84,13 +47,9 @@ class Deflater {
             this.len = len;
         }
     }
-
-
     public void setInput(byte[] b) {
         setInput(b, 0, b.length);
     }
-
-
     public void setDictionary(byte[] b, int off, int len) {
         if (b == null) {
             throw new NullPointerException();
@@ -103,13 +62,9 @@ class Deflater {
             setDictionary(zsRef.address(), b, off, len);
         }
     }
-
-
     public void setDictionary(byte[] b) {
         setDictionary(b, 0, b.length);
     }
-
-
     public void setStrategy(int strategy) {
         switch (strategy) {
           case DEFAULT_STRATEGY:
@@ -126,8 +81,6 @@ class Deflater {
             }
         }
     }
-
-
     public void setLevel(int level) {
         if ((level < 0 || level > 9) && level != DEFAULT_COMPRESSION) {
             throw new IllegalArgumentException("invalid compression level");
@@ -139,39 +92,27 @@ class Deflater {
             }
         }
     }
-
-
     public boolean needsInput() {
         synchronized (zsRef) {
             return len <= 0;
         }
     }
-
-
     public void finish() {
         synchronized (zsRef) {
             finish = true;
         }
     }
-
-
     public boolean finished() {
         synchronized (zsRef) {
             return finished;
         }
     }
-
-
     public int deflate(byte[] b, int off, int len) {
         return deflate(b, off, len, NO_FLUSH);
     }
-
-
     public int deflate(byte[] b) {
         return deflate(b, 0, b.length, NO_FLUSH);
     }
-
-
     public int deflate(byte[] b, int off, int len, int flush) {
         if (b == null) {
             throw new NullPointerException();
@@ -192,42 +133,30 @@ class Deflater {
             throw new IllegalArgumentException();
         }
     }
-
-
     public int getAdler() {
         synchronized (zsRef) {
             ensureOpen();
             return getAdler(zsRef.address());
         }
     }
-
-
     public int getTotalIn() {
         return (int) getBytesRead();
     }
-
-
     public long getBytesRead() {
         synchronized (zsRef) {
             ensureOpen();
             return bytesRead;
         }
     }
-
-
     public int getTotalOut() {
         return (int) getBytesWritten();
     }
-
-
     public long getBytesWritten() {
         synchronized (zsRef) {
             ensureOpen();
             return bytesWritten;
         }
     }
-
-
     public void reset() {
         synchronized (zsRef) {
             ensureOpen();
@@ -238,8 +167,6 @@ class Deflater {
             bytesRead = bytesWritten = 0;
         }
     }
-
-
     public void end() {
         synchronized (zsRef) {
             long addr = zsRef.address();
@@ -250,18 +177,14 @@ class Deflater {
             }
         }
     }
-
-
     protected void finalize() {
         end();
     }
-
     private void ensureOpen() {
         assert Thread.holdsLock(zsRef);
         if (zsRef.address() == 0)
             throw new NullPointerException("Deflater has been closed");
     }
-
     private static native void initIDs();
     private native static long init(int level, int strategy, boolean nowrap);
     private native static void setDictionary(long addr, byte[] b, int off, int len);

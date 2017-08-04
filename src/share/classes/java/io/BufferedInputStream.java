@@ -1,60 +1,33 @@
-
-
 package java.io;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
-
-
 public
 class BufferedInputStream extends FilterInputStream {
-
     private static int DEFAULT_BUFFER_SIZE = 8192;
-
-
     private static int MAX_BUFFER_SIZE = Integer.MAX_VALUE - 8;
-
-
     protected volatile byte buf[];
-
-
     private static final
         AtomicReferenceFieldUpdater<BufferedInputStream, byte[]> bufUpdater =
         AtomicReferenceFieldUpdater.newUpdater
         (BufferedInputStream.class,  byte[].class, "buf");
-
-
     protected int count;
-
-
     protected int pos;
-
-
     protected int markpos = -1;
-
-
     protected int marklimit;
-
-
     private InputStream getInIfOpen() throws IOException {
         InputStream input = in;
         if (input == null)
             throw new IOException("Stream closed");
         return input;
     }
-
-
     private byte[] getBufIfOpen() throws IOException {
         byte[] buffer = buf;
         if (buffer == null)
             throw new IOException("Stream closed");
         return buffer;
     }
-
-
     public BufferedInputStream(InputStream in) {
         this(in, DEFAULT_BUFFER_SIZE);
     }
-
-
     public BufferedInputStream(InputStream in, int size) {
         super(in);
         if (size <= 0) {
@@ -62,8 +35,6 @@ class BufferedInputStream extends FilterInputStream {
         }
         buf = new byte[size];
     }
-
-
     private void fill() throws IOException {
         byte[] buffer = getBufIfOpen();
         if (markpos < 0)
@@ -101,8 +72,6 @@ class BufferedInputStream extends FilterInputStream {
         if (n > 0)
             count = n + pos;
     }
-
-
     public synchronized int read() throws IOException {
         if (pos >= count) {
             fill();
@@ -111,12 +80,9 @@ class BufferedInputStream extends FilterInputStream {
         }
         return getBufIfOpen()[pos++] & 0xff;
     }
-
-
     private int read1(byte[] b, int off, int len) throws IOException {
         int avail = count - pos;
         if (avail <= 0) {
-
             if (len >= getBufIfOpen().length && markpos < 0) {
                 return getInIfOpen().read(b, off, len);
             }
@@ -129,8 +95,6 @@ class BufferedInputStream extends FilterInputStream {
         pos += cnt;
         return cnt;
     }
-
-
     public synchronized int read(byte b[], int off, int len)
         throws IOException
     {
@@ -140,7 +104,6 @@ class BufferedInputStream extends FilterInputStream {
         } else if (len == 0) {
             return 0;
         }
-
         int n = 0;
         for (;;) {
             int nread = read1(b, off + n, len - n);
@@ -155,33 +118,26 @@ class BufferedInputStream extends FilterInputStream {
                 return n;
         }
     }
-
-
     public synchronized long skip(long n) throws IOException {
         getBufIfOpen(); // Check for closed stream
         if (n <= 0) {
             return 0;
         }
         long avail = count - pos;
-
         if (avail <= 0) {
             // If no mark position set then don't keep in buffer
             if (markpos <0)
                 return getInIfOpen().skip(n);
-
             // Fill in buffer to save bytes for reset
             fill();
             avail = count - pos;
             if (avail <= 0)
                 return 0;
         }
-
         long skipped = (avail < n) ? avail : n;
         pos += skipped;
         return skipped;
     }
-
-
     public synchronized int available() throws IOException {
         int n = count - pos;
         int avail = getInIfOpen().available();
@@ -189,27 +145,19 @@ class BufferedInputStream extends FilterInputStream {
                     ? Integer.MAX_VALUE
                     : n + avail;
     }
-
-
     public synchronized void mark(int readlimit) {
         marklimit = readlimit;
         markpos = pos;
     }
-
-
     public synchronized void reset() throws IOException {
         getBufIfOpen(); // Cause exception if closed
         if (markpos < 0)
             throw new IOException("Resetting to invalid mark");
         pos = markpos;
     }
-
-
     public boolean markSupported() {
         return true;
     }
-
-
     public void close() throws IOException {
         byte[] buffer;
         while ( (buffer = buf) != null) {

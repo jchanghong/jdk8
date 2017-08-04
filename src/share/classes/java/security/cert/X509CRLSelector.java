@@ -1,25 +1,16 @@
-
-
 package java.security.cert;
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
-
 import javax.security.auth.x500.X500Principal;
-
 import sun.security.util.Debug;
 import sun.security.util.DerInputStream;
 import sun.security.x509.CRLNumberExtension;
 import sun.security.x509.X500Name;
-
-
 public class X509CRLSelector implements CRLSelector {
-
     static {
         CertPathHelperImpl.initialize();
     }
-
     private static final Debug debug = Debug.getInstance("certpath");
     private HashSet<Object> issuerNames;
     private HashSet<X500Principal> issuerX500Principals;
@@ -28,11 +19,7 @@ public class X509CRLSelector implements CRLSelector {
     private Date dateAndTime;
     private X509Certificate certChecking;
     private long skew = 0;
-
-
     public X509CRLSelector() {}
-
-
     public void setIssuers(Collection<X500Principal> issuers) {
         if ((issuers == null) || issuers.isEmpty()) {
             issuerNames = null;
@@ -46,8 +33,6 @@ public class X509CRLSelector implements CRLSelector {
             }
         }
     }
-
-
     public void setIssuerNames(Collection<?> names) throws IOException {
         if (names == null || names.size() == 0) {
             issuerNames = null;
@@ -59,24 +44,16 @@ public class X509CRLSelector implements CRLSelector {
             issuerNames = tempNames;
         }
     }
-
-
     public void addIssuer(X500Principal issuer) {
         addIssuerNameInternal(issuer.getEncoded(), issuer);
     }
-
-
     public void addIssuerName(String name) throws IOException {
         addIssuerNameInternal(name, new X500Name(name).asX500Principal());
     }
-
-
     public void addIssuerName(byte[] name) throws IOException {
         // clone because byte arrays are modifiable
         addIssuerNameInternal(name.clone(), new X500Name(name).asX500Principal());
     }
-
-
     private void addIssuerNameInternal(Object name, X500Principal principal) {
         if (issuerNames == null) {
             issuerNames = new HashSet<Object>();
@@ -87,8 +64,6 @@ public class X509CRLSelector implements CRLSelector {
         issuerNames.add(name);
         issuerX500Principals.add(principal);
     }
-
-
     private static HashSet<Object> cloneAndCheckIssuerNames(Collection<?> names)
         throws IOException
     {
@@ -106,8 +81,6 @@ public class X509CRLSelector implements CRLSelector {
         }
         return(namesCopy);
     }
-
-
     private static HashSet<Object> cloneIssuerNames(Collection<Object> names) {
         try {
             return cloneAndCheckIssuerNames(names);
@@ -115,8 +88,6 @@ public class X509CRLSelector implements CRLSelector {
             throw new RuntimeException(ioe);
         }
     }
-
-
     private static HashSet<X500Principal> parseIssuerNames(Collection<Object> names)
     throws IOException {
         HashSet<X500Principal> x500Principals = new HashSet<X500Principal>();
@@ -134,18 +105,12 @@ public class X509CRLSelector implements CRLSelector {
         }
         return x500Principals;
     }
-
-
     public void setMinCRLNumber(BigInteger minCRL) {
         this.minCRL = minCRL;
     }
-
-
     public void setMaxCRLNumber(BigInteger maxCRL) {
         this.maxCRL = maxCRL;
     }
-
-
     public void setDateAndTime(Date dateAndTime) {
         if (dateAndTime == null)
             this.dateAndTime = null;
@@ -153,58 +118,40 @@ public class X509CRLSelector implements CRLSelector {
             this.dateAndTime = new Date(dateAndTime.getTime());
         this.skew = 0;
     }
-
-
     void setDateAndTime(Date dateAndTime, long skew) {
         this.dateAndTime =
             (dateAndTime == null ? null : new Date(dateAndTime.getTime()));
         this.skew = skew;
     }
-
-
     public void setCertificateChecking(X509Certificate cert) {
         certChecking = cert;
     }
-
-
     public Collection<X500Principal> getIssuers() {
         if (issuerX500Principals == null) {
             return null;
         }
         return Collections.unmodifiableCollection(issuerX500Principals);
     }
-
-
     public Collection<Object> getIssuerNames() {
         if (issuerNames == null) {
             return null;
         }
         return cloneIssuerNames(issuerNames);
     }
-
-
     public BigInteger getMinCRL() {
         return minCRL;
     }
-
-
     public BigInteger getMaxCRL() {
         return maxCRL;
     }
-
-
     public Date getDateAndTime() {
         if (dateAndTime == null)
             return null;
         return (Date) dateAndTime.clone();
     }
-
-
     public X509Certificate getCertificateChecking() {
         return certChecking;
     }
-
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("X509CRLSelector: [\n");
@@ -225,15 +172,11 @@ public class X509CRLSelector implements CRLSelector {
         sb.append("]");
         return sb.toString();
     }
-
-
     public boolean match(CRL crl) {
         if (!(crl instanceof X509CRL)) {
             return false;
         }
         X509CRL xcrl = (X509CRL)crl;
-
-
         if (issuerNames != null) {
             X500Principal issuer = xcrl.getIssuerX500Principal();
             Iterator<X500Principal> i = issuerX500Principals.iterator();
@@ -251,9 +194,7 @@ public class X509CRLSelector implements CRLSelector {
                 return false;
             }
         }
-
         if ((minCRL != null) || (maxCRL != null)) {
-
             byte[] crlNumExtVal = xcrl.getExtensionValue("2.5.29.20");
             if (crlNumExtVal == null) {
                 if (debug != null) {
@@ -274,8 +215,6 @@ public class X509CRLSelector implements CRLSelector {
                 }
                 return false;
             }
-
-
             if (minCRL != null) {
                 if (crlNum.compareTo(minCRL) < 0) {
                     if (debug != null) {
@@ -284,8 +223,6 @@ public class X509CRLSelector implements CRLSelector {
                     return false;
                 }
             }
-
-
             if (maxCRL != null) {
                 if (crlNum.compareTo(maxCRL) > 0) {
                     if (debug != null) {
@@ -295,9 +232,6 @@ public class X509CRLSelector implements CRLSelector {
                 }
             }
         }
-
-
-
         if (dateAndTime != null) {
             Date crlThisUpdate = xcrl.getThisUpdate();
             Date nextUpdate = xcrl.getNextUpdate();
@@ -313,7 +247,6 @@ public class X509CRLSelector implements CRLSelector {
                 nowPlusSkew = new Date(dateAndTime.getTime() + skew);
                 nowMinusSkew = new Date(dateAndTime.getTime() - skew);
             }
-
             // Check that the test date is within the validity interval:
             //   [ thisUpdate - MAX_CLOCK_SKEW,
             //     nextUpdate + MAX_CLOCK_SKEW ]
@@ -325,11 +258,8 @@ public class X509CRLSelector implements CRLSelector {
                 return false;
             }
         }
-
         return true;
     }
-
-
     public Object clone() {
         try {
             X509CRLSelector copy = (X509CRLSelector)super.clone();
@@ -341,7 +271,6 @@ public class X509CRLSelector implements CRLSelector {
             }
             return copy;
         } catch (CloneNotSupportedException e) {
-
             throw new InternalError(e.toString(), e);
         }
     }

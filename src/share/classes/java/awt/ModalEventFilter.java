@@ -1,24 +1,16 @@
-
 package java.awt;
-
 import java.awt.event.*;
-
 import sun.awt.AppContext;
-
 abstract class ModalEventFilter implements EventFilter {
-
     protected Dialog modalDialog;
     protected boolean disabled;
-
     protected ModalEventFilter(Dialog modalDialog) {
         this.modalDialog = modalDialog;
         disabled = false;
     }
-
     Dialog getModalDialog() {
         return modalDialog;
     }
-
     public FilterAction acceptEvent(AWTEvent event) {
         if (disabled || !modalDialog.isVisible()) {
             return FilterAction.ACCEPT;
@@ -46,9 +38,7 @@ abstract class ModalEventFilter implements EventFilter {
         }
         return FilterAction.ACCEPT;
     }
-
     protected abstract FilterAction acceptWindow(Window w);
-
     // When a modal dialog is hidden its modal filter may not be deleted from
     // EventDispatchThread event filters immediately, so we need to mark the filter
     // as disabled to prevent it from working. Simple checking for visibility of
@@ -57,7 +47,6 @@ abstract class ModalEventFilter implements EventFilter {
     void disable() {
         disabled = true;
     }
-
     int compareTo(ModalEventFilter another) {
         Dialog anotherDialog = another.getModalDialog();
         // check if modalDialog is from anotherDialog's hierarchy
@@ -94,7 +83,6 @@ abstract class ModalEventFilter implements EventFilter {
         // compare modality types
         return modalDialog.getModalityType().compareTo(anotherDialog.getModalityType());
     }
-
     static ModalEventFilter createFilterForDialog(Dialog modalDialog) {
         switch (modalDialog.getModalityType()) {
             case DOCUMENT_MODAL: return new DocumentModalEventFilter(modalDialog);
@@ -103,16 +91,12 @@ abstract class ModalEventFilter implements EventFilter {
         }
         return null;
     }
-
     private static class ToolkitModalEventFilter extends ModalEventFilter {
-
         private AppContext appContext;
-
         ToolkitModalEventFilter(Dialog modalDialog) {
             super(modalDialog);
             appContext = modalDialog.appContext;
         }
-
         protected FilterAction acceptWindow(Window w) {
             if (w.isModalExcluded(Dialog.ModalExclusionType.TOOLKIT_EXCLUDE)) {
                 return FilterAction.ACCEPT;
@@ -129,16 +113,12 @@ abstract class ModalEventFilter implements EventFilter {
             return FilterAction.REJECT;
         }
     }
-
     private static class ApplicationModalEventFilter extends ModalEventFilter {
-
         private AppContext appContext;
-
         ApplicationModalEventFilter(Dialog modalDialog) {
             super(modalDialog);
             appContext = modalDialog.appContext;
         }
-
         protected FilterAction acceptWindow(Window w) {
             if (w.isModalExcluded(Dialog.ModalExclusionType.APPLICATION_EXCLUDE)) {
                 return FilterAction.ACCEPT;
@@ -155,16 +135,12 @@ abstract class ModalEventFilter implements EventFilter {
             return FilterAction.ACCEPT;
         }
     }
-
     private static class DocumentModalEventFilter extends ModalEventFilter {
-
         private Window documentRoot;
-
         DocumentModalEventFilter(Dialog modalDialog) {
             super(modalDialog);
             documentRoot = modalDialog.getDocumentRoot();
         }
-
         protected FilterAction acceptWindow(Window w) {
             // application- and toolkit-excluded windows are blocked by
             // document-modal dialogs from their child hierarchy

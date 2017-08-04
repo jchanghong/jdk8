@@ -1,24 +1,11 @@
-
-
 package java.security;
-
 import sun.security.util.Debug;
 import sun.reflect.CallerSensitive;
 import sun.reflect.Reflection;
-
-
-
 public final class AccessController {
-
-
     private AccessController() { }
-
-
-
     @CallerSensitive
     public static native <T> T doPrivileged(PrivilegedAction<T> action);
-
-
     @CallerSensitive
     public static <T> T doPrivilegedWithCombiner(PrivilegedAction<T> action) {
         AccessControlContext acc = getStackAccessControlContext();
@@ -29,19 +16,12 @@ public final class AccessController {
         return AccessController.doPrivileged(action,
                                              preserveCombiner(dc, Reflection.getCallerClass()));
     }
-
-
-
     @CallerSensitive
     public static native <T> T doPrivileged(PrivilegedAction<T> action,
                                             AccessControlContext context);
-
-
-
     @CallerSensitive
     public static <T> T doPrivileged(PrivilegedAction<T> action,
         AccessControlContext context, Permission... perms) {
-
         AccessControlContext parent = getContext();
         if (perms == null) {
             throw new NullPointerException("null permissions parameter");
@@ -50,13 +30,9 @@ public final class AccessController {
         return AccessController.doPrivileged(action, createWrapper(null,
             caller, parent, context, perms));
     }
-
-
-
     @CallerSensitive
     public static <T> T doPrivilegedWithCombiner(PrivilegedAction<T> action,
         AccessControlContext context, Permission... perms) {
-
         AccessControlContext parent = getContext();
         DomainCombiner dc = parent.getCombiner();
         if (dc == null && context != null) {
@@ -69,15 +45,10 @@ public final class AccessController {
         return AccessController.doPrivileged(action, createWrapper(dc, caller,
             parent, context, perms));
     }
-
-
     @CallerSensitive
     public static native <T> T
         doPrivileged(PrivilegedExceptionAction<T> action)
         throws PrivilegedActionException;
-
-
-
     @CallerSensitive
     public static <T> T doPrivilegedWithCombiner(PrivilegedExceptionAction<T> action)
         throws PrivilegedActionException
@@ -90,15 +61,11 @@ public final class AccessController {
         return AccessController.doPrivileged(action,
                                              preserveCombiner(dc, Reflection.getCallerClass()));
     }
-
-
     private static AccessControlContext preserveCombiner(DomainCombiner combiner,
                                                          Class<?> caller)
     {
         return createWrapper(combiner, caller, null, null, null);
     }
-
-
     private static AccessControlContext
         createWrapper(DomainCombiner combiner, Class<?> caller,
                       AccessControlContext parent, AccessControlContext context,
@@ -117,7 +84,6 @@ public final class AccessController {
                                             context, perms);
         }
     }
-
     private static ProtectionDomain getCallerPD(final Class <?> caller) {
         ProtectionDomain callerPd = doPrivileged
             (new PrivilegedAction<ProtectionDomain>() {
@@ -125,19 +91,13 @@ public final class AccessController {
                 return caller.getProtectionDomain();
             }
         });
-
         return callerPd;
     }
-
-
     @CallerSensitive
     public static native <T> T
         doPrivileged(PrivilegedExceptionAction<T> action,
                      AccessControlContext context)
         throws PrivilegedActionException;
-
-
-
     @CallerSensitive
     public static <T> T doPrivileged(PrivilegedExceptionAction<T> action,
                                      AccessControlContext context, Permission... perms)
@@ -150,9 +110,6 @@ public final class AccessController {
         Class <?> caller = Reflection.getCallerClass();
         return AccessController.doPrivileged(action, createWrapper(null, caller, parent, context, perms));
     }
-
-
-
     @CallerSensitive
     public static <T> T doPrivilegedWithCombiner(PrivilegedExceptionAction<T> action,
                                                  AccessControlContext context,
@@ -171,18 +128,8 @@ public final class AccessController {
         return AccessController.doPrivileged(action, createWrapper(dc, caller,
             parent, context, perms));
     }
-
-
-
     private static native AccessControlContext getStackAccessControlContext();
-
-
-
-
     static native AccessControlContext getInheritedAccessControlContext();
-
-
-
     public static AccessControlContext getContext()
     {
         AccessControlContext acc = getStackAccessControlContext();
@@ -194,19 +141,14 @@ public final class AccessController {
             return acc.optimize();
         }
     }
-
-
-
     public static void checkPermission(Permission perm)
         throws AccessControlException
     {
         //System.err.println("checkPermission "+perm);
         //Thread.currentThread().dumpStack();
-
         if (perm == null) {
             throw new NullPointerException("permission can't be null");
         }
-
         AccessControlContext stack = getStackAccessControlContext();
         // if context is null, we had privileged system code on the stack.
         if (stack == null) {
@@ -217,21 +159,17 @@ public final class AccessController {
                 dumpDebug &= !Debug.isOn("permission=") ||
                     Debug.isOn("permission=" + perm.getClass().getCanonicalName());
             }
-
             if (dumpDebug && Debug.isOn("stack")) {
                 Thread.dumpStack();
             }
-
             if (dumpDebug && Debug.isOn("domain")) {
                 debug.println("domain (context is null)");
             }
-
             if (dumpDebug) {
                 debug.println("access allowed "+perm);
             }
             return;
         }
-
         AccessControlContext acc = stack.optimize();
         acc.checkPermission(perm);
     }

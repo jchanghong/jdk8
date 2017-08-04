@@ -1,36 +1,21 @@
-
-
 package java.util;
-
 import java.io.FilterOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-
-
-
 public class Base64 {
-
     private Base64() {}
-
-
     public static Encoder getEncoder() {
          return Encoder.RFC4648;
     }
-
-
     public static Encoder getUrlEncoder() {
          return Encoder.RFC4648_URLSAFE;
     }
-
-
     public static Encoder getMimeEncoder() {
         return Encoder.RFC2045;
     }
-
-
     public static Encoder getMimeEncoder(int lineLength, byte[] lineSeparator) {
          Objects.requireNonNull(lineSeparator);
          int[] base64 = Decoder.fromBase64;
@@ -44,38 +29,26 @@ public class Base64 {
          }
          return new Encoder(false, lineSeparator, lineLength >> 2 << 2, true);
     }
-
-
     public static Decoder getDecoder() {
          return Decoder.RFC4648;
     }
-
-
     public static Decoder getUrlDecoder() {
          return Decoder.RFC4648_URLSAFE;
     }
-
-
     public static Decoder getMimeDecoder() {
          return Decoder.RFC2045;
     }
-
-
     public static class Encoder {
-
         private final byte[] newline;
         private final int linemax;
         private final boolean isURL;
         private final boolean doPadding;
-
         private Encoder(boolean isURL, byte[] newline, int linemax, boolean doPadding) {
             this.isURL = isURL;
             this.newline = newline;
             this.linemax = linemax;
             this.doPadding = doPadding;
         }
-
-
         private static final char[] toBase64 = {
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
             'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -83,8 +56,6 @@ public class Base64 {
             'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
         };
-
-
         private static final char[] toBase64URL = {
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
             'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -92,14 +63,11 @@ public class Base64 {
             'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '_'
         };
-
         private static final int MIMELINEMAX = 76;
         private static final byte[] CRLF = new byte[] {'\r', '\n'};
-
         static final Encoder RFC4648 = new Encoder(false, null, -1, true);
         static final Encoder RFC4648_URLSAFE = new Encoder(true, null, -1, true);
         static final Encoder RFC2045 = new Encoder(false, CRLF, MIMELINEMAX, true);
-
         private final int outLength(int srclen) {
             int len = 0;
             if (doPadding) {
@@ -112,8 +80,6 @@ public class Base64 {
                 len += (len - 1) / linemax * newline.length;
             return len;
         }
-
-
         public byte[] encode(byte[] src) {
             int len = outLength(src.length);          // dst array size
             byte[] dst = new byte[len];
@@ -122,8 +88,6 @@ public class Base64 {
                  return Arrays.copyOf(dst, ret);
             return dst;
         }
-
-
         public int encode(byte[] src, byte[] dst) {
             int len = outLength(src.length);         // dst array size
             if (dst.length < len)
@@ -131,15 +95,11 @@ public class Base64 {
                     "Output byte array is too small for encoding all input bytes");
             return encode0(src, 0, src.length, dst);
         }
-
-
         @SuppressWarnings("deprecation")
         public String encodeToString(byte[] src) {
             byte[] encoded = encode(src);
             return new String(encoded, 0, 0, encoded.length);
         }
-
-
         public ByteBuffer encode(ByteBuffer buffer) {
             int len = outLength(buffer.remaining());
             byte[] dst = new byte[len];
@@ -159,21 +119,16 @@ public class Base64 {
                  dst = Arrays.copyOf(dst, ret);
             return ByteBuffer.wrap(dst);
         }
-
-
         public OutputStream wrap(OutputStream os) {
             Objects.requireNonNull(os);
             return new EncOutputStream(os, isURL ? toBase64URL : toBase64,
                                        newline, linemax, doPadding);
         }
-
-
         public Encoder withoutPadding() {
             if (!doPadding)
                 return this;
             return new Encoder(isURL, newline, linemax, false);
         }
-
         private int encode0(byte[] src, int off, int end, byte[] dst) {
             char[] base64 = isURL ? toBase64URL : toBase64;
             int sp = off;
@@ -223,19 +178,13 @@ public class Base64 {
             return dp;
         }
     }
-
-
     public static class Decoder {
-
         private final boolean isURL;
         private final boolean isMIME;
-
         private Decoder(boolean isURL, boolean isMIME) {
             this.isURL = isURL;
             this.isMIME = isMIME;
         }
-
-
         private static final int[] fromBase64 = new int[256];
         static {
             Arrays.fill(fromBase64, -1);
@@ -243,22 +192,16 @@ public class Base64 {
                 fromBase64[Encoder.toBase64[i]] = i;
             fromBase64['='] = -2;
         }
-
-
         private static final int[] fromBase64URL = new int[256];
-
         static {
             Arrays.fill(fromBase64URL, -1);
             for (int i = 0; i < Encoder.toBase64URL.length; i++)
                 fromBase64URL[Encoder.toBase64URL[i]] = i;
             fromBase64URL['='] = -2;
         }
-
         static final Decoder RFC4648         = new Decoder(false, false);
         static final Decoder RFC4648_URLSAFE = new Decoder(true, false);
         static final Decoder RFC2045         = new Decoder(false, true);
-
-
         public byte[] decode(byte[] src) {
             byte[] dst = new byte[outLength(src, 0, src.length)];
             int ret = decode0(src, 0, src.length, dst);
@@ -267,13 +210,9 @@ public class Base64 {
             }
             return dst;
         }
-
-
         public byte[] decode(String src) {
             return decode(src.getBytes(StandardCharsets.ISO_8859_1));
         }
-
-
         public int decode(byte[] src, byte[] dst) {
             int len = outLength(src, 0, src.length);
             if (dst.length < len)
@@ -281,8 +220,6 @@ public class Base64 {
                     "Output byte array is too small for decoding all input bytes");
             return decode0(src, 0, src.length, dst);
         }
-
-
         public ByteBuffer decode(ByteBuffer buffer) {
             int pos0 = buffer.position();
             try {
@@ -306,13 +243,10 @@ public class Base64 {
                 throw iae;
             }
         }
-
-
         public InputStream wrap(InputStream is) {
             Objects.requireNonNull(is);
             return new DecInputStream(is, isURL ? fromBase64URL : fromBase64, isMIME);
         }
-
         private int outLength(byte[] src, int sp, int sl) {
             int[] base64 = isURL ? fromBase64URL : fromBase64;
             int paddings = 0;
@@ -350,7 +284,6 @@ public class Base64 {
                 paddings = 4 - (len & 0x3);
             return 3 * ((len + 3) / 4) - paddings;
         }
-
         private int decode0(byte[] src, int sp, int sl, byte[] dst) {
             int[] base64 = isURL ? fromBase64URL : fromBase64;
             int dp = 0;
@@ -411,20 +344,15 @@ public class Base64 {
             return dp;
         }
     }
-
-
     private static class EncOutputStream extends FilterOutputStream {
-
         private int leftover = 0;
         private int b0, b1, b2;
         private boolean closed = false;
-
         private final char[] base64;    // byte->base64 mapping
         private final byte[] newline;   // line separator, if needed
         private final int linemax;
         private final boolean doPadding;// whether or not to pad
         private int linepos = 0;
-
         EncOutputStream(OutputStream os, char[] base64,
                         byte[] newline, int linemax, boolean doPadding) {
             super(os);
@@ -433,21 +361,18 @@ public class Base64 {
             this.linemax = linemax;
             this.doPadding = doPadding;
         }
-
         @Override
         public void write(int b) throws IOException {
             byte[] buf = new byte[1];
             buf[0] = (byte)(b & 0xff);
             write(buf, 0, 1);
         }
-
         private void checkNewline() throws IOException {
             if (linepos == linemax) {
                 out.write(newline);
                 linepos = 0;
             }
         }
-
         @Override
         public void write(byte[] b, int off, int len) throws IOException {
             if (closed)
@@ -494,7 +419,6 @@ public class Base64 {
                 b1 = b[off++] & 0xff;
             }
         }
-
         @Override
         public void close() throws IOException {
             if (!closed) {
@@ -521,10 +445,7 @@ public class Base64 {
             }
         }
     }
-
-
     private static class DecInputStream extends InputStream {
-
         private final InputStream is;
         private final boolean isMIME;
         private final int[] base64;      // base64 -> byte mapping
@@ -535,20 +456,16 @@ public class Base64 {
                                          // -> 8, 0, -8 (no byte for output)
         private boolean eof = false;
         private boolean closed = false;
-
         DecInputStream(InputStream is, int[] base64, boolean isMIME) {
             this.is = is;
             this.base64 = base64;
             this.isMIME = isMIME;
         }
-
         private byte[] sbBuf = new byte[1];
-
         @Override
         public int read() throws IOException {
             return read(sbBuf, 0, 1) == -1 ? -1 : sbBuf[0] & 0xff;
         }
-
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
             if (closed)
@@ -641,14 +558,12 @@ public class Base64 {
             }
             return off - oldOff;
         }
-
         @Override
         public int available() throws IOException {
             if (closed)
                 throw new IOException("Stream is closed");
             return is.available();   // TBD:
         }
-
         @Override
         public void close() throws IOException {
             if (!closed) {

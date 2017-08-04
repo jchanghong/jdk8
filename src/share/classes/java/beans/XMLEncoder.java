@@ -1,6 +1,4 @@
-
 package java.beans;
-
 import java.io.*;
 import java.util.*;
 import java.lang.reflect.*;
@@ -8,14 +6,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
-
-
 public class XMLEncoder extends Encoder implements AutoCloseable {
-
     private final CharsetEncoder encoder;
     private final String charset;
     private final boolean declaration;
-
     private OutputStreamWriter out;
     private Object owner;
     private int indentation = 0;
@@ -24,20 +18,15 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
     private Map<Object, List<Statement>> targetToStatementList;
     private boolean preambleWritten = false;
     private NameGenerator nameGenerator;
-
     private class ValueData {
         public int refs = 0;
         public boolean marked = false; // Marked -> refs > 0 unless ref was a target.
         public String name = null;
         public Expression exp = null;
     }
-
-
     public XMLEncoder(OutputStream out) {
         this(out, "UTF-8", true, 0);
     }
-
-
     public XMLEncoder(OutputStream out, String charset, boolean declaration, int indentation) {
         if (out == null) {
             throw new IllegalArgumentException("the output stream cannot be null");
@@ -55,19 +44,13 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         targetToStatementList = new IdentityHashMap<>();
         nameGenerator = new NameGenerator();
     }
-
-
     public void setOwner(Object owner) {
         this.owner = owner;
         writeExpression(new Expression(this, "getOwner", new Object[0]));
     }
-
-
     public Object getOwner() {
         return owner;
     }
-
-
     public void writeObject(Object o) {
         if (internal) {
             super.writeObject(o);
@@ -76,7 +59,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
             writeStatement(new Statement(this, "writeObject", new Object[]{o}));
         }
     }
-
     private List<Statement> statementList(Object target) {
         List<Statement> list = targetToStatementList.get(target);
         if (list == null) {
@@ -85,8 +67,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         }
         return list;
     }
-
-
     private void mark(Object o, boolean isArgument) {
         if (o == null || o == this) {
             return;
@@ -98,7 +78,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         if (o.getClass() == String.class && exp == null) {
             return;
         }
-
         // Bump the reference counts of all arguments
         if (isArgument) {
             d.refs++;
@@ -116,7 +95,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
             d.refs++;
         }
     }
-
     private void mark(Statement stm) {
         Object[] args = stm.getArguments();
         for (int i = 0; i < args.length; i++) {
@@ -125,16 +103,12 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         }
         mark(stm.getTarget(), stm instanceof Expression);
     }
-
-
-
     public void writeStatement(Statement oldStm) {
         // System.out.println("XMLEncoder::writeStatement: " + oldStm);
         boolean internal = this.internal;
         this.internal = true;
         try {
             super.writeStatement(oldStm);
-
             mark(oldStm);
             Object target = oldStm.getTarget();
             if (target instanceof Field) {
@@ -156,9 +130,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         }
         this.internal = internal;
     }
-
-
-
     public void writeExpression(Expression oldExp) {
         boolean internal = this.internal;
         this.internal = true;
@@ -169,8 +140,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         }
         this.internal = internal;
     }
-
-
     public void flush() {
         if (!preambleWritten) { // Don't do this in constructor - it throws ... pending.
             if (this.declaration) {
@@ -193,13 +162,11 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
             }
         }
         indentation--;
-
         Statement statement = getMissedStatement();
         while (statement != null) {
             outputStatement(statement, this, false);
             statement = getMissedStatement();
         }
-
         try {
             out.flush();
         }
@@ -208,14 +175,12 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         }
         clear();
     }
-
     void clear() {
         super.clear();
         nameGenerator.clear();
         valueToExpression.clear();
         targetToStatementList.clear();
     }
-
     Statement getMissedStatement() {
         for (List<Statement> statements : this.targetToStatementList.values()) {
             for (int i = 0; i < statements.size(); i++) {
@@ -226,9 +191,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         }
         return null;
     }
-
-
-
     public void close() {
         flush();
         writeln("</java>");
@@ -239,11 +201,9 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
             getExceptionListener().exceptionThrown(e);
         }
     }
-
     private String quote(String s) {
         return "\"" + s + "\"";
     }
-
     private ValueData getValueData(Object o) {
         ValueData d = valueToExpression.get(o);
         if (d == null) {
@@ -252,8 +212,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         }
         return d;
     }
-
-
     private static boolean isValidCharCode(int code) {
         return (0x0020 <= code && code <= 0xD7FF)
             || (0x000A == code)
@@ -262,7 +220,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
             || (0xE000 <= code && code <= 0xFFFD)
             || (0x10000 <= code && code <= 0x10ffff);
     }
-
     private void writeln(String exp) {
         try {
             StringBuilder sb = new StringBuilder();
@@ -277,35 +234,29 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
             getExceptionListener().exceptionThrown(e);
         }
     }
-
     private void outputValue(Object value, Object outer, boolean isArgument) {
         if (value == null) {
             writeln("<null/>");
             return;
         }
-
         if (value instanceof Class) {
             writeln("<class>" + ((Class)value).getName() + "</class>");
             return;
         }
-
         ValueData d = getValueData(value);
         if (d.exp != null) {
             Object target = d.exp.getTarget();
             String methodName = d.exp.getMethodName();
-
             if (target == null || methodName == null) {
                 throw new NullPointerException((target == null ? "target" :
                                                 "methodName") + " should not be null");
             }
-
             if (isArgument && target instanceof Field && methodName.equals("get")) {
                 Field f = (Field)target;
                 writeln("<object class=" + quote(f.getDeclaringClass().getName()) +
                         " field=" + quote(f.getName()) + "/>");
                 return;
             }
-
             Class<?> primitiveType = primitiveTypeFor(value.getClass());
             if (primitiveType != null && target == value.getClass() &&
                 methodName.equals("new")) {
@@ -326,12 +277,10 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
                         primitiveTypeName + ">");
                 return;
             }
-
         } else if (value instanceof String) {
             writeln(createString((String) value));
             return;
         }
-
         if (d.name != null) {
             if (isArgument) {
                 writeln("<object idref=" + quote(d.name) + "/>");
@@ -344,7 +293,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
             outputStatement(d.exp, outer, isArgument);
         }
     }
-
     private static String quoteCharCode(int code) {
         switch(code) {
           case '&':  return "&amp;";
@@ -356,11 +304,9 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
           default:   return null;
         }
     }
-
     private static String createString(int code) {
         return "<char code=\"#" + Integer.toString(code, 16) + "\"/>";
     }
-
     private String createString(String string) {
         StringBuilder sb = new StringBuilder();
         sb.append("<string>");
@@ -368,7 +314,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         while (index < string.length()) {
             int point = string.codePointAt(index);
             int count = Character.charCount(point);
-
             if (isValidCharCode(point) && this.encoder.canEncode(string.substring(index, index + count))) {
                 String value = quoteCharCode(point);
                 if (value != null) {
@@ -385,24 +330,19 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         sb.append("</string>");
         return sb.toString();
     }
-
     private void outputStatement(Statement exp, Object outer, boolean isArgument) {
         Object target = exp.getTarget();
         String methodName = exp.getMethodName();
-
         if (target == null || methodName == null) {
             throw new NullPointerException((target == null ? "target" :
                                             "methodName") + " should not be null");
         }
-
         Object[] args = exp.getArguments();
         boolean expression = exp.getClass() == Expression.class;
         Object value = (expression) ? getValue((Expression)exp) : null;
-
         String tag = (expression && isArgument) ? "object" : "void";
         String attributes = "";
         ValueData d = getValueData(value);
-
         // Special cases for targets.
         if (target == outer) {
         }
@@ -435,7 +375,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
             d.name = instanceName;
             attributes = attributes + " id=" + quote(instanceName);
         }
-
         // Special cases for methods.
         if ((!expression && methodName.equals("set") && args.length == 2 &&
              args[0] instanceof Integer) ||
@@ -456,7 +395,6 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
         }
         outputXML(tag, attributes, value, args);
     }
-
     private void outputXML(String tag, String attributes, Object value, Object... args) {
         List<Statement> statements = statementList(value);
         // Use XML's short form when there is no body.
@@ -464,23 +402,18 @@ public class XMLEncoder extends Encoder implements AutoCloseable {
             writeln("<" + tag + attributes + "/>");
             return;
         }
-
         writeln("<" + tag + attributes + ">");
         indentation++;
-
         for(int i = 0; i < args.length; i++) {
             outputValue(args[i], null, true);
         }
-
         while (!statements.isEmpty()) {
             Statement s = statements.remove(0);
             outputStatement(s, value, false);
         }
-
         indentation--;
         writeln("</" + tag + ">");
     }
-
     @SuppressWarnings("rawtypes")
     static Class primitiveTypeFor(Class wrapper) {
         if (wrapper == Boolean.class) return Boolean.TYPE;

@@ -1,1447 +1,843 @@
-
-
 package java.lang;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Locale;
-
-
 public final
 class Character implements java.io.Serializable, Comparable<Character> {
-
     public static final int MIN_RADIX = 2;
-
-
     public static final int MAX_RADIX = 36;
-
-
     public static final char MIN_VALUE = '\u0000';
-
-
     public static final char MAX_VALUE = '\uFFFF';
-
-
     @SuppressWarnings("unchecked")
     public static final Class<Character> TYPE = (Class<Character>) Class.getPrimitiveClass("char");
-
-
-
-
-
-
     public static final byte UNASSIGNED = 0;
-
-
     public static final byte UPPERCASE_LETTER = 1;
-
-
     public static final byte LOWERCASE_LETTER = 2;
-
-
     public static final byte TITLECASE_LETTER = 3;
-
-
     public static final byte MODIFIER_LETTER = 4;
-
-
     public static final byte OTHER_LETTER = 5;
-
-
     public static final byte NON_SPACING_MARK = 6;
-
-
     public static final byte ENCLOSING_MARK = 7;
-
-
     public static final byte COMBINING_SPACING_MARK = 8;
-
-
     public static final byte DECIMAL_DIGIT_NUMBER        = 9;
-
-
     public static final byte LETTER_NUMBER = 10;
-
-
     public static final byte OTHER_NUMBER = 11;
-
-
     public static final byte SPACE_SEPARATOR = 12;
-
-
     public static final byte LINE_SEPARATOR = 13;
-
-
     public static final byte PARAGRAPH_SEPARATOR = 14;
-
-
     public static final byte CONTROL = 15;
-
-
     public static final byte FORMAT = 16;
-
-
     public static final byte PRIVATE_USE = 18;
-
-
     public static final byte SURROGATE = 19;
-
-
     public static final byte DASH_PUNCTUATION = 20;
-
-
     public static final byte START_PUNCTUATION = 21;
-
-
     public static final byte END_PUNCTUATION = 22;
-
-
     public static final byte CONNECTOR_PUNCTUATION = 23;
-
-
     public static final byte OTHER_PUNCTUATION = 24;
-
-
     public static final byte MATH_SYMBOL = 25;
-
-
     public static final byte CURRENCY_SYMBOL = 26;
-
-
     public static final byte MODIFIER_SYMBOL = 27;
-
-
     public static final byte OTHER_SYMBOL = 28;
-
-
     public static final byte INITIAL_QUOTE_PUNCTUATION = 29;
-
-
     public static final byte FINAL_QUOTE_PUNCTUATION = 30;
-
-
     static final int ERROR = 0xFFFFFFFF;
-
-
-
     public static final byte DIRECTIONALITY_UNDEFINED = -1;
-
-
     public static final byte DIRECTIONALITY_LEFT_TO_RIGHT = 0;
-
-
     public static final byte DIRECTIONALITY_RIGHT_TO_LEFT = 1;
-
-
     public static final byte DIRECTIONALITY_RIGHT_TO_LEFT_ARABIC = 2;
-
-
     public static final byte DIRECTIONALITY_EUROPEAN_NUMBER = 3;
-
-
     public static final byte DIRECTIONALITY_EUROPEAN_NUMBER_SEPARATOR = 4;
-
-
     public static final byte DIRECTIONALITY_EUROPEAN_NUMBER_TERMINATOR = 5;
-
-
     public static final byte DIRECTIONALITY_ARABIC_NUMBER = 6;
-
-
     public static final byte DIRECTIONALITY_COMMON_NUMBER_SEPARATOR = 7;
-
-
     public static final byte DIRECTIONALITY_NONSPACING_MARK = 8;
-
-
     public static final byte DIRECTIONALITY_BOUNDARY_NEUTRAL = 9;
-
-
     public static final byte DIRECTIONALITY_PARAGRAPH_SEPARATOR = 10;
-
-
     public static final byte DIRECTIONALITY_SEGMENT_SEPARATOR = 11;
-
-
     public static final byte DIRECTIONALITY_WHITESPACE = 12;
-
-
     public static final byte DIRECTIONALITY_OTHER_NEUTRALS = 13;
-
-
     public static final byte DIRECTIONALITY_LEFT_TO_RIGHT_EMBEDDING = 14;
-
-
     public static final byte DIRECTIONALITY_LEFT_TO_RIGHT_OVERRIDE = 15;
-
-
     public static final byte DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING = 16;
-
-
     public static final byte DIRECTIONALITY_RIGHT_TO_LEFT_OVERRIDE = 17;
-
-
     public static final byte DIRECTIONALITY_POP_DIRECTIONAL_FORMAT = 18;
-
-
     public static final char MIN_HIGH_SURROGATE = '\uD800';
-
-
     public static final char MAX_HIGH_SURROGATE = '\uDBFF';
-
-
     public static final char MIN_LOW_SURROGATE  = '\uDC00';
-
-
     public static final char MAX_LOW_SURROGATE  = '\uDFFF';
-
-
     public static final char MIN_SURROGATE = MIN_HIGH_SURROGATE;
-
-
     public static final char MAX_SURROGATE = MAX_LOW_SURROGATE;
-
-
     public static final int MIN_SUPPLEMENTARY_CODE_POINT = 0x010000;
-
-
     public static final int MIN_CODE_POINT = 0x000000;
-
-
     public static final int MAX_CODE_POINT = 0X10FFFF;
-
-
-
     public static class Subset  {
-
         private String name;
-
-
         protected Subset(String name) {
             if (name == null) {
                 throw new NullPointerException("name");
             }
             this.name = name;
         }
-
-
         public final boolean equals(Object obj) {
             return (this == obj);
         }
-
-
         public final int hashCode() {
             return super.hashCode();
         }
-
-
         public final String toString() {
             return name;
         }
     }
-
     // See http://www.unicode.org/Public/UNIDATA/Blocks.txt
     // for the latest specification of Unicode Blocks.
-
-
     public static final class UnicodeBlock extends Subset {
-
         private static Map<String, UnicodeBlock> map = new HashMap<>(256);
-
-
         private UnicodeBlock(String idName) {
             super(idName);
             map.put(idName, this);
         }
-
-
         private UnicodeBlock(String idName, String alias) {
             this(idName);
             map.put(alias, this);
         }
-
-
         private UnicodeBlock(String idName, String... aliases) {
             this(idName);
             for (String alias : aliases)
                 map.put(alias, this);
         }
-
-
         public static final UnicodeBlock  BASIC_LATIN =
             new UnicodeBlock("BASIC_LATIN",
                              "BASIC LATIN",
                              "BASICLATIN");
-
-
         public static final UnicodeBlock LATIN_1_SUPPLEMENT =
             new UnicodeBlock("LATIN_1_SUPPLEMENT",
                              "LATIN-1 SUPPLEMENT",
                              "LATIN-1SUPPLEMENT");
-
-
         public static final UnicodeBlock LATIN_EXTENDED_A =
             new UnicodeBlock("LATIN_EXTENDED_A",
                              "LATIN EXTENDED-A",
                              "LATINEXTENDED-A");
-
-
         public static final UnicodeBlock LATIN_EXTENDED_B =
             new UnicodeBlock("LATIN_EXTENDED_B",
                              "LATIN EXTENDED-B",
                              "LATINEXTENDED-B");
-
-
         public static final UnicodeBlock IPA_EXTENSIONS =
             new UnicodeBlock("IPA_EXTENSIONS",
                              "IPA EXTENSIONS",
                              "IPAEXTENSIONS");
-
-
         public static final UnicodeBlock SPACING_MODIFIER_LETTERS =
             new UnicodeBlock("SPACING_MODIFIER_LETTERS",
                              "SPACING MODIFIER LETTERS",
                              "SPACINGMODIFIERLETTERS");
-
-
         public static final UnicodeBlock COMBINING_DIACRITICAL_MARKS =
             new UnicodeBlock("COMBINING_DIACRITICAL_MARKS",
                              "COMBINING DIACRITICAL MARKS",
                              "COMBININGDIACRITICALMARKS");
-
-
         public static final UnicodeBlock GREEK =
             new UnicodeBlock("GREEK",
                              "GREEK AND COPTIC",
                              "GREEKANDCOPTIC");
-
-
         public static final UnicodeBlock CYRILLIC =
             new UnicodeBlock("CYRILLIC");
-
-
         public static final UnicodeBlock ARMENIAN =
             new UnicodeBlock("ARMENIAN");
-
-
         public static final UnicodeBlock HEBREW =
             new UnicodeBlock("HEBREW");
-
-
         public static final UnicodeBlock ARABIC =
             new UnicodeBlock("ARABIC");
-
-
         public static final UnicodeBlock DEVANAGARI =
             new UnicodeBlock("DEVANAGARI");
-
-
         public static final UnicodeBlock BENGALI =
             new UnicodeBlock("BENGALI");
-
-
         public static final UnicodeBlock GURMUKHI =
             new UnicodeBlock("GURMUKHI");
-
-
         public static final UnicodeBlock GUJARATI =
             new UnicodeBlock("GUJARATI");
-
-
         public static final UnicodeBlock ORIYA =
             new UnicodeBlock("ORIYA");
-
-
         public static final UnicodeBlock TAMIL =
             new UnicodeBlock("TAMIL");
-
-
         public static final UnicodeBlock TELUGU =
             new UnicodeBlock("TELUGU");
-
-
         public static final UnicodeBlock KANNADA =
             new UnicodeBlock("KANNADA");
-
-
         public static final UnicodeBlock MALAYALAM =
             new UnicodeBlock("MALAYALAM");
-
-
         public static final UnicodeBlock THAI =
             new UnicodeBlock("THAI");
-
-
         public static final UnicodeBlock LAO =
             new UnicodeBlock("LAO");
-
-
         public static final UnicodeBlock TIBETAN =
             new UnicodeBlock("TIBETAN");
-
-
         public static final UnicodeBlock GEORGIAN =
             new UnicodeBlock("GEORGIAN");
-
-
         public static final UnicodeBlock HANGUL_JAMO =
             new UnicodeBlock("HANGUL_JAMO",
                              "HANGUL JAMO",
                              "HANGULJAMO");
-
-
         public static final UnicodeBlock LATIN_EXTENDED_ADDITIONAL =
             new UnicodeBlock("LATIN_EXTENDED_ADDITIONAL",
                              "LATIN EXTENDED ADDITIONAL",
                              "LATINEXTENDEDADDITIONAL");
-
-
         public static final UnicodeBlock GREEK_EXTENDED =
             new UnicodeBlock("GREEK_EXTENDED",
                              "GREEK EXTENDED",
                              "GREEKEXTENDED");
-
-
         public static final UnicodeBlock GENERAL_PUNCTUATION =
             new UnicodeBlock("GENERAL_PUNCTUATION",
                              "GENERAL PUNCTUATION",
                              "GENERALPUNCTUATION");
-
-
         public static final UnicodeBlock SUPERSCRIPTS_AND_SUBSCRIPTS =
             new UnicodeBlock("SUPERSCRIPTS_AND_SUBSCRIPTS",
                              "SUPERSCRIPTS AND SUBSCRIPTS",
                              "SUPERSCRIPTSANDSUBSCRIPTS");
-
-
         public static final UnicodeBlock CURRENCY_SYMBOLS =
             new UnicodeBlock("CURRENCY_SYMBOLS",
                              "CURRENCY SYMBOLS",
                              "CURRENCYSYMBOLS");
-
-
         public static final UnicodeBlock COMBINING_MARKS_FOR_SYMBOLS =
             new UnicodeBlock("COMBINING_MARKS_FOR_SYMBOLS",
                              "COMBINING DIACRITICAL MARKS FOR SYMBOLS",
                              "COMBININGDIACRITICALMARKSFORSYMBOLS",
                              "COMBINING MARKS FOR SYMBOLS",
                              "COMBININGMARKSFORSYMBOLS");
-
-
         public static final UnicodeBlock LETTERLIKE_SYMBOLS =
             new UnicodeBlock("LETTERLIKE_SYMBOLS",
                              "LETTERLIKE SYMBOLS",
                              "LETTERLIKESYMBOLS");
-
-
         public static final UnicodeBlock NUMBER_FORMS =
             new UnicodeBlock("NUMBER_FORMS",
                              "NUMBER FORMS",
                              "NUMBERFORMS");
-
-
         public static final UnicodeBlock ARROWS =
             new UnicodeBlock("ARROWS");
-
-
         public static final UnicodeBlock MATHEMATICAL_OPERATORS =
             new UnicodeBlock("MATHEMATICAL_OPERATORS",
                              "MATHEMATICAL OPERATORS",
                              "MATHEMATICALOPERATORS");
-
-
         public static final UnicodeBlock MISCELLANEOUS_TECHNICAL =
             new UnicodeBlock("MISCELLANEOUS_TECHNICAL",
                              "MISCELLANEOUS TECHNICAL",
                              "MISCELLANEOUSTECHNICAL");
-
-
         public static final UnicodeBlock CONTROL_PICTURES =
             new UnicodeBlock("CONTROL_PICTURES",
                              "CONTROL PICTURES",
                              "CONTROLPICTURES");
-
-
         public static final UnicodeBlock OPTICAL_CHARACTER_RECOGNITION =
             new UnicodeBlock("OPTICAL_CHARACTER_RECOGNITION",
                              "OPTICAL CHARACTER RECOGNITION",
                              "OPTICALCHARACTERRECOGNITION");
-
-
         public static final UnicodeBlock ENCLOSED_ALPHANUMERICS =
             new UnicodeBlock("ENCLOSED_ALPHANUMERICS",
                              "ENCLOSED ALPHANUMERICS",
                              "ENCLOSEDALPHANUMERICS");
-
-
         public static final UnicodeBlock BOX_DRAWING =
             new UnicodeBlock("BOX_DRAWING",
                              "BOX DRAWING",
                              "BOXDRAWING");
-
-
         public static final UnicodeBlock BLOCK_ELEMENTS =
             new UnicodeBlock("BLOCK_ELEMENTS",
                              "BLOCK ELEMENTS",
                              "BLOCKELEMENTS");
-
-
         public static final UnicodeBlock GEOMETRIC_SHAPES =
             new UnicodeBlock("GEOMETRIC_SHAPES",
                              "GEOMETRIC SHAPES",
                              "GEOMETRICSHAPES");
-
-
         public static final UnicodeBlock MISCELLANEOUS_SYMBOLS =
             new UnicodeBlock("MISCELLANEOUS_SYMBOLS",
                              "MISCELLANEOUS SYMBOLS",
                              "MISCELLANEOUSSYMBOLS");
-
-
         public static final UnicodeBlock DINGBATS =
             new UnicodeBlock("DINGBATS");
-
-
         public static final UnicodeBlock CJK_SYMBOLS_AND_PUNCTUATION =
             new UnicodeBlock("CJK_SYMBOLS_AND_PUNCTUATION",
                              "CJK SYMBOLS AND PUNCTUATION",
                              "CJKSYMBOLSANDPUNCTUATION");
-
-
         public static final UnicodeBlock HIRAGANA =
             new UnicodeBlock("HIRAGANA");
-
-
         public static final UnicodeBlock KATAKANA =
             new UnicodeBlock("KATAKANA");
-
-
         public static final UnicodeBlock BOPOMOFO =
             new UnicodeBlock("BOPOMOFO");
-
-
         public static final UnicodeBlock HANGUL_COMPATIBILITY_JAMO =
             new UnicodeBlock("HANGUL_COMPATIBILITY_JAMO",
                              "HANGUL COMPATIBILITY JAMO",
                              "HANGULCOMPATIBILITYJAMO");
-
-
         public static final UnicodeBlock KANBUN =
             new UnicodeBlock("KANBUN");
-
-
         public static final UnicodeBlock ENCLOSED_CJK_LETTERS_AND_MONTHS =
             new UnicodeBlock("ENCLOSED_CJK_LETTERS_AND_MONTHS",
                              "ENCLOSED CJK LETTERS AND MONTHS",
                              "ENCLOSEDCJKLETTERSANDMONTHS");
-
-
         public static final UnicodeBlock CJK_COMPATIBILITY =
             new UnicodeBlock("CJK_COMPATIBILITY",
                              "CJK COMPATIBILITY",
                              "CJKCOMPATIBILITY");
-
-
         public static final UnicodeBlock CJK_UNIFIED_IDEOGRAPHS =
             new UnicodeBlock("CJK_UNIFIED_IDEOGRAPHS",
                              "CJK UNIFIED IDEOGRAPHS",
                              "CJKUNIFIEDIDEOGRAPHS");
-
-
         public static final UnicodeBlock HANGUL_SYLLABLES =
             new UnicodeBlock("HANGUL_SYLLABLES",
                              "HANGUL SYLLABLES",
                              "HANGULSYLLABLES");
-
-
         public static final UnicodeBlock PRIVATE_USE_AREA =
             new UnicodeBlock("PRIVATE_USE_AREA",
                              "PRIVATE USE AREA",
                              "PRIVATEUSEAREA");
-
-
         public static final UnicodeBlock CJK_COMPATIBILITY_IDEOGRAPHS =
             new UnicodeBlock("CJK_COMPATIBILITY_IDEOGRAPHS",
                              "CJK COMPATIBILITY IDEOGRAPHS",
                              "CJKCOMPATIBILITYIDEOGRAPHS");
-
-
         public static final UnicodeBlock ALPHABETIC_PRESENTATION_FORMS =
             new UnicodeBlock("ALPHABETIC_PRESENTATION_FORMS",
                              "ALPHABETIC PRESENTATION FORMS",
                              "ALPHABETICPRESENTATIONFORMS");
-
-
         public static final UnicodeBlock ARABIC_PRESENTATION_FORMS_A =
             new UnicodeBlock("ARABIC_PRESENTATION_FORMS_A",
                              "ARABIC PRESENTATION FORMS-A",
                              "ARABICPRESENTATIONFORMS-A");
-
-
         public static final UnicodeBlock COMBINING_HALF_MARKS =
             new UnicodeBlock("COMBINING_HALF_MARKS",
                              "COMBINING HALF MARKS",
                              "COMBININGHALFMARKS");
-
-
         public static final UnicodeBlock CJK_COMPATIBILITY_FORMS =
             new UnicodeBlock("CJK_COMPATIBILITY_FORMS",
                              "CJK COMPATIBILITY FORMS",
                              "CJKCOMPATIBILITYFORMS");
-
-
         public static final UnicodeBlock SMALL_FORM_VARIANTS =
             new UnicodeBlock("SMALL_FORM_VARIANTS",
                              "SMALL FORM VARIANTS",
                              "SMALLFORMVARIANTS");
-
-
         public static final UnicodeBlock ARABIC_PRESENTATION_FORMS_B =
             new UnicodeBlock("ARABIC_PRESENTATION_FORMS_B",
                              "ARABIC PRESENTATION FORMS-B",
                              "ARABICPRESENTATIONFORMS-B");
-
-
         public static final UnicodeBlock HALFWIDTH_AND_FULLWIDTH_FORMS =
             new UnicodeBlock("HALFWIDTH_AND_FULLWIDTH_FORMS",
                              "HALFWIDTH AND FULLWIDTH FORMS",
                              "HALFWIDTHANDFULLWIDTHFORMS");
-
-
         public static final UnicodeBlock SPECIALS =
             new UnicodeBlock("SPECIALS");
-
-
         @Deprecated
         public static final UnicodeBlock SURROGATES_AREA =
             new UnicodeBlock("SURROGATES_AREA");
-
-
         public static final UnicodeBlock SYRIAC =
             new UnicodeBlock("SYRIAC");
-
-
         public static final UnicodeBlock THAANA =
             new UnicodeBlock("THAANA");
-
-
         public static final UnicodeBlock SINHALA =
             new UnicodeBlock("SINHALA");
-
-
         public static final UnicodeBlock MYANMAR =
             new UnicodeBlock("MYANMAR");
-
-
         public static final UnicodeBlock ETHIOPIC =
             new UnicodeBlock("ETHIOPIC");
-
-
         public static final UnicodeBlock CHEROKEE =
             new UnicodeBlock("CHEROKEE");
-
-
         public static final UnicodeBlock UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS =
             new UnicodeBlock("UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS",
                              "UNIFIED CANADIAN ABORIGINAL SYLLABICS",
                              "UNIFIEDCANADIANABORIGINALSYLLABICS");
-
-
         public static final UnicodeBlock OGHAM =
             new UnicodeBlock("OGHAM");
-
-
         public static final UnicodeBlock RUNIC =
             new UnicodeBlock("RUNIC");
-
-
         public static final UnicodeBlock KHMER =
             new UnicodeBlock("KHMER");
-
-
         public static final UnicodeBlock MONGOLIAN =
             new UnicodeBlock("MONGOLIAN");
-
-
         public static final UnicodeBlock BRAILLE_PATTERNS =
             new UnicodeBlock("BRAILLE_PATTERNS",
                              "BRAILLE PATTERNS",
                              "BRAILLEPATTERNS");
-
-
         public static final UnicodeBlock CJK_RADICALS_SUPPLEMENT =
             new UnicodeBlock("CJK_RADICALS_SUPPLEMENT",
                              "CJK RADICALS SUPPLEMENT",
                              "CJKRADICALSSUPPLEMENT");
-
-
         public static final UnicodeBlock KANGXI_RADICALS =
             new UnicodeBlock("KANGXI_RADICALS",
                              "KANGXI RADICALS",
                              "KANGXIRADICALS");
-
-
         public static final UnicodeBlock IDEOGRAPHIC_DESCRIPTION_CHARACTERS =
             new UnicodeBlock("IDEOGRAPHIC_DESCRIPTION_CHARACTERS",
                              "IDEOGRAPHIC DESCRIPTION CHARACTERS",
                              "IDEOGRAPHICDESCRIPTIONCHARACTERS");
-
-
         public static final UnicodeBlock BOPOMOFO_EXTENDED =
             new UnicodeBlock("BOPOMOFO_EXTENDED",
                              "BOPOMOFO EXTENDED",
                              "BOPOMOFOEXTENDED");
-
-
         public static final UnicodeBlock CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A =
             new UnicodeBlock("CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A",
                              "CJK UNIFIED IDEOGRAPHS EXTENSION A",
                              "CJKUNIFIEDIDEOGRAPHSEXTENSIONA");
-
-
         public static final UnicodeBlock YI_SYLLABLES =
             new UnicodeBlock("YI_SYLLABLES",
                              "YI SYLLABLES",
                              "YISYLLABLES");
-
-
         public static final UnicodeBlock YI_RADICALS =
             new UnicodeBlock("YI_RADICALS",
                              "YI RADICALS",
                              "YIRADICALS");
-
-
         public static final UnicodeBlock CYRILLIC_SUPPLEMENTARY =
             new UnicodeBlock("CYRILLIC_SUPPLEMENTARY",
                              "CYRILLIC SUPPLEMENTARY",
                              "CYRILLICSUPPLEMENTARY",
                              "CYRILLIC SUPPLEMENT",
                              "CYRILLICSUPPLEMENT");
-
-
         public static final UnicodeBlock TAGALOG =
             new UnicodeBlock("TAGALOG");
-
-
         public static final UnicodeBlock HANUNOO =
             new UnicodeBlock("HANUNOO");
-
-
         public static final UnicodeBlock BUHID =
             new UnicodeBlock("BUHID");
-
-
         public static final UnicodeBlock TAGBANWA =
             new UnicodeBlock("TAGBANWA");
-
-
         public static final UnicodeBlock LIMBU =
             new UnicodeBlock("LIMBU");
-
-
         public static final UnicodeBlock TAI_LE =
             new UnicodeBlock("TAI_LE",
                              "TAI LE",
                              "TAILE");
-
-
         public static final UnicodeBlock KHMER_SYMBOLS =
             new UnicodeBlock("KHMER_SYMBOLS",
                              "KHMER SYMBOLS",
                              "KHMERSYMBOLS");
-
-
         public static final UnicodeBlock PHONETIC_EXTENSIONS =
             new UnicodeBlock("PHONETIC_EXTENSIONS",
                              "PHONETIC EXTENSIONS",
                              "PHONETICEXTENSIONS");
-
-
         public static final UnicodeBlock MISCELLANEOUS_MATHEMATICAL_SYMBOLS_A =
             new UnicodeBlock("MISCELLANEOUS_MATHEMATICAL_SYMBOLS_A",
                              "MISCELLANEOUS MATHEMATICAL SYMBOLS-A",
                              "MISCELLANEOUSMATHEMATICALSYMBOLS-A");
-
-
         public static final UnicodeBlock SUPPLEMENTAL_ARROWS_A =
             new UnicodeBlock("SUPPLEMENTAL_ARROWS_A",
                              "SUPPLEMENTAL ARROWS-A",
                              "SUPPLEMENTALARROWS-A");
-
-
         public static final UnicodeBlock SUPPLEMENTAL_ARROWS_B =
             new UnicodeBlock("SUPPLEMENTAL_ARROWS_B",
                              "SUPPLEMENTAL ARROWS-B",
                              "SUPPLEMENTALARROWS-B");
-
-
         public static final UnicodeBlock MISCELLANEOUS_MATHEMATICAL_SYMBOLS_B =
             new UnicodeBlock("MISCELLANEOUS_MATHEMATICAL_SYMBOLS_B",
                              "MISCELLANEOUS MATHEMATICAL SYMBOLS-B",
                              "MISCELLANEOUSMATHEMATICALSYMBOLS-B");
-
-
         public static final UnicodeBlock SUPPLEMENTAL_MATHEMATICAL_OPERATORS =
             new UnicodeBlock("SUPPLEMENTAL_MATHEMATICAL_OPERATORS",
                              "SUPPLEMENTAL MATHEMATICAL OPERATORS",
                              "SUPPLEMENTALMATHEMATICALOPERATORS");
-
-
         public static final UnicodeBlock MISCELLANEOUS_SYMBOLS_AND_ARROWS =
             new UnicodeBlock("MISCELLANEOUS_SYMBOLS_AND_ARROWS",
                              "MISCELLANEOUS SYMBOLS AND ARROWS",
                              "MISCELLANEOUSSYMBOLSANDARROWS");
-
-
         public static final UnicodeBlock KATAKANA_PHONETIC_EXTENSIONS =
             new UnicodeBlock("KATAKANA_PHONETIC_EXTENSIONS",
                              "KATAKANA PHONETIC EXTENSIONS",
                              "KATAKANAPHONETICEXTENSIONS");
-
-
         public static final UnicodeBlock YIJING_HEXAGRAM_SYMBOLS =
             new UnicodeBlock("YIJING_HEXAGRAM_SYMBOLS",
                              "YIJING HEXAGRAM SYMBOLS",
                              "YIJINGHEXAGRAMSYMBOLS");
-
-
         public static final UnicodeBlock VARIATION_SELECTORS =
             new UnicodeBlock("VARIATION_SELECTORS",
                              "VARIATION SELECTORS",
                              "VARIATIONSELECTORS");
-
-
         public static final UnicodeBlock LINEAR_B_SYLLABARY =
             new UnicodeBlock("LINEAR_B_SYLLABARY",
                              "LINEAR B SYLLABARY",
                              "LINEARBSYLLABARY");
-
-
         public static final UnicodeBlock LINEAR_B_IDEOGRAMS =
             new UnicodeBlock("LINEAR_B_IDEOGRAMS",
                              "LINEAR B IDEOGRAMS",
                              "LINEARBIDEOGRAMS");
-
-
         public static final UnicodeBlock AEGEAN_NUMBERS =
             new UnicodeBlock("AEGEAN_NUMBERS",
                              "AEGEAN NUMBERS",
                              "AEGEANNUMBERS");
-
-
         public static final UnicodeBlock OLD_ITALIC =
             new UnicodeBlock("OLD_ITALIC",
                              "OLD ITALIC",
                              "OLDITALIC");
-
-
         public static final UnicodeBlock GOTHIC =
             new UnicodeBlock("GOTHIC");
-
-
         public static final UnicodeBlock UGARITIC =
             new UnicodeBlock("UGARITIC");
-
-
         public static final UnicodeBlock DESERET =
             new UnicodeBlock("DESERET");
-
-
         public static final UnicodeBlock SHAVIAN =
             new UnicodeBlock("SHAVIAN");
-
-
         public static final UnicodeBlock OSMANYA =
             new UnicodeBlock("OSMANYA");
-
-
         public static final UnicodeBlock CYPRIOT_SYLLABARY =
             new UnicodeBlock("CYPRIOT_SYLLABARY",
                              "CYPRIOT SYLLABARY",
                              "CYPRIOTSYLLABARY");
-
-
         public static final UnicodeBlock BYZANTINE_MUSICAL_SYMBOLS =
             new UnicodeBlock("BYZANTINE_MUSICAL_SYMBOLS",
                              "BYZANTINE MUSICAL SYMBOLS",
                              "BYZANTINEMUSICALSYMBOLS");
-
-
         public static final UnicodeBlock MUSICAL_SYMBOLS =
             new UnicodeBlock("MUSICAL_SYMBOLS",
                              "MUSICAL SYMBOLS",
                              "MUSICALSYMBOLS");
-
-
         public static final UnicodeBlock TAI_XUAN_JING_SYMBOLS =
             new UnicodeBlock("TAI_XUAN_JING_SYMBOLS",
                              "TAI XUAN JING SYMBOLS",
                              "TAIXUANJINGSYMBOLS");
-
-
         public static final UnicodeBlock MATHEMATICAL_ALPHANUMERIC_SYMBOLS =
             new UnicodeBlock("MATHEMATICAL_ALPHANUMERIC_SYMBOLS",
                              "MATHEMATICAL ALPHANUMERIC SYMBOLS",
                              "MATHEMATICALALPHANUMERICSYMBOLS");
-
-
         public static final UnicodeBlock CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B =
             new UnicodeBlock("CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B",
                              "CJK UNIFIED IDEOGRAPHS EXTENSION B",
                              "CJKUNIFIEDIDEOGRAPHSEXTENSIONB");
-
-
         public static final UnicodeBlock CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT =
             new UnicodeBlock("CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT",
                              "CJK COMPATIBILITY IDEOGRAPHS SUPPLEMENT",
                              "CJKCOMPATIBILITYIDEOGRAPHSSUPPLEMENT");
-
-
         public static final UnicodeBlock TAGS =
             new UnicodeBlock("TAGS");
-
-
         public static final UnicodeBlock VARIATION_SELECTORS_SUPPLEMENT =
             new UnicodeBlock("VARIATION_SELECTORS_SUPPLEMENT",
                              "VARIATION SELECTORS SUPPLEMENT",
                              "VARIATIONSELECTORSSUPPLEMENT");
-
-
         public static final UnicodeBlock SUPPLEMENTARY_PRIVATE_USE_AREA_A =
             new UnicodeBlock("SUPPLEMENTARY_PRIVATE_USE_AREA_A",
                              "SUPPLEMENTARY PRIVATE USE AREA-A",
                              "SUPPLEMENTARYPRIVATEUSEAREA-A");
-
-
         public static final UnicodeBlock SUPPLEMENTARY_PRIVATE_USE_AREA_B =
             new UnicodeBlock("SUPPLEMENTARY_PRIVATE_USE_AREA_B",
                              "SUPPLEMENTARY PRIVATE USE AREA-B",
                              "SUPPLEMENTARYPRIVATEUSEAREA-B");
-
-
         public static final UnicodeBlock HIGH_SURROGATES =
             new UnicodeBlock("HIGH_SURROGATES",
                              "HIGH SURROGATES",
                              "HIGHSURROGATES");
-
-
         public static final UnicodeBlock HIGH_PRIVATE_USE_SURROGATES =
             new UnicodeBlock("HIGH_PRIVATE_USE_SURROGATES",
                              "HIGH PRIVATE USE SURROGATES",
                              "HIGHPRIVATEUSESURROGATES");
-
-
         public static final UnicodeBlock LOW_SURROGATES =
             new UnicodeBlock("LOW_SURROGATES",
                              "LOW SURROGATES",
                              "LOWSURROGATES");
-
-
         public static final UnicodeBlock ARABIC_SUPPLEMENT =
             new UnicodeBlock("ARABIC_SUPPLEMENT",
                              "ARABIC SUPPLEMENT",
                              "ARABICSUPPLEMENT");
-
-
         public static final UnicodeBlock NKO =
             new UnicodeBlock("NKO");
-
-
         public static final UnicodeBlock SAMARITAN =
             new UnicodeBlock("SAMARITAN");
-
-
         public static final UnicodeBlock MANDAIC =
             new UnicodeBlock("MANDAIC");
-
-
         public static final UnicodeBlock ETHIOPIC_SUPPLEMENT =
             new UnicodeBlock("ETHIOPIC_SUPPLEMENT",
                              "ETHIOPIC SUPPLEMENT",
                              "ETHIOPICSUPPLEMENT");
-
-
         public static final UnicodeBlock UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS_EXTENDED =
             new UnicodeBlock("UNIFIED_CANADIAN_ABORIGINAL_SYLLABICS_EXTENDED",
                              "UNIFIED CANADIAN ABORIGINAL SYLLABICS EXTENDED",
                              "UNIFIEDCANADIANABORIGINALSYLLABICSEXTENDED");
-
-
         public static final UnicodeBlock NEW_TAI_LUE =
             new UnicodeBlock("NEW_TAI_LUE",
                              "NEW TAI LUE",
                              "NEWTAILUE");
-
-
         public static final UnicodeBlock BUGINESE =
             new UnicodeBlock("BUGINESE");
-
-
         public static final UnicodeBlock TAI_THAM =
             new UnicodeBlock("TAI_THAM",
                              "TAI THAM",
                              "TAITHAM");
-
-
         public static final UnicodeBlock BALINESE =
             new UnicodeBlock("BALINESE");
-
-
         public static final UnicodeBlock SUNDANESE =
             new UnicodeBlock("SUNDANESE");
-
-
         public static final UnicodeBlock BATAK =
             new UnicodeBlock("BATAK");
-
-
         public static final UnicodeBlock LEPCHA =
             new UnicodeBlock("LEPCHA");
-
-
         public static final UnicodeBlock OL_CHIKI =
             new UnicodeBlock("OL_CHIKI",
                              "OL CHIKI",
                              "OLCHIKI");
-
-
         public static final UnicodeBlock VEDIC_EXTENSIONS =
             new UnicodeBlock("VEDIC_EXTENSIONS",
                              "VEDIC EXTENSIONS",
                              "VEDICEXTENSIONS");
-
-
         public static final UnicodeBlock PHONETIC_EXTENSIONS_SUPPLEMENT =
             new UnicodeBlock("PHONETIC_EXTENSIONS_SUPPLEMENT",
                              "PHONETIC EXTENSIONS SUPPLEMENT",
                              "PHONETICEXTENSIONSSUPPLEMENT");
-
-
         public static final UnicodeBlock COMBINING_DIACRITICAL_MARKS_SUPPLEMENT =
             new UnicodeBlock("COMBINING_DIACRITICAL_MARKS_SUPPLEMENT",
                              "COMBINING DIACRITICAL MARKS SUPPLEMENT",
                              "COMBININGDIACRITICALMARKSSUPPLEMENT");
-
-
         public static final UnicodeBlock GLAGOLITIC =
             new UnicodeBlock("GLAGOLITIC");
-
-
         public static final UnicodeBlock LATIN_EXTENDED_C =
             new UnicodeBlock("LATIN_EXTENDED_C",
                              "LATIN EXTENDED-C",
                              "LATINEXTENDED-C");
-
-
         public static final UnicodeBlock COPTIC =
             new UnicodeBlock("COPTIC");
-
-
         public static final UnicodeBlock GEORGIAN_SUPPLEMENT =
             new UnicodeBlock("GEORGIAN_SUPPLEMENT",
                              "GEORGIAN SUPPLEMENT",
                              "GEORGIANSUPPLEMENT");
-
-
         public static final UnicodeBlock TIFINAGH =
             new UnicodeBlock("TIFINAGH");
-
-
         public static final UnicodeBlock ETHIOPIC_EXTENDED =
             new UnicodeBlock("ETHIOPIC_EXTENDED",
                              "ETHIOPIC EXTENDED",
                              "ETHIOPICEXTENDED");
-
-
         public static final UnicodeBlock CYRILLIC_EXTENDED_A =
             new UnicodeBlock("CYRILLIC_EXTENDED_A",
                              "CYRILLIC EXTENDED-A",
                              "CYRILLICEXTENDED-A");
-
-
         public static final UnicodeBlock SUPPLEMENTAL_PUNCTUATION =
             new UnicodeBlock("SUPPLEMENTAL_PUNCTUATION",
                              "SUPPLEMENTAL PUNCTUATION",
                              "SUPPLEMENTALPUNCTUATION");
-
-
         public static final UnicodeBlock CJK_STROKES =
             new UnicodeBlock("CJK_STROKES",
                              "CJK STROKES",
                              "CJKSTROKES");
-
-
         public static final UnicodeBlock LISU =
             new UnicodeBlock("LISU");
-
-
         public static final UnicodeBlock VAI =
             new UnicodeBlock("VAI");
-
-
         public static final UnicodeBlock CYRILLIC_EXTENDED_B =
             new UnicodeBlock("CYRILLIC_EXTENDED_B",
                              "CYRILLIC EXTENDED-B",
                              "CYRILLICEXTENDED-B");
-
-
         public static final UnicodeBlock BAMUM =
             new UnicodeBlock("BAMUM");
-
-
         public static final UnicodeBlock MODIFIER_TONE_LETTERS =
             new UnicodeBlock("MODIFIER_TONE_LETTERS",
                              "MODIFIER TONE LETTERS",
                              "MODIFIERTONELETTERS");
-
-
         public static final UnicodeBlock LATIN_EXTENDED_D =
             new UnicodeBlock("LATIN_EXTENDED_D",
                              "LATIN EXTENDED-D",
                              "LATINEXTENDED-D");
-
-
         public static final UnicodeBlock SYLOTI_NAGRI =
             new UnicodeBlock("SYLOTI_NAGRI",
                              "SYLOTI NAGRI",
                              "SYLOTINAGRI");
-
-
         public static final UnicodeBlock COMMON_INDIC_NUMBER_FORMS =
             new UnicodeBlock("COMMON_INDIC_NUMBER_FORMS",
                              "COMMON INDIC NUMBER FORMS",
                              "COMMONINDICNUMBERFORMS");
-
-
         public static final UnicodeBlock PHAGS_PA =
             new UnicodeBlock("PHAGS_PA",
                              "PHAGS-PA");
-
-
         public static final UnicodeBlock SAURASHTRA =
             new UnicodeBlock("SAURASHTRA");
-
-
         public static final UnicodeBlock DEVANAGARI_EXTENDED =
             new UnicodeBlock("DEVANAGARI_EXTENDED",
                              "DEVANAGARI EXTENDED",
                              "DEVANAGARIEXTENDED");
-
-
         public static final UnicodeBlock KAYAH_LI =
             new UnicodeBlock("KAYAH_LI",
                              "KAYAH LI",
                              "KAYAHLI");
-
-
         public static final UnicodeBlock REJANG =
             new UnicodeBlock("REJANG");
-
-
         public static final UnicodeBlock HANGUL_JAMO_EXTENDED_A =
             new UnicodeBlock("HANGUL_JAMO_EXTENDED_A",
                              "HANGUL JAMO EXTENDED-A",
                              "HANGULJAMOEXTENDED-A");
-
-
         public static final UnicodeBlock JAVANESE =
             new UnicodeBlock("JAVANESE");
-
-
         public static final UnicodeBlock CHAM =
             new UnicodeBlock("CHAM");
-
-
         public static final UnicodeBlock MYANMAR_EXTENDED_A =
             new UnicodeBlock("MYANMAR_EXTENDED_A",
                              "MYANMAR EXTENDED-A",
                              "MYANMAREXTENDED-A");
-
-
         public static final UnicodeBlock TAI_VIET =
             new UnicodeBlock("TAI_VIET",
                              "TAI VIET",
                              "TAIVIET");
-
-
         public static final UnicodeBlock ETHIOPIC_EXTENDED_A =
             new UnicodeBlock("ETHIOPIC_EXTENDED_A",
                              "ETHIOPIC EXTENDED-A",
                              "ETHIOPICEXTENDED-A");
-
-
         public static final UnicodeBlock MEETEI_MAYEK =
             new UnicodeBlock("MEETEI_MAYEK",
                              "MEETEI MAYEK",
                              "MEETEIMAYEK");
-
-
         public static final UnicodeBlock HANGUL_JAMO_EXTENDED_B =
             new UnicodeBlock("HANGUL_JAMO_EXTENDED_B",
                              "HANGUL JAMO EXTENDED-B",
                              "HANGULJAMOEXTENDED-B");
-
-
         public static final UnicodeBlock VERTICAL_FORMS =
             new UnicodeBlock("VERTICAL_FORMS",
                              "VERTICAL FORMS",
                              "VERTICALFORMS");
-
-
         public static final UnicodeBlock ANCIENT_GREEK_NUMBERS =
             new UnicodeBlock("ANCIENT_GREEK_NUMBERS",
                              "ANCIENT GREEK NUMBERS",
                              "ANCIENTGREEKNUMBERS");
-
-
         public static final UnicodeBlock ANCIENT_SYMBOLS =
             new UnicodeBlock("ANCIENT_SYMBOLS",
                              "ANCIENT SYMBOLS",
                              "ANCIENTSYMBOLS");
-
-
         public static final UnicodeBlock PHAISTOS_DISC =
             new UnicodeBlock("PHAISTOS_DISC",
                              "PHAISTOS DISC",
                              "PHAISTOSDISC");
-
-
         public static final UnicodeBlock LYCIAN =
             new UnicodeBlock("LYCIAN");
-
-
         public static final UnicodeBlock CARIAN =
             new UnicodeBlock("CARIAN");
-
-
         public static final UnicodeBlock OLD_PERSIAN =
             new UnicodeBlock("OLD_PERSIAN",
                              "OLD PERSIAN",
                              "OLDPERSIAN");
-
-
         public static final UnicodeBlock IMPERIAL_ARAMAIC =
             new UnicodeBlock("IMPERIAL_ARAMAIC",
                              "IMPERIAL ARAMAIC",
                              "IMPERIALARAMAIC");
-
-
         public static final UnicodeBlock PHOENICIAN =
             new UnicodeBlock("PHOENICIAN");
-
-
         public static final UnicodeBlock LYDIAN =
             new UnicodeBlock("LYDIAN");
-
-
         public static final UnicodeBlock KHAROSHTHI =
             new UnicodeBlock("KHAROSHTHI");
-
-
         public static final UnicodeBlock OLD_SOUTH_ARABIAN =
             new UnicodeBlock("OLD_SOUTH_ARABIAN",
                              "OLD SOUTH ARABIAN",
                              "OLDSOUTHARABIAN");
-
-
         public static final UnicodeBlock AVESTAN =
             new UnicodeBlock("AVESTAN");
-
-
         public static final UnicodeBlock INSCRIPTIONAL_PARTHIAN =
             new UnicodeBlock("INSCRIPTIONAL_PARTHIAN",
                              "INSCRIPTIONAL PARTHIAN",
                              "INSCRIPTIONALPARTHIAN");
-
-
         public static final UnicodeBlock INSCRIPTIONAL_PAHLAVI =
             new UnicodeBlock("INSCRIPTIONAL_PAHLAVI",
                              "INSCRIPTIONAL PAHLAVI",
                              "INSCRIPTIONALPAHLAVI");
-
-
         public static final UnicodeBlock OLD_TURKIC =
             new UnicodeBlock("OLD_TURKIC",
                              "OLD TURKIC",
                              "OLDTURKIC");
-
-
         public static final UnicodeBlock RUMI_NUMERAL_SYMBOLS =
             new UnicodeBlock("RUMI_NUMERAL_SYMBOLS",
                              "RUMI NUMERAL SYMBOLS",
                              "RUMINUMERALSYMBOLS");
-
-
         public static final UnicodeBlock BRAHMI =
             new UnicodeBlock("BRAHMI");
-
-
         public static final UnicodeBlock KAITHI =
             new UnicodeBlock("KAITHI");
-
-
         public static final UnicodeBlock CUNEIFORM =
             new UnicodeBlock("CUNEIFORM");
-
-
         public static final UnicodeBlock CUNEIFORM_NUMBERS_AND_PUNCTUATION =
             new UnicodeBlock("CUNEIFORM_NUMBERS_AND_PUNCTUATION",
                              "CUNEIFORM NUMBERS AND PUNCTUATION",
                              "CUNEIFORMNUMBERSANDPUNCTUATION");
-
-
         public static final UnicodeBlock EGYPTIAN_HIEROGLYPHS =
             new UnicodeBlock("EGYPTIAN_HIEROGLYPHS",
                              "EGYPTIAN HIEROGLYPHS",
                              "EGYPTIANHIEROGLYPHS");
-
-
         public static final UnicodeBlock BAMUM_SUPPLEMENT =
             new UnicodeBlock("BAMUM_SUPPLEMENT",
                              "BAMUM SUPPLEMENT",
                              "BAMUMSUPPLEMENT");
-
-
         public static final UnicodeBlock KANA_SUPPLEMENT =
             new UnicodeBlock("KANA_SUPPLEMENT",
                              "KANA SUPPLEMENT",
                              "KANASUPPLEMENT");
-
-
         public static final UnicodeBlock ANCIENT_GREEK_MUSICAL_NOTATION =
             new UnicodeBlock("ANCIENT_GREEK_MUSICAL_NOTATION",
                              "ANCIENT GREEK MUSICAL NOTATION",
                              "ANCIENTGREEKMUSICALNOTATION");
-
-
         public static final UnicodeBlock COUNTING_ROD_NUMERALS =
             new UnicodeBlock("COUNTING_ROD_NUMERALS",
                              "COUNTING ROD NUMERALS",
                              "COUNTINGRODNUMERALS");
-
-
         public static final UnicodeBlock MAHJONG_TILES =
             new UnicodeBlock("MAHJONG_TILES",
                              "MAHJONG TILES",
                              "MAHJONGTILES");
-
-
         public static final UnicodeBlock DOMINO_TILES =
             new UnicodeBlock("DOMINO_TILES",
                              "DOMINO TILES",
                              "DOMINOTILES");
-
-
         public static final UnicodeBlock PLAYING_CARDS =
             new UnicodeBlock("PLAYING_CARDS",
                              "PLAYING CARDS",
                              "PLAYINGCARDS");
-
-
         public static final UnicodeBlock ENCLOSED_ALPHANUMERIC_SUPPLEMENT =
             new UnicodeBlock("ENCLOSED_ALPHANUMERIC_SUPPLEMENT",
                              "ENCLOSED ALPHANUMERIC SUPPLEMENT",
                              "ENCLOSEDALPHANUMERICSUPPLEMENT");
-
-
         public static final UnicodeBlock ENCLOSED_IDEOGRAPHIC_SUPPLEMENT =
             new UnicodeBlock("ENCLOSED_IDEOGRAPHIC_SUPPLEMENT",
                              "ENCLOSED IDEOGRAPHIC SUPPLEMENT",
                              "ENCLOSEDIDEOGRAPHICSUPPLEMENT");
-
-
         public static final UnicodeBlock MISCELLANEOUS_SYMBOLS_AND_PICTOGRAPHS =
             new UnicodeBlock("MISCELLANEOUS_SYMBOLS_AND_PICTOGRAPHS",
                              "MISCELLANEOUS SYMBOLS AND PICTOGRAPHS",
                              "MISCELLANEOUSSYMBOLSANDPICTOGRAPHS");
-
-
         public static final UnicodeBlock EMOTICONS =
             new UnicodeBlock("EMOTICONS");
-
-
         public static final UnicodeBlock TRANSPORT_AND_MAP_SYMBOLS =
             new UnicodeBlock("TRANSPORT_AND_MAP_SYMBOLS",
                              "TRANSPORT AND MAP SYMBOLS",
                              "TRANSPORTANDMAPSYMBOLS");
-
-
         public static final UnicodeBlock ALCHEMICAL_SYMBOLS =
             new UnicodeBlock("ALCHEMICAL_SYMBOLS",
                              "ALCHEMICAL SYMBOLS",
                              "ALCHEMICALSYMBOLS");
-
-
         public static final UnicodeBlock CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C =
             new UnicodeBlock("CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C",
                              "CJK UNIFIED IDEOGRAPHS EXTENSION C",
                              "CJKUNIFIEDIDEOGRAPHSEXTENSIONC");
-
-
         public static final UnicodeBlock CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D =
             new UnicodeBlock("CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D",
                              "CJK UNIFIED IDEOGRAPHS EXTENSION D",
                              "CJKUNIFIEDIDEOGRAPHSEXTENSIOND");
-
-
         public static final UnicodeBlock ARABIC_EXTENDED_A =
             new UnicodeBlock("ARABIC_EXTENDED_A",
                              "ARABIC EXTENDED-A",
                              "ARABICEXTENDED-A");
-
-
         public static final UnicodeBlock SUNDANESE_SUPPLEMENT =
             new UnicodeBlock("SUNDANESE_SUPPLEMENT",
                              "SUNDANESE SUPPLEMENT",
                              "SUNDANESESUPPLEMENT");
-
-
         public static final UnicodeBlock MEETEI_MAYEK_EXTENSIONS =
             new UnicodeBlock("MEETEI_MAYEK_EXTENSIONS",
                              "MEETEI MAYEK EXTENSIONS",
                              "MEETEIMAYEKEXTENSIONS");
-
-
         public static final UnicodeBlock MEROITIC_HIEROGLYPHS =
             new UnicodeBlock("MEROITIC_HIEROGLYPHS",
                              "MEROITIC HIEROGLYPHS",
                              "MEROITICHIEROGLYPHS");
-
-
         public static final UnicodeBlock MEROITIC_CURSIVE =
             new UnicodeBlock("MEROITIC_CURSIVE",
                              "MEROITIC CURSIVE",
                              "MEROITICCURSIVE");
-
-
         public static final UnicodeBlock SORA_SOMPENG =
             new UnicodeBlock("SORA_SOMPENG",
                              "SORA SOMPENG",
                              "SORASOMPENG");
-
-
         public static final UnicodeBlock CHAKMA =
             new UnicodeBlock("CHAKMA");
-
-
         public static final UnicodeBlock SHARADA =
             new UnicodeBlock("SHARADA");
-
-
         public static final UnicodeBlock TAKRI =
             new UnicodeBlock("TAKRI");
-
-
         public static final UnicodeBlock MIAO =
             new UnicodeBlock("MIAO");
-
-
         public static final UnicodeBlock ARABIC_MATHEMATICAL_ALPHABETIC_SYMBOLS =
             new UnicodeBlock("ARABIC_MATHEMATICAL_ALPHABETIC_SYMBOLS",
                              "ARABIC MATHEMATICAL ALPHABETIC SYMBOLS",
                              "ARABICMATHEMATICALALPHABETICSYMBOLS");
-
         private static final int blockStarts[] = {
             0x0000,   // 0000..007F; Basic Latin
             0x0080,   // 0080..00FF; Latin-1 Supplement
@@ -1700,7 +1096,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
             0xF0000,  // F0000..FFFFF; Supplementary Private Use Area-A
             0x100000  // 100000..10FFFF; Supplementary Private Use Area-B
         };
-
         private static final UnicodeBlock[] blocks = {
             BASIC_LATIN,
             LATIN_1_SUPPLEMENT,
@@ -1959,24 +1354,17 @@ class Character implements java.io.Serializable, Comparable<Character> {
             SUPPLEMENTARY_PRIVATE_USE_AREA_A,
             SUPPLEMENTARY_PRIVATE_USE_AREA_B
         };
-
-
-
         public static UnicodeBlock of(char c) {
             return of((int)c);
         }
-
-
         public static UnicodeBlock of(int codePoint) {
             if (!isValidCodePoint(codePoint)) {
                 throw new IllegalArgumentException();
             }
-
             int top, bottom, current;
             bottom = 0;
             top = blockStarts.length;
             current = top/2;
-
             // invariant: top > current >= bottom && codePoint >= unicodeBlockStarts[bottom]
             while (top - bottom > 1) {
                 if (codePoint >= blockStarts[current]) {
@@ -1988,8 +1376,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
             }
             return blocks[current];
         }
-
-
         public static final UnicodeBlock forName(String blockName) {
             UnicodeBlock block = map.get(blockName.toUpperCase(Locale.US));
             if (block == null) {
@@ -1998,319 +1384,110 @@ class Character implements java.io.Serializable, Comparable<Character> {
             return block;
         }
     }
-
-
-
     public static enum UnicodeScript {
-
         COMMON,
-
-
         LATIN,
-
-
         GREEK,
-
-
         CYRILLIC,
-
-
         ARMENIAN,
-
-
         HEBREW,
-
-
         ARABIC,
-
-
         SYRIAC,
-
-
         THAANA,
-
-
         DEVANAGARI,
-
-
         BENGALI,
-
-
         GURMUKHI,
-
-
         GUJARATI,
-
-
         ORIYA,
-
-
         TAMIL,
-
-
         TELUGU,
-
-
         KANNADA,
-
-
         MALAYALAM,
-
-
         SINHALA,
-
-
         THAI,
-
-
         LAO,
-
-
         TIBETAN,
-
-
         MYANMAR,
-
-
         GEORGIAN,
-
-
         HANGUL,
-
-
         ETHIOPIC,
-
-
         CHEROKEE,
-
-
         CANADIAN_ABORIGINAL,
-
-
         OGHAM,
-
-
         RUNIC,
-
-
         KHMER,
-
-
         MONGOLIAN,
-
-
         HIRAGANA,
-
-
         KATAKANA,
-
-
         BOPOMOFO,
-
-
         HAN,
-
-
         YI,
-
-
         OLD_ITALIC,
-
-
         GOTHIC,
-
-
         DESERET,
-
-
         INHERITED,
-
-
         TAGALOG,
-
-
         HANUNOO,
-
-
         BUHID,
-
-
         TAGBANWA,
-
-
         LIMBU,
-
-
         TAI_LE,
-
-
         LINEAR_B,
-
-
         UGARITIC,
-
-
         SHAVIAN,
-
-
         OSMANYA,
-
-
         CYPRIOT,
-
-
         BRAILLE,
-
-
         BUGINESE,
-
-
         COPTIC,
-
-
         NEW_TAI_LUE,
-
-
         GLAGOLITIC,
-
-
         TIFINAGH,
-
-
         SYLOTI_NAGRI,
-
-
         OLD_PERSIAN,
-
-
         KHAROSHTHI,
-
-
         BALINESE,
-
-
         CUNEIFORM,
-
-
         PHOENICIAN,
-
-
         PHAGS_PA,
-
-
         NKO,
-
-
         SUNDANESE,
-
-
         BATAK,
-
-
         LEPCHA,
-
-
         OL_CHIKI,
-
-
         VAI,
-
-
         SAURASHTRA,
-
-
         KAYAH_LI,
-
-
         REJANG,
-
-
         LYCIAN,
-
-
         CARIAN,
-
-
         LYDIAN,
-
-
         CHAM,
-
-
         TAI_THAM,
-
-
         TAI_VIET,
-
-
         AVESTAN,
-
-
         EGYPTIAN_HIEROGLYPHS,
-
-
         SAMARITAN,
-
-
         MANDAIC,
-
-
         LISU,
-
-
         BAMUM,
-
-
         JAVANESE,
-
-
         MEETEI_MAYEK,
-
-
         IMPERIAL_ARAMAIC,
-
-
         OLD_SOUTH_ARABIAN,
-
-
         INSCRIPTIONAL_PARTHIAN,
-
-
         INSCRIPTIONAL_PAHLAVI,
-
-
         OLD_TURKIC,
-
-
         BRAHMI,
-
-
         KAITHI,
-
-
         MEROITIC_HIEROGLYPHS,
-
-
         MEROITIC_CURSIVE,
-
-
         SORA_SOMPENG,
-
-
         CHAKMA,
-
-
         SHARADA,
-
-
         TAKRI,
-
-
         MIAO,
-
-
         UNKNOWN;
-
         private static final int[] scriptStarts = {
             0x0000,   // 0000..0040; COMMON
             0x0041,   // 0041..005A; LATIN
@@ -2629,9 +1806,7 @@ class Character implements java.io.Serializable, Comparable<Character> {
             0xE0001,  // E0001..E00FF; COMMON
             0xE0100,  // E0100..E01EF; INHERITED
             0xE01F0   // E01F0..10FFFF; UNKNOWN
-
         };
-
         private static final UnicodeScript[] scripts = {
             COMMON,
             LATIN,
@@ -2951,7 +2126,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
             INHERITED,
             UNKNOWN
         };
-
         private static HashMap<String, Character.UnicodeScript> aliases;
         static {
             aliases = new HashMap<>(128);
@@ -3061,8 +2235,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
             aliases.put("ZYYY", COMMON);
             aliases.put("ZZZZ", UNKNOWN);
         }
-
-
         public static UnicodeScript of(int codePoint) {
             if (!isValidCodePoint(codePoint))
                 throw new IllegalArgumentException();
@@ -3075,8 +2247,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
                 index = -index - 2;
             return scripts[index];
         }
-
-
         public static final UnicodeScript forName(String scriptName) {
             scriptName = scriptName.toUpperCase(Locale.ENGLISH);
                                  //.replace(' ', '_'));
@@ -3086,81 +2256,54 @@ class Character implements java.io.Serializable, Comparable<Character> {
             return valueOf(scriptName);
         }
     }
-
-
     private final char value;
-
-
     private static final long serialVersionUID = 3786198910865385080L;
-
-
     public Character(char value) {
         this.value = value;
     }
-
     private static class CharacterCache {
         private CharacterCache(){}
-
         static final Character cache[] = new Character[127 + 1];
-
         static {
             for (int i = 0; i < cache.length; i++)
                 cache[i] = new Character((char)i);
         }
     }
-
-
     public static Character valueOf(char c) {
         if (c <= 127) { // must cache
             return CharacterCache.cache[(int)c];
         }
         return new Character(c);
     }
-
-
     public char charValue() {
         return value;
     }
-
-
     @Override
     public int hashCode() {
         return Character.hashCode(value);
     }
-
-
     public static int hashCode(char value) {
         return (int)value;
     }
-
-
     public boolean equals(Object obj) {
         if (obj instanceof Character) {
             return value == ((Character)obj).charValue();
         }
         return false;
     }
-
-
     public String toString() {
         char buf[] = {value};
         return String.valueOf(buf);
     }
-
-
     public static String toString(char c) {
         return String.valueOf(c);
     }
-
-
     public static boolean isValidCodePoint(int codePoint) {
         // Optimized form of:
         //     codePoint >= MIN_CODE_POINT && codePoint <= MAX_CODE_POINT
         int plane = codePoint >>> 16;
         return plane < ((MAX_CODE_POINT + 1) >>> 16);
     }
-
-
     public static boolean isBmpCodePoint(int codePoint) {
         return codePoint >>> 16 == 0;
         // Optimized form of:
@@ -3168,40 +2311,26 @@ class Character implements java.io.Serializable, Comparable<Character> {
         // We consistently use logical shift (>>>) to facilitate
         // additional runtime optimizations.
     }
-
-
     public static boolean isSupplementaryCodePoint(int codePoint) {
         return codePoint >= MIN_SUPPLEMENTARY_CODE_POINT
             && codePoint <  MAX_CODE_POINT + 1;
     }
-
-
     public static boolean isHighSurrogate(char ch) {
         // Help VM constant-fold; MAX_HIGH_SURROGATE + 1 == MIN_LOW_SURROGATE
         return ch >= MIN_HIGH_SURROGATE && ch < (MAX_HIGH_SURROGATE + 1);
     }
-
-
     public static boolean isLowSurrogate(char ch) {
         return ch >= MIN_LOW_SURROGATE && ch < (MAX_LOW_SURROGATE + 1);
     }
-
-
     public static boolean isSurrogate(char ch) {
         return ch >= MIN_SURROGATE && ch < (MAX_SURROGATE + 1);
     }
-
-
     public static boolean isSurrogatePair(char high, char low) {
         return isHighSurrogate(high) && isLowSurrogate(low);
     }
-
-
     public static int charCount(int codePoint) {
         return codePoint >= MIN_SUPPLEMENTARY_CODE_POINT ? 2 : 1;
     }
-
-
     public static int toCodePoint(char high, char low) {
         // Optimized form of:
         // return ((high - MIN_HIGH_SURROGATE) << 10)
@@ -3211,8 +2340,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
                                        - (MIN_HIGH_SURROGATE << 10)
                                        - MIN_LOW_SURROGATE);
     }
-
-
     public static int codePointAt(CharSequence seq, int index) {
         char c1 = seq.charAt(index);
         if (isHighSurrogate(c1) && ++index < seq.length()) {
@@ -3223,20 +2350,15 @@ class Character implements java.io.Serializable, Comparable<Character> {
         }
         return c1;
     }
-
-
     public static int codePointAt(char[] a, int index) {
         return codePointAtImpl(a, index, a.length);
     }
-
-
     public static int codePointAt(char[] a, int index, int limit) {
         if (index >= limit || limit < 0 || limit > a.length) {
             throw new IndexOutOfBoundsException();
         }
         return codePointAtImpl(a, index, limit);
     }
-
     // throws ArrayIndexOutOfBoundsException if index out of bounds
     static int codePointAtImpl(char[] a, int index, int limit) {
         char c1 = a[index];
@@ -3248,8 +2370,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
         }
         return c1;
     }
-
-
     public static int codePointBefore(CharSequence seq, int index) {
         char c2 = seq.charAt(--index);
         if (isLowSurrogate(c2) && index > 0) {
@@ -3260,20 +2380,15 @@ class Character implements java.io.Serializable, Comparable<Character> {
         }
         return c2;
     }
-
-
     public static int codePointBefore(char[] a, int index) {
         return codePointBeforeImpl(a, index, 0);
     }
-
-
     public static int codePointBefore(char[] a, int index, int start) {
         if (index <= start || start < 0 || start >= a.length) {
             throw new IndexOutOfBoundsException();
         }
         return codePointBeforeImpl(a, index, start);
     }
-
     // throws ArrayIndexOutOfBoundsException if index-1 out of bounds
     static int codePointBeforeImpl(char[] a, int index, int start) {
         char c2 = a[--index];
@@ -3285,19 +2400,13 @@ class Character implements java.io.Serializable, Comparable<Character> {
         }
         return c2;
     }
-
-
     public static char highSurrogate(int codePoint) {
         return (char) ((codePoint >>> 10)
             + (MIN_HIGH_SURROGATE - (MIN_SUPPLEMENTARY_CODE_POINT >>> 10)));
     }
-
-
     public static char lowSurrogate(int codePoint) {
         return (char) ((codePoint & 0x3ff) + MIN_LOW_SURROGATE);
     }
-
-
     public static int toChars(int codePoint, char[] dst, int dstIndex) {
         if (isBmpCodePoint(codePoint)) {
             dst[dstIndex] = (char) codePoint;
@@ -3309,8 +2418,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
             throw new IllegalArgumentException();
         }
     }
-
-
     public static char[] toChars(int codePoint) {
         if (isBmpCodePoint(codePoint)) {
             return new char[] { (char) codePoint };
@@ -3322,14 +2429,11 @@ class Character implements java.io.Serializable, Comparable<Character> {
             throw new IllegalArgumentException();
         }
     }
-
     static void toSurrogates(int codePoint, char[] dst, int index) {
         // We write elements "backwards" to guarantee all-or-nothing
         dst[index+1] = lowSurrogate(codePoint);
         dst[index] = highSurrogate(codePoint);
     }
-
-
     public static int codePointCount(CharSequence seq, int beginIndex, int endIndex) {
         int length = seq.length();
         if (beginIndex < 0 || endIndex > length || beginIndex > endIndex) {
@@ -3345,15 +2449,12 @@ class Character implements java.io.Serializable, Comparable<Character> {
         }
         return n;
     }
-
-
     public static int codePointCount(char[] a, int offset, int count) {
         if (count > a.length - offset || offset < 0 || count < 0) {
             throw new IndexOutOfBoundsException();
         }
         return codePointCountImpl(a, offset, count);
     }
-
     static int codePointCountImpl(char[] a, int offset, int count) {
         int endIndex = offset + count;
         int n = count;
@@ -3366,15 +2467,12 @@ class Character implements java.io.Serializable, Comparable<Character> {
         }
         return n;
     }
-
-
     public static int offsetByCodePoints(CharSequence seq, int index,
                                          int codePointOffset) {
         int length = seq.length();
         if (index < 0 || index > length) {
             throw new IndexOutOfBoundsException();
         }
-
         int x = index;
         if (codePointOffset >= 0) {
             int i;
@@ -3401,8 +2499,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
         }
         return x;
     }
-
-
     public static int offsetByCodePoints(char[] a, int start, int count,
                                          int index, int codePointOffset) {
         if (count > a.length-start || start < 0 || count < 0
@@ -3411,7 +2507,6 @@ class Character implements java.io.Serializable, Comparable<Character> {
         }
         return offsetByCodePointsImpl(a, start, count, index, codePointOffset);
     }
-
     static int offsetByCodePointsImpl(char[]a, int start, int count,
                                       int index, int codePointOffset) {
         int x = index;
@@ -3441,65 +2536,41 @@ class Character implements java.io.Serializable, Comparable<Character> {
         }
         return x;
     }
-
-
     public static boolean isLowerCase(char ch) {
         return isLowerCase((int)ch);
     }
-
-
     public static boolean isLowerCase(int codePoint) {
         return getType(codePoint) == Character.LOWERCASE_LETTER ||
                CharacterData.of(codePoint).isOtherLowercase(codePoint);
     }
-
-
     public static boolean isUpperCase(char ch) {
         return isUpperCase((int)ch);
     }
-
-
     public static boolean isUpperCase(int codePoint) {
         return getType(codePoint) == Character.UPPERCASE_LETTER ||
                CharacterData.of(codePoint).isOtherUppercase(codePoint);
     }
-
-
     public static boolean isTitleCase(char ch) {
         return isTitleCase((int)ch);
     }
-
-
     public static boolean isTitleCase(int codePoint) {
         return getType(codePoint) == Character.TITLECASE_LETTER;
     }
-
-
     public static boolean isDigit(char ch) {
         return isDigit((int)ch);
     }
-
-
     public static boolean isDigit(int codePoint) {
         return getType(codePoint) == Character.DECIMAL_DIGIT_NUMBER;
     }
-
-
     public static boolean isDefined(char ch) {
         return isDefined((int)ch);
     }
-
-
     public static boolean isDefined(int codePoint) {
         return getType(codePoint) != Character.UNASSIGNED;
     }
-
-
     public static boolean isLetter(char ch) {
         return isLetter((int)ch);
     }
-
-
     public static boolean isLetter(int codePoint) {
         return ((((1 << Character.UPPERCASE_LETTER) |
             (1 << Character.LOWERCASE_LETTER) |
@@ -3508,13 +2579,9 @@ class Character implements java.io.Serializable, Comparable<Character> {
             (1 << Character.OTHER_LETTER)) >> getType(codePoint)) & 1)
             != 0;
     }
-
-
     public static boolean isLetterOrDigit(char ch) {
         return isLetterOrDigit((int)ch);
     }
-
-
     public static boolean isLetterOrDigit(int codePoint) {
         return ((((1 << Character.UPPERCASE_LETTER) |
             (1 << Character.LOWERCASE_LETTER) |
@@ -3524,20 +2591,14 @@ class Character implements java.io.Serializable, Comparable<Character> {
             (1 << Character.DECIMAL_DIGIT_NUMBER)) >> getType(codePoint)) & 1)
             != 0;
     }
-
-
     @Deprecated
     public static boolean isJavaLetter(char ch) {
         return isJavaIdentifierStart(ch);
     }
-
-
     @Deprecated
     public static boolean isJavaLetterOrDigit(char ch) {
         return isJavaIdentifierPart(ch);
     }
-
-
     public static boolean isAlphabetic(int codePoint) {
         return (((((1 << Character.UPPERCASE_LETTER) |
             (1 << Character.LOWERCASE_LETTER) |
@@ -3547,113 +2608,69 @@ class Character implements java.io.Serializable, Comparable<Character> {
             (1 << Character.LETTER_NUMBER)) >> getType(codePoint)) & 1) != 0) ||
             CharacterData.of(codePoint).isOtherAlphabetic(codePoint);
     }
-
-
     public static boolean isIdeographic(int codePoint) {
         return CharacterData.of(codePoint).isIdeographic(codePoint);
     }
-
-
     public static boolean isJavaIdentifierStart(char ch) {
         return isJavaIdentifierStart((int)ch);
     }
-
-
     public static boolean isJavaIdentifierStart(int codePoint) {
         return CharacterData.of(codePoint).isJavaIdentifierStart(codePoint);
     }
-
-
     public static boolean isJavaIdentifierPart(char ch) {
         return isJavaIdentifierPart((int)ch);
     }
-
-
     public static boolean isJavaIdentifierPart(int codePoint) {
         return CharacterData.of(codePoint).isJavaIdentifierPart(codePoint);
     }
-
-
     public static boolean isUnicodeIdentifierStart(char ch) {
         return isUnicodeIdentifierStart((int)ch);
     }
-
-
     public static boolean isUnicodeIdentifierStart(int codePoint) {
         return CharacterData.of(codePoint).isUnicodeIdentifierStart(codePoint);
     }
-
-
     public static boolean isUnicodeIdentifierPart(char ch) {
         return isUnicodeIdentifierPart((int)ch);
     }
-
-
     public static boolean isUnicodeIdentifierPart(int codePoint) {
         return CharacterData.of(codePoint).isUnicodeIdentifierPart(codePoint);
     }
-
-
     public static boolean isIdentifierIgnorable(char ch) {
         return isIdentifierIgnorable((int)ch);
     }
-
-
     public static boolean isIdentifierIgnorable(int codePoint) {
         return CharacterData.of(codePoint).isIdentifierIgnorable(codePoint);
     }
-
-
     public static char toLowerCase(char ch) {
         return (char)toLowerCase((int)ch);
     }
-
-
     public static int toLowerCase(int codePoint) {
         return CharacterData.of(codePoint).toLowerCase(codePoint);
     }
-
-
     public static char toUpperCase(char ch) {
         return (char)toUpperCase((int)ch);
     }
-
-
     public static int toUpperCase(int codePoint) {
         return CharacterData.of(codePoint).toUpperCase(codePoint);
     }
-
-
     public static char toTitleCase(char ch) {
         return (char)toTitleCase((int)ch);
     }
-
-
     public static int toTitleCase(int codePoint) {
         return CharacterData.of(codePoint).toTitleCase(codePoint);
     }
-
-
     public static int digit(char ch, int radix) {
         return digit((int)ch, radix);
     }
-
-
     public static int digit(int codePoint, int radix) {
         return CharacterData.of(codePoint).digit(codePoint, radix);
     }
-
-
     public static int getNumericValue(char ch) {
         return getNumericValue((int)ch);
     }
-
-
     public static int getNumericValue(int codePoint) {
         return CharacterData.of(codePoint).getNumericValue(codePoint);
     }
-
-
     @Deprecated
     public static boolean isSpace(char ch) {
         return (ch <= 0x0020) &&
@@ -3663,37 +2680,24 @@ class Character implements java.io.Serializable, Comparable<Character> {
             (1L << 0x000D) |
             (1L << 0x0020)) >> ch) & 1L) != 0);
     }
-
-
-
     public static boolean isSpaceChar(char ch) {
         return isSpaceChar((int)ch);
     }
-
-
     public static boolean isSpaceChar(int codePoint) {
         return ((((1 << Character.SPACE_SEPARATOR) |
                   (1 << Character.LINE_SEPARATOR) |
                   (1 << Character.PARAGRAPH_SEPARATOR)) >> getType(codePoint)) & 1)
             != 0;
     }
-
-
     public static boolean isWhitespace(char ch) {
         return isWhitespace((int)ch);
     }
-
-
     public static boolean isWhitespace(int codePoint) {
         return CharacterData.of(codePoint).isWhitespace(codePoint);
     }
-
-
     public static boolean isISOControl(char ch) {
         return isISOControl((int)ch);
     }
-
-
     public static boolean isISOControl(int codePoint) {
         // Optimized form of:
         //     (codePoint >= 0x00 && codePoint <= 0x1F) ||
@@ -3701,18 +2705,12 @@ class Character implements java.io.Serializable, Comparable<Character> {
         return codePoint <= 0x9F &&
             (codePoint >= 0x7F || (codePoint >>> 5 == 0));
     }
-
-
     public static int getType(char ch) {
         return getType((int)ch);
     }
-
-
     public static int getType(int codePoint) {
         return CharacterData.of(codePoint).getType(codePoint);
     }
-
-
     public static char forDigit(int digit, int radix) {
         if ((digit >= radix) || (digit < 0)) {
             return '\0';
@@ -3725,62 +2723,38 @@ class Character implements java.io.Serializable, Comparable<Character> {
         }
         return (char)('a' - 10 + digit);
     }
-
-
     public static byte getDirectionality(char ch) {
         return getDirectionality((int)ch);
     }
-
-
     public static byte getDirectionality(int codePoint) {
         return CharacterData.of(codePoint).getDirectionality(codePoint);
     }
-
-
     public static boolean isMirrored(char ch) {
         return isMirrored((int)ch);
     }
-
-
     public static boolean isMirrored(int codePoint) {
         return CharacterData.of(codePoint).isMirrored(codePoint);
     }
-
-
     public int compareTo(Character anotherCharacter) {
         return compare(this.value, anotherCharacter.value);
     }
-
-
     public static int compare(char x, char y) {
         return x - y;
     }
-
-
     static int toUpperCaseEx(int codePoint) {
         assert isValidCodePoint(codePoint);
         return CharacterData.of(codePoint).toUpperCaseEx(codePoint);
     }
-
-
     static char[] toUpperCaseCharArray(int codePoint) {
         // As of Unicode 6.0, 1:M uppercasings only happen in the BMP.
         assert isBmpCodePoint(codePoint);
         return CharacterData.of(codePoint).toUpperCaseCharArray(codePoint);
     }
-
-
     public static final int SIZE = 16;
-
-
     public static final int BYTES = SIZE / Byte.SIZE;
-
-
     public static char reverseBytes(char ch) {
         return (char) (((ch & 0xFF00) >> 8) | (ch << 8));
     }
-
-
     public static String getName(int codePoint) {
         if (!isValidCodePoint(codePoint)) {
             throw new IllegalArgumentException();

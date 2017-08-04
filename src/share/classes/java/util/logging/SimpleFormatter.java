@@ -1,22 +1,12 @@
-
-
-
 package java.util.logging;
-
 import java.io.*;
 import java.text.*;
 import java.util.Date;
 import sun.util.logging.LoggingSupport;
-
-
-
 public class SimpleFormatter extends Formatter {
-
     // format string for printing the log record
     private static final String format = LoggingSupport.getSimpleFormat();
     private final Date dat = new Date();
-
-
     public synchronized String format(LogRecord record) {
         dat.setTime(record.getMillis());
         String source;

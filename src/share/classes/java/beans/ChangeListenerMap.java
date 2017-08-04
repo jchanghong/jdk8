@@ -1,6 +1,4 @@
-
 package java.beans;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventListener;
@@ -10,18 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-
 abstract class ChangeListenerMap<L extends EventListener> {
     private Map<String, L[]> map;
-
-
     protected abstract L[] newArray(int length);
-
-
     protected abstract L newProxy(String name, L listener);
-
-
     public final synchronized void add(String name, L listener) {
         if (this.map == null) {
             this.map = new HashMap<>();
@@ -30,7 +20,6 @@ abstract class ChangeListenerMap<L extends EventListener> {
         int size = (array != null)
                 ? array.length
                 : 0;
-
         L[] clone = newArray(size + 1);
         clone[size] = listener;
         if (array != null) {
@@ -38,8 +27,6 @@ abstract class ChangeListenerMap<L extends EventListener> {
         }
         this.map.put(name, clone);
     }
-
-
     public final synchronized void remove(String name, L listener) {
         if (this.map != null) {
             L[] array = this.map.get(name);
@@ -65,15 +52,11 @@ abstract class ChangeListenerMap<L extends EventListener> {
             }
         }
     }
-
-
     public final synchronized L[] get(String name) {
         return (this.map != null)
                 ? this.map.get(name)
                 : null;
     }
-
-
     public final void set(String name, L[] listeners) {
         if (listeners != null) {
             if (this.map == null) {
@@ -88,14 +71,11 @@ abstract class ChangeListenerMap<L extends EventListener> {
             }
         }
     }
-
-
     public final synchronized L[] getListeners() {
         if (this.map == null) {
             return newArray(0);
         }
         List<L> list = new ArrayList<>();
-
         L[] listeners = this.map.get(null);
         if (listeners != null) {
             for (L listener : listeners) {
@@ -112,8 +92,6 @@ abstract class ChangeListenerMap<L extends EventListener> {
         }
         return list.toArray(newArray(list.size()));
     }
-
-
     public final L[] getListeners(String name) {
         if (name != null) {
             L[] listeners = get(name);
@@ -123,8 +101,6 @@ abstract class ChangeListenerMap<L extends EventListener> {
         }
         return newArray(0);
     }
-
-
     public final synchronized boolean hasListeners(String name) {
         if (this.map == null) {
             return false;
@@ -132,14 +108,10 @@ abstract class ChangeListenerMap<L extends EventListener> {
         L[] array = this.map.get(null);
         return (array != null) || ((name != null) && (null != this.map.get(name)));
     }
-
-
     public final Set<Entry<String, L[]>> getEntries() {
         return (this.map != null)
                 ? this.map.entrySet()
                 : Collections.<Entry<String, L[]>>emptySet();
     }
-
-
     public abstract L extract(L listener);
 }

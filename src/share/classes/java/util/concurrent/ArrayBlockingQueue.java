@@ -1,7 +1,3 @@
-
-
-
-
 package java.util.concurrent;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -12,60 +8,29 @@ import java.util.NoSuchElementException;
 import java.lang.ref.WeakReference;
 import java.util.Spliterators;
 import java.util.Spliterator;
-
-
 public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         implements BlockingQueue<E>, java.io.Serializable {
-
-
     private static final long serialVersionUID = -817911632652898426L;
-
-
     final Object[] items;
-
-
     int takeIndex;
-
-
     int putIndex;
-
-
     int count;
-
-
-
-
     final ReentrantLock lock;
-
-
     private final Condition notEmpty;
-
-
     private final Condition notFull;
-
-
     transient Itrs itrs = null;
-
     // Internal helper methods
-
-
     final int dec(int i) {
         return ((i == 0) ? items.length : i) - 1;
     }
-
-
     @SuppressWarnings("unchecked")
     final E itemAt(int i) {
         return (E) items[i];
     }
-
-
     private static void checkNotNull(Object v) {
         if (v == null)
             throw new NullPointerException();
     }
-
-
     private void enqueue(E x) {
         // assert lock.getHoldCount() == 1;
         // assert items[putIndex] == null;
@@ -76,8 +41,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         count++;
         notEmpty.signal();
     }
-
-
     private E dequeue() {
         // assert lock.getHoldCount() == 1;
         // assert items[takeIndex] != null;
@@ -93,8 +56,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         notFull.signal();
         return x;
     }
-
-
     void removeAt(final int removeIndex) {
         // assert lock.getHoldCount() == 1;
         // assert items[removeIndex] != null;
@@ -110,7 +71,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 itrs.elementDequeued();
         } else {
             // an "interior" remove
-
             // slide over all others up through putIndex.
             final int putIndex = this.putIndex;
             for (int i = removeIndex;;) {
@@ -132,13 +92,9 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         }
         notFull.signal();
     }
-
-
     public ArrayBlockingQueue(int capacity) {
         this(capacity, false);
     }
-
-
     public ArrayBlockingQueue(int capacity, boolean fair) {
         if (capacity <= 0)
             throw new IllegalArgumentException();
@@ -147,12 +103,9 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         notEmpty = lock.newCondition();
         notFull =  lock.newCondition();
     }
-
-
     public ArrayBlockingQueue(int capacity, boolean fair,
                               Collection<? extends E> c) {
         this(capacity, fair);
-
         final ReentrantLock lock = this.lock;
         lock.lock(); // Lock only for visibility, not mutual exclusion
         try {
@@ -171,13 +124,9 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public boolean add(E e) {
         return super.add(e);
     }
-
-
     public boolean offer(E e) {
         checkNotNull(e);
         final ReentrantLock lock = this.lock;
@@ -193,8 +142,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public void put(E e) throws InterruptedException {
         checkNotNull(e);
         final ReentrantLock lock = this.lock;
@@ -207,11 +154,8 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public boolean offer(E e, long timeout, TimeUnit unit)
         throws InterruptedException {
-
         checkNotNull(e);
         long nanos = unit.toNanos(timeout);
         final ReentrantLock lock = this.lock;
@@ -228,7 +172,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
     public E poll() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -238,7 +181,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
     public E take() throws InterruptedException {
         final ReentrantLock lock = this.lock;
         lock.lockInterruptibly();
@@ -250,7 +192,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
         long nanos = unit.toNanos(timeout);
         final ReentrantLock lock = this.lock;
@@ -266,7 +207,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
     public E peek() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -276,10 +216,8 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
     // this doc comment is overridden to remove the reference to collections
     // greater in size than Integer.MAX_VALUE
-
     public int size() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -289,10 +227,8 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
     // this doc comment is a modified copy of the inherited doc comment,
     // without the reference to unlimited queues.
-
     public int remainingCapacity() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -302,8 +238,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public boolean remove(Object o) {
         if (o == null) return false;
         final Object[] items = this.items;
@@ -327,8 +261,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public boolean contains(Object o) {
         if (o == null) return false;
         final Object[] items = this.items;
@@ -350,8 +282,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public Object[] toArray() {
         Object[] a;
         final ReentrantLock lock = this.lock;
@@ -371,8 +301,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         }
         return a;
     }
-
-
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
         final Object[] items = this.items;
@@ -398,7 +326,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
         }
         return a;
     }
-
     public String toString() {
         final ReentrantLock lock = this.lock;
         lock.lock();
@@ -406,7 +333,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             int k = count;
             if (k == 0)
                 return "[]";
-
             final Object[] items = this.items;
             StringBuilder sb = new StringBuilder();
             sb.append('[');
@@ -423,8 +349,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public void clear() {
         final Object[] items = this.items;
         final ReentrantLock lock = this.lock;
@@ -450,13 +374,9 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public int drainTo(Collection<? super E> c) {
         return drainTo(c, Integer.MAX_VALUE);
     }
-
-
     public int drainTo(Collection<? super E> c, int maxElements) {
         checkNotNull(c);
         if (c == this)
@@ -500,42 +420,25 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             lock.unlock();
         }
     }
-
-
     public Iterator<E> iterator() {
         return new Itr();
     }
-
-
     class Itrs {
-
-
         private class Node extends WeakReference<Itr> {
             Node next;
-
             Node(Itr iterator, Node next) {
                 super(iterator);
                 this.next = next;
             }
         }
-
-
         int cycles = 0;
-
-
         private Node head;
-
-
         private Node sweeper = null;
-
         private static final int SHORT_SWEEP_PROBES = 4;
         private static final int LONG_SWEEP_PROBES = 16;
-
         Itrs(Itr initial) {
             register(initial);
         }
-
-
         void doSomeSweeping(boolean tryHarder) {
             // assert lock.getHoldCount() == 1;
             // assert head != null;
@@ -543,7 +446,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             Node o, p;
             final Node sweeper = this.sweeper;
             boolean passedGo;   // to limit search to one full sweep
-
             if (sweeper == null) {
                 o = null;
                 p = head;
@@ -553,7 +455,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 p = o.next;
                 passedGo = false;
             }
-
             for (; probes > 0; probes--) {
                 if (p == null) {
                     if (passedGo)
@@ -585,17 +486,12 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 }
                 p = next;
             }
-
             this.sweeper = (p == null) ? null : o;
         }
-
-
         void register(Itr itr) {
             // assert lock.getHoldCount() == 1;
             head = new Node(itr, head);
         }
-
-
         void takeIndexWrapped() {
             // assert lock.getHoldCount() == 1;
             cycles++;
@@ -619,8 +515,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             if (head == null)   // no more iterators to track
                 itrs = null;
         }
-
-
         void removedAt(int removedIndex) {
             for (Node o = null, p = head; p != null;) {
                 final Itr it = p.get();
@@ -642,8 +536,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             if (head == null)   // no more iterators to track
                 itrs = null;
         }
-
-
         void queueIsEmpty() {
             // assert lock.getHoldCount() == 1;
             for (Node p = head; p != null; p = p.next) {
@@ -656,8 +548,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             head = null;
             itrs = null;
         }
-
-
         void elementDequeued() {
             // assert lock.getHoldCount() == 1;
             if (count == 0)
@@ -666,39 +556,17 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 takeIndexWrapped();
         }
     }
-
-
     private class Itr implements Iterator<E> {
-
         private int cursor;
-
-
         private E nextItem;
-
-
         private int nextIndex;
-
-
         private E lastItem;
-
-
         private int lastRet;
-
-
         private int prevTakeIndex;
-
-
         private int prevCycles;
-
-
         private static final int NONE = -1;
-
-
         private static final int REMOVED = -2;
-
-
         private static final int DETACHED = -3;
-
         Itr() {
             // assert lock.getHoldCount() == 0;
             lastRet = NONE;
@@ -731,12 +599,10 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 lock.unlock();
             }
         }
-
         boolean isDetached() {
             // assert lock.getHoldCount() == 1;
             return prevTakeIndex < 0;
         }
-
         private int incCursor(int index) {
             // assert lock.getHoldCount() == 1;
             if (++index == items.length)
@@ -745,8 +611,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 index = NONE;
             return index;
         }
-
-
         private boolean invalidated(int index, int prevTakeIndex,
                                     long dequeues, int length) {
             if (index < 0)
@@ -756,26 +620,21 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 distance += length;
             return dequeues > distance;
         }
-
-
         private void incorporateDequeues() {
             // assert lock.getHoldCount() == 1;
             // assert itrs != null;
             // assert !isDetached();
             // assert count > 0;
-
             final int cycles = itrs.cycles;
             final int takeIndex = ArrayBlockingQueue.this.takeIndex;
             final int prevCycles = this.prevCycles;
             final int prevTakeIndex = this.prevTakeIndex;
-
             if (cycles != prevCycles || takeIndex != prevTakeIndex) {
                 final int len = items.length;
                 // how far takeIndex has advanced since the previous
                 // operation of this iterator
                 long dequeues = (cycles - prevCycles) * len
                     + (takeIndex - prevTakeIndex);
-
                 // Check indices for invalidation
                 if (invalidated(lastRet, prevTakeIndex, dequeues, len))
                     lastRet = REMOVED;
@@ -783,7 +642,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                     nextIndex = REMOVED;
                 if (invalidated(cursor, prevTakeIndex, dequeues, len))
                     cursor = takeIndex;
-
                 if (cursor < 0 && nextIndex < 0 && lastRet < 0)
                     detach();
                 else {
@@ -792,8 +650,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 }
             }
         }
-
-
         private void detach() {
             // Switch to detached mode
             // assert lock.getHoldCount() == 1;
@@ -808,8 +664,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 itrs.doSomeSweeping(true);
             }
         }
-
-
         public boolean hasNext() {
             // assert lock.getHoldCount() == 0;
             if (nextItem != null)
@@ -817,7 +671,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             noNext();
             return false;
         }
-
         private void noNext() {
             final ReentrantLock lock = ArrayBlockingQueue.this.lock;
             lock.lock();
@@ -839,7 +692,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 lock.unlock();
             }
         }
-
         public E next() {
             // assert lock.getHoldCount() == 0;
             final E x = nextItem;
@@ -867,7 +719,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             }
             return x;
         }
-
         public void remove() {
             // assert lock.getHoldCount() == 0;
             final ReentrantLock lock = ArrayBlockingQueue.this.lock;
@@ -892,7 +743,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 // else lastRet == REMOVED and the last returned element was
                 // previously asynchronously removed via an operation other
                 // than this.remove(), so nothing to do.
-
                 if (cursor < 0 && nextIndex < 0)
                     detach();
             } finally {
@@ -901,8 +751,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
                 // assert lastItem == null;
             }
         }
-
-
         void shutdown() {
             // assert lock.getHoldCount() == 1;
             cursor = NONE;
@@ -918,20 +766,16 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             //
             // Caller will unlink from itrs when convenient.
         }
-
         private int distance(int index, int prevTakeIndex, int length) {
             int distance = index - prevTakeIndex;
             if (distance < 0)
                 distance += length;
             return distance;
         }
-
-
         boolean removedAt(int removedIndex) {
             // assert lock.getHoldCount() == 1;
             if (isDetached())
                 return true;
-
             final int cycles = itrs.cycles;
             final int takeIndex = ArrayBlockingQueue.this.takeIndex;
             final int prevCycles = this.prevCycles;
@@ -977,8 +821,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             }
             return false;
         }
-
-
         boolean takeIndexWrapped() {
             // assert lock.getHoldCount() == 1;
             if (isDetached())
@@ -991,7 +833,6 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
             }
             return false;
         }
-
 //
 //         public String toString() {
 //             return ("cursor=" + cursor + " " +
@@ -1005,12 +846,9 @@ public class ArrayBlockingQueue<E> extends AbstractQueue<E>
 //                     "remainingCapacity()=" + remainingCapacity());
 //         }
     }
-
-
     public Spliterator<E> spliterator() {
         return Spliterators.spliterator
             (this, Spliterator.ORDERED | Spliterator.NONNULL |
              Spliterator.CONCURRENT);
     }
-
 }

@@ -1,26 +1,12 @@
-
-
 package java.lang.invoke;
-
 import java.io.Serializable;
 import java.util.Arrays;
-
-
 public class LambdaMetafactory {
-
-
     public static final int FLAG_SERIALIZABLE = 1 << 0;
-
-
     public static final int FLAG_MARKERS = 1 << 1;
-
-
     public static final int FLAG_BRIDGES = 1 << 2;
-
     private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
     private static final MethodType[] EMPTY_MT_ARRAY = new MethodType[0];
-
-
     public static CallSite metafactory(MethodHandles.Lookup caller,
                                        String invokedName,
                                        MethodType invokedType,
@@ -36,8 +22,6 @@ public class LambdaMetafactory {
         mf.validateMetafactoryArgs();
         return mf.buildCallSite();
     }
-
-
     public static CallSite altMetafactory(MethodHandles.Lookup caller,
                                           String invokedName,
                                           MethodType invokedType,
@@ -66,7 +50,6 @@ public class LambdaMetafactory {
         }
         else
             bridges = EMPTY_MT_ARRAY;
-
         boolean isSerializable = ((flags & FLAG_SERIALIZABLE) != 0);
         if (isSerializable) {
             boolean foundSerializableSupertype = Serializable.class.isAssignableFrom(invokedType.returnType());
@@ -77,7 +60,6 @@ public class LambdaMetafactory {
                 markerInterfaces[markerInterfaces.length-1] = Serializable.class;
             }
         }
-
         AbstractValidatingLambdaMetafactory mf
                 = new InnerClassLambdaMetafactory(caller, invokedType,
                                                   invokedName, samMethodType,

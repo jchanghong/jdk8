@@ -1,22 +1,14 @@
-
 package java.beans;
-
 import com.sun.beans.finder.PersistenceDelegateFinder;
-
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
-
-
-
 public class Encoder {
     private final PersistenceDelegateFinder finder = new PersistenceDelegateFinder();
     private Map<Object, Expression> bindings = new IdentityHashMap<>();
     private ExceptionListener exceptionListener;
     boolean executeStatements = true;
     private Map<Object, Object> attributes;
-
-
     protected void writeObject(Object o) {
         if (o == this) {
             return;
@@ -24,17 +16,12 @@ public class Encoder {
         PersistenceDelegate info = getPersistenceDelegate(o == null ? null : o.getClass());
         info.writeObject(o, this);
     }
-
-
     public void setExceptionListener(ExceptionListener exceptionListener) {
         this.exceptionListener = exceptionListener;
     }
-
-
     public ExceptionListener getExceptionListener() {
         return (exceptionListener != null) ? exceptionListener : Statement.defaultExceptionListener;
     }
-
     Object getValue(Expression exp) {
         try {
             return (exp == null) ? null : exp.getValue();
@@ -44,8 +31,6 @@ public class Encoder {
             throw new RuntimeException("failed to evaluate: " + exp.toString());
         }
     }
-
-
     public PersistenceDelegate getPersistenceDelegate(Class<?> type) {
         PersistenceDelegate pd = this.finder.find(type);
         if (pd == null) {
@@ -56,19 +41,13 @@ public class Encoder {
         }
         return pd;
     }
-
-
     public void setPersistenceDelegate(Class<?> type, PersistenceDelegate delegate) {
         this.finder.register(type, delegate);
     }
-
-
     public Object remove(Object oldInstance) {
         Expression exp = bindings.remove(oldInstance);
         return getValue(exp);
     }
-
-
     public Object get(Object oldInstance) {
         if (oldInstance == null || oldInstance == this ||
             oldInstance.getClass() == String.class) {
@@ -77,7 +56,6 @@ public class Encoder {
         Expression exp = bindings.get(oldInstance);
         return getValue(exp);
     }
-
     private Object writeObject1(Object oldInstance) {
         Object o = get(oldInstance);
         if (o == null) {
@@ -86,11 +64,9 @@ public class Encoder {
         }
         return o;
     }
-
     private Statement cloneStatement(Statement oldExp) {
         Object oldTarget = oldExp.getTarget();
         Object newTarget = writeObject1(oldTarget);
-
         Object[] oldArgs = oldExp.getArguments();
         Object[] newArgs = new Object[oldArgs.length];
         for (int i = 0; i < oldArgs.length; i++) {
@@ -102,8 +78,6 @@ public class Encoder {
         newExp.loader = oldExp.loader;
         return newExp;
     }
-
-
     public void writeStatement(Statement oldStm) {
         // System.out.println("writeStatement: " + oldExp);
         Statement newStm = cloneStatement(oldStm);
@@ -116,8 +90,6 @@ public class Encoder {
             }
         }
     }
-
-
     public void writeExpression(Expression oldExp) {
         // System.out.println("Encoder::writeExpression: " + oldExp);
         Object oldValue = getValue(oldExp);
@@ -127,11 +99,9 @@ public class Encoder {
         bindings.put(oldValue, (Expression)cloneStatement(oldExp));
         writeObject(oldValue);
     }
-
     void clear() {
         bindings.clear();
     }
-
     // Package private method for setting an attributes table for the encoder
     void setAttribute(Object key, Object value) {
         if (attributes == null) {
@@ -139,7 +109,6 @@ public class Encoder {
         }
         attributes.put(key, value);
     }
-
     Object getAttribute(Object key) {
         if (attributes == null) {
             return null;

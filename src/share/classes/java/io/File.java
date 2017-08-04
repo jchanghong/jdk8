@@ -1,7 +1,4 @@
-
-
 package java.io;
-
 import java.net.URI;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -13,26 +10,13 @@ import java.security.SecureRandom;
 import java.nio.file.Path;
 import java.nio.file.FileSystems;
 import sun.security.action.GetPropertyAction;
-
-
-
 public class File
     implements Serializable, Comparable<File>
 {
-
-
     private static final FileSystem fs = DefaultFileSystem.getFileSystem();
-
-
     private final String path;
-
-
     private static enum PathStatus { INVALID, CHECKED };
-
-
     private transient PathStatus status = null;
-
-
     final boolean isInvalid() {
         if (status == null) {
             status = (this.path.indexOf('\u0000') < 0) ? PathStatus.CHECKED
@@ -40,45 +24,24 @@ public class File
         }
         return status == PathStatus.INVALID;
     }
-
-
     private final transient int prefixLength;
-
-
     int getPrefixLength() {
         return prefixLength;
     }
-
-
     public static final char separatorChar = fs.getSeparator();
-
-
     public static final String separator = "" + separatorChar;
-
-
     public static final char pathSeparatorChar = fs.getPathSeparator();
-
-
     public static final String pathSeparator = "" + pathSeparatorChar;
-
-
-
-
-
     private File(String pathname, int prefixLength) {
         this.path = pathname;
         this.prefixLength = prefixLength;
     }
-
-
     private File(String child, File parent) {
         assert parent.path != null;
         assert (!parent.path.equals(""));
         this.path = fs.resolve(parent.path, child);
         this.prefixLength = parent.prefixLength;
     }
-
-
     public File(String pathname) {
         if (pathname == null) {
             throw new NullPointerException();
@@ -86,10 +49,6 @@ public class File
         this.path = fs.normalize(pathname);
         this.prefixLength = fs.prefixLength(this.path);
     }
-
-
-
-
     public File(String parent, String child) {
         if (child == null) {
             throw new NullPointerException();
@@ -107,8 +66,6 @@ public class File
         }
         this.prefixLength = fs.prefixLength(this.path);
     }
-
-
     public File(File parent, String child) {
         if (child == null) {
             throw new NullPointerException();
@@ -126,10 +83,7 @@ public class File
         }
         this.prefixLength = fs.prefixLength(this.path);
     }
-
-
     public File(URI uri) {
-
         // Check our many preconditions
         if (!uri.isAbsolute())
             throw new IllegalArgumentException("URI is not absolute");
@@ -147,7 +101,6 @@ public class File
         String p = uri.getPath();
         if (p.equals(""))
             throw new IllegalArgumentException("URI path component is empty");
-
         // Okay, now initialize
         p = fs.fromURIPath(p);
         if (File.separatorChar != '/')
@@ -155,18 +108,11 @@ public class File
         this.path = fs.normalize(p);
         this.prefixLength = fs.prefixLength(this.path);
     }
-
-
-
-
-
     public String getName() {
         int index = path.lastIndexOf(separatorChar);
         if (index < prefixLength) return path.substring(prefixLength);
         return path.substring(index + 1);
     }
-
-
     public String getParent() {
         int index = path.lastIndexOf(separatorChar);
         if (index < prefixLength) {
@@ -176,52 +122,34 @@ public class File
         }
         return path.substring(0, index);
     }
-
-
     public File getParentFile() {
         String p = this.getParent();
         if (p == null) return null;
         return new File(p, this.prefixLength);
     }
-
-
     public String getPath() {
         return path;
     }
-
-
-
-
-
     public boolean isAbsolute() {
         return fs.isAbsolute(this);
     }
-
-
     public String getAbsolutePath() {
         return fs.resolve(this);
     }
-
-
     public File getAbsoluteFile() {
         String absPath = getAbsolutePath();
         return new File(absPath, fs.prefixLength(absPath));
     }
-
-
     public String getCanonicalPath() throws IOException {
         if (isInvalid()) {
             throw new IOException("Invalid file path");
         }
         return fs.canonicalize(fs.resolve(this));
     }
-
-
     public File getCanonicalFile() throws IOException {
         String canonPath = getCanonicalPath();
         return new File(canonPath, fs.prefixLength(canonPath));
     }
-
     private static String slashify(String path, boolean isDirectory) {
         String p = path;
         if (File.separatorChar != '/')
@@ -232,8 +160,6 @@ public class File
             p = p + "/";
         return p;
     }
-
-
     @Deprecated
     public URL toURL() throws MalformedURLException {
         if (isInvalid()) {
@@ -241,8 +167,6 @@ public class File
         }
         return new URL("file", "", slashify(getAbsolutePath(), isDirectory()));
     }
-
-
     public URI toURI() {
         try {
             File f = getAbsoluteFile();
@@ -254,11 +178,6 @@ public class File
             throw new Error(x);         // Can't happen
         }
     }
-
-
-
-
-
     public boolean canRead() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -269,8 +188,6 @@ public class File
         }
         return fs.checkAccess(this, FileSystem.ACCESS_READ);
     }
-
-
     public boolean canWrite() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -281,8 +198,6 @@ public class File
         }
         return fs.checkAccess(this, FileSystem.ACCESS_WRITE);
     }
-
-
     public boolean exists() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -293,8 +208,6 @@ public class File
         }
         return ((fs.getBooleanAttributes(this) & FileSystem.BA_EXISTS) != 0);
     }
-
-
     public boolean isDirectory() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -306,8 +219,6 @@ public class File
         return ((fs.getBooleanAttributes(this) & FileSystem.BA_DIRECTORY)
                 != 0);
     }
-
-
     public boolean isFile() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -318,8 +229,6 @@ public class File
         }
         return ((fs.getBooleanAttributes(this) & FileSystem.BA_REGULAR) != 0);
     }
-
-
     public boolean isHidden() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -330,8 +239,6 @@ public class File
         }
         return ((fs.getBooleanAttributes(this) & FileSystem.BA_HIDDEN) != 0);
     }
-
-
     public long lastModified() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -342,8 +249,6 @@ public class File
         }
         return fs.getLastModifiedTime(this);
     }
-
-
     public long length() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -354,11 +259,6 @@ public class File
         }
         return fs.getLength(this);
     }
-
-
-
-
-
     public boolean createNewFile() throws IOException {
         SecurityManager security = System.getSecurityManager();
         if (security != null) security.checkWrite(path);
@@ -367,8 +267,6 @@ public class File
         }
         return fs.createFileExclusively(path);
     }
-
-
     public boolean delete() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -379,8 +277,6 @@ public class File
         }
         return fs.delete(this);
     }
-
-
     public void deleteOnExit() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -391,8 +287,6 @@ public class File
         }
         DeleteOnExitHook.add(path);
     }
-
-
     public String[] list() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -403,8 +297,6 @@ public class File
         }
         return fs.list(this);
     }
-
-
     public String[] list(FilenameFilter filter) {
         String names[] = list();
         if ((names == null) || (filter == null)) {
@@ -418,8 +310,6 @@ public class File
         }
         return v.toArray(new String[v.size()]);
     }
-
-
     public File[] listFiles() {
         String[] ss = list();
         if (ss == null) return null;
@@ -430,8 +320,6 @@ public class File
         }
         return fs;
     }
-
-
     public File[] listFiles(FilenameFilter filter) {
         String ss[] = list();
         if (ss == null) return null;
@@ -441,8 +329,6 @@ public class File
                 files.add(new File(s, this));
         return files.toArray(new File[files.size()]);
     }
-
-
     public File[] listFiles(FileFilter filter) {
         String ss[] = list();
         if (ss == null) return null;
@@ -454,8 +340,6 @@ public class File
         }
         return files.toArray(new File[files.size()]);
     }
-
-
     public boolean mkdir() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -466,8 +350,6 @@ public class File
         }
         return fs.createDirectory(this);
     }
-
-
     public boolean mkdirs() {
         if (exists()) {
             return false;
@@ -481,13 +363,10 @@ public class File
         } catch (IOException e) {
             return false;
         }
-
         File parent = canonFile.getParentFile();
         return (parent != null && (parent.mkdirs() || parent.exists()) &&
                 canonFile.mkdir());
     }
-
-
     public boolean renameTo(File dest) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -502,8 +381,6 @@ public class File
         }
         return fs.rename(this, dest);
     }
-
-
     public boolean setLastModified(long time) {
         if (time < 0) throw new IllegalArgumentException("Negative time");
         SecurityManager security = System.getSecurityManager();
@@ -515,8 +392,6 @@ public class File
         }
         return fs.setLastModifiedTime(this, time);
     }
-
-
     public boolean setReadOnly() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -527,8 +402,6 @@ public class File
         }
         return fs.setReadOnly(this);
     }
-
-
     public boolean setWritable(boolean writable, boolean ownerOnly) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -539,13 +412,9 @@ public class File
         }
         return fs.setPermission(this, FileSystem.ACCESS_WRITE, writable, ownerOnly);
     }
-
-
     public boolean setWritable(boolean writable) {
         return setWritable(writable, true);
     }
-
-
     public boolean setReadable(boolean readable, boolean ownerOnly) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -556,13 +425,9 @@ public class File
         }
         return fs.setPermission(this, FileSystem.ACCESS_READ, readable, ownerOnly);
     }
-
-
     public boolean setReadable(boolean readable) {
         return setReadable(readable, true);
     }
-
-
     public boolean setExecutable(boolean executable, boolean ownerOnly) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -573,13 +438,9 @@ public class File
         }
         return fs.setPermission(this, FileSystem.ACCESS_EXECUTE, executable, ownerOnly);
     }
-
-
     public boolean setExecutable(boolean executable) {
         return setExecutable(executable, true);
     }
-
-
     public boolean canExecute() {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -590,19 +451,9 @@ public class File
         }
         return fs.checkAccess(this, FileSystem.ACCESS_EXECUTE);
     }
-
-
-
-
-
     public static File[] listRoots() {
         return fs.listRoots();
     }
-
-
-
-
-
     public long getTotalSpace() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -614,8 +465,6 @@ public class File
         }
         return fs.getSpace(this, FileSystem.SPACE_TOTAL);
     }
-
-
     public long getFreeSpace() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -627,8 +476,6 @@ public class File
         }
         return fs.getSpace(this, FileSystem.SPACE_FREE);
     }
-
-
     public long getUsableSpace() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -640,19 +487,14 @@ public class File
         }
         return fs.getSpace(this, FileSystem.SPACE_USABLE);
     }
-
-
-
     private static class TempDirectory {
         private TempDirectory() { }
-
         // temporary directory location
         private static final File tmpdir = new File(AccessController
             .doPrivileged(new GetPropertyAction("java.io.tmpdir")));
         static File location() {
             return tmpdir;
         }
-
         // file name generation
         private static final SecureRandom random = new SecureRandom();
         static File generateFile(String prefix, String suffix, File dir)
@@ -664,10 +506,8 @@ public class File
             } else {
                 n = Math.abs(n);
             }
-
             // Use only the file name from the supplied prefix
             prefix = (new File(prefix)).getName();
-
             String name = prefix + Long.toString(n) + suffix;
             File f = new File(dir, name);
             if (!name.equals(f.getName()) || f.isInvalid()) {
@@ -679,8 +519,6 @@ public class File
             return f;
         }
     }
-
-
     public static File createTempFile(String prefix, String suffix,
                                       File directory)
         throws IOException
@@ -689,14 +527,12 @@ public class File
             throw new IllegalArgumentException("Prefix string too short");
         if (suffix == null)
             suffix = ".tmp";
-
         File tmpdir = (directory != null) ? directory
                                           : TempDirectory.location();
         SecurityManager sm = System.getSecurityManager();
         File f;
         do {
             f = TempDirectory.generateFile(prefix, suffix, tmpdir);
-
             if (sm != null) {
                 try {
                     sm.checkWrite(f.getPath());
@@ -708,54 +544,36 @@ public class File
                 }
             }
         } while ((fs.getBooleanAttributes(f) & FileSystem.BA_EXISTS) != 0);
-
         if (!fs.createFileExclusively(f.getPath()))
             throw new IOException("Unable to create temporary file");
-
         return f;
     }
-
-
     public static File createTempFile(String prefix, String suffix)
         throws IOException
     {
         return createTempFile(prefix, suffix, null);
     }
-
-
-
-
     public int compareTo(File pathname) {
         return fs.compare(this, pathname);
     }
-
-
     public boolean equals(Object obj) {
         if ((obj != null) && (obj instanceof File)) {
             return compareTo((File)obj) == 0;
         }
         return false;
     }
-
-
     public int hashCode() {
         return fs.hashCode(this);
     }
-
-
     public String toString() {
         return getPath();
     }
-
-
     private synchronized void writeObject(java.io.ObjectOutputStream s)
         throws IOException
     {
         s.defaultWriteObject();
         s.writeChar(separatorChar); // Add the separator character
     }
-
-
     private synchronized void readObject(java.io.ObjectInputStream s)
          throws IOException, ClassNotFoundException
     {
@@ -768,7 +586,6 @@ public class File
         UNSAFE.putObject(this, PATH_OFFSET, path);
         UNSAFE.putIntVolatile(this, PREFIX_LENGTH_OFFSET, fs.prefixLength(path));
     }
-
     private static final long PATH_OFFSET;
     private static final long PREFIX_LENGTH_OFFSET;
     private static final sun.misc.Unsafe UNSAFE;
@@ -784,16 +601,9 @@ public class File
             throw new Error(e);
         }
     }
-
-
-
     private static final long serialVersionUID = 301077366599181567L;
-
     // -- Integration with java.nio.file --
-
     private volatile transient Path filePath;
-
-
     public Path toPath() {
         Path result = filePath;
         if (result == null) {

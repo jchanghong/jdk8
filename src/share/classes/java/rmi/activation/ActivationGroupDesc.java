@@ -1,43 +1,22 @@
-
-
 package java.rmi.activation;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.rmi.MarshalledObject;
 import java.util.Arrays;
 import java.util.Properties;
-
-
 public final class ActivationGroupDesc implements Serializable {
-
-
     private String className;
-
-
     private String location;
-
-
     private MarshalledObject<?> data;
-
-
     private CommandEnvironment env;
-
-
     private Properties props;
-
-
     private static final long serialVersionUID = -4936225423168276595L;
-
-
     public ActivationGroupDesc(Properties overrides,
                                CommandEnvironment cmd)
     {
         this(null, null, null, overrides, cmd);
     }
-
-
     public ActivationGroupDesc(String className,
                                String location,
                                MarshalledObject<?> data,
@@ -50,49 +29,29 @@ public final class ActivationGroupDesc implements Serializable {
         this.location = location;
         this.className = className;
     }
-
-
     public String getClassName() {
         return className;
     }
-
-
     public String getLocation() {
         return location;
     }
-
-
     public MarshalledObject<?> getData() {
         return data;
     }
-
-
     public Properties getPropertyOverrides() {
         return (props != null) ? (Properties) props.clone() : null;
     }
-
-
     public CommandEnvironment getCommandEnvironment() {
         return this.env;
     }
-
-
-
     public static class CommandEnvironment implements Serializable {
         private static final long serialVersionUID = 6165754737887770191L;
-
-
         private String command;
-
-
         private String[] options;
-
-
         public CommandEnvironment(String cmdpath,
                                   String[] argv)
         {
             this.command = cmdpath;     // might be null
-
             // Hold a safe copy of argv in this.options
             if (argv == null) {
                 this.options = new String[0];
@@ -101,20 +60,13 @@ public final class ActivationGroupDesc implements Serializable {
                 System.arraycopy(argv, 0, this.options, 0, argv.length);
             }
         }
-
-
         public String getCommandPath() {
             return (this.command);
         }
-
-
         public String[] getCommandOptions() {
             return options.clone();
         }
-
-
         public boolean equals(Object obj) {
-
             if (obj instanceof CommandEnvironment) {
                 CommandEnvironment env = (CommandEnvironment) obj;
                 return
@@ -125,15 +77,11 @@ public final class ActivationGroupDesc implements Serializable {
                 return false;
             }
         }
-
-
         public int hashCode()
         {
             // hash command and ignore possibly expensive options
             return (command == null ? 0 : command.hashCode());
         }
-
-
         private void readObject(ObjectInputStream in)
             throws IOException, ClassNotFoundException
         {
@@ -143,10 +91,7 @@ public final class ActivationGroupDesc implements Serializable {
             }
         }
     }
-
-
     public boolean equals(Object obj) {
-
         if (obj instanceof ActivationGroupDesc) {
             ActivationGroupDesc desc = (ActivationGroupDesc) obj;
             return
@@ -162,8 +107,6 @@ public final class ActivationGroupDesc implements Serializable {
             return false;
         }
     }
-
-
     public int hashCode() {
         // hash location, className, data, and env
         // but omit props (may be expensive)

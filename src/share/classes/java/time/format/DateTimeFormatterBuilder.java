@@ -1,8 +1,4 @@
-
-
-
 package java.time.format;
-
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
@@ -12,7 +8,6 @@ import static java.time.temporal.ChronoField.NANO_OF_SECOND;
 import static java.time.temporal.ChronoField.OFFSET_SECONDS;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 import static java.time.temporal.ChronoField.YEAR;
-
 import java.lang.ref.SoftReference;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -55,36 +50,21 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import sun.util.locale.provider.LocaleProviderAdapter;
 import sun.util.locale.provider.LocaleResources;
 import sun.util.locale.provider.TimeZoneNameUtility;
-
-
 public final class DateTimeFormatterBuilder {
-
-
     private static final TemporalQuery<ZoneId> QUERY_REGION_ONLY = (temporal) -> {
         ZoneId zone = temporal.query(TemporalQueries.zoneId());
         return (zone != null && zone instanceof ZoneOffset == false ? zone : null);
     };
-
-
     private DateTimeFormatterBuilder active = this;
-
     private final DateTimeFormatterBuilder parent;
-
     private final List<DateTimePrinterParser> printerParsers = new ArrayList<>();
-
     private final boolean optional;
-
     private int padNextWidth;
-
     private char padNextChar;
-
     private int valueParserIndex = -1;
-
-
     public static String getLocalizedDateTimePattern(FormatStyle dateStyle, FormatStyle timeStyle,
             Chronology chrono, Locale locale) {
         Objects.requireNonNull(locale, "locale");
@@ -97,72 +77,52 @@ public final class DateTimeFormatterBuilder {
                 convertStyle(timeStyle), convertStyle(dateStyle), chrono.getCalendarType());
         return pattern;
     }
-
-
     private static int convertStyle(FormatStyle style) {
         if (style == null) {
             return -1;
         }
         return style.ordinal();  // indices happen to align
     }
-
-
     public DateTimeFormatterBuilder() {
         super();
         parent = null;
         optional = false;
     }
-
-
     private DateTimeFormatterBuilder(DateTimeFormatterBuilder parent, boolean optional) {
         super();
         this.parent = parent;
         this.optional = optional;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder parseCaseSensitive() {
         appendInternal(SettingsParser.SENSITIVE);
         return this;
     }
-
-
     public DateTimeFormatterBuilder parseCaseInsensitive() {
         appendInternal(SettingsParser.INSENSITIVE);
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder parseStrict() {
         appendInternal(SettingsParser.STRICT);
         return this;
     }
-
-
     public DateTimeFormatterBuilder parseLenient() {
         appendInternal(SettingsParser.LENIENT);
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder parseDefaulting(TemporalField field, long value) {
         Objects.requireNonNull(field, "field");
         appendInternal(new DefaultValueParser(field, value));
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder appendValue(TemporalField field) {
         Objects.requireNonNull(field, "field");
         appendValue(new NumberPrinterParser(field, 1, 19, SignStyle.NORMAL));
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendValue(TemporalField field, int width) {
         Objects.requireNonNull(field, "field");
         if (width < 1 || width > 19) {
@@ -172,8 +132,6 @@ public final class DateTimeFormatterBuilder {
         appendValue(pp);
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendValue(
             TemporalField field, int minWidth, int maxWidth, SignStyle signStyle) {
         if (minWidth == maxWidth && signStyle == SignStyle.NOT_NEGATIVE) {
@@ -195,9 +153,7 @@ public final class DateTimeFormatterBuilder {
         appendValue(pp);
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder appendValueReduced(TemporalField field,
             int width, int maxWidth, int baseValue) {
         Objects.requireNonNull(field, "field");
@@ -205,8 +161,6 @@ public final class DateTimeFormatterBuilder {
         appendValue(pp);
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendValueReduced(
             TemporalField field, int width, int maxWidth, ChronoLocalDate baseDate) {
         Objects.requireNonNull(field, "field");
@@ -215,12 +169,9 @@ public final class DateTimeFormatterBuilder {
         appendValue(pp);
         return this;
     }
-
-
     private DateTimeFormatterBuilder appendValue(NumberPrinterParser pp) {
         if (active.valueParserIndex >= 0) {
             final int activeValueParser = active.valueParserIndex;
-
             // adjacent parsing mode, update setting in previous parsers
             NumberPrinterParser basePP = (NumberPrinterParser) active.printerParsers.get(activeValueParser);
             if (pp.minWidth == pp.maxWidth && pp.signStyle == SignStyle.NOT_NEGATIVE) {
@@ -244,30 +195,22 @@ public final class DateTimeFormatterBuilder {
         }
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder appendFraction(
             TemporalField field, int minWidth, int maxWidth, boolean decimalPoint) {
         appendInternal(new FractionPrinterParser(field, minWidth, maxWidth, decimalPoint));
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder appendText(TemporalField field) {
         return appendText(field, TextStyle.FULL);
     }
-
-
     public DateTimeFormatterBuilder appendText(TemporalField field, TextStyle textStyle) {
         Objects.requireNonNull(field, "field");
         Objects.requireNonNull(textStyle, "textStyle");
         appendInternal(new TextPrinterParser(field, textStyle, DateTimeTextProvider.getInstance()));
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendText(TemporalField field, Map<Long, String> textLookup) {
         Objects.requireNonNull(field, "field");
         Objects.requireNonNull(textLookup, "textLookup");
@@ -287,15 +230,11 @@ public final class DateTimeFormatterBuilder {
         appendInternal(new TextPrinterParser(field, TextStyle.FULL, provider));
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder appendInstant() {
         appendInternal(new InstantPrinterParser(-2));
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendInstant(int fractionalDigits) {
         if (fractionalDigits < -1 || fractionalDigits > 9) {
             throw new IllegalArgumentException("The fractional digits must be from -1 to 9 inclusive but was " + fractionalDigits);
@@ -303,21 +242,15 @@ public final class DateTimeFormatterBuilder {
         appendInternal(new InstantPrinterParser(fractionalDigits));
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder appendOffsetId() {
         appendInternal(OffsetIdPrinterParser.INSTANCE_ID_Z);
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendOffset(String pattern, String noOffsetText) {
         appendInternal(new OffsetIdPrinterParser(pattern, noOffsetText));
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendLocalizedOffset(TextStyle style) {
         Objects.requireNonNull(style, "style");
         if (style != TextStyle.FULL && style != TextStyle.SHORT) {
@@ -326,56 +259,40 @@ public final class DateTimeFormatterBuilder {
         appendInternal(new LocalizedOffsetIdPrinterParser(style));
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder appendZoneId() {
         appendInternal(new ZoneIdPrinterParser(TemporalQueries.zoneId(), "ZoneId()"));
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendZoneRegionId() {
         appendInternal(new ZoneIdPrinterParser(QUERY_REGION_ONLY, "ZoneRegionId()"));
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendZoneOrOffsetId() {
         appendInternal(new ZoneIdPrinterParser(TemporalQueries.zone(), "ZoneOrOffsetId()"));
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendZoneText(TextStyle textStyle) {
         appendInternal(new ZoneTextPrinterParser(textStyle, null));
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendZoneText(TextStyle textStyle,
                                                    Set<ZoneId> preferredZones) {
         Objects.requireNonNull(preferredZones, "preferredZones");
         appendInternal(new ZoneTextPrinterParser(textStyle, preferredZones));
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder appendChronologyId() {
         appendInternal(new ChronoPrinterParser(null));
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendChronologyText(TextStyle textStyle) {
         Objects.requireNonNull(textStyle, "textStyle");
         appendInternal(new ChronoPrinterParser(textStyle));
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder appendLocalized(FormatStyle dateStyle, FormatStyle timeStyle) {
         if (dateStyle == null && timeStyle == null) {
             throw new IllegalArgumentException("Either the date or time style must be non-null");
@@ -383,15 +300,11 @@ public final class DateTimeFormatterBuilder {
         appendInternal(new LocalizedPrinterParser(dateStyle, timeStyle));
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder appendLiteral(char literal) {
         appendInternal(new CharLiteralPrinterParser(literal));
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendLiteral(String literal) {
         Objects.requireNonNull(literal, "literal");
         if (literal.length() > 0) {
@@ -403,30 +316,23 @@ public final class DateTimeFormatterBuilder {
         }
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder append(DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         appendInternal(formatter.toPrinterParser(false));
         return this;
     }
-
-
     public DateTimeFormatterBuilder appendOptional(DateTimeFormatter formatter) {
         Objects.requireNonNull(formatter, "formatter");
         appendInternal(formatter.toPrinterParser(true));
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder appendPattern(String pattern) {
         Objects.requireNonNull(pattern, "pattern");
         parsePattern(pattern);
         return this;
     }
-
     private void parsePattern(String pattern) {
         for (int pos = 0; pos < pattern.length(); pos++) {
             char cur = pattern.charAt(pos);
@@ -517,7 +423,6 @@ public final class DateTimeFormatterBuilder {
                     throw new IllegalArgumentException("Unknown pattern letter: " + cur);
                 }
                 pos--;
-
             } else if (cur == '\'') {
                 // parse literals
                 int start = pos++;
@@ -539,16 +444,13 @@ public final class DateTimeFormatterBuilder {
                 } else {
                     appendLiteral(str.replace("''", "'"));
                 }
-
             } else if (cur == '[') {
                 optionalStart();
-
             } else if (cur == ']') {
                 if (active.parent == null) {
                     throw new IllegalArgumentException("Pattern invalid as it contains ] without previous [");
                 }
                 optionalEnd();
-
             } else if (cur == '{' || cur == '}' || cur == '#') {
                 throw new IllegalArgumentException("Pattern includes reserved character: '" + cur + "'");
             } else {
@@ -556,7 +458,6 @@ public final class DateTimeFormatterBuilder {
             }
         }
     }
-
     @SuppressWarnings("fallthrough")
     private void parseField(char cur, int count, TemporalField field) {
         boolean standalone = false;
@@ -575,11 +476,9 @@ public final class DateTimeFormatterBuilder {
                 if (count == 2) {
                     throw new IllegalArgumentException("Invalid pattern \"cc\"");
                 }
-
             case 'L':
             case 'q':
                 standalone = true;
-
             case 'M':
             case 'Q':
             case 'E':
@@ -679,8 +578,6 @@ public final class DateTimeFormatterBuilder {
                 break;
         }
     }
-
-
     private static final Map<Character, TemporalField> FIELD_MAP = new HashMap<>();
     static {
         // SDF = SimpleDateFormat
@@ -721,14 +618,10 @@ public final class DateTimeFormatterBuilder {
         // LDML - g - modified-julian-day
         // LDML - v,V - extended time-zone names
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder padNext(int padWidth) {
         return padNext(padWidth, ' ');
     }
-
-
     public DateTimeFormatterBuilder padNext(int padWidth, char padChar) {
         if (padWidth < 1) {
             throw new IllegalArgumentException("The pad width must be at least one but was " + padWidth);
@@ -738,16 +631,12 @@ public final class DateTimeFormatterBuilder {
         active.valueParserIndex = -1;
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatterBuilder optionalStart() {
         active.valueParserIndex = -1;
         active = new DateTimeFormatterBuilder(active, true);
         return this;
     }
-
-
     public DateTimeFormatterBuilder optionalEnd() {
         if (active.parent == null) {
             throw new IllegalStateException("Cannot call optionalEnd() as there was no previous call to optionalStart()");
@@ -761,9 +650,7 @@ public final class DateTimeFormatterBuilder {
         }
         return this;
     }
-
     //-----------------------------------------------------------------------
-
     private int appendInternal(DateTimePrinterParser pp) {
         Objects.requireNonNull(pp, "pp");
         if (active.padNextWidth > 0) {
@@ -777,24 +664,16 @@ public final class DateTimeFormatterBuilder {
         active.valueParserIndex = -1;
         return active.printerParsers.size() - 1;
     }
-
     //-----------------------------------------------------------------------
-
     public DateTimeFormatter toFormatter() {
         return toFormatter(Locale.getDefault(Locale.Category.FORMAT));
     }
-
-
     public DateTimeFormatter toFormatter(Locale locale) {
         return toFormatter(locale, ResolverStyle.SMART, null);
     }
-
-
     DateTimeFormatter toFormatter(ResolverStyle resolverStyle, Chronology chrono) {
         return toFormatter(Locale.getDefault(Locale.Category.FORMAT), resolverStyle, chrono);
     }
-
-
     private DateTimeFormatter toFormatter(Locale locale, ResolverStyle resolverStyle, Chronology chrono) {
         Objects.requireNonNull(locale, "locale");
         while (active.parent != null) {
@@ -804,41 +683,28 @@ public final class DateTimeFormatterBuilder {
         return new DateTimeFormatter(pp, locale, DecimalStyle.STANDARD,
                 resolverStyle, null, chrono, null);
     }
-
     //-----------------------------------------------------------------------
-
     interface DateTimePrinterParser {
-
-
         boolean format(DateTimePrintContext context, StringBuilder buf);
-
-
         int parse(DateTimeParseContext context, CharSequence text, int position);
     }
-
     //-----------------------------------------------------------------------
-
     static final class CompositePrinterParser implements DateTimePrinterParser {
         private final DateTimePrinterParser[] printerParsers;
         private final boolean optional;
-
         CompositePrinterParser(List<DateTimePrinterParser> printerParsers, boolean optional) {
             this(printerParsers.toArray(new DateTimePrinterParser[printerParsers.size()]), optional);
         }
-
         CompositePrinterParser(DateTimePrinterParser[] printerParsers, boolean optional) {
             this.printerParsers = printerParsers;
             this.optional = optional;
         }
-
-
         public CompositePrinterParser withOptional(boolean optional) {
             if (optional == this.optional) {
                 return this;
             }
             return new CompositePrinterParser(printerParsers, optional);
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             int length = buf.length();
@@ -859,7 +725,6 @@ public final class DateTimeFormatterBuilder {
             }
             return true;
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             if (optional) {
@@ -884,7 +749,6 @@ public final class DateTimeFormatterBuilder {
                 return position;
             }
         }
-
         @Override
         public String toString() {
             StringBuilder buf = new StringBuilder();
@@ -898,22 +762,17 @@ public final class DateTimeFormatterBuilder {
             return buf.toString();
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class PadPrinterParserDecorator implements DateTimePrinterParser {
         private final DateTimePrinterParser printerParser;
         private final int padWidth;
         private final char padChar;
-
-
         PadPrinterParserDecorator(DateTimePrinterParser printerParser, int padWidth, char padChar) {
             // input checked by DateTimeFormatterBuilder
             this.printerParser = printerParser;
             this.padWidth = padWidth;
             this.padChar = padChar;
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             int preLen = buf.length();
@@ -930,7 +789,6 @@ public final class DateTimeFormatterBuilder {
             }
             return true;
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             // cache context before changed by decorated parser
@@ -960,26 +818,21 @@ public final class DateTimeFormatterBuilder {
             }
             return resultPos;
         }
-
         @Override
         public String toString() {
             return "Pad(" + printerParser + "," + padWidth + (padChar == ' ' ? ")" : ",'" + padChar + "')");
         }
     }
-
     //-----------------------------------------------------------------------
-
     static enum SettingsParser implements DateTimePrinterParser {
         SENSITIVE,
         INSENSITIVE,
         STRICT,
         LENIENT;
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             return true;  // nothing to do here
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             // using ordinals to avoid javac synthetic inner class
@@ -991,7 +844,6 @@ public final class DateTimeFormatterBuilder {
             }
             return position;
         }
-
         @Override
         public String toString() {
             // using ordinals to avoid javac synthetic inner class
@@ -1004,22 +856,17 @@ public final class DateTimeFormatterBuilder {
             throw new IllegalStateException("Unreachable");
         }
     }
-
     //-----------------------------------------------------------------------
-
     static class DefaultValueParser implements DateTimePrinterParser {
         private final TemporalField field;
         private final long value;
-
         DefaultValueParser(TemporalField field, long value) {
             this.field = field;
             this.value = value;
         }
-
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             return true;
         }
-
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             if (context.getParsed(field) == null) {
                 context.setParsedField(field, value, position, position);
@@ -1027,22 +874,17 @@ public final class DateTimeFormatterBuilder {
             return position;
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class CharLiteralPrinterParser implements DateTimePrinterParser {
         private final char literal;
-
         CharLiteralPrinterParser(char literal) {
             this.literal = literal;
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             buf.append(literal);
             return true;
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             int length = text.length();
@@ -1059,7 +901,6 @@ public final class DateTimeFormatterBuilder {
             }
             return position + 1;
         }
-
         @Override
         public String toString() {
             if (literal == '\'') {
@@ -1068,22 +909,17 @@ public final class DateTimeFormatterBuilder {
             return "'" + literal + "'";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class StringLiteralPrinterParser implements DateTimePrinterParser {
         private final String literal;
-
         StringLiteralPrinterParser(String literal) {
             this.literal = literal;  // validated by caller
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             buf.append(literal);
             return true;
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             int length = text.length();
@@ -1095,19 +931,14 @@ public final class DateTimeFormatterBuilder {
             }
             return position + literal.length();
         }
-
         @Override
         public String toString() {
             String converted = literal.replace("'", "''");
             return "'" + converted + "'";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static class NumberPrinterParser implements DateTimePrinterParser {
-
-
         static final long[] EXCEED_POINTS = new long[] {
             0L,
             10L,
@@ -1121,14 +952,11 @@ public final class DateTimeFormatterBuilder {
             1000000000L,
             10000000000L,
         };
-
         final TemporalField field;
         final int minWidth;
         final int maxWidth;
         private final SignStyle signStyle;
         final int subsequentWidth;
-
-
         NumberPrinterParser(TemporalField field, int minWidth, int maxWidth, SignStyle signStyle) {
             // validated by caller
             this.field = field;
@@ -1137,8 +965,6 @@ public final class DateTimeFormatterBuilder {
             this.signStyle = signStyle;
             this.subsequentWidth = 0;
         }
-
-
         protected NumberPrinterParser(TemporalField field, int minWidth, int maxWidth, SignStyle signStyle, int subsequentWidth) {
             // validated by caller
             this.field = field;
@@ -1147,20 +973,15 @@ public final class DateTimeFormatterBuilder {
             this.signStyle = signStyle;
             this.subsequentWidth = subsequentWidth;
         }
-
-
         NumberPrinterParser withFixedWidth() {
             if (subsequentWidth == -1) {
                 return this;
             }
             return new NumberPrinterParser(field, minWidth, maxWidth, signStyle, -1);
         }
-
-
         NumberPrinterParser withSubsequentWidth(int subsequentWidth) {
             return new NumberPrinterParser(field, minWidth, maxWidth, signStyle, this.subsequentWidth + subsequentWidth);
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             Long valueLong = context.getValue(field);
@@ -1176,7 +997,6 @@ public final class DateTimeFormatterBuilder {
                     " exceeds the maximum print width of " + maxWidth);
             }
             str = decimalStyle.convertNumberToI18N(str);
-
             if (value >= 0) {
                 switch (signStyle) {
                     case EXCEEDS_PAD:
@@ -1207,18 +1027,13 @@ public final class DateTimeFormatterBuilder {
             buf.append(str);
             return true;
         }
-
-
         long getValue(DateTimePrintContext context, long value) {
             return value;
         }
-
-
         boolean isFixedWidth(DateTimeParseContext context) {
             return subsequentWidth == -1 ||
                 (subsequentWidth > 0 && minWidth == maxWidth && signStyle == SignStyle.NOT_NEGATIVE);
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             int length = text.length();
@@ -1320,12 +1135,9 @@ public final class DateTimeFormatterBuilder {
             }
             return setValue(context, total, position, pos);
         }
-
-
         int setValue(DateTimeParseContext context, long value, int errorPos, int successPos) {
             return context.setParsedField(field, value, errorPos, successPos);
         }
-
         @Override
         public String toString() {
             if (minWidth == 1 && maxWidth == 19 && signStyle == SignStyle.NORMAL) {
@@ -1337,17 +1149,11 @@ public final class DateTimeFormatterBuilder {
             return "Value(" + field + "," + minWidth + "," + maxWidth + "," + signStyle + ")";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class ReducedPrinterParser extends NumberPrinterParser {
-
         static final LocalDate BASE_DATE = LocalDate.of(2000, 1, 1);
-
         private final int baseValue;
         private final ChronoLocalDate baseDate;
-
-
         ReducedPrinterParser(TemporalField field, int minWidth, int maxWidth,
                 int baseValue, ChronoLocalDate baseDate) {
             this(field, minWidth, maxWidth, baseValue, baseDate, 0);
@@ -1370,15 +1176,12 @@ public final class DateTimeFormatterBuilder {
                 }
             }
         }
-
-
         private ReducedPrinterParser(TemporalField field, int minWidth, int maxWidth,
                 int baseValue, ChronoLocalDate baseDate, int subsequentWidth) {
             super(field, minWidth, maxWidth, SignStyle.NOT_NEGATIVE, subsequentWidth);
             this.baseValue = baseValue;
             this.baseDate = baseDate;
         }
-
         @Override
         long getValue(DateTimePrintContext context, long value) {
             long absValue = Math.abs(value);
@@ -1394,19 +1197,16 @@ public final class DateTimeFormatterBuilder {
             // Otherwise truncate to fit in maxWidth
             return absValue % EXCEED_POINTS[maxWidth];
         }
-
         @Override
         int setValue(DateTimeParseContext context, long value, int errorPos, int successPos) {
             int baseValue = this.baseValue;
             if (baseDate != null) {
                 Chronology chrono = context.getEffectiveChronology();
                 baseValue = chrono.date(baseDate).get(field);
-
                 // In case the Chronology is changed later, add a callback when/if it changes
                 final long initialValue = value;
                 context.addChronoChangedListener(
                         (_unused) ->  {
-
                             setValue(context, initialValue, errorPos, successPos);
                         });
             }
@@ -1426,8 +1226,6 @@ public final class DateTimeFormatterBuilder {
             }
             return context.setParsedField(field, value, errorPos, successPos);
         }
-
-
         @Override
         ReducedPrinterParser withFixedWidth() {
             if (subsequentWidth == -1) {
@@ -1435,15 +1233,11 @@ public final class DateTimeFormatterBuilder {
             }
             return new ReducedPrinterParser(field, minWidth, maxWidth, baseValue, baseDate, -1);
         }
-
-
         @Override
         ReducedPrinterParser withSubsequentWidth(int subsequentWidth) {
             return new ReducedPrinterParser(field, minWidth, maxWidth, baseValue, baseDate,
                     this.subsequentWidth + subsequentWidth);
         }
-
-
         @Override
         boolean isFixedWidth(DateTimeParseContext context) {
            if (context.isStrict() == false) {
@@ -1451,22 +1245,17 @@ public final class DateTimeFormatterBuilder {
            }
            return super.isFixedWidth(context);
         }
-
         @Override
         public String toString() {
             return "ReducedValue(" + field + "," + minWidth + "," + maxWidth + "," + (baseDate != null ? baseDate : baseValue) + ")";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class FractionPrinterParser implements DateTimePrinterParser {
         private final TemporalField field;
         private final int minWidth;
         private final int maxWidth;
         private final boolean decimalPoint;
-
-
         FractionPrinterParser(TemporalField field, int minWidth, int maxWidth, boolean decimalPoint) {
             Objects.requireNonNull(field, "field");
             if (field.range().isFixed() == false) {
@@ -1487,7 +1276,6 @@ public final class DateTimeFormatterBuilder {
             this.maxWidth = maxWidth;
             this.decimalPoint = decimalPoint;
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             Long value = context.getValue(field);
@@ -1517,7 +1305,6 @@ public final class DateTimeFormatterBuilder {
             }
             return true;
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             int effectiveMin = (context.isStrict() ? minWidth : 0);
@@ -1557,8 +1344,6 @@ public final class DateTimeFormatterBuilder {
             long value = convertFromFraction(fraction);
             return context.setParsedField(field, value, position, pos);
         }
-
-
         private BigDecimal convertToFraction(long value) {
             ValueRange range = field.range();
             range.checkValidValue(value, field);
@@ -1569,8 +1354,6 @@ public final class DateTimeFormatterBuilder {
             // stripTrailingZeros bug
             return fraction.compareTo(BigDecimal.ZERO) == 0 ? BigDecimal.ZERO : fraction.stripTrailingZeros();
         }
-
-
         private long convertFromFraction(BigDecimal fraction) {
             ValueRange range = field.range();
             BigDecimal minBD = BigDecimal.valueOf(range.getMinimum());
@@ -1578,31 +1361,24 @@ public final class DateTimeFormatterBuilder {
             BigDecimal valueBD = fraction.multiply(rangeBD).setScale(0, RoundingMode.FLOOR).add(minBD);
             return valueBD.longValueExact();
         }
-
         @Override
         public String toString() {
             String decimal = (decimalPoint ? ",DecimalPoint" : "");
             return "Fraction(" + field + "," + minWidth + "," + maxWidth + decimal + ")";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class TextPrinterParser implements DateTimePrinterParser {
         private final TemporalField field;
         private final TextStyle textStyle;
         private final DateTimeTextProvider provider;
-
         private volatile NumberPrinterParser numberPrinterParser;
-
-
         TextPrinterParser(TemporalField field, TextStyle textStyle, DateTimeTextProvider provider) {
             // validated by caller
             this.field = field;
             this.textStyle = textStyle;
             this.provider = provider;
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             Long value = context.getValue(field);
@@ -1622,7 +1398,6 @@ public final class DateTimeFormatterBuilder {
             buf.append(text);
             return true;
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence parseText, int position) {
             int length = parseText.length();
@@ -1651,15 +1426,12 @@ public final class DateTimeFormatterBuilder {
             }
             return numberPrinterParser().parse(context, parseText, position);
         }
-
-
         private NumberPrinterParser numberPrinterParser() {
             if (numberPrinterParser == null) {
                 numberPrinterParser = new NumberPrinterParser(field, 1, 19, SignStyle.NORMAL);
             }
             return numberPrinterParser;
         }
-
         @Override
         public String toString() {
             if (textStyle == TextStyle.FULL) {
@@ -1668,9 +1440,7 @@ public final class DateTimeFormatterBuilder {
             return "Text(" + field + "," + textStyle + ")";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class InstantPrinterParser implements DateTimePrinterParser {
         // days in a 400 year cycle = 146097
         // days in a 10,000 year cycle = 146097 * 25
@@ -1678,11 +1448,9 @@ public final class DateTimeFormatterBuilder {
         private static final long SECONDS_PER_10000_YEARS = 146097L * 25L * 86400L;
         private static final long SECONDS_0000_TO_1970 = ((146097L * 5L) - (30L * 365L + 7L)) * 86400L;
         private final int fractionalDigits;
-
         InstantPrinterParser(int fractionalDigits) {
             this.fractionalDigits = fractionalDigits;
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             // use INSTANT_SECONDS, thus this code is not bound by Instant.MAX
@@ -1747,7 +1515,6 @@ public final class DateTimeFormatterBuilder {
             buf.append('Z');
             return true;
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             // new context to avoid overwriting fields like year/month/day
@@ -1798,33 +1565,26 @@ public final class DateTimeFormatterBuilder {
             successPos = context.setParsedField(INSTANT_SECONDS, instantSecs, position, successPos);
             return context.setParsedField(NANO_OF_SECOND, nano, position, successPos);
         }
-
         @Override
         public String toString() {
             return "Instant()";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class OffsetIdPrinterParser implements DateTimePrinterParser {
         static final String[] PATTERNS = new String[] {
             "+HH", "+HHmm", "+HH:mm", "+HHMM", "+HH:MM", "+HHMMss", "+HH:MM:ss", "+HHMMSS", "+HH:MM:SS",
         };  // order used in pattern builder
         static final OffsetIdPrinterParser INSTANCE_ID_Z = new OffsetIdPrinterParser("+HH:MM:ss", "Z");
         static final OffsetIdPrinterParser INSTANCE_ID_ZERO = new OffsetIdPrinterParser("+HH:MM:ss", "0");
-
         private final String noOffsetText;
         private final int type;
-
-
         OffsetIdPrinterParser(String pattern, String noOffsetText) {
             Objects.requireNonNull(pattern, "pattern");
             Objects.requireNonNull(noOffsetText, "noOffsetText");
             this.type = checkPattern(pattern);
             this.noOffsetText = noOffsetText;
         }
-
         private int checkPattern(String pattern) {
             for (int i = 0; i < PATTERNS.length; i++) {
                 if (PATTERNS[i].equals(pattern)) {
@@ -1833,7 +1593,6 @@ public final class DateTimeFormatterBuilder {
             }
             throw new IllegalArgumentException("Invalid zone offset pattern: " + pattern);
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             Long offsetSecs = context.getValue(OFFSET_SECONDS);
@@ -1868,7 +1627,6 @@ public final class DateTimeFormatterBuilder {
             }
             return true;
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             int length = text.length();
@@ -1885,7 +1643,6 @@ public final class DateTimeFormatterBuilder {
                     return context.setParsedField(OFFSET_SECONDS, 0, position, position + noOffsetLen);
                 }
             }
-
             // parse normal plus/minus offset
             char sign = text.charAt(position);  // IOOBE if invalid position
             if (sign == '+' || sign == '-') {
@@ -1907,8 +1664,6 @@ public final class DateTimeFormatterBuilder {
             }
             return ~position;
         }
-
-
         private boolean parseNumber(int[] array, int arrayIndex, CharSequence parseText, boolean required) {
             if ((type + 3) / 2 < arrayIndex) {
                 return false;  // ignore seconds/minutes
@@ -1936,29 +1691,22 @@ public final class DateTimeFormatterBuilder {
             array[0] = pos;
             return false;
         }
-
         @Override
         public String toString() {
             String converted = noOffsetText.replace("'", "''");
             return "Offset(" + PATTERNS[type] + ",'" + converted + "')";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class LocalizedOffsetIdPrinterParser implements DateTimePrinterParser {
         private final TextStyle style;
-
-
         LocalizedOffsetIdPrinterParser(TextStyle style) {
             this.style = style;
         }
-
         private static StringBuilder appendHMS(StringBuilder buf, int t) {
             return buf.append((char)(t / 10 + '0'))
                       .append((char)(t % 10 + '0'));
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             Long offsetSecs = context.getValue(OFFSET_SECONDS);
@@ -2000,7 +1748,6 @@ public final class DateTimeFormatterBuilder {
             }
             return true;
         }
-
         int getDigit(CharSequence text, int position) {
             char c = text.charAt(position);
             if (c < '0' || c > '9') {
@@ -2008,7 +1755,6 @@ public final class DateTimeFormatterBuilder {
             }
             return c - '0';
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             int pos = position;
@@ -2092,23 +1838,15 @@ public final class DateTimeFormatterBuilder {
             long offsetSecs = negative * (h * 3600L + m * 60L + s);
             return context.setParsedField(OFFSET_SECONDS, offsetSecs, position, pos);
         }
-
         @Override
         public String toString() {
             return "LocalizedOffset(" + style + ")";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class ZoneTextPrinterParser extends ZoneIdPrinterParser {
-
-
         private final TextStyle textStyle;
-
-
         private Set<String> preferredZones;
-
         ZoneTextPrinterParser(TextStyle textStyle, Set<ZoneId> preferredZones) {
             super(TemporalQueries.zone(), "ZoneText(" + textStyle + ")");
             this.textStyle = Objects.requireNonNull(textStyle, "textStyle");
@@ -2119,13 +1857,11 @@ public final class DateTimeFormatterBuilder {
                 }
             }
         }
-
         private static final int STD = 0;
         private static final int DST = 1;
         private static final int GENERIC = 2;
         private static final Map<String, SoftReference<Map<Locale, String[]>>> cache =
             new ConcurrentHashMap<>();
-
         private String getDisplayName(String id, int type, Locale locale) {
             if (textStyle == TextStyle.NARROW) {
                 return null;
@@ -2164,7 +1900,6 @@ public final class DateTimeFormatterBuilder {
             }
             return names[textStyle.zoneNameStyleIndex() + 5];
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             ZoneId zone = context.getValue(TemporalQueries.zoneId());
@@ -2186,13 +1921,11 @@ public final class DateTimeFormatterBuilder {
             buf.append(zname);
             return true;
         }
-
         // cache per instance for now
         private final Map<Locale, Entry<Integer, SoftReference<PrefixTree>>>
             cachedTree = new HashMap<>();
         private final Map<Locale, Entry<Integer, SoftReference<PrefixTree>>>
             cachedTreeCI = new HashMap<>();
-
         @Override
         protected PrefixTree getTree(DateTimeParseContext context) {
             if (textStyle == TextStyle.NARROW) {
@@ -2202,10 +1935,8 @@ public final class DateTimeFormatterBuilder {
             boolean isCaseSensitive = context.isCaseSensitive();
             Set<String> regionIds = ZoneRulesProvider.getAvailableZoneIds();
             int regionIdsSize = regionIds.size();
-
             Map<Locale, Entry<Integer, SoftReference<PrefixTree>>> cached =
                 isCaseSensitive ? cachedTree : cachedTreeCI;
-
             Entry<Integer, SoftReference<PrefixTree>> entry = null;
             PrefixTree tree = null;
             String[][] zoneStrings = null;
@@ -2245,18 +1976,14 @@ public final class DateTimeFormatterBuilder {
             return tree;
         }
     }
-
     //-----------------------------------------------------------------------
-
     static class ZoneIdPrinterParser implements DateTimePrinterParser {
         private final TemporalQuery<ZoneId> query;
         private final String description;
-
         ZoneIdPrinterParser(TemporalQuery<ZoneId> query, String description) {
             this.query = query;
             this.description = description;
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             ZoneId zone = context.getValue(query);
@@ -2266,11 +1993,8 @@ public final class DateTimeFormatterBuilder {
             buf.append(zone.getId());
             return true;
         }
-
-
         private static volatile Entry<Integer, PrefixTree> cachedPrefixTree;
         private static volatile Entry<Integer, PrefixTree> cachedPrefixTreeCI;
-
         protected PrefixTree getTree(DateTimeParseContext context) {
             // prepare parse tree
             Set<String> regionIds = ZoneRulesProvider.getAvailableZoneIds();
@@ -2292,8 +2016,6 @@ public final class DateTimeFormatterBuilder {
             }
             return cached.getValue();
         }
-
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             int length = text.length();
@@ -2303,7 +2025,6 @@ public final class DateTimeFormatterBuilder {
             if (position == length) {
                 return ~position;
             }
-
             // handle fixed time-zone IDs
             char nextChar = text.charAt(position);
             if (nextChar == '+' || nextChar == '-') {
@@ -2320,7 +2041,6 @@ public final class DateTimeFormatterBuilder {
                     return parseOffsetBased(context, text, position, position + 3, OffsetIdPrinterParser.INSTANCE_ID_ZERO);
                 }
             }
-
             // parse
             PrefixTree tree = getTree(context);
             ParsePosition ppos = new ParsePosition(position);
@@ -2335,22 +2055,18 @@ public final class DateTimeFormatterBuilder {
             context.setParsed(ZoneId.of(parsedZoneId));
             return ppos.getIndex();
         }
-
-
         private int parseOffsetBased(DateTimeParseContext context, CharSequence text, int prefixPos, int position, OffsetIdPrinterParser parser) {
             String prefix = text.toString().substring(prefixPos, position).toUpperCase();
             if (position >= text.length()) {
                 context.setParsed(ZoneId.of(prefix));
                 return position;
             }
-
             // '0' or 'Z' after prefix is not part of a valid ZoneId; use bare prefix
             if (text.charAt(position) == '0' ||
                 context.charEquals(text.charAt(position), 'Z')) {
                 context.setParsed(ZoneId.of(prefix));
                 return position;
             }
-
             DateTimeParseContext newContext = context.copy();
             int endPos = parser.parse(newContext, text, position);
             try {
@@ -2369,15 +2085,12 @@ public final class DateTimeFormatterBuilder {
                 return ~prefixPos;
             }
         }
-
         @Override
         public String toString() {
             return description;
         }
     }
-
     //-----------------------------------------------------------------------
-
     static class PrefixTree {
         protected String key;
         protected String value;
@@ -2385,7 +2098,6 @@ public final class DateTimeFormatterBuilder {
                               // boundary check cost of key.charat(0)
         protected PrefixTree child;
         protected PrefixTree sibling;
-
         private PrefixTree(String k, String v, PrefixTree child) {
             this.key = k;
             this.value = v;
@@ -2396,8 +2108,6 @@ public final class DateTimeFormatterBuilder {
                 c0 = key.charAt(0);
             }
         }
-
-
         public static PrefixTree newTree(DateTimeParseContext context) {
             //if (!context.isStrict()) {
             //    return new LENIENT("", null, null);
@@ -2407,8 +2117,6 @@ public final class DateTimeFormatterBuilder {
             }
             return new CI("", null, null);
         }
-
-
         public static  PrefixTree newTree(Set<String> keys, DateTimeParseContext context) {
             PrefixTree tree = newTree(context);
             for (String k : keys) {
@@ -2416,8 +2124,6 @@ public final class DateTimeFormatterBuilder {
             }
             return tree;
         }
-
-
         public PrefixTree copyTree() {
             PrefixTree copy = new PrefixTree(key, value, null);
             if (child != null) {
@@ -2428,13 +2134,9 @@ public final class DateTimeFormatterBuilder {
             }
             return copy;
         }
-
-
-
         public boolean add(String k, String v) {
             return add0(k, v);
         }
-
         private boolean add0(String k, String v) {
             k = toKey(k);
             int prefixLen = prefixLength(k);
@@ -2474,8 +2176,6 @@ public final class DateTimeFormatterBuilder {
             }
             return true;
         }
-
-
         public String match(CharSequence text, int off, int end) {
             if (!prefixOf(text, off, end)){
                 return null;
@@ -2495,8 +2195,6 @@ public final class DateTimeFormatterBuilder {
             }
             return value;
         }
-
-
         public String match(CharSequence text, ParsePosition pos) {
             int off = pos.getIndex();
             int end = text.length();
@@ -2521,19 +2219,15 @@ public final class DateTimeFormatterBuilder {
             pos.setIndex(off);
             return value;
         }
-
         protected String toKey(String k) {
             return k;
         }
-
         protected PrefixTree newNode(String k, String v, PrefixTree child) {
             return new PrefixTree(k, v, child);
         }
-
         protected boolean isEqual(char c1, char c2) {
             return c1 == c2;
         }
-
         protected boolean prefixOf(CharSequence text, int off, int end) {
             if (text instanceof String) {
                 return ((String)text).startsWith(key, off);
@@ -2550,7 +2244,6 @@ public final class DateTimeFormatterBuilder {
             }
             return true;
         }
-
         private int prefixLength(String k) {
             int off = 0;
             while (off < k.length() && off < key.length()) {
@@ -2561,24 +2254,18 @@ public final class DateTimeFormatterBuilder {
             }
             return off;
         }
-
-
         private static class CI extends PrefixTree {
-
             private CI(String k, String v, PrefixTree child) {
                 super(k, v, child);
             }
-
             @Override
             protected CI newNode(String k, String v, PrefixTree child) {
                 return new CI(k, v, child);
             }
-
             @Override
             protected boolean isEqual(char c1, char c2) {
                 return DateTimeParseContext.charEqualsIgnoreCase(c1, c2);
             }
-
             @Override
             protected boolean prefixOf(CharSequence text, int off, int end) {
                 int len = key.length();
@@ -2594,23 +2281,17 @@ public final class DateTimeFormatterBuilder {
                 return true;
             }
         }
-
-
         private static class LENIENT extends CI {
-
             private LENIENT(String k, String v, PrefixTree child) {
                 super(k, v, child);
             }
-
             @Override
             protected CI newNode(String k, String v, PrefixTree child) {
                 return new LENIENT(k, v, child);
             }
-
             private boolean isLenientChar(char c) {
                 return c == ' ' || c == '_' || c == '/';
             }
-
             protected String toKey(String k) {
                 for (int i = 0; i < k.length(); i++) {
                     if (isLenientChar(k.charAt(i))) {
@@ -2628,7 +2309,6 @@ public final class DateTimeFormatterBuilder {
                 }
                 return k;
             }
-
             @Override
             public String match(CharSequence text, ParsePosition pos) {
                 int off = pos.getIndex();
@@ -2672,18 +2352,13 @@ public final class DateTimeFormatterBuilder {
             }
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class ChronoPrinterParser implements DateTimePrinterParser {
-
         private final TextStyle textStyle;
-
         ChronoPrinterParser(TextStyle textStyle) {
             // validated by caller
             this.textStyle = textStyle;
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             Chronology chrono = context.getValue(TemporalQueries.chronology());
@@ -2697,7 +2372,6 @@ public final class DateTimeFormatterBuilder {
             }
             return true;
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             // simple looping parser to find the chronology
@@ -2726,44 +2400,32 @@ public final class DateTimeFormatterBuilder {
             context.setParsed(bestMatch);
             return position + matchLen;
         }
-
-
         private String getChronologyName(Chronology chrono, Locale locale) {
             String key = "calendarname." + chrono.getCalendarType();
             String name = DateTimeTextProvider.getLocalizedResource(key, locale);
             return name != null ? name : chrono.getId();
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class LocalizedPrinterParser implements DateTimePrinterParser {
-
         private static final ConcurrentMap<String, DateTimeFormatter> FORMATTER_CACHE = new ConcurrentHashMap<>(16, 0.75f, 2);
-
         private final FormatStyle dateStyle;
         private final FormatStyle timeStyle;
-
-
         LocalizedPrinterParser(FormatStyle dateStyle, FormatStyle timeStyle) {
             // validated by caller
             this.dateStyle = dateStyle;
             this.timeStyle = timeStyle;
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             Chronology chrono = Chronology.from(context.getTemporal());
             return formatter(context.getLocale(), chrono).toPrinterParser(false).format(context, buf);
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             Chronology chrono = context.getEffectiveChronology();
             return formatter(context.getLocale(), chrono).toPrinterParser(false).parse(context, text, position);
         }
-
-
         private DateTimeFormatter formatter(Locale locale, Chronology chrono) {
             String key = chrono.getId() + '|' + locale.toString() + '|' + dateStyle + timeStyle;
             DateTimeFormatter formatter = FORMATTER_CACHE.get(key);
@@ -2777,37 +2439,28 @@ public final class DateTimeFormatterBuilder {
             }
             return formatter;
         }
-
         @Override
         public String toString() {
             return "Localized(" + (dateStyle != null ? dateStyle : "") + "," +
                 (timeStyle != null ? timeStyle : "") + ")";
         }
     }
-
     //-----------------------------------------------------------------------
-
     static final class WeekBasedFieldPrinterParser implements DateTimePrinterParser {
         private char chr;
         private int count;
-
-
         WeekBasedFieldPrinterParser(char chr, int count) {
             this.chr = chr;
             this.count = count;
         }
-
         @Override
         public boolean format(DateTimePrintContext context, StringBuilder buf) {
             return printerParser(context.getLocale()).format(context, buf);
         }
-
         @Override
         public int parse(DateTimeParseContext context, CharSequence text, int position) {
             return printerParser(context.getLocale()).parse(context, text, position);
         }
-
-
         private DateTimePrinterParser printerParser(Locale locale) {
             WeekFields weekDef = WeekFields.of(locale);
             TemporalField field = null;
@@ -2835,7 +2488,6 @@ public final class DateTimeFormatterBuilder {
             }
             return new NumberPrinterParser(field, (count == 2 ? 2 : 1), 2, SignStyle.NOT_NEGATIVE);
         }
-
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder(30);
@@ -2872,9 +2524,7 @@ public final class DateTimeFormatterBuilder {
             return sb.toString();
         }
     }
-
     //-------------------------------------------------------------------------
-
     static final Comparator<String> LENGTH_SORT = new Comparator<String>() {
         @Override
         public int compare(String str1, String str2) {

@@ -1,43 +1,23 @@
-
-
-
-
 package java.awt.color;
-
 import sun.java2d.cmm.ColorTransform;
 import sun.java2d.cmm.CMSManager;
 import sun.java2d.cmm.PCMM;
-
-
-
-
-
-
 public class ICC_ColorSpace extends ColorSpace {
-
     static final long serialVersionUID = 3455889114070431483L;
-
     private ICC_Profile    thisProfile;
     private float[] minVal;
     private float[] maxVal;
     private float[] diffMinMax;
     private float[] invDiffMinMax;
     private boolean needScaleInit = true;
-
     // {to,from}{RGB,CIEXYZ} methods create and cache these when needed
     private transient ColorTransform this2srgb;
     private transient ColorTransform srgb2this;
     private transient ColorTransform this2xyz;
     private transient ColorTransform xyz2this;
-
-
-
     public ICC_ColorSpace (ICC_Profile profile) {
         super (profile.getColorSpaceType(), profile.getNumComponents());
-
         int profileClass = profile.getProfileClass();
-
-
         if ((profileClass != ICC_Profile.CLASS_INPUT) &&
             (profileClass != ICC_Profile.CLASS_DISPLAY) &&
             (profileClass != ICC_Profile.CLASS_OUTPUT) &&
@@ -46,19 +26,13 @@ public class ICC_ColorSpace extends ColorSpace {
             (profileClass != ICC_Profile.CLASS_ABSTRACT)) {
             throw new IllegalArgumentException("Invalid profile type");
         }
-
         thisProfile = profile;
         setMinMax();
     }
-
-
     public ICC_Profile getProfile() {
         return thisProfile;
     }
-
-
     public float[]    toRGB (float[] colorvalue) {
-
         if (this2srgb == null) {
             ColorTransform[] transformList = new ColorTransform [2];
             ICC_ColorSpace srgbCS =
@@ -73,7 +47,6 @@ public class ICC_ColorSpace extends ColorSpace {
                 setComponentScaling();
             }
         }
-
         int nc = this.getNumComponents();
         short tmp[] = new short[nc];
         for (int i = 0; i < nc; i++) {
@@ -87,10 +60,7 @@ public class ICC_ColorSpace extends ColorSpace {
         }
         return result;
     }
-
-
     public float[]    fromRGB(float[] rgbvalue) {
-
         if (srgb2this == null) {
             ColorTransform[] transformList = new ColorTransform [2];
             ICC_ColorSpace srgbCS =
@@ -105,7 +75,6 @@ public class ICC_ColorSpace extends ColorSpace {
                 setComponentScaling();
             }
         }
-
         short tmp[] = new short[3];
         for (int i = 0; i < 3; i++) {
             tmp[i] = (short) ((rgbvalue[i] * 65535.0f) + 0.5f);
@@ -119,11 +88,7 @@ public class ICC_ColorSpace extends ColorSpace {
         }
         return result;
     }
-
-
-
     public float[]    toCIEXYZ(float[] colorvalue) {
-
         if (this2xyz == null) {
             ColorTransform[] transformList = new ColorTransform [2];
             ICC_ColorSpace xyzCS =
@@ -144,7 +109,6 @@ public class ICC_ColorSpace extends ColorSpace {
                 setComponentScaling();
             }
         }
-
         int nc = this.getNumComponents();
         short tmp[] = new short[nc];
         for (int i = 0; i < nc; i++) {
@@ -160,11 +124,7 @@ public class ICC_ColorSpace extends ColorSpace {
         }
         return result;
     }
-
-
-
     public float[]    fromCIEXYZ(float[] colorvalue) {
-
         if (xyz2this == null) {
             ColorTransform[] transformList = new ColorTransform [2];
             ICC_ColorSpace xyzCS =
@@ -185,7 +145,6 @@ public class ICC_ColorSpace extends ColorSpace {
                 setComponentScaling();
             }
         }
-
         short tmp[] = new short[3];
         float ALMOST_TWO = 1.0f + (32767.0f / 32768.0f);
         float factor = 65535.0f / ALMOST_TWO;
@@ -202,8 +161,6 @@ public class ICC_ColorSpace extends ColorSpace {
         }
         return result;
     }
-
-
     public float getMinValue(int component) {
         if ((component < 0) || (component > this.getNumComponents() - 1)) {
             throw new IllegalArgumentException(
@@ -211,8 +168,6 @@ public class ICC_ColorSpace extends ColorSpace {
         }
         return minVal[component];
     }
-
-
     public float getMaxValue(int component) {
         if ((component < 0) || (component > this.getNumComponents() - 1)) {
             throw new IllegalArgumentException(
@@ -220,7 +175,6 @@ public class ICC_ColorSpace extends ColorSpace {
         }
         return maxVal[component];
     }
-
     private void setMinMax() {
         int nc = this.getNumComponents();
         int type = this.getType();
@@ -243,7 +197,6 @@ public class ICC_ColorSpace extends ColorSpace {
             }
         }
     }
-
     private void setComponentScaling() {
         int nc = this.getNumComponents();
         diffMinMax = new float[nc];
@@ -256,5 +209,4 @@ public class ICC_ColorSpace extends ColorSpace {
         }
         needScaleInit = false;
     }
-
 }

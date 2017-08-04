@@ -1,12 +1,7 @@
-
-
 package java.awt.image;
-
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.math.BigInteger;
-
-
 public class IndexColorModel extends ColorModel {
     private int rgb[];
     private int map_size;
@@ -14,18 +9,14 @@ public class IndexColorModel extends ColorModel {
     private int transparent_index = -1;
     private boolean allgrayopaque;
     private BigInteger validBits;
-
     private sun.awt.image.BufImgSurfaceData.ICMColorData colorData = null;
-
     private static int[] opaqueBits = {8, 8, 8};
     private static int[] alphaBits = {8, 8, 8, 8};
-
     static private native void initIDs();
     static {
         ColorModel.loadLibraries();
         initIDs();
     }
-
     public IndexColorModel(int bits, int size,
                            byte r[], byte g[], byte b[]) {
         super(bits, opaqueBits,
@@ -39,8 +30,6 @@ public class IndexColorModel extends ColorModel {
         setRGBs(size, r, g, b, null);
         calculatePixelMask();
     }
-
-
     public IndexColorModel(int bits, int size,
                            byte r[], byte g[], byte b[], int trans) {
         super(bits, opaqueBits,
@@ -55,8 +44,6 @@ public class IndexColorModel extends ColorModel {
         setTransparentPixel(trans);
         calculatePixelMask();
     }
-
-
     public IndexColorModel(int bits, int size,
                            byte r[], byte g[], byte b[], byte a[]) {
         super (bits, alphaBits,
@@ -70,8 +57,6 @@ public class IndexColorModel extends ColorModel {
         setRGBs (size, r, g, b, a);
         calculatePixelMask();
     }
-
-
     public IndexColorModel(int bits, int size, byte cmap[], int start,
                            boolean hasalpha) {
         this(bits, size, cmap, start, hasalpha, -1);
@@ -80,8 +65,6 @@ public class IndexColorModel extends ColorModel {
                                                +" 1 and 16.");
         }
     }
-
-
     public IndexColorModel(int bits, int size, byte cmap[], int start,
                            boolean hasalpha, int trans) {
         // REMIND: This assumes the ordering: RGB[A]
@@ -89,7 +72,6 @@ public class IndexColorModel extends ColorModel {
               ColorSpace.getInstance(ColorSpace.CS_sRGB),
               false, false, OPAQUE,
               ColorModel.getDefaultTransferType(bits));
-
         if (bits < 1 || bits > 16) {
             throw new IllegalArgumentException("Number of bits must be between"
                                                +" 1 and 16.");
@@ -132,8 +114,6 @@ public class IndexColorModel extends ColorModel {
         setTransparentPixel(trans);
         calculatePixelMask();
     }
-
-
     public IndexColorModel(int bits, int size,
                            int cmap[], int start,
                            boolean hasalpha, int trans, int transferType) {
@@ -142,7 +122,6 @@ public class IndexColorModel extends ColorModel {
               ColorSpace.getInstance(ColorSpace.CS_sRGB),
               false, false, OPAQUE,
               transferType);
-
         if (bits < 1 || bits > 16) {
             throw new IllegalArgumentException("Number of bits must be between"
                                                +" 1 and 16.");
@@ -156,20 +135,16 @@ public class IndexColorModel extends ColorModel {
             throw new IllegalArgumentException("transferType must be either" +
                 "DataBuffer.TYPE_BYTE or DataBuffer.TYPE_USHORT");
         }
-
         setRGBs(size, cmap, start, hasalpha);
         setTransparentPixel(trans);
         calculatePixelMask();
     }
-
-
     public IndexColorModel(int bits, int size, int cmap[], int start,
                            int transferType, BigInteger validBits) {
         super (bits, alphaBits,
                ColorSpace.getInstance(ColorSpace.CS_sRGB),
                true, false, TRANSLUCENT,
                transferType);
-
         if (bits < 1 || bits > 16) {
             throw new IllegalArgumentException("Number of bits must be between"
                                                +" 1 and 16.");
@@ -183,7 +158,6 @@ public class IndexColorModel extends ColorModel {
             throw new IllegalArgumentException("transferType must be either" +
                 "DataBuffer.TYPE_BYTE or DataBuffer.TYPE_USHORT");
         }
-
         if (validBits != null) {
             // Check to see if it is all valid
             for (int i=0; i < size; i++) {
@@ -193,11 +167,9 @@ public class IndexColorModel extends ColorModel {
                 }
             }
         }
-
         setRGBs(size, cmap, start, true);
         calculatePixelMask();
     }
-
     private void setRGBs(int size, byte r[], byte g[], byte b[], byte a[]) {
         if (size < 1) {
             throw new IllegalArgumentException("Map size ("+size+
@@ -234,7 +206,6 @@ public class IndexColorModel extends ColorModel {
         this.allgrayopaque = allgray;
         setTransparency(transparency);
     }
-
     private void setRGBs(int size, int cmap[], int start, boolean hasalpha) {
         map_size = size;
         rgb = new int[calcRealMapSize(pixel_bits, size)];
@@ -274,27 +245,20 @@ public class IndexColorModel extends ColorModel {
         this.allgrayopaque = allgray;
         setTransparency(transparency);
     }
-
     private int calcRealMapSize(int bits, int size) {
         int newSize = Math.max(1 << bits, size);
         return Math.max(newSize, 256);
     }
-
     private BigInteger getAllValid() {
         int numbytes = (map_size+7)/8;
         byte[] valid = new byte[numbytes];
         java.util.Arrays.fill(valid, (byte)0xff);
         valid[0] = (byte)(0xff >>> (numbytes*8 - map_size));
-
         return new BigInteger(1, valid);
     }
-
-
     public int getTransparency() {
         return transparency;
     }
-
-
     public int[] getComponentSize() {
         if (nBits == null) {
             if (supportsAlpha) {
@@ -308,50 +272,35 @@ public class IndexColorModel extends ColorModel {
         }
         return nBits.clone();
     }
-
-
     final public int getMapSize() {
         return map_size;
     }
-
-
     final public int getTransparentPixel() {
         return transparent_index;
     }
-
-
     final public void getReds(byte r[]) {
         for (int i = 0; i < map_size; i++) {
             r[i] = (byte) (rgb[i] >> 16);
         }
     }
-
-
     final public void getGreens(byte g[]) {
         for (int i = 0; i < map_size; i++) {
             g[i] = (byte) (rgb[i] >> 8);
         }
     }
-
-
     final public void getBlues(byte b[]) {
         for (int i = 0; i < map_size; i++) {
             b[i] = (byte) rgb[i];
         }
     }
-
-
     final public void getAlphas(byte a[]) {
         for (int i = 0; i < map_size; i++) {
             a[i] = (byte) (rgb[i] >> 24);
         }
     }
-
-
     final public void getRGBs(int rgb[]) {
         System.arraycopy(this.rgb, 0, rgb, 0, map_size);
     }
-
     private void setTransparentPixel(int trans) {
         if (trans >= 0 && trans < map_size) {
             rgb[trans] &= 0x00ffffff;
@@ -362,7 +311,6 @@ public class IndexColorModel extends ColorModel {
             }
         }
     }
-
     private void setTransparency(int transparency) {
         if (this.transparency != transparency) {
             this.transparency = transparency;
@@ -377,8 +325,6 @@ public class IndexColorModel extends ColorModel {
             }
         }
     }
-
-
     private final void calculatePixelMask() {
         // Note that we adjust the mask so that our masking behavior here
         // is consistent with that of our native rendering loops.
@@ -390,43 +336,29 @@ public class IndexColorModel extends ColorModel {
         }
         pixel_mask = (1 << maskbits) - 1;
     }
-
-
     final public int getRed(int pixel) {
         return (rgb[pixel & pixel_mask] >> 16) & 0xff;
     }
-
-
     final public int getGreen(int pixel) {
         return (rgb[pixel & pixel_mask] >> 8) & 0xff;
     }
-
-
     final public int getBlue(int pixel) {
         return rgb[pixel & pixel_mask] & 0xff;
     }
-
-
     final public int getAlpha(int pixel) {
         return (rgb[pixel & pixel_mask] >> 24) & 0xff;
     }
-
-
     final public int getRGB(int pixel) {
         return rgb[pixel & pixel_mask];
     }
-
     private static final int CACHESIZE = 40;
     private int lookupcache[] = new int[CACHESIZE];
-
-
     public synchronized Object getDataElements(int rgb, Object pixel) {
         int red = (rgb>>16) & 0xff;
         int green = (rgb>>8) & 0xff;
         int blue  = rgb & 0xff;
         int alpha = (rgb>>>24);
         int pix = 0;
-
         // Note that pixels are stored at lookupcache[2*i]
         // and the rgb that was searched is stored at
         // lookupcache[2*i+1].  Also, the pixel is first
@@ -440,7 +372,6 @@ public class IndexColorModel extends ColorModel {
                 return installpixel(pixel, ~pix);
             }
         }
-
         if (allgrayopaque) {
             // IndexColorModel objects are all tagged as
             // non-premultiplied so ignore the alpha value
@@ -451,11 +382,9 @@ public class IndexColorModel extends ColorModel {
             // in the palette are gray, we only need compare
             // to one of the color components for a match
             // using a simple linear distance formula.
-
             int minDist = 256;
             int d;
             int gray = (int) (red*77 + green*150 + blue*29 + 128)/256;
-
             for (int i = 0; i < map_size; i++) {
                 if (this.rgb[i] == 0x0) {
                     // For allgrayopaque colormaps, entries are 0
@@ -486,7 +415,6 @@ public class IndexColorModel extends ColorModel {
             // likely to be fairly common in opaque colormaps
             // so first we will do a quick search for an
             // exact match.
-
             int smallestError = Integer.MAX_VALUE;
             int lut[] = this.rgb;
             int lutrgb;
@@ -498,14 +426,12 @@ public class IndexColorModel extends ColorModel {
                     break;
                 }
             }
-
             if (smallestError != 0) {
                 for (int i=0; i < map_size; i++) {
                     lutrgb = lut[i];
                     if (lutrgb == 0) {
                         continue;
                     }
-
                     int tmp = ((lutrgb >> 16) & 0xff) - red;
                     int currentError = tmp*tmp;
                     if (currentError < smallestError) {
@@ -525,7 +451,6 @@ public class IndexColorModel extends ColorModel {
         } else if (alpha == 0 && transparent_index >= 0) {
             // Special case - transparent color maps to the
             // specified transparent pixel, if there is one
-
             pix = transparent_index;
         } else {
             // IndexColorModel objects are all tagged as
@@ -533,7 +458,6 @@ public class IndexColorModel extends ColorModel {
             // color components in the distance calculations.
             // Look for closest match using a 4 component
             // Euclidean distance formula.
-
             int smallestError = Integer.MAX_VALUE;
             int lut[] = this.rgb;
             for (int i=0; i < map_size; i++) {
@@ -545,7 +469,6 @@ public class IndexColorModel extends ColorModel {
                     pix = i;
                     break;
                 }
-
                 int tmp = ((lutrgb >> 16) & 0xff) - red;
                 int currentError = tmp*tmp;
                 if (currentError < smallestError) {
@@ -573,7 +496,6 @@ public class IndexColorModel extends ColorModel {
         lookupcache[CACHESIZE - 2] = ~pix;
         return installpixel(pixel, pix);
     }
-
     private Object installpixel(Object pixel, int pix) {
         switch (transferType) {
         case DataBuffer.TYPE_INT:
@@ -609,13 +531,10 @@ public class IndexColorModel extends ColorModel {
         }
         return pixel;
     }
-
-
     public int[] getComponents(int pixel, int[] components, int offset) {
         if (components == null) {
             components = new int[offset+numComponents];
         }
-
         // REMIND: Needs to change if different color space
         components[offset+0] = getRed(pixel);
         components[offset+1] = getGreen(pixel);
@@ -623,11 +542,8 @@ public class IndexColorModel extends ColorModel {
         if (supportsAlpha && (components.length-offset) > 3) {
             components[offset+3] = getAlpha(pixel);
         }
-
         return components;
     }
-
-
     public int[] getComponents(Object pixel, int[] components, int offset) {
         int intpixel;
         switch (transferType) {
@@ -649,8 +565,6 @@ public class IndexColorModel extends ColorModel {
         }
         return getComponents(intpixel, components, offset);
     }
-
-
     public int getDataElement(int[] components, int offset) {
         int rgb = (components[offset+0]<<16)
             | (components[offset+1]<<8) | (components[offset+2]);
@@ -681,8 +595,6 @@ public class IndexColorModel extends ColorModel {
         }
         return pixel;
     }
-
-
     public Object getDataElements(int[] components, int offset, Object pixel) {
         int rgb = (components[offset+0]<<16) | (components[offset+1]<<8)
             | (components[offset+2]);
@@ -694,11 +606,8 @@ public class IndexColorModel extends ColorModel {
         }
         return getDataElements(rgb, pixel);
     }
-
-
     public WritableRaster createCompatibleWritableRaster(int w, int h) {
         WritableRaster raster;
-
         if (pixel_bits == 1 || pixel_bits == 2 || pixel_bits == 4) {
             // TYPE_BINARY
             raster = Raster.createPackedRaster(DataBuffer.TYPE_BYTE,
@@ -719,16 +628,11 @@ public class IndexColorModel extends ColorModel {
         }
         return raster;
     }
-
-
     public boolean isCompatibleRaster(Raster raster) {
-
         int size = raster.getSampleModel().getSampleSize(0);
         return ((raster.getTransferType() == transferType) &&
                 (raster.getNumBands() == 1) && ((1 << size) >= map_size));
     }
-
-
     public SampleModel createCompatibleSampleModel(int w, int h) {
         int[] off = new int[1];
         off[0] = 0;
@@ -741,32 +645,24 @@ public class IndexColorModel extends ColorModel {
                                             off);
         }
     }
-
-
     public boolean isCompatibleSampleModel(SampleModel sm) {
         // fix 4238629
         if (! (sm instanceof ComponentSampleModel) &&
             ! (sm instanceof MultiPixelPackedSampleModel)   ) {
             return false;
         }
-
         // Transfer type must be the same
         if (sm.getTransferType() != transferType) {
             return false;
         }
-
         if (sm.getNumBands() != 1) {
             return false;
         }
-
         return true;
     }
-
-
     public BufferedImage convertToIntDiscrete(Raster raster,
                                               boolean forceARGB) {
         ColorModel cm;
-
         if (!isCompatibleRaster(raster)) {
             throw new IllegalArgumentException("This raster is not compatible" +
                  "with this IndexColorModel.");
@@ -781,17 +677,14 @@ public class IndexColorModel extends ColorModel {
         else {
             cm = new DirectColorModel(24, 0xff0000, 0x00ff00, 0x0000ff);
         }
-
         int w = raster.getWidth();
         int h = raster.getHeight();
         WritableRaster discreteRaster =
                   cm.createCompatibleWritableRaster(w, h);
         Object obj = null;
         int[] data = null;
-
         int rX = raster.getMinX();
         int rY = raster.getMinY();
-
         for (int y=0; y < h; y++, rY++) {
             obj = raster.getDataElements(rX, rY, w, 1, obj);
             if (obj instanceof int[]) {
@@ -804,22 +697,15 @@ public class IndexColorModel extends ColorModel {
             }
             discreteRaster.setDataElements(0, y, w, 1, data);
         }
-
         return new BufferedImage(cm, discreteRaster, false, null);
     }
-
-
     public boolean isValid(int pixel) {
         return ((pixel >= 0 && pixel < map_size) &&
                 (validBits == null || validBits.testBit(pixel)));
     }
-
-
     public boolean isValid() {
         return (validBits == null);
     }
-
-
     public BigInteger getValidPixels() {
         if (validBits == null) {
             return getAllValid();
@@ -828,12 +714,8 @@ public class IndexColorModel extends ColorModel {
             return validBits;
         }
     }
-
-
     public void finalize() {
     }
-
-
     public String toString() {
        return new String("IndexColorModel: #pixelBits = "+pixel_bits
                          + " numComponents = "+numComponents

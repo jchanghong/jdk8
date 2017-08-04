@@ -1,12 +1,6 @@
-
-
 package java.awt.image;
-
-
-
 public class PixelInterleavedSampleModel extends ComponentSampleModel
 {
-
     public PixelInterleavedSampleModel(int dataType,
                                        int w, int h,
                                        int pixelStride,
@@ -37,8 +31,6 @@ public class PixelInterleavedSampleModel extends ComponentSampleModel
                                                " between bands");
         }
     }
-
-
     public SampleModel createCompatibleSampleModel(int w, int h) {
         int minBandoff=bandOffsets[0];
         int numBands = bandOffsets.length;
@@ -60,8 +52,6 @@ public class PixelInterleavedSampleModel extends ComponentSampleModel
         return new PixelInterleavedSampleModel(dataType, w, h, pixelStride,
                                                pixelStride*w, bandOff);
     }
-
-
     public SampleModel createSubsetSampleModel(int bands[]) {
         int newBandOffsets[] = new int[bands.length];
         for (int i=0; i<bands.length; i++) {
@@ -71,7 +61,6 @@ public class PixelInterleavedSampleModel extends ComponentSampleModel
                                                this.pixelStride,
                                                scanlineStride, newBandOffsets);
     }
-
     // Differentiate hash code from other ComponentSampleModel subclasses
     public int hashCode() {
         return super.hashCode() ^ 0x1;

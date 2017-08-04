@@ -1,7 +1,4 @@
-
-
 package java.util.zip;
-
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.EOFException;
@@ -10,8 +7,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import static java.util.zip.ZipConstants64.*;
 import static java.util.zip.ZipUtils.*;
-
-
 public
 class ZipInputStream extends InflaterInputStream implements ZipConstants {
     private ZipEntry entry;
@@ -19,30 +14,21 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
     private CRC32 crc = new CRC32();
     private long remaining;
     private byte[] tmpbuf = new byte[512];
-
     private static final int STORED = ZipEntry.STORED;
     private static final int DEFLATED = ZipEntry.DEFLATED;
-
     private boolean closed = false;
     // this flag is set to true after EOF has reached for
     // one entry
     private boolean entryEOF = false;
-
     private ZipCoder zc;
-
-
     private void ensureOpen() throws IOException {
         if (closed) {
             throw new IOException("Stream closed");
         }
     }
-
-
     public ZipInputStream(InputStream in) {
         this(in, StandardCharsets.UTF_8);
     }
-
-
     public ZipInputStream(InputStream in, Charset charset) {
         super(new PushbackInputStream(in, 512), new Inflater(true), 512);
         usesDefaultInflater = true;
@@ -53,8 +39,6 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
             throw new NullPointerException("charset is null");
         this.zc = ZipCoder.get(charset);
     }
-
-
     public ZipEntry getNextEntry() throws IOException {
         ensureOpen();
         if (entry != null) {
@@ -71,15 +55,11 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         entryEOF = false;
         return entry;
     }
-
-
     public void closeEntry() throws IOException {
         ensureOpen();
         while (read(tmpbuf, 0, tmpbuf.length) != -1) ;
         entryEOF = true;
     }
-
-
     public int available() throws IOException {
         ensureOpen();
         if (entryEOF) {
@@ -88,8 +68,6 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
             return 1;
         }
     }
-
-
     public int read(byte[] b, int off, int len) throws IOException {
         ensureOpen();
         if (off < 0 || len < 0 || off > b.length - len) {
@@ -97,7 +75,6 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         } else if (len == 0) {
             return 0;
         }
-
         if (entry == null) {
             return -1;
         }
@@ -137,8 +114,6 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
             throw new ZipException("invalid compression method");
         }
     }
-
-
     public long skip(long n) throws IOException {
         if (n < 0) {
             throw new IllegalArgumentException("negative skip length");
@@ -160,18 +135,13 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         }
         return total;
     }
-
-
     public void close() throws IOException {
         if (!closed) {
             super.close();
             closed = true;
         }
     }
-
     private byte[] b = new byte[256];
-
-
     private ZipEntry readLOC() throws IOException {
         try {
             readFully(tmpbuf, 0, LOCHDR);
@@ -204,7 +174,6 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         e.method = get16(tmpbuf, LOCHOW);
         e.xdostime = get32(tmpbuf, LOCTIM);
         if ((flag & 8) == 8) {
-
             if (e.method != DEFLATED) {
                 throw new ZipException(
                         "only DEFLATED entries can have EXT descriptor");
@@ -223,20 +192,15 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
         }
         return e;
     }
-
-
     protected ZipEntry createZipEntry(String name) {
         return new ZipEntry(name);
     }
-
-
     private void readEnd(ZipEntry e) throws IOException {
         int n = inf.getRemaining();
         if (n > 0) {
             ((PushbackInputStream)in).unread(buf, len - n, n);
         }
         if ((flag & 8) == 8) {
-
             if (inf.getBytesWritten() > ZIP64_MAGICVAL ||
                 inf.getBytesRead() > ZIP64_MAGICVAL) {
                 // ZIP64 format
@@ -285,8 +249,6 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
                 " but got 0x" + Long.toHexString(crc.getValue()) + ")");
         }
     }
-
-
     private void readFully(byte[] b, int off, int len) throws IOException {
         while (len > 0) {
             int n = in.read(b, off, len);
@@ -297,5 +259,4 @@ class ZipInputStream extends InflaterInputStream implements ZipConstants {
             len -= n;
         }
     }
-
 }

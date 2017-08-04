@@ -1,22 +1,13 @@
-
-
 package java.awt;
-
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
-
-
 class SentEvent extends AWTEvent implements ActiveEvent {
-
     private static final long serialVersionUID = -383615247028828931L;
-
     static final int ID =
         java.awt.event.FocusEvent.FOCUS_LAST + 2;
-
     boolean dispatched;
     private AWTEvent nested;
     private AppContext toNotify;
-
     SentEvent() {
         this(null);
     }
@@ -31,7 +22,6 @@ class SentEvent extends AWTEvent implements ActiveEvent {
         this.nested = nested;
         this.toNotify = toNotify;
     }
-
     public void dispatch() {
         try {
             if (nested != null) {

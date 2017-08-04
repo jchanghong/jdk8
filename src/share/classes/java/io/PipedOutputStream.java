@@ -1,26 +1,13 @@
-
-
 package java.io;
-
 import java.io.*;
-
-
 public
 class PipedOutputStream extends OutputStream {
-
-
     private PipedInputStream sink;
-
-
     public PipedOutputStream(PipedInputStream snk)  throws IOException {
         connect(snk);
     }
-
-
     public PipedOutputStream() {
     }
-
-
     public synchronized void connect(PipedInputStream snk) throws IOException {
         if (snk == null) {
             throw new NullPointerException();
@@ -32,16 +19,12 @@ class PipedOutputStream extends OutputStream {
         snk.out = 0;
         snk.connected = true;
     }
-
-
     public void write(int b)  throws IOException {
         if (sink == null) {
             throw new IOException("Pipe not connected");
         }
         sink.receive(b);
     }
-
-
     public void write(byte b[], int off, int len) throws IOException {
         if (sink == null) {
             throw new IOException("Pipe not connected");
@@ -55,8 +38,6 @@ class PipedOutputStream extends OutputStream {
         }
         sink.receive(b, off, len);
     }
-
-
     public synchronized void flush() throws IOException {
         if (sink != null) {
             synchronized (sink) {
@@ -64,8 +45,6 @@ class PipedOutputStream extends OutputStream {
             }
         }
     }
-
-
     public void close()  throws IOException {
         if (sink != null) {
             sink.receivedLast();

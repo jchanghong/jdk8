@@ -1,44 +1,25 @@
-
-
-
 package java.awt;
-
 import java.awt.image.BufferedImage;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Locale;
-
 import sun.font.FontManager;
 import sun.font.FontManagerFactory;
 import sun.java2d.HeadlessGraphicsEnvironment;
 import sun.java2d.SunGraphicsEnvironment;
 import sun.security.action.GetPropertyAction;
-
-
-
 public abstract class GraphicsEnvironment {
     private static GraphicsEnvironment localEnv;
-
-
     private static Boolean headless;
-
-
     private static Boolean defaultHeadless;
-
-
     protected GraphicsEnvironment() {
     }
-
-
     public static synchronized GraphicsEnvironment getLocalGraphicsEnvironment() {
         if (localEnv == null) {
             localEnv = createGE();
         }
-
         return localEnv;
     }
-
-
     private static GraphicsEnvironment createGE() {
         GraphicsEnvironment ge;
         String nm = AccessController.doPrivileged(new GetPropertyAction("java.awt.graphicsenv", null));
@@ -72,13 +53,9 @@ public abstract class GraphicsEnvironment {
         }
         return ge;
     }
-
-
     public static boolean isHeadless() {
         return getHeadlessProperty();
     }
-
-
     static String getHeadlessMessage() {
         if (headless == null) {
             getHeadlessProperty(); // initialize the values
@@ -87,15 +64,11 @@ public abstract class GraphicsEnvironment {
             "\nNo X11 DISPLAY variable was set, " +
             "but this program performed an operation which requires it.";
     }
-
-
     private static boolean getHeadlessProperty() {
         if (headless == null) {
             AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
                 String nm = System.getProperty("java.awt.headless");
-
                 if (nm == null) {
-
                     if (System.getProperty("javaplugin.version") != null) {
                         headless = defaultHeadless = Boolean.FALSE;
                     } else {
@@ -124,42 +97,24 @@ public abstract class GraphicsEnvironment {
         }
         return headless;
     }
-
-
     static void checkHeadless() throws HeadlessException {
         if (isHeadless()) {
             throw new HeadlessException();
         }
     }
-
-
     public boolean isHeadlessInstance() {
         // By default (local graphics environment), simply check the
         // headless property.
         return getHeadlessProperty();
     }
-
-
     public abstract GraphicsDevice[] getScreenDevices()
         throws HeadlessException;
-
-
     public abstract GraphicsDevice getDefaultScreenDevice()
         throws HeadlessException;
-
-
     public abstract Graphics2D createGraphics(BufferedImage img);
-
-
     public abstract Font[] getAllFonts();
-
-
     public abstract String[] getAvailableFontFamilyNames();
-
-
     public abstract String[] getAvailableFontFamilyNames(Locale l);
-
-
     public boolean registerFont(Font font) {
         if (font == null) {
             throw new NullPointerException("font cannot be null.");
@@ -167,20 +122,14 @@ public abstract class GraphicsEnvironment {
         FontManager fm = FontManagerFactory.getInstance();
         return fm.registerFont(font);
     }
-
-
     public void preferLocaleFonts() {
         FontManager fm = FontManagerFactory.getInstance();
         fm.preferLocaleFonts();
     }
-
-
     public void preferProportionalFonts() {
         FontManager fm = FontManagerFactory.getInstance();
         fm.preferProportionalFonts();
     }
-
-
     public Point getCenterPoint() throws HeadlessException {
     // Default implementation: return the center of the usable bounds of the
     // default screen device.
@@ -189,8 +138,6 @@ public abstract class GraphicsEnvironment {
         return new Point((usableBounds.width / 2) + usableBounds.x,
                          (usableBounds.height / 2) + usableBounds.y);
     }
-
-
     public Rectangle getMaximumWindowBounds() throws HeadlessException {
     // Default implementation: return the usable bounds of the default screen
     // device.  This is correct for Microsoft Windows and non-Xinerama X11.

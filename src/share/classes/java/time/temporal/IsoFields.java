@@ -1,8 +1,4 @@
-
-
-
 package java.time.temporal;
-
 import static java.time.DayOfWeek.THURSDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
@@ -15,7 +11,6 @@ import static java.time.temporal.ChronoUnit.FOREVER;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.WEEKS;
 import static java.time.temporal.ChronoUnit.YEARS;
-
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -27,33 +22,19 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
-
 import sun.util.locale.provider.LocaleProviderAdapter;
 import sun.util.locale.provider.LocaleResources;
-
-
 public final class IsoFields {
-
-
     public static final TemporalField DAY_OF_QUARTER = Field.DAY_OF_QUARTER;
-
     public static final TemporalField QUARTER_OF_YEAR = Field.QUARTER_OF_YEAR;
-
     public static final TemporalField WEEK_OF_WEEK_BASED_YEAR = Field.WEEK_OF_WEEK_BASED_YEAR;
-
     public static final TemporalField WEEK_BASED_YEAR = Field.WEEK_BASED_YEAR;
-
     public static final TemporalUnit WEEK_BASED_YEARS = Unit.WEEK_BASED_YEARS;
-
     public static final TemporalUnit QUARTER_YEARS = Unit.QUARTER_YEARS;
-
-
     private IsoFields() {
         throw new AssertionError("Not instantiable");
     }
-
     //-----------------------------------------------------------------------
-
     private static enum Field implements TemporalField {
         DAY_OF_QUARTER {
             @Override
@@ -191,7 +172,6 @@ public final class IsoFields {
                 ResourceBundle rb = lr.getJavaTimeFormatData();
                 return rb.containsKey("field.week") ? rb.getString("field.week") : toString();
             }
-
             @Override
             public TemporalUnit getBaseUnit() {
                 return WEEKS;
@@ -319,40 +299,32 @@ public final class IsoFields {
                 return "WeekBasedYear";
             }
         };
-
         @Override
         public boolean isDateBased() {
             return true;
         }
-
         @Override
         public boolean isTimeBased() {
             return false;
         }
-
         @Override
         public ValueRange rangeRefinedBy(TemporalAccessor temporal) {
             return range();
         }
-
         //-------------------------------------------------------------------------
         private static final int[] QUARTER_DAYS = {0, 90, 181, 273, 0, 91, 182, 274};
-
         private static boolean isIso(TemporalAccessor temporal) {
             return Chronology.from(temporal).equals(IsoChronology.INSTANCE);
         }
-
         private static void ensureIso(TemporalAccessor temporal) {
             if (isIso(temporal) == false) {
                 throw new DateTimeException("Resolve requires IsoChronology");
             }
         }
-
         private static ValueRange getWeekRange(LocalDate date) {
             int wby = getWeekBasedYear(date);
             return ValueRange.of(1, getWeekRange(wby));
         }
-
         private static int getWeekRange(int wby) {
             LocalDate date = LocalDate.of(wby, 1, 1);
             // 53 weeks if standard year starts on Thursday, or Wed in a leap year
@@ -361,7 +333,6 @@ public final class IsoFields {
             }
             return 52;
         }
-
         private static int getWeek(LocalDate date) {
             int dow0 = date.getDayOfWeek().ordinal();
             int doy0 = date.getDayOfYear() - 1;
@@ -383,7 +354,6 @@ public final class IsoFields {
             }
             return week;
         }
-
         private static int getWeekBasedYear(LocalDate date) {
             int year = date.getYear();
             int doy = date.getDayOfYear();
@@ -402,49 +372,36 @@ public final class IsoFields {
             return year;
         }
     }
-
     //-----------------------------------------------------------------------
-
     private static enum Unit implements TemporalUnit {
-
-
         WEEK_BASED_YEARS("WeekBasedYears", Duration.ofSeconds(31556952L)),
-
         QUARTER_YEARS("QuarterYears", Duration.ofSeconds(31556952L / 4));
-
         private final String name;
         private final Duration duration;
-
         private Unit(String name, Duration estimatedDuration) {
             this.name = name;
             this.duration = estimatedDuration;
         }
-
         @Override
         public Duration getDuration() {
             return duration;
         }
-
         @Override
         public boolean isDurationEstimated() {
             return true;
         }
-
         @Override
         public boolean isDateBased() {
             return true;
         }
-
         @Override
         public boolean isTimeBased() {
             return false;
         }
-
         @Override
         public boolean isSupportedBy(Temporal temporal) {
             return temporal.isSupported(EPOCH_DAY);
         }
-
         @SuppressWarnings("unchecked")
         @Override
         public <R extends Temporal> R addTo(R temporal, long amount) {
@@ -460,7 +417,6 @@ public final class IsoFields {
                     throw new IllegalStateException("Unreachable");
             }
         }
-
         @Override
         public long between(Temporal temporal1Inclusive, Temporal temporal2Exclusive) {
             if (temporal1Inclusive.getClass() != temporal2Exclusive.getClass()) {
@@ -476,7 +432,6 @@ public final class IsoFields {
                     throw new IllegalStateException("Unreachable");
             }
         }
-
         @Override
         public String toString() {
             return name;

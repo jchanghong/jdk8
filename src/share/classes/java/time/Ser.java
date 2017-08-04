@@ -1,21 +1,12 @@
-
-
-
 package java.time;
-
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InvalidClassException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.StreamCorruptedException;
-
-
 final class Ser implements Externalizable {
-
-
     private static final long serialVersionUID = -7683839454370182990L;
-
     static final byte DURATION_TYPE = 1;
     static final byte INSTANT_TYPE = 2;
     static final byte LOCAL_DATE_TYPE = 3;
@@ -30,29 +21,19 @@ final class Ser implements Externalizable {
     static final byte YEAR_MONTH_TYPE = 12;
     static final byte MONTH_DAY_TYPE = 13;
     static final byte PERIOD_TYPE = 14;
-
-
     private byte type;
-
     private Object object;
-
-
     public Ser() {
     }
-
-
     Ser(byte type, Object object) {
         this.type = type;
         this.object = object;
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         writeInternal(type, object, out);
     }
-
     static void writeInternal(byte type, Object object, ObjectOutput out) throws IOException {
         out.writeByte(type);
         switch (type) {
@@ -102,19 +83,15 @@ final class Ser implements Externalizable {
                 throw new InvalidClassException("Unknown serialized type");
         }
     }
-
     //-----------------------------------------------------------------------
-
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         type = in.readByte();
         object = readInternal(type, in);
     }
-
     static Object read(ObjectInput in) throws IOException, ClassNotFoundException {
         byte type = in.readByte();
         return readInternal(type, in);
     }
-
     private static Object readInternal(byte type, ObjectInput in) throws IOException, ClassNotFoundException {
         switch (type) {
             case DURATION_TYPE: return Duration.readExternal(in);
@@ -135,10 +112,7 @@ final class Ser implements Externalizable {
                 throw new StreamCorruptedException("Unknown serialized type");
         }
     }
-
-
     private Object readResolve() {
          return object;
     }
-
 }

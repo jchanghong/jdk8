@@ -1,11 +1,4 @@
-
-
-
-
 package java.text;
-
-
-
 public final class StringCharacterIterator implements CharacterIterator
 {
     private String text;
@@ -13,37 +6,26 @@ public final class StringCharacterIterator implements CharacterIterator
     private int end;
     // invariant: begin <= pos <= end
     private int pos;
-
-
     public StringCharacterIterator(String text)
     {
         this(text, 0);
     }
-
-
     public StringCharacterIterator(String text, int pos)
     {
     this(text, 0, text.length(), pos);
     }
-
-
     public StringCharacterIterator(String text, int begin, int end, int pos) {
         if (text == null)
             throw new NullPointerException();
         this.text = text;
-
         if (begin < 0 || begin > end || end > text.length())
             throw new IllegalArgumentException("Invalid substring range");
-
         if (pos < begin || pos > end)
             throw new IllegalArgumentException("Invalid position");
-
         this.begin = begin;
         this.end = end;
         this.pos = pos;
     }
-
-
     public void setText(String text) {
         if (text == null)
             throw new NullPointerException();
@@ -52,15 +34,11 @@ public final class StringCharacterIterator implements CharacterIterator
         this.end = text.length();
         this.pos = 0;
     }
-
-
     public char first()
     {
         pos = begin;
         return current();
     }
-
-
     public char last()
     {
         if (end != begin) {
@@ -70,8 +48,6 @@ public final class StringCharacterIterator implements CharacterIterator
         }
         return current();
      }
-
-
     public char setIndex(int p)
     {
     if (p < begin || p > end)
@@ -79,8 +55,6 @@ public final class StringCharacterIterator implements CharacterIterator
         pos = p;
         return current();
     }
-
-
     public char current()
     {
         if (pos >= begin && pos < end) {
@@ -90,8 +64,6 @@ public final class StringCharacterIterator implements CharacterIterator
             return DONE;
         }
     }
-
-
     public char next()
     {
         if (pos < end - 1) {
@@ -103,8 +75,6 @@ public final class StringCharacterIterator implements CharacterIterator
             return DONE;
         }
     }
-
-
     public char previous()
     {
         if (pos > begin) {
@@ -115,35 +85,25 @@ public final class StringCharacterIterator implements CharacterIterator
             return DONE;
         }
     }
-
-
     public int getBeginIndex()
     {
         return begin;
     }
-
-
     public int getEndIndex()
     {
         return end;
     }
-
-
     public int getIndex()
     {
         return pos;
     }
-
-
     public boolean equals(Object obj)
     {
         if (this == obj)
             return true;
         if (!(obj instanceof StringCharacterIterator))
             return false;
-
         StringCharacterIterator that = (StringCharacterIterator) obj;
-
         if (hashCode() != that.hashCode())
             return false;
         if (!text.equals(that.text))
@@ -152,14 +112,10 @@ public final class StringCharacterIterator implements CharacterIterator
             return false;
         return true;
     }
-
-
     public int hashCode()
     {
         return text.hashCode() ^ pos ^ begin ^ end;
     }
-
-
     public Object clone()
     {
         try {
@@ -171,5 +127,4 @@ public final class StringCharacterIterator implements CharacterIterator
             throw new InternalError(e);
         }
     }
-
 }

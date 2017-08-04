@@ -1,15 +1,10 @@
-
-
 package java.awt.image;
-
 import java.awt.image.ImageConsumer;
 import java.awt.image.ImageProducer;
 import java.awt.image.ColorModel;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.Enumeration;
-
-
 public class MemoryImageSource implements ImageProducer {
     int width;
     int height;
@@ -21,35 +16,26 @@ public class MemoryImageSource implements ImageProducer {
     Vector theConsumers = new Vector();
     boolean animating;
     boolean fullbuffers;
-
-
     public MemoryImageSource(int w, int h, ColorModel cm,
                              byte[] pix, int off, int scan) {
         initialize(w, h, cm, (Object) pix, off, scan, null);
     }
-
-
     public MemoryImageSource(int w, int h, ColorModel cm,
                              byte[] pix, int off, int scan,
                              Hashtable<?,?> props)
     {
         initialize(w, h, cm, (Object) pix, off, scan, props);
     }
-
-
     public MemoryImageSource(int w, int h, ColorModel cm,
                              int[] pix, int off, int scan) {
         initialize(w, h, cm, (Object) pix, off, scan, null);
     }
-
-
     public MemoryImageSource(int w, int h, ColorModel cm,
                              int[] pix, int off, int scan,
                              Hashtable<?,?> props)
     {
         initialize(w, h, cm, (Object) pix, off, scan, props);
     }
-
     private void initialize(int w, int h, ColorModel cm,
                             Object pix, int off, int scan, Hashtable props) {
         width = w;
@@ -63,22 +49,16 @@ public class MemoryImageSource implements ImageProducer {
         }
         properties = props;
     }
-
-
     public MemoryImageSource(int w, int h, int pix[], int off, int scan) {
         initialize(w, h, ColorModel.getRGBdefault(),
                    (Object) pix, off, scan, null);
     }
-
-
     public MemoryImageSource(int w, int h, int pix[], int off, int scan,
                              Hashtable<?,?> props)
     {
         initialize(w, h, ColorModel.getRGBdefault(),
                    (Object) pix, off, scan, props);
     }
-
-
     public synchronized void addConsumer(ImageConsumer ic) {
         if (theConsumers.contains(ic)) {
             return;
@@ -102,29 +82,19 @@ public class MemoryImageSource implements ImageProducer {
             }
         }
     }
-
-
     public synchronized boolean isConsumer(ImageConsumer ic) {
         return theConsumers.contains(ic);
     }
-
-
     public synchronized void removeConsumer(ImageConsumer ic) {
         theConsumers.removeElement(ic);
     }
-
-
     public void startProduction(ImageConsumer ic) {
         addConsumer(ic);
     }
-
-
     public void requestTopDownLeftRightResend(ImageConsumer ic) {
         // Ignored.  The data is either single frame and already in TDLR
         // format or it is multi-frame and TDLR resends aren't critical.
     }
-
-
     public synchronized void setAnimated(boolean animated) {
         this.animating = animated;
         if (!animating) {
@@ -139,8 +109,6 @@ public class MemoryImageSource implements ImageProducer {
             theConsumers.removeAllElements();
         }
     }
-
-
     public synchronized void setFullBufferUpdates(boolean fullbuffers) {
         if (this.fullbuffers == fullbuffers) {
             return;
@@ -157,18 +125,12 @@ public class MemoryImageSource implements ImageProducer {
             }
         }
     }
-
-
     public void newPixels() {
         newPixels(0, 0, width, height, true);
     }
-
-
     public synchronized void newPixels(int x, int y, int w, int h) {
         newPixels(x, y, w, h, true);
     }
-
-
     public synchronized void newPixels(int x, int y, int w, int h,
                                        boolean framenotify) {
         if (animating) {
@@ -207,8 +169,6 @@ public class MemoryImageSource implements ImageProducer {
             }
         }
     }
-
-
     public synchronized void newPixels(byte[] newpix, ColorModel newmodel,
                                        int offset, int scansize) {
         this.pixels = newpix;
@@ -217,8 +177,6 @@ public class MemoryImageSource implements ImageProducer {
         this.pixelscan = scansize;
         newPixels();
     }
-
-
     public synchronized void newPixels(int[] newpix, ColorModel newmodel,
                                        int offset, int scansize) {
         this.pixels = newpix;
@@ -227,7 +185,6 @@ public class MemoryImageSource implements ImageProducer {
         this.pixelscan = scansize;
         newPixels();
     }
-
     private void initConsumer(ImageConsumer ic) {
         if (isConsumer(ic)) {
             ic.setDimensions(width, height);
@@ -250,7 +207,6 @@ public class MemoryImageSource implements ImageProducer {
                            ImageConsumer.SINGLEFRAME));
         }
     }
-
     private void sendPixels(ImageConsumer ic, int x, int y, int w, int h) {
         int off = pixeloffset + pixelscan * y + x;
         if (isConsumer(ic)) {

@@ -1,7 +1,4 @@
-
-
 package java.nio.channels.spi;
-
 import java.io.IOException;
 import java.net.ProtocolFamily;
 import java.nio.channels.*;
@@ -11,22 +8,14 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 import java.util.ServiceConfigurationError;
 import sun.security.action.GetPropertyAction;
-
-
-
-
 public abstract class SelectorProvider {
-
     private static final Object lock = new Object();
     private static SelectorProvider provider = null;
-
-
     protected SelectorProvider() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null)
             sm.checkPermission(new RuntimePermission("selectorProvider"));
     }
-
     private static boolean loadProviderFromProperty() {
         String cn = System.getProperty("java.nio.channels.spi.SelectorProvider");
         if (cn == null)
@@ -46,9 +35,7 @@ public abstract class SelectorProvider {
             throw new ServiceConfigurationError(null, x);
         }
     }
-
     private static boolean loadProviderAsService() {
-
         ServiceLoader<SelectorProvider> sl =
             ServiceLoader.load(SelectorProvider.class,
                                ClassLoader.getSystemClassLoader());
@@ -68,8 +55,6 @@ public abstract class SelectorProvider {
             }
         }
     }
-
-
     public static SelectorProvider provider() {
         synchronized (lock) {
             if (provider != null)
@@ -87,34 +72,19 @@ public abstract class SelectorProvider {
                     });
         }
     }
-
-
     public abstract DatagramChannel openDatagramChannel()
         throws IOException;
-
-
     public abstract DatagramChannel openDatagramChannel(ProtocolFamily family)
         throws IOException;
-
-
     public abstract Pipe openPipe()
         throws IOException;
-
-
     public abstract AbstractSelector openSelector()
         throws IOException;
-
-
     public abstract ServerSocketChannel openServerSocketChannel()
         throws IOException;
-
-
     public abstract SocketChannel openSocketChannel()
         throws IOException;
-
-
    public Channel inheritedChannel() throws IOException {
         return null;
    }
-
 }

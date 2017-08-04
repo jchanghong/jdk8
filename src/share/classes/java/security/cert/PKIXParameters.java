@@ -1,7 +1,4 @@
-
-
 package java.security.cert;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -13,10 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-
 public class PKIXParameters implements CertPathParameters {
-
     private Set<TrustAnchor> unmodTrustAnchors;
     private Date date;
     private List<PKIXCertPathChecker> certPathCheckers;
@@ -29,19 +23,14 @@ public class PKIXParameters implements CertPathParameters {
     private boolean policyQualifiersRejected = true;
     private List<CertStore> certStores;
     private CertSelector certSelector;
-
-
     public PKIXParameters(Set<TrustAnchor> trustAnchors)
         throws InvalidAlgorithmParameterException
     {
         setTrustAnchors(trustAnchors);
-
         this.unmodInitialPolicies = Collections.<String>emptySet();
         this.certPathCheckers = new ArrayList<PKIXCertPathChecker>();
         this.certStores = new ArrayList<CertStore>();
     }
-
-
     public PKIXParameters(KeyStore keystore)
         throws KeyStoreException, InvalidAlgorithmParameterException
     {
@@ -63,13 +52,9 @@ public class PKIXParameters implements CertPathParameters {
         this.certPathCheckers = new ArrayList<PKIXCertPathChecker>();
         this.certStores = new ArrayList<CertStore>();
     }
-
-
     public Set<TrustAnchor> getTrustAnchors() {
         return this.unmodTrustAnchors;
     }
-
-
     public void setTrustAnchors(Set<TrustAnchor> trustAnchors)
         throws InvalidAlgorithmParameterException
     {
@@ -90,13 +75,9 @@ public class PKIXParameters implements CertPathParameters {
         this.unmodTrustAnchors = Collections.unmodifiableSet
                 (new HashSet<TrustAnchor>(trustAnchors));
     }
-
-
     public Set<String> getInitialPolicies() {
         return this.unmodInitialPolicies;
     }
-
-
     public void setInitialPolicies(Set<String> initialPolicies) {
         if (initialPolicies != null) {
             for (Iterator<String> i = initialPolicies.iterator();
@@ -110,8 +91,6 @@ public class PKIXParameters implements CertPathParameters {
         } else
             this.unmodInitialPolicies = Collections.<String>emptySet();
     }
-
-
     public void setCertStores(List<CertStore> stores) {
         if (stores == null) {
             this.certStores = new ArrayList<CertStore>();
@@ -125,87 +104,57 @@ public class PKIXParameters implements CertPathParameters {
             this.certStores = new ArrayList<CertStore>(stores);
         }
     }
-
-
     public void addCertStore(CertStore store) {
         if (store != null) {
             this.certStores.add(store);
         }
     }
-
-
     public List<CertStore> getCertStores() {
         return Collections.unmodifiableList
                 (new ArrayList<CertStore>(this.certStores));
     }
-
-
     public void setRevocationEnabled(boolean val) {
         revocationEnabled = val;
     }
-
-
     public boolean isRevocationEnabled() {
         return revocationEnabled;
     }
-
-
     public void setExplicitPolicyRequired(boolean val) {
         explicitPolicyRequired = val;
     }
-
-
     public boolean isExplicitPolicyRequired() {
         return explicitPolicyRequired;
     }
-
-
     public void setPolicyMappingInhibited(boolean val) {
         policyMappingInhibited = val;
     }
-
-
     public boolean isPolicyMappingInhibited() {
         return policyMappingInhibited;
     }
-
-
     public void setAnyPolicyInhibited(boolean val) {
         anyPolicyInhibited = val;
     }
-
-
     public boolean isAnyPolicyInhibited() {
         return anyPolicyInhibited;
     }
-
-
     public void setPolicyQualifiersRejected(boolean qualifiersRejected) {
         policyQualifiersRejected = qualifiersRejected;
     }
-
-
     public boolean getPolicyQualifiersRejected() {
         return policyQualifiersRejected;
     }
-
-
     public Date getDate() {
         if (date == null)
             return null;
         else
             return (Date) this.date.clone();
     }
-
-
     public void setDate(Date date) {
         if (date != null)
             this.date = (Date) date.clone();
         else
             date = null;
     }
-
-
     public void setCertPathCheckers(List<PKIXCertPathChecker> checkers) {
         if (checkers != null) {
             List<PKIXCertPathChecker> tmpList =
@@ -218,8 +167,6 @@ public class PKIXParameters implements CertPathParameters {
             this.certPathCheckers = new ArrayList<PKIXCertPathChecker>();
         }
     }
-
-
     public List<PKIXCertPathChecker> getCertPathCheckers() {
         List<PKIXCertPathChecker> tmpList = new ArrayList<PKIXCertPathChecker>();
         for (PKIXCertPathChecker ck : certPathCheckers) {
@@ -227,25 +174,17 @@ public class PKIXParameters implements CertPathParameters {
         }
         return Collections.unmodifiableList(tmpList);
     }
-
-
     public void addCertPathChecker(PKIXCertPathChecker checker) {
         if (checker != null) {
             certPathCheckers.add((PKIXCertPathChecker)checker.clone());
         }
     }
-
-
     public String getSigProvider() {
         return this.sigProvider;
     }
-
-
     public void setSigProvider(String sigProvider) {
         this.sigProvider = sigProvider;
     }
-
-
     public CertSelector getTargetCertConstraints() {
         if (certSelector != null) {
             return (CertSelector) certSelector.clone();
@@ -253,20 +192,15 @@ public class PKIXParameters implements CertPathParameters {
             return null;
         }
     }
-
-
     public void setTargetCertConstraints(CertSelector selector) {
         if (selector != null)
             certSelector = (CertSelector) selector.clone();
         else
             certSelector = null;
     }
-
-
     public Object clone() {
         try {
             PKIXParameters copy = (PKIXParameters)super.clone();
-
             // must clone these because addCertStore, et al. modify them
             if (certStores != null) {
                 copy.certStores = new ArrayList<CertStore>(certStores);
@@ -279,28 +213,20 @@ public class PKIXParameters implements CertPathParameters {
                                     (PKIXCertPathChecker)checker.clone());
                 }
             }
-
             // other class fields are immutable to public, don't bother
             // to clone the read-only fields.
             return copy;
         } catch (CloneNotSupportedException e) {
-
             throw new InternalError(e.toString(), e);
         }
     }
-
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("[\n");
-
-
         if (unmodTrustAnchors != null) {
             sb.append("  Trust Anchors: " + unmodTrustAnchors.toString()
                 + "\n");
         }
-
-
         if (unmodInitialPolicies != null) {
             if (unmodInitialPolicies.isEmpty()) {
                 sb.append("  Initial Policy OIDs: any\n");
@@ -309,8 +235,6 @@ public class PKIXParameters implements CertPathParameters {
                     + unmodInitialPolicies.toString() + "]\n");
             }
         }
-
-
         sb.append("  Validity Date: " + String.valueOf(date) + "\n");
         sb.append("  Signature Provider: " + String.valueOf(sigProvider) + "\n");
         sb.append("  Default Revocation Enabled: " + revocationEnabled + "\n");
@@ -318,11 +242,7 @@ public class PKIXParameters implements CertPathParameters {
         sb.append("  Policy Mapping Inhibited: " + policyMappingInhibited + "\n");
         sb.append("  Any Policy Inhibited: " + anyPolicyInhibited + "\n");
         sb.append("  Policy Qualifiers Rejected: " + policyQualifiersRejected + "\n");
-
-
         sb.append("  Target Cert Constraints: " + String.valueOf(certSelector) + "\n");
-
-
         if (certPathCheckers != null)
             sb.append("  Certification Path Checkers: ["
                 + certPathCheckers.toString() + "]\n");

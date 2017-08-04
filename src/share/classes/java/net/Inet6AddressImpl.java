@@ -1,22 +1,16 @@
-
 package java.net;
 import java.io.IOException;
-
-
-
 class Inet6AddressImpl implements InetAddressImpl {
     public native String getLocalHostName() throws UnknownHostException;
     public native InetAddress[]
         lookupAllHostAddr(String hostname) throws UnknownHostException;
     public native String getHostByAddr(byte[] addr) throws UnknownHostException;
     private native boolean isReachable0(byte[] addr, int scope, int timeout, byte[] inf, int ttl, int if_scope) throws IOException;
-
     public boolean isReachable(InetAddress addr, int timeout, NetworkInterface netif, int ttl) throws IOException {
         byte[] ifaddr = null;
         int scope = -1;
         int netif_scope = -1;
         if (netif != null) {
-
             java.util.Enumeration<InetAddress> it = netif.getInetAddresses();
             InetAddress inetaddr = null;
             while (it.hasMoreElements()) {
@@ -39,7 +33,6 @@ class Inet6AddressImpl implements InetAddressImpl {
             scope = ((Inet6Address) addr).getScopeId();
         return isReachable0(addr.getAddress(), scope, timeout, ifaddr, ttl, netif_scope);
     }
-
     public synchronized InetAddress anyLocalAddress() {
         if (anyLocalAddress == null) {
             if (InetAddress.preferIPv6Address) {
@@ -51,7 +44,6 @@ class Inet6AddressImpl implements InetAddressImpl {
         }
         return anyLocalAddress;
     }
-
     public synchronized InetAddress loopbackAddress() {
         if (loopbackAddress == null) {
              if (InetAddress.preferIPv6Address) {
@@ -65,7 +57,6 @@ class Inet6AddressImpl implements InetAddressImpl {
         }
         return loopbackAddress;
     }
-
     private InetAddress      anyLocalAddress;
     private InetAddress      loopbackAddress;
 }

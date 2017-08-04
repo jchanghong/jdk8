@@ -1,7 +1,4 @@
-
-
 package java.awt.image;
-
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.color.ICC_ColorSpace;
@@ -12,12 +9,8 @@ import java.awt.Toolkit;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-
 public abstract class ColorModel implements Transparency{
     private long pData;         // Placeholder for data for native functions
-
-
     protected int pixel_bits;
     int nBits[];
     int transparency = Transparency.TRANSLUCENT;
@@ -29,11 +22,7 @@ public abstract class ColorModel implements Transparency{
     int colorSpaceType = ColorSpace.TYPE_RGB;
     int maxBits;
     boolean is_sRGB = true;
-
-
     protected int transferType;
-
-
     private static boolean loaded = false;
     static void loadLibraries() {
         if (!loaded) {
@@ -49,13 +38,10 @@ public abstract class ColorModel implements Transparency{
     }
     private static native void initIDs();
     static {
-
         loadLibraries();
         initIDs();
     }
     private static ColorModel RGBdefault;
-
-
     public static ColorModel getRGBdefault() {
         if (RGBdefault == null) {
             RGBdefault = new DirectColorModel(32,
@@ -67,8 +53,6 @@ public abstract class ColorModel implements Transparency{
         }
         return RGBdefault;
     }
-
-
     public ColorModel(int bits) {
         pixel_bits = bits;
         if (bits < 1) {
@@ -80,8 +64,6 @@ public abstract class ColorModel implements Transparency{
         // REMIND: make sure transferType is set correctly
         transferType = ColorModel.getDefaultTransferType(bits);
     }
-
-
     protected ColorModel(int pixel_bits, int[] bits, ColorSpace cspace,
                          boolean hasAlpha,
                          boolean isAlphaPremultiplied,
@@ -99,7 +81,6 @@ public abstract class ColorModel implements Transparency{
                                                " but length of bits array is "+
                                                bits.length);
         }
-
         // 4186669
         if (transparency < Transparency.OPAQUE ||
             transparency > Transparency.TRANSLUCENT)
@@ -107,7 +88,6 @@ public abstract class ColorModel implements Transparency{
             throw new IllegalArgumentException("Unknown transparency: "+
                                                transparency);
         }
-
         if (supportsAlpha == false) {
             this.isAlphaPremultiplied = false;
             this.transparency = Transparency.OPAQUE;
@@ -116,7 +96,6 @@ public abstract class ColorModel implements Transparency{
             this.isAlphaPremultiplied = isAlphaPremultiplied;
             this.transparency         = transparency;
         }
-
         nBits = bits.clone();
         this.pixel_bits = pixel_bits;
         if (pixel_bits <= 0) {
@@ -135,98 +114,63 @@ public abstract class ColorModel implements Transparency{
                 maxBits = bits[i];
             }
         }
-
         // Make sure that we don't have all 0-bit components
         if (maxBits == 0) {
             throw new IllegalArgumentException("There must be at least "+
                                                "one component with > 0 "+
                                               "pixel bits.");
         }
-
         // Save this since we always need to check if it is the default CS
         if (cspace != ColorSpace.getInstance(ColorSpace.CS_sRGB)) {
             is_sRGB = false;
         }
-
         // Save the transfer type
         this.transferType = transferType;
     }
-
-
     final public boolean hasAlpha() {
         return supportsAlpha;
     }
-
-
     final public boolean isAlphaPremultiplied() {
         return isAlphaPremultiplied;
     }
-
-
     final public int getTransferType() {
         return transferType;
     }
-
-
     public int getPixelSize() {
         return pixel_bits;
     }
-
-
     public int getComponentSize(int componentIdx) {
         // REMIND:
         if (nBits == null) {
             throw new NullPointerException("Number of bits array is null.");
         }
-
         return nBits[componentIdx];
     }
-
-
     public int[] getComponentSize() {
         if (nBits != null) {
             return nBits.clone();
         }
-
         return null;
     }
-
-
     public int getTransparency() {
         return transparency;
     }
-
-
     public int getNumComponents() {
         return numComponents;
     }
-
-
     public int getNumColorComponents() {
         return numColorComponents;
     }
-
-
     public abstract int getRed(int pixel);
-
-
     public abstract int getGreen(int pixel);
-
-
     public abstract int getBlue(int pixel);
-
-
     public abstract int getAlpha(int pixel);
-
-
     public int getRGB(int pixel) {
         return (getAlpha(pixel) << 24)
             | (getRed(pixel) << 16)
             | (getGreen(pixel) << 8)
             | (getBlue(pixel) << 0);
     }
-
-
     public int getRed(Object inData) {
         int pixel=0,length=0;
         switch (transferType) {
@@ -257,8 +201,6 @@ public abstract class ColorModel implements Transparency{
                 ("This method is not supported by this color model");
         }
     }
-
-
     public int getGreen(Object inData) {
         int pixel=0,length=0;
         switch (transferType) {
@@ -289,8 +231,6 @@ public abstract class ColorModel implements Transparency{
                 ("This method is not supported by this color model");
         }
     }
-
-
     public int getBlue(Object inData) {
         int pixel=0,length=0;
         switch (transferType) {
@@ -321,8 +261,6 @@ public abstract class ColorModel implements Transparency{
                 ("This method is not supported by this color model");
         }
     }
-
-
     public int getAlpha(Object inData) {
         int pixel=0,length=0;
         switch (transferType) {
@@ -353,34 +291,24 @@ public abstract class ColorModel implements Transparency{
                 ("This method is not supported by this color model");
         }
     }
-
-
     public int getRGB(Object inData) {
         return (getAlpha(inData) << 24)
             | (getRed(inData) << 16)
             | (getGreen(inData) << 8)
             | (getBlue(inData) << 0);
     }
-
-
     public Object getDataElements(int rgb, Object pixel) {
         throw new UnsupportedOperationException
             ("This method is not supported by this color model.");
     }
-
-
     public int[] getComponents(int pixel, int[] components, int offset) {
         throw new UnsupportedOperationException
             ("This method is not supported by this color model.");
     }
-
-
     public int[] getComponents(Object pixel, int[] components, int offset) {
         throw new UnsupportedOperationException
             ("This method is not supported by this color model.");
     }
-
-
     public int[] getUnnormalizedComponents(float[] normComponents,
                                            int normOffset,
                                            int[] components, int offset) {
@@ -390,7 +318,6 @@ public abstract class ColorModel implements Transparency{
             throw new UnsupportedOperationException("This method is not supported "+
                                         "by this color model.");
         }
-
         if (nBits == null) {
             throw new UnsupportedOperationException ("This method is not supported.  "+
                                          "Unable to determine #bits per "+
@@ -402,11 +329,9 @@ public abstract class ColorModel implements Transparency{
                         "Incorrect number of components.  Expecting "+
                         numComponents);
         }
-
         if (components == null) {
             components = new int[offset+numComponents];
         }
-
         if (supportsAlpha && isAlphaPremultiplied) {
             float normAlpha = normComponents[normOffset+numColorComponents];
             for (int i=0; i < numColorComponents; i++) {
@@ -423,11 +348,8 @@ public abstract class ColorModel implements Transparency{
                                               * ((1<<nBits[i]) - 1) + 0.5f);
             }
         }
-
         return components;
     }
-
-
     public float[] getNormalizedComponents(int[] components, int offset,
                                            float[] normComponents,
                                            int normOffset) {
@@ -442,18 +364,15 @@ public abstract class ColorModel implements Transparency{
                                          "Unable to determine #bits per "+
                                          "component.");
         }
-
         if ((components.length - offset) < numComponents) {
             throw new
                 IllegalArgumentException(
                         "Incorrect number of components.  Expecting "+
                         numComponents);
         }
-
         if (normComponents == null) {
             normComponents = new float[numComponents+normOffset];
         }
-
         if (supportsAlpha && isAlphaPremultiplied) {
             // Normalized coordinates are non premultiplied
             float normAlpha = (float)components[offset+numColorComponents];
@@ -477,38 +396,27 @@ public abstract class ColorModel implements Transparency{
                                                ((float) ((1<<nBits[i]) - 1));
             }
         }
-
         return normComponents;
     }
-
-
     public int getDataElement(int[] components, int offset) {
         throw new UnsupportedOperationException("This method is not supported "+
                                     "by this color model.");
     }
-
-
     public Object getDataElements(int[] components, int offset, Object obj) {
         throw new UnsupportedOperationException("This method has not been implemented "+
                                     "for this color model.");
     }
-
-
     public int getDataElement(float[] normComponents, int normOffset) {
         int components[] = getUnnormalizedComponents(normComponents,
                                                      normOffset, null, 0);
         return getDataElement(components, 0);
     }
-
-
     public Object getDataElements(float[] normComponents, int normOffset,
                                   Object obj) {
         int components[] = getUnnormalizedComponents(normComponents,
                                                      normOffset, null, 0);
         return getDataElements(components, 0, obj);
     }
-
-
     public float[] getNormalizedComponents(Object pixel,
                                            float[] normComponents,
                                            int normOffset) {
@@ -516,14 +424,11 @@ public abstract class ColorModel implements Transparency{
         return getNormalizedComponents(components, 0,
                                        normComponents, normOffset);
     }
-
-
     public boolean equals(Object obj) {
         if (!(obj instanceof ColorModel)) {
             return false;
         }
         ColorModel cm = (ColorModel) obj;
-
         if (this == cm) {
             return true;
         }
@@ -535,9 +440,7 @@ public abstract class ColorModel implements Transparency{
         {
             return false;
         }
-
         int[] nb = cm.getComponentSize();
-
         if ((nBits != null) && (nb != null)) {
             for (int i = 0; i < numComponents; i++) {
                 if (nBits[i] != nb[i]) {
@@ -547,77 +450,51 @@ public abstract class ColorModel implements Transparency{
         } else {
             return ((nBits == null) && (nb == null));
         }
-
         return true;
     }
-
-
     public int hashCode() {
-
         int result = 0;
-
         result = (supportsAlpha ? 2 : 3) +
                  (isAlphaPremultiplied ? 4 : 5) +
                  pixel_bits * 6 +
                  transparency * 7 +
                  numComponents * 8;
-
         if (nBits != null) {
             for (int i = 0; i < numComponents; i++) {
                 result = result + nBits[i] * (i + 9);
             }
         }
-
         return result;
     }
-
-
     final public ColorSpace getColorSpace() {
         return colorSpace;
     }
-
-
     public ColorModel coerceData (WritableRaster raster,
                                   boolean isAlphaPremultiplied) {
         throw new UnsupportedOperationException
             ("This method is not supported by this color model");
     }
-
-
     public boolean isCompatibleRaster(Raster raster) {
         throw new UnsupportedOperationException(
             "This method has not been implemented for this ColorModel.");
     }
-
-
     public WritableRaster createCompatibleWritableRaster(int w, int h) {
         throw new UnsupportedOperationException
             ("This method is not supported by this color model");
     }
-
-
     public SampleModel createCompatibleSampleModel(int w, int h) {
         throw new UnsupportedOperationException
             ("This method is not supported by this color model");
     }
-
-
     public boolean isCompatibleSampleModel(SampleModel sm) {
         throw new UnsupportedOperationException
             ("This method is not supported by this color model");
     }
-
-
     public void finalize() {
     }
-
-
-
     public WritableRaster getAlphaRaster(WritableRaster raster) {
         return null;
     }
-
-
     public String toString() {
        return new String("ColorModel: #pixelBits = "+pixel_bits
                          + " numComponents = "+numComponents
@@ -627,7 +504,6 @@ public abstract class ColorModel implements Transparency{
                          + " isAlphaPre = "+isAlphaPremultiplied
                          );
     }
-
     static int getDefaultTransferType(int pixel_bits) {
         if (pixel_bits <= 8) {
             return DataBuffer.TYPE_BYTE;
@@ -639,30 +515,25 @@ public abstract class ColorModel implements Transparency{
             return DataBuffer.TYPE_UNDEFINED;
         }
     }
-
     static byte[] l8Tos8 = null;   // 8-bit linear to 8-bit non-linear sRGB LUT
     static byte[] s8Tol8 = null;   // 8-bit non-linear sRGB to 8-bit linear LUT
     static byte[] l16Tos8 = null;  // 16-bit linear to 8-bit non-linear sRGB LUT
     static short[] s8Tol16 = null; // 8-bit non-linear sRGB to 16-bit linear LUT
-
                                 // Maps to hold LUTs for grayscale conversions
     static Map<ICC_ColorSpace, byte[]> g8Tos8Map = null;     // 8-bit gray values to 8-bit sRGB values
     static Map<ICC_ColorSpace, byte[]> lg16Toog8Map = null;  // 16-bit linear to 8-bit "other" gray
     static Map<ICC_ColorSpace, byte[]> g16Tos8Map = null;    // 16-bit gray values to 8-bit sRGB values
     static Map<ICC_ColorSpace, short[]> lg16Toog16Map = null; // 16-bit linear to 16-bit "other" gray
-
     static boolean isLinearRGBspace(ColorSpace cs) {
         // Note: CMM.LINEAR_RGBspace will be null if the linear
         // RGB space has not been created yet.
         return (cs == CMSManager.LINEAR_RGBspace);
     }
-
     static boolean isLinearGRAYspace(ColorSpace cs) {
         // Note: CMM.GRAYspace will be null if the linear
         // gray space has not been created yet.
         return (cs == CMSManager.GRAYspace);
     }
-
     static byte[] getLinearRGB8TosRGB8LUT() {
         if (l8Tos8 == null) {
             l8Tos8 = new byte[256];
@@ -685,7 +556,6 @@ public abstract class ColorModel implements Transparency{
         }
         return l8Tos8;
     }
-
     static byte[] getsRGB8ToLinearRGB8LUT() {
         if (s8Tol8 == null) {
             s8Tol8 = new byte[256];
@@ -703,7 +573,6 @@ public abstract class ColorModel implements Transparency{
         }
         return s8Tol8;
     }
-
     static byte[] getLinearRGB16TosRGB8LUT() {
         if (l16Tos8 == null) {
             l16Tos8 = new byte[65536];
@@ -722,7 +591,6 @@ public abstract class ColorModel implements Transparency{
         }
         return l16Tos8;
     }
-
     static short[] getsRGB8ToLinearRGB16LUT() {
         if (s8Tol16 == null) {
             s8Tol16 = new short[256];
@@ -740,8 +608,6 @@ public abstract class ColorModel implements Transparency{
         }
         return s8Tol16;
     }
-
-
     static byte[] getGray8TosRGB8LUT(ICC_ColorSpace grayCS) {
         if (isLinearGRAYspace(grayCS)) {
             return getLinearRGB8TosRGB8LUT();
@@ -780,8 +646,6 @@ public abstract class ColorModel implements Transparency{
         g8Tos8Map.put(grayCS, g8Tos8LUT);
         return g8Tos8LUT;
     }
-
-
     static byte[] getLinearGray16ToOtherGray8LUT(ICC_ColorSpace grayCS) {
         if (lg16Toog8Map != null) {
             byte[] lg16Toog8LUT = lg16Toog8Map.get(grayCS);
@@ -815,8 +679,6 @@ public abstract class ColorModel implements Transparency{
         lg16Toog8Map.put(grayCS, lg16Toog8LUT);
         return lg16Toog8LUT;
     }
-
-
     static byte[] getGray16TosRGB8LUT(ICC_ColorSpace grayCS) {
         if (isLinearGRAYspace(grayCS)) {
             return getLinearRGB16TosRGB8LUT();
@@ -848,7 +710,6 @@ public abstract class ColorModel implements Transparency{
             // space.  However, there are slight anomalies in the results.
             // Copy tmp starting at index 2, since colorConvert seems
             // to be slightly more accurate for the third component!
-
             // scale unsigned short (0 - 65535) to unsigned byte (0 - 255)
             g16Tos8LUT[i] =
                 (byte) (((float) (tmp[j] & 0xffff)) * (1.0f /257.0f) + 0.5f);
@@ -859,8 +720,6 @@ public abstract class ColorModel implements Transparency{
         g16Tos8Map.put(grayCS, g16Tos8LUT);
         return g16Tos8LUT;
     }
-
-
     static short[] getLinearGray16ToOtherGray16LUT(ICC_ColorSpace grayCS) {
         if (lg16Toog16Map != null) {
             short[] lg16Toog16LUT = lg16Toog16Map.get(grayCS);
@@ -889,5 +748,4 @@ public abstract class ColorModel implements Transparency{
         lg16Toog16Map.put(grayCS, lg16Toog16LUT);
         return lg16Toog16LUT;
     }
-
 }

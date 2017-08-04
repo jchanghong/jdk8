@@ -1,31 +1,21 @@
-
-
 package java.awt.image;
-
 import java.awt.color.ColorSpace;
 import java.awt.geom.Rectangle2D;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.RenderingHints;
 import sun.awt.image.ImagingLib;
-
-
 public class RescaleOp implements BufferedImageOp, RasterOp {
     float[] scaleFactors;
     float[] offsets;
     int length = 0;
     RenderingHints hints;
-
     private int srcNbits;
     private int dstNbits;
-
-
-
     public RescaleOp (float[] scaleFactors, float[] offsets,
                       RenderingHints hints) {
         length = scaleFactors.length;
         if (length > offsets.length) length = offsets.length;
-
         this.scaleFactors = new float[length];
         this.offsets      = new float[length];
         for (int i=0; i < length; i++) {
@@ -34,8 +24,6 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
         }
         this.hints = hints;
     }
-
-
     public RescaleOp (float scaleFactor, float offset, RenderingHints hints) {
         length = 1;
         this.scaleFactors = new float[1];
@@ -44,8 +32,6 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
         this.offsets[0]       = offset;
         this.hints = hints;
     }
-
-
     final public float[] getScaleFactors (float scaleFactors[]) {
         if (scaleFactors == null) {
             return (float[]) this.scaleFactors.clone();
@@ -55,32 +41,22 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                                    scaleFactors.length));
         return scaleFactors;
     }
-
-
     final public float[] getOffsets(float offsets[]) {
         if (offsets == null) {
             return (float[]) this.offsets.clone();
         }
-
         System.arraycopy (this.offsets, 0, offsets, 0,
                           Math.min(this.offsets.length, offsets.length));
         return offsets;
     }
-
-
     final public int getNumFactors() {
         return length;
     }
-
-
-
     private ByteLookupTable createByteLut(float scale[],
                                           float off[],
                                           int   nBands,
                                           int   nElems) {
-
         byte[][]        lutData = new byte[scale.length][nElems];
-
         for (int band=0; band<scale.length; band++) {
             float  bandScale   = scale[band];
             float  bandOff     = off[band];
@@ -96,20 +72,14 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                 }
                 bandLutData[i] = (byte)val;
             }
-
         }
-
         return new ByteLookupTable(0, lutData);
     }
-
-
     private ShortLookupTable createShortLut(float scale[],
                                             float off[],
                                             int   nBands,
                                             int   nElems) {
-
         short[][]        lutData = new short[scale.length][nElems];
-
         for (int band=0; band<scale.length; band++) {
             float   bandScale   = scale[band];
             float   bandOff     = off[band];
@@ -126,14 +96,9 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                 bandLutData[i] = (short)val;
             }
         }
-
         return new ShortLookupTable(0, lutData);
     }
-
-
-
     private boolean canUseLookup(Raster src, Raster dst) {
-
         //
         // Check that the src datatype is either a BYTE or SHORT
         //
@@ -142,13 +107,11 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
            datatype != DataBuffer.TYPE_USHORT) {
             return false;
         }
-
         //
         // Check dst sample sizes. All must be 8 or 16 bits.
         //
         SampleModel dstSM = dst.getSampleModel();
         dstNbits = dstSM.getSampleSize(0);
-
         if (!(dstNbits == 8 || dstNbits == 16)) {
             return false;
         }
@@ -158,7 +121,6 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                 return false;
             }
         }
-
         //
         // Check src sample sizes. All must be the same size
         //
@@ -173,17 +135,12 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                 return false;
             }
         }
-
         return true;
     }
-
-
     public final BufferedImage filter (BufferedImage src, BufferedImage dst) {
         ColorModel srcCM = src.getColorModel();
         ColorModel dstCM;
         int numBands = srcCM.getNumColorComponents();
-
-
         if (srcCM instanceof IndexColorModel) {
             throw new
                 IllegalArgumentException("Rescaling cannot be "+
@@ -197,17 +154,13 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                                                " of color or color/alpha "+
                                                " components");
         }
-
         boolean needToConvert = false;
-
         // Include alpha
         if (length > numBands && srcCM.hasAlpha()) {
             length = numBands+1;
         }
-
         int width = src.getWidth();
         int height = src.getHeight();
-
         if (dst == null) {
             dst = createCompatibleDestImage(src, null);
             dstCM = srcCM;
@@ -225,18 +178,14 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                                              ") not equal to dst height ("+
                                              dst.getHeight()+")");
             }
-
             dstCM = dst.getColorModel();
             if(srcCM.getColorSpace().getType() !=
                dstCM.getColorSpace().getType()) {
                 needToConvert = true;
                 dst = createCompatibleDestImage(src, null);
             }
-
         }
-
         BufferedImage origDst = dst;
-
         //
         // Try to use a native BI rescale operation first
         //
@@ -246,7 +195,6 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
             //
             WritableRaster srcRaster = src.getRaster();
             WritableRaster dstRaster = dst.getRaster();
-
             if (srcCM.hasAlpha()) {
                 if (numBands-1 == length || length == 1) {
                     int minx = srcRaster.getMinX();
@@ -280,24 +228,18 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                                                       bands);
                 }
             }
-
             //
             // Call the raster filter method
             //
             filter(srcRaster, dstRaster);
-
         }
-
         if (needToConvert) {
             // ColorModels are not the same
             ColorConvertOp ccop = new ColorConvertOp(hints);
             ccop.filter(dst, origDst);
         }
-
         return origDst;
     }
-
-
     public final WritableRaster filter (Raster src, WritableRaster dst)  {
         int numBands = src.getNumBands();
         int width  = src.getWidth();
@@ -305,7 +247,6 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
         int[] srcPix = null;
         int step = 0;
         int tidx = 0;
-
         // Create a new destination Raster, if needed
         if (dst == null) {
             dst = createCompatibleDestRaster(src);
@@ -329,15 +270,12 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                                                "does not equal the number of"+
                                                " of bands in the src raster");
         }
-
-
         //
         // Try for a native raster rescale first
         //
         if (ImagingLib.filter(this, src, dst) != null) {
             return dst;
         }
-
         //
         // Native raster rescale failed.
         // Try to see if a lookup operation can be used
@@ -345,7 +283,6 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
         if (canUseLookup(src, dst)) {
             int srcNgray = (1 << srcNbits);
             int dstNgray = (1 << dstNbits);
-
             if (dstNgray == 256) {
                 ByteLookupTable lut = createByteLut(scaleFactors, offsets,
                                                     numBands, srcNgray);
@@ -364,14 +301,12 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
             if (length > 1) {
                 step = 1;
             }
-
             int sminX = src.getMinX();
             int sY = src.getMinY();
             int dminX = dst.getMinX();
             int dY = dst.getMinY();
             int sX;
             int dX;
-
             //
             //  Determine bits per band to determine maxval for clamps.
             //  The min is assumed to be zero.
@@ -386,7 +321,6 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                 dstMax[z] = (1 << nbits) - 1;
                 dstMask[z] = ~(dstMax[z]);
             }
-
             int val;
             for (int y=0; y < height; y++, sY++, dY++) {
                 dX = dminX;
@@ -407,9 +341,7 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                             }
                         }
                         srcPix[z] = val;
-
                     }
-
                     // Put it back for all bands
                     dst.setPixel(dX, dY, srcPix);
                 }
@@ -417,18 +349,12 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
         }
         return dst;
     }
-
-
     public final Rectangle2D getBounds2D (BufferedImage src) {
          return getBounds2D(src.getRaster());
     }
-
-
     public final Rectangle2D getBounds2D (Raster src) {
         return src.getBounds();
     }
-
-
     public BufferedImage createCompatibleDestImage (BufferedImage src,
                                                     ColorModel destCM) {
         BufferedImage image;
@@ -446,16 +372,11 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
                                    destCM.createCompatibleWritableRaster(w, h),
                                    destCM.isAlphaPremultiplied(), null);
         }
-
         return image;
     }
-
-
     public WritableRaster createCompatibleDestRaster (Raster src) {
         return src.createCompatibleWritableRaster(src.getWidth(), src.getHeight());
     }
-
-
     public final Point2D getPoint2D (Point2D srcPt, Point2D dstPt) {
         if (dstPt == null) {
             dstPt = new Point2D.Float();
@@ -463,8 +384,6 @@ public class RescaleOp implements BufferedImageOp, RasterOp {
         dstPt.setLocation(srcPt.getX(), srcPt.getY());
         return dstPt;
     }
-
-
     public final RenderingHints getRenderingHints() {
         return hints;
     }

@@ -1,76 +1,53 @@
-
-
 package java.net;
-
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-
 import sun.net.ConnectionResetException;
-
-
 class SocketInputStream extends FileInputStream
 {
     static {
         init();
     }
-
     private boolean eof;
     private AbstractPlainSocketImpl impl = null;
     private byte temp[];
     private Socket socket = null;
-
-
     SocketInputStream(AbstractPlainSocketImpl impl) throws IOException {
         super(impl.getFileDescriptor());
         this.impl = impl;
         socket = impl.getSocket();
     }
-
-
     public final FileChannel getChannel() {
         return null;
     }
-
-
     private native int socketRead0(FileDescriptor fd,
                                    byte b[], int off, int len,
                                    int timeout)
         throws IOException;
-
     // wrap native call to allow instrumentation
-
     private int socketRead(FileDescriptor fd,
                            byte b[], int off, int len,
                            int timeout)
         throws IOException {
         return socketRead0(fd, b, off, len, timeout);
     }
-
-
     public int read(byte b[]) throws IOException {
         return read(b, 0, b.length);
     }
-
-
     public int read(byte b[], int off, int length) throws IOException {
         return read(b, off, length, impl.getTimeout());
     }
-
     int read(byte b[], int off, int length, int timeout) throws IOException {
         int n;
-
         // EOF already encountered
         if (eof) {
             return -1;
         }
-
         // connection reset
         if (impl.isConnectionReset()) {
             throw new SocketException("Connection reset");
         }
-
         // bounds check
         if (length <= 0 || off < 0 || length > b.length - off) {
             if (length == 0) {
@@ -79,9 +56,7 @@ class SocketInputStream extends FileInputStream
             throw new ArrayIndexOutOfBoundsException("length == " + length
                     + " off == " + off + " buffer length == " + b.length);
         }
-
         boolean gotReset = false;
-
         // acquire file descriptor and do the read
         FileDescriptor fd = impl.acquireFD();
         try {
@@ -94,8 +69,6 @@ class SocketInputStream extends FileInputStream
         } finally {
             impl.releaseFD();
         }
-
-
         if (gotReset) {
             impl.setConnectionResetPending();
             impl.acquireFD();
@@ -109,8 +82,6 @@ class SocketInputStream extends FileInputStream
                 impl.releaseFD();
             }
         }
-
-
         if (impl.isClosedOrPending()) {
             throw new SocketException("Socket closed");
         }
@@ -123,8 +94,6 @@ class SocketInputStream extends FileInputStream
         eof = true;
         return -1;
     }
-
-
     public int read() throws IOException {
         if (eof) {
             return -1;
@@ -136,8 +105,6 @@ class SocketInputStream extends FileInputStream
         }
         return temp[0] & 0xff;
     }
-
-
     public long skip(long numbytes) throws IOException {
         if (numbytes <= 0) {
             return 0;
@@ -154,13 +121,9 @@ class SocketInputStream extends FileInputStream
         }
         return numbytes - n;
     }
-
-
     public int available() throws IOException {
         return impl.available();
     }
-
-
     private boolean closing = false;
     public void close() throws IOException {
         // Prevent recursion. See BugId 4484411
@@ -174,14 +137,9 @@ class SocketInputStream extends FileInputStream
             impl.close();
         closing = false;
     }
-
     void setEOF(boolean eof) {
         this.eof = eof;
     }
-
-
     protected void finalize() {}
-
-
     private native static void init();
 }

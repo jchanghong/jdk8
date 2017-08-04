@@ -1,41 +1,29 @@
-
-
 package java.awt.image;
-
 import java.awt.image.ImageConsumer;
 import java.awt.image.ColorModel;
 import java.util.Hashtable;
 import java.awt.Rectangle;
-
-
 public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
     private static final ColorModel rgbmodel = ColorModel.getRGBdefault();
     private static final int neededHints = (TOPDOWNLEFTRIGHT
                                             | COMPLETESCANLINES);
-
     private boolean passthrough;
     private float reds[], greens[], blues[], alphas[];
     private int savedy;
     private int savedyrem;
-
-
     public AreaAveragingScaleFilter(int width, int height) {
         super(width, height);
     }
-
-
     public void setHints(int hints) {
         passthrough = ((hints & neededHints) != neededHints);
         super.setHints(hints);
     }
-
     private void makeAccumBuffers() {
         reds = new float[destWidth];
         greens = new float[destWidth];
         blues = new float[destWidth];
         alphas = new float[destWidth];
     }
-
     private int[] calcRow() {
         float origmult = ((float) srcWidth) * srcHeight;
         if (outpixbuf == null || !(outpixbuf instanceof int[])) {
@@ -65,7 +53,6 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
         }
         return outpix;
     }
-
     private void accumPixels(int x, int y, int w, int h,
                              ColorModel model, Object pixels, int off,
                              int scansize) {
@@ -161,8 +148,6 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
         savedyrem = dyrem;
         savedy = dy;
     }
-
-
     public void setPixels(int x, int y, int w, int h,
                           ColorModel model, byte pixels[], int off,
                           int scansize) {
@@ -172,8 +157,6 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
             accumPixels(x, y, w, h, model, pixels, off, scansize);
         }
     }
-
-
     public void setPixels(int x, int y, int w, int h,
                           ColorModel model, int pixels[], int off,
                           int scansize) {

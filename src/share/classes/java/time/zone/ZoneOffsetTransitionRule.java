@@ -1,11 +1,6 @@
-
-
-
 package java.time.zone;
-
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.time.temporal.TemporalAdjusters.previousOrSame;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -20,33 +15,17 @@ import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.chrono.IsoChronology;
 import java.util.Objects;
-
-
 public final class ZoneOffsetTransitionRule implements Serializable {
-
-
     private static final long serialVersionUID = 6889046316657758795L;
-
-
     private final Month month;
-
     private final byte dom;
-
     private final DayOfWeek dow;
-
     private final LocalTime time;
-
     private final boolean timeEndOfDay;
-
     private final TimeDefinition timeDefinition;
-
     private final ZoneOffset standardOffset;
-
     private final ZoneOffset offsetBefore;
-
     private final ZoneOffset offsetAfter;
-
-
     public static ZoneOffsetTransitionRule of(
             Month month,
             int dayOfMonthIndicator,
@@ -71,8 +50,6 @@ public final class ZoneOffsetTransitionRule implements Serializable {
         }
         return new ZoneOffsetTransitionRule(month, dayOfMonthIndicator, dayOfWeek, time, timeEndOfDay, timeDefnition, standardOffset, offsetBefore, offsetAfter);
     }
-
-
     ZoneOffsetTransitionRule(
             Month month,
             int dayOfMonthIndicator,
@@ -93,19 +70,13 @@ public final class ZoneOffsetTransitionRule implements Serializable {
         this.offsetBefore = offsetBefore;
         this.offsetAfter = offsetAfter;
     }
-
     //-----------------------------------------------------------------------
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }
-
-
     private Object writeReplace() {
         return new Ser(Ser.ZOTRULE, this);
     }
-
-
     void writeExternal(DataOutput out) throws IOException {
         final int timeSecs = (timeEndOfDay ? 86400 : time.toSecondOfDay());
         final int stdOffset = standardOffset.getTotalSeconds();
@@ -138,8 +109,6 @@ public final class ZoneOffsetTransitionRule implements Serializable {
             out.writeInt(offsetAfter.getTotalSeconds());
         }
     }
-
-
     static ZoneOffsetTransitionRule readExternal(DataInput in) throws IOException {
         int data = in.readInt();
         Month month = Month.of(data >>> 28);
@@ -157,55 +126,35 @@ public final class ZoneOffsetTransitionRule implements Serializable {
         ZoneOffset after = (afterByte == 3 ? ZoneOffset.ofTotalSeconds(in.readInt()) : ZoneOffset.ofTotalSeconds(std.getTotalSeconds() + afterByte * 1800));
         return ZoneOffsetTransitionRule.of(month, dom, dow, time, timeByte == 24, defn, std, before, after);
     }
-
     //-----------------------------------------------------------------------
-
     public Month getMonth() {
         return month;
     }
-
-
     public int getDayOfMonthIndicator() {
         return dom;
     }
-
-
     public DayOfWeek getDayOfWeek() {
         return dow;
     }
-
-
     public LocalTime getLocalTime() {
         return time;
     }
-
-
     public boolean isMidnightEndOfDay() {
         return timeEndOfDay;
     }
-
-
     public TimeDefinition getTimeDefinition() {
         return timeDefinition;
     }
-
-
     public ZoneOffset getStandardOffset() {
         return standardOffset;
     }
-
-
     public ZoneOffset getOffsetBefore() {
         return offsetBefore;
     }
-
-
     public ZoneOffset getOffsetAfter() {
         return offsetAfter;
     }
-
     //-----------------------------------------------------------------------
-
     public ZoneOffsetTransition createTransition(int year) {
         LocalDate date;
         if (dom < 0) {
@@ -226,9 +175,7 @@ public final class ZoneOffsetTransitionRule implements Serializable {
         LocalDateTime transition = timeDefinition.createDateTime(localDT, standardOffset, offsetBefore);
         return new ZoneOffsetTransition(transition, offsetBefore, offsetAfter);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean equals(Object otherRule) {
         if (otherRule == this) {
@@ -246,8 +193,6 @@ public final class ZoneOffsetTransitionRule implements Serializable {
         }
         return false;
     }
-
-
     @Override
     public int hashCode() {
         int hash = ((time.toSecondOfDay() + (timeEndOfDay ? 1 : 0)) << 15) +
@@ -256,9 +201,7 @@ public final class ZoneOffsetTransitionRule implements Serializable {
         return hash ^ standardOffset.hashCode() ^
                 offsetBefore.hashCode() ^ offsetAfter.hashCode();
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
@@ -282,18 +225,11 @@ public final class ZoneOffsetTransitionRule implements Serializable {
             .append(']');
         return buf.toString();
     }
-
     //-----------------------------------------------------------------------
-
     public static enum TimeDefinition {
-
         UTC,
-
         WALL,
-
         STANDARD;
-
-
         public LocalDateTime createDateTime(LocalDateTime dateTime, ZoneOffset standardOffset, ZoneOffset wallOffset) {
             switch (this) {
                 case UTC: {
@@ -309,5 +245,4 @@ public final class ZoneOffsetTransitionRule implements Serializable {
             }
         }
     }
-
 }

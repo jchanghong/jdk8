@@ -1,7 +1,4 @@
-
-
 package java.lang.reflect;
-
 import sun.reflect.CallerSensitive;
 import sun.reflect.ConstructorAccessor;
 import sun.reflect.Reflection;
@@ -13,8 +10,6 @@ import sun.reflect.generics.factory.GenericsFactory;
 import sun.reflect.generics.scope.ConstructorScope;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.AnnotationFormatError;
-
-
 public final class Constructor<T> extends Executable {
     private Class<T>            clazz;
     private int                 slot;
@@ -27,14 +22,12 @@ public final class Constructor<T> extends Executable {
     private transient ConstructorRepository genericInfo;
     private byte[]              annotations;
     private byte[]              parameterAnnotations;
-
     // Generics infrastructure
     // Accessor for factory
     private GenericsFactory getFactory() {
         // create scope and factory
         return CoreReflectionFactory.make(this, ConstructorScope.make(this));
     }
-
     // Accessor for generic info repository
     @Override
     ConstructorRepository getGenericInfo() {
@@ -47,7 +40,6 @@ public final class Constructor<T> extends Executable {
         }
         return genericInfo; //return cached repository
     }
-
     private volatile ConstructorAccessor constructorAccessor;
     // For sharing of ConstructorAccessors. This branching structure
     // is currently only two levels deep (i.e., one root Constructor
@@ -56,14 +48,10 @@ public final class Constructor<T> extends Executable {
     // If this branching structure would ever contain cycles, deadlocks can
     // occur in annotation code.
     private Constructor<T>      root;
-
-
     @Override
     Executable getRoot() {
         return root;
     }
-
-
     Constructor(Class<T> declaringClass,
                 Class<?>[] parameterTypes,
                 Class<?>[] checkedExceptions,
@@ -81,8 +69,6 @@ public final class Constructor<T> extends Executable {
         this.annotations = annotations;
         this.parameterAnnotations = parameterAnnotations;
     }
-
-
     Constructor<T> copy() {
         // This routine enables sharing of ConstructorAccessor objects
         // among Constructor objects which refer to the same underlying
@@ -93,7 +79,6 @@ public final class Constructor<T> extends Executable {
         // objects.)
         if (this.root != null)
             throw new IllegalArgumentException("Can not copy a non-root Constructor");
-
         Constructor<T> res = new Constructor<>(clazz,
                                                parameterTypes,
                                                exceptionTypes, modifiers, slot,
@@ -105,36 +90,26 @@ public final class Constructor<T> extends Executable {
         res.constructorAccessor = constructorAccessor;
         return res;
     }
-
     @Override
     boolean hasGenericInformation() {
         return (getSignature() != null);
     }
-
     @Override
     byte[] getAnnotationBytes() {
         return annotations;
     }
-
-
     @Override
     public Class<T> getDeclaringClass() {
         return clazz;
     }
-
-
     @Override
     public String getName() {
         return getDeclaringClass().getName();
     }
-
-
     @Override
     public int getModifiers() {
         return modifiers;
     }
-
-
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
     public TypeVariable<Constructor<T>>[] getTypeParameters() {
@@ -143,37 +118,23 @@ public final class Constructor<T> extends Executable {
       } else
           return (TypeVariable<Constructor<T>>[])new TypeVariable[0];
     }
-
-
-
     @Override
     public Class<?>[] getParameterTypes() {
         return parameterTypes.clone();
     }
-
-
     public int getParameterCount() { return parameterTypes.length; }
-
-
     @Override
     public Type[] getGenericParameterTypes() {
         return super.getGenericParameterTypes();
     }
-
-
     @Override
     public Class<?>[] getExceptionTypes() {
         return exceptionTypes.clone();
     }
-
-
-
     @Override
     public Type[] getGenericExceptionTypes() {
         return super.getGenericExceptionTypes();
     }
-
-
     public boolean equals(Object obj) {
         if (obj != null && obj instanceof Constructor) {
             Constructor<?> other = (Constructor<?>)obj;
@@ -183,37 +144,27 @@ public final class Constructor<T> extends Executable {
         }
         return false;
     }
-
-
     public int hashCode() {
         return getDeclaringClass().getName().hashCode();
     }
-
-
     public String toString() {
         return sharedToString(Modifier.constructorModifiers(),
                               false,
                               parameterTypes,
                               exceptionTypes);
     }
-
     @Override
     void specificToStringHeader(StringBuilder sb) {
         sb.append(getDeclaringClass().getTypeName());
     }
-
-
     @Override
     public String toGenericString() {
         return sharedToGenericString(Modifier.constructorModifiers(), false);
     }
-
     @Override
     void specificToGenericStringHeader(StringBuilder sb) {
         specificToStringHeader(sb);
     }
-
-
     @CallerSensitive
     public T newInstance(Object ... initargs)
         throws InstantiationException, IllegalAccessException,
@@ -235,19 +186,14 @@ public final class Constructor<T> extends Executable {
         T inst = (T) ca.newInstance(initargs);
         return inst;
     }
-
-
     @Override
     public boolean isVarArgs() {
         return super.isVarArgs();
     }
-
-
     @Override
     public boolean isSynthetic() {
         return super.isSynthetic();
     }
-
     // NOTE that there is no synchronization used here. It is correct
     // (though not efficient) to generate more than one
     // ConstructorAccessor for a given Constructor. However, avoiding
@@ -265,16 +211,13 @@ public final class Constructor<T> extends Executable {
             tmp = reflectionFactory.newConstructorAccessor(this);
             setConstructorAccessor(tmp);
         }
-
         return tmp;
     }
-
     // Returns ConstructorAccessor for this Constructor object, not
     // looking up the chain to the root
     ConstructorAccessor getConstructorAccessor() {
         return constructorAccessor;
     }
-
     // Sets the ConstructorAccessor for this Constructor object and
     // (recursively) its root
     void setConstructorAccessor(ConstructorAccessor accessor) {
@@ -284,40 +227,28 @@ public final class Constructor<T> extends Executable {
             root.setConstructorAccessor(accessor);
         }
     }
-
     int getSlot() {
         return slot;
     }
-
     String getSignature() {
         return signature;
     }
-
     byte[] getRawAnnotations() {
         return annotations;
     }
-
     byte[] getRawParameterAnnotations() {
         return parameterAnnotations;
     }
-
-
-
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
         return super.getAnnotation(annotationClass);
     }
-
-
     public Annotation[] getDeclaredAnnotations()  {
         return super.getDeclaredAnnotations();
     }
-
-
     @Override
     public Annotation[][] getParameterAnnotations() {
         return sharedGetParameterAnnotations(parameterTypes, parameterAnnotations);
     }
-
     @Override
     void handleParameterNumberMismatch(int resultLength, int numParameters) {
         Class<?> declaringClass = getDeclaringClass();
@@ -337,19 +268,14 @@ public final class Constructor<T> extends Executable {
             }
         }
     }
-
-
     @Override
     public AnnotatedType getAnnotatedReturnType() {
         return getAnnotatedReturnType0(getDeclaringClass());
     }
-
-
     @Override
     public AnnotatedType getAnnotatedReceiverType() {
         if (getDeclaringClass().getEnclosingClass() == null)
             return super.getAnnotatedReceiverType();
-
         return TypeAnnotationParser.buildAnnotatedType(getTypeAnnotationBytes0(),
                 sun.misc.SharedSecrets.getJavaLangAccess().
                         getConstantPool(getDeclaringClass()),

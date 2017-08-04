@@ -1,12 +1,7 @@
-
-
-
 package java.time.chrono;
-
 import java.io.InvalidObjectException;
 import static java.time.temporal.ChronoField.PROLEPTIC_MONTH;
 import static java.time.temporal.ChronoField.YEAR;
-
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.time.Clock;
@@ -24,28 +19,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-
 public final class ThaiBuddhistChronology extends AbstractChronology implements Serializable {
-
-
     public static final ThaiBuddhistChronology INSTANCE = new ThaiBuddhistChronology();
-
-
     private static final long serialVersionUID = 2775954514031616474L;
-
     static final int YEARS_DIFFERENCE = 543;
-
     private static final HashMap<String, String[]> ERA_NARROW_NAMES = new HashMap<>();
-
     private static final HashMap<String, String[]> ERA_SHORT_NAMES = new HashMap<>();
-
     private static final HashMap<String, String[]> ERA_FULL_NAMES = new HashMap<>();
-
     private static final String FALLBACK_LANGUAGE = "en";
-
     private static final String TARGET_LANGUAGE = "th";
-
     static {
         ERA_NARROW_NAMES.put(FALLBACK_LANGUAGE, new String[]{"BB", "BE"});
         ERA_NARROW_NAMES.put(TARGET_LANGUAGE, new String[]{"BB", "BE"});
@@ -58,70 +40,50 @@ public final class ThaiBuddhistChronology extends AbstractChronology implements 
                 new String[]{"\u0e1e\u0e38\u0e17\u0e18\u0e28\u0e31\u0e01\u0e23\u0e32\u0e0a",
                 "\u0e1b\u0e35\u0e01\u0e48\u0e2d\u0e19\u0e04\u0e23\u0e34\u0e2a\u0e15\u0e4c\u0e01\u0e32\u0e25\u0e17\u0e35\u0e48"});
     }
-
-
     private ThaiBuddhistChronology() {
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public String getId() {
         return "ThaiBuddhist";
     }
-
-
     @Override
     public String getCalendarType() {
         return "buddhist";
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public ThaiBuddhistDate date(Era era, int yearOfEra, int month, int dayOfMonth) {
         return date(prolepticYear(era, yearOfEra), month, dayOfMonth);
     }
-
-
     @Override
     public ThaiBuddhistDate date(int prolepticYear, int month, int dayOfMonth) {
         return new ThaiBuddhistDate(LocalDate.of(prolepticYear - YEARS_DIFFERENCE, month, dayOfMonth));
     }
-
-
     @Override
     public ThaiBuddhistDate dateYearDay(Era era, int yearOfEra, int dayOfYear) {
         return dateYearDay(prolepticYear(era, yearOfEra), dayOfYear);
     }
-
-
     @Override
     public ThaiBuddhistDate dateYearDay(int prolepticYear, int dayOfYear) {
         return new ThaiBuddhistDate(LocalDate.ofYearDay(prolepticYear - YEARS_DIFFERENCE, dayOfYear));
     }
-
-
     @Override  // override with covariant return type
     public ThaiBuddhistDate dateEpochDay(long epochDay) {
         return new ThaiBuddhistDate(LocalDate.ofEpochDay(epochDay));
     }
-
     @Override
     public ThaiBuddhistDate dateNow() {
         return dateNow(Clock.systemDefaultZone());
     }
-
     @Override
     public ThaiBuddhistDate dateNow(ZoneId zone) {
         return dateNow(Clock.system(zone));
     }
-
     @Override
     public ThaiBuddhistDate dateNow(Clock clock) {
         return date(LocalDate.now(clock));
     }
-
     @Override
     public ThaiBuddhistDate date(TemporalAccessor temporal) {
         if (temporal instanceof ThaiBuddhistDate) {
@@ -129,32 +91,26 @@ public final class ThaiBuddhistChronology extends AbstractChronology implements 
         }
         return new ThaiBuddhistDate(LocalDate.from(temporal));
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public ChronoLocalDateTime<ThaiBuddhistDate> localDateTime(TemporalAccessor temporal) {
         return (ChronoLocalDateTime<ThaiBuddhistDate>)super.localDateTime(temporal);
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public ChronoZonedDateTime<ThaiBuddhistDate> zonedDateTime(TemporalAccessor temporal) {
         return (ChronoZonedDateTime<ThaiBuddhistDate>)super.zonedDateTime(temporal);
     }
-
     @Override
     @SuppressWarnings("unchecked")
     public ChronoZonedDateTime<ThaiBuddhistDate> zonedDateTime(Instant instant, ZoneId zone) {
         return (ChronoZonedDateTime<ThaiBuddhistDate>)super.zonedDateTime(instant, zone);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     public boolean isLeapYear(long prolepticYear) {
         return IsoChronology.INSTANCE.isLeapYear(prolepticYear - YEARS_DIFFERENCE);
     }
-
     @Override
     public int prolepticYear(Era era, int yearOfEra) {
         if (era instanceof ThaiBuddhistEra == false) {
@@ -162,17 +118,14 @@ public final class ThaiBuddhistChronology extends AbstractChronology implements 
         }
         return (era == ThaiBuddhistEra.BE ? yearOfEra : 1 - yearOfEra);
     }
-
     @Override
     public ThaiBuddhistEra eraOf(int eraValue) {
         return ThaiBuddhistEra.of(eraValue);
     }
-
     @Override
     public List<Era> eras() {
         return Arrays.<Era>asList(ThaiBuddhistEra.values());
     }
-
     //-----------------------------------------------------------------------
     @Override
     public ValueRange range(ChronoField field) {
@@ -192,21 +145,16 @@ public final class ThaiBuddhistChronology extends AbstractChronology implements 
         }
         return field.range();
     }
-
     //-----------------------------------------------------------------------
     @Override  // override for return type
     public ThaiBuddhistDate resolveDate(Map<TemporalField, Long> fieldValues, ResolverStyle resolverStyle) {
         return (ThaiBuddhistDate) super.resolveDate(fieldValues, resolverStyle);
     }
-
     //-----------------------------------------------------------------------
-
     @Override
     Object writeReplace() {
         return super.writeReplace();
     }
-
-
     private void readObject(ObjectInputStream s) throws InvalidObjectException {
         throw new InvalidObjectException("Deserialization via serialization delegate");
     }

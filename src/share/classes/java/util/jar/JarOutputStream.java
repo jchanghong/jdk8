@@ -1,16 +1,9 @@
-
-
 package java.util.jar;
-
 import java.util.zip.*;
 import java.io.*;
-
-
 public
 class JarOutputStream extends ZipOutputStream {
     private static final int JAR_MAGIC = 0xCAFE;
-
-
     public JarOutputStream(OutputStream out, Manifest man) throws IOException {
         super(out);
         if (man == null) {
@@ -21,13 +14,9 @@ class JarOutputStream extends ZipOutputStream {
         man.write(new BufferedOutputStream(this));
         closeEntry();
     }
-
-
     public JarOutputStream(OutputStream out) throws IOException {
         super(out);
     }
-
-
     public void putNextEntry(ZipEntry ze) throws IOException {
         if (firstEntry) {
             // Make sure that extra field data for first JAR
@@ -50,10 +39,7 @@ class JarOutputStream extends ZipOutputStream {
         }
         super.putNextEntry(ze);
     }
-
     private boolean firstEntry = true;
-
-
     private static boolean hasMagic(byte[] edata) {
         try {
             int i = 0;
@@ -68,13 +54,9 @@ class JarOutputStream extends ZipOutputStream {
         }
         return false;
     }
-
-
     private static int get16(byte[] b, int off) {
         return Byte.toUnsignedInt(b[off]) | ( Byte.toUnsignedInt(b[off+1]) << 8);
     }
-
-
     private static void set16(byte[] b, int off, int value) {
         b[off+0] = (byte)value;
         b[off+1] = (byte)(value >> 8);

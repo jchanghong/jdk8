@@ -1,124 +1,72 @@
-
-
 package java.awt;
-
 import java.awt.geom.Rectangle2D;
 import java.beans.Transient;
-
-
 public class Rectangle extends Rectangle2D
     implements Shape, java.io.Serializable
 {
-
-
     public int x;
-
-
     public int y;
-
-
     public int width;
-
-
     public int height;
-
-
      private static final long serialVersionUID = -4345857070255674764L;
-
-
     private static native void initIDs();
-
     static {
-
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
             initIDs();
         }
     }
-
-
     public Rectangle() {
         this(0, 0, 0, 0);
     }
-
-
     public Rectangle(Rectangle r) {
         this(r.x, r.y, r.width, r.height);
     }
-
-
     public Rectangle(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
     }
-
-
     public Rectangle(int width, int height) {
         this(0, 0, width, height);
     }
-
-
     public Rectangle(Point p, Dimension d) {
         this(p.x, p.y, d.width, d.height);
     }
-
-
     public Rectangle(Point p) {
         this(p.x, p.y, 0, 0);
     }
-
-
     public Rectangle(Dimension d) {
         this(0, 0, d.width, d.height);
     }
-
-
     public double getX() {
         return x;
     }
-
-
     public double getY() {
         return y;
     }
-
-
     public double getWidth() {
         return width;
     }
-
-
     public double getHeight() {
         return height;
     }
-
-
     @Transient
     public Rectangle getBounds() {
         return new Rectangle(x, y, width, height);
     }
-
-
     public Rectangle2D getBounds2D() {
         return new Rectangle(x, y, width, height);
     }
-
-
     public void setBounds(Rectangle r) {
         setBounds(r.x, r.y, r.width, r.height);
     }
-
-
     public void setBounds(int x, int y, int width, int height) {
         reshape(x, y, width, height);
     }
-
-
     public void setRect(double x, double y, double width, double height) {
         int newx, newy, neww, newh;
-
         if (x > 2.0 * Integer.MAX_VALUE) {
             // Too far in positive X direction to represent...
             // We cannot even reach the left side of the specified
@@ -134,7 +82,6 @@ public class Rectangle extends Rectangle2D
             if (width >= 0) width += x-newx;
             neww = clip(width, width >= 0);
         }
-
         if (y > 2.0 * Integer.MAX_VALUE) {
             // Too far in positive Y direction to represent...
             newy = Integer.MAX_VALUE;
@@ -144,7 +91,6 @@ public class Rectangle extends Rectangle2D
             if (height >= 0) height += y-newy;
             newh = clip(height, height >= 0);
         }
-
         reshape(newx, newy, neww, newh);
     }
     // Return best integer representation for v, clipped to integer
@@ -158,8 +104,6 @@ public class Rectangle extends Rectangle2D
         }
         return (int) (doceil ? Math.ceil(v) : Math.floor(v));
     }
-
-
     @Deprecated
     public void reshape(int x, int y, int width, int height) {
         this.x = x;
@@ -167,30 +111,20 @@ public class Rectangle extends Rectangle2D
         this.width = width;
         this.height = height;
     }
-
-
     public Point getLocation() {
         return new Point(x, y);
     }
-
-
     public void setLocation(Point p) {
         setLocation(p.x, p.y);
     }
-
-
     public void setLocation(int x, int y) {
         move(x, y);
     }
-
-
     @Deprecated
     public void move(int x, int y) {
         this.x = x;
         this.y = y;
     }
-
-
     public void translate(int dx, int dy) {
         int oldv = this.x;
         int newv = oldv + dx;
@@ -231,7 +165,6 @@ public class Rectangle extends Rectangle2D
             }
         }
         this.x = newv;
-
         oldv = this.y;
         newv = oldv + dy;
         if (dy < 0) {
@@ -257,45 +190,29 @@ public class Rectangle extends Rectangle2D
         }
         this.y = newv;
     }
-
-
     public Dimension getSize() {
         return new Dimension(width, height);
     }
-
-
     public void setSize(Dimension d) {
         setSize(d.width, d.height);
     }
-
-
     public void setSize(int width, int height) {
         resize(width, height);
     }
-
-
     @Deprecated
     public void resize(int width, int height) {
         this.width = width;
         this.height = height;
     }
-
-
     public boolean contains(Point p) {
         return contains(p.x, p.y);
     }
-
-
     public boolean contains(int x, int y) {
         return inside(x, y);
     }
-
-
     public boolean contains(Rectangle r) {
         return contains(r.x, r.y, r.width, r.height);
     }
-
-
     public boolean contains(int X, int Y, int W, int H) {
         int w = this.width;
         int h = this.height;
@@ -332,8 +249,6 @@ public class Rectangle extends Rectangle2D
         }
         return true;
     }
-
-
     @Deprecated
     public boolean inside(int X, int Y) {
         int w = this.width;
@@ -354,8 +269,6 @@ public class Rectangle extends Rectangle2D
         return ((w < x || w > X) &&
                 (h < y || h > Y));
     }
-
-
     public boolean intersects(Rectangle r) {
         int tw = this.width;
         int th = this.height;
@@ -378,8 +291,6 @@ public class Rectangle extends Rectangle2D
                 (tw < tx || tw > rx) &&
                 (th < ty || th > ry));
     }
-
-
     public Rectangle intersection(Rectangle r) {
         int tx1 = this.x;
         int ty1 = this.y;
@@ -402,8 +313,6 @@ public class Rectangle extends Rectangle2D
         if (ty2 < Integer.MIN_VALUE) ty2 = Integer.MIN_VALUE;
         return new Rectangle(tx1, ty1, (int) tx2, (int) ty2);
     }
-
-
     public Rectangle union(Rectangle r) {
         long tx2 = this.width;
         long ty2 = this.height;
@@ -442,8 +351,6 @@ public class Rectangle extends Rectangle2D
         if (ty2 > Integer.MAX_VALUE) ty2 = Integer.MAX_VALUE;
         return new Rectangle(tx1, ty1, (int) tx2, (int) ty2);
     }
-
-
     public void add(int newx, int newy) {
         if ((width | height) < 0) {
             this.x = newx;
@@ -467,13 +374,9 @@ public class Rectangle extends Rectangle2D
         if (y2 > Integer.MAX_VALUE) y2 = Integer.MAX_VALUE;
         reshape(x1, y1, (int) x2, (int) y2);
     }
-
-
     public void add(Point pt) {
         add(pt.x, pt.y);
     }
-
-
     public void add(Rectangle r) {
         long tx2 = this.width;
         long ty2 = this.height;
@@ -506,8 +409,6 @@ public class Rectangle extends Rectangle2D
         if (ty2 > Integer.MAX_VALUE) ty2 = Integer.MAX_VALUE;
         reshape(tx1, ty1, (int) tx2, (int) ty2);
     }
-
-
     public void grow(int h, int v) {
         long x0 = this.x;
         long y0 = this.y;
@@ -515,12 +416,10 @@ public class Rectangle extends Rectangle2D
         long y1 = this.height;
         x1 += x0;
         y1 += y0;
-
         x0 -= h;
         y0 -= v;
         x1 += h;
         y1 += v;
-
         if (x1 < x0) {
             // Non-existant in X direction
             // Final width must remain negative so subtract x0 before
@@ -543,7 +442,6 @@ public class Rectangle extends Rectangle2D
             if (x1 < Integer.MIN_VALUE) x1 = Integer.MIN_VALUE;
             else if (x1 > Integer.MAX_VALUE) x1 = Integer.MAX_VALUE;
         }
-
         if (y1 < y0) {
             // Non-existant in Y direction
             y1 -= y0;
@@ -557,18 +455,12 @@ public class Rectangle extends Rectangle2D
             if (y1 < Integer.MIN_VALUE) y1 = Integer.MIN_VALUE;
             else if (y1 > Integer.MAX_VALUE) y1 = Integer.MAX_VALUE;
         }
-
         reshape((int) x0, (int) y0, (int) x1, (int) y1);
     }
-
-
     public boolean isEmpty() {
         return (width <= 0) || (height <= 0);
     }
-
-
     public int outcode(double x, double y) {
-
         int out = 0;
         if (this.width <= 0) {
             out |= OUT_LEFT | OUT_RIGHT;
@@ -586,8 +478,6 @@ public class Rectangle extends Rectangle2D
         }
         return out;
     }
-
-
     public Rectangle2D createIntersection(Rectangle2D r) {
         if (r instanceof Rectangle) {
             return intersection((Rectangle) r);
@@ -596,8 +486,6 @@ public class Rectangle extends Rectangle2D
         Rectangle2D.intersect(this, r, dest);
         return dest;
     }
-
-
     public Rectangle2D createUnion(Rectangle2D r) {
         if (r instanceof Rectangle) {
             return union((Rectangle) r);
@@ -606,8 +494,6 @@ public class Rectangle extends Rectangle2D
         Rectangle2D.union(this, r, dest);
         return dest;
     }
-
-
     public boolean equals(Object obj) {
         if (obj instanceof Rectangle) {
             Rectangle r = (Rectangle)obj;
@@ -618,8 +504,6 @@ public class Rectangle extends Rectangle2D
         }
         return super.equals(obj);
     }
-
-
     public String toString() {
         return getClass().getName() + "[x=" + x + ",y=" + y + ",width=" + width + ",height=" + height + "]";
     }

@@ -1,19 +1,7 @@
-
-
 package java.io;
-
-
-
-
 public class PushbackReader extends FilterReader {
-
-
     private char[] buf;
-
-
     private int pos;
-
-
     public PushbackReader(Reader in, int size) {
         super(in);
         if (size <= 0) {
@@ -22,19 +10,13 @@ public class PushbackReader extends FilterReader {
         this.buf = new char[size];
         this.pos = size;
     }
-
-
     public PushbackReader(Reader in) {
         this(in, 1);
     }
-
-
     private void ensureOpen() throws IOException {
         if (buf == null)
             throw new IOException("Stream closed");
     }
-
-
     public int read() throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -44,8 +26,6 @@ public class PushbackReader extends FilterReader {
                 return super.read();
         }
     }
-
-
     public int read(char cbuf[], int off, int len) throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -80,8 +60,6 @@ public class PushbackReader extends FilterReader {
             }
         }
     }
-
-
     public void unread(int c) throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -90,8 +68,6 @@ public class PushbackReader extends FilterReader {
             buf[--pos] = (char) c;
         }
     }
-
-
     public void unread(char cbuf[], int off, int len) throws IOException {
         synchronized (lock) {
             ensureOpen();
@@ -101,42 +77,28 @@ public class PushbackReader extends FilterReader {
             System.arraycopy(cbuf, off, buf, pos, len);
         }
     }
-
-
     public void unread(char cbuf[]) throws IOException {
         unread(cbuf, 0, cbuf.length);
     }
-
-
     public boolean ready() throws IOException {
         synchronized (lock) {
             ensureOpen();
             return (pos < buf.length) || super.ready();
         }
     }
-
-
     public void mark(int readAheadLimit) throws IOException {
         throw new IOException("mark/reset not supported");
     }
-
-
     public void reset() throws IOException {
         throw new IOException("mark/reset not supported");
     }
-
-
     public boolean markSupported() {
         return false;
     }
-
-
     public void close() throws IOException {
         super.close();
         buf = null;
     }
-
-
     public long skip(long n) throws IOException {
         if (n < 0L)
             throw new IllegalArgumentException("skip value is negative");

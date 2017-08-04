@@ -1,9 +1,4 @@
-
-
-
-
 package java.text;
-
 import java.io.InvalidObjectException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -13,45 +8,28 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-
-
-
 public class MessageFormat extends Format {
-
     private static final long serialVersionUID = 6479157306784022952L;
-
-
     public MessageFormat(String pattern) {
         this.locale = Locale.getDefault(Locale.Category.FORMAT);
         applyPattern(pattern);
     }
-
-
     public MessageFormat(String pattern, Locale locale) {
         this.locale = locale;
         applyPattern(pattern);
     }
-
-
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
-
-
     public Locale getLocale() {
         return locale;
     }
-
-
-
     @SuppressWarnings("fallthrough") // fallthrough in switch is expected, suppress it
     public void applyPattern(String pattern) {
             StringBuilder[] segments = new StringBuilder[4];
             // Allocate only segments[SEG_RAW] here. The rest are
             // allocated on demand.
             segments[SEG_RAW] = new StringBuilder();
-
             int part = SEG_RAW;
             int formatNumber = 0;
             boolean inQuote = false;
@@ -133,9 +111,6 @@ public class MessageFormat extends Format {
             }
             this.pattern = segments[0].toString();
     }
-
-
-
     public String toPattern() {
         // later, make this more extensible
         int lastOffset = 0;
@@ -198,8 +173,6 @@ public class MessageFormat extends Format {
         copyAndFixQuotes(pattern, lastOffset, pattern.length(), result);
         return result.toString();
     }
-
-
     public void setFormatsByArgumentIndex(Format[] newFormats) {
         for (int i = 0; i <= maxOffset; i++) {
             int j = argumentNumbers[i];
@@ -208,8 +181,6 @@ public class MessageFormat extends Format {
             }
         }
     }
-
-
     public void setFormats(Format[] newFormats) {
         int runsToCopy = newFormats.length;
         if (runsToCopy > maxOffset + 1) {
@@ -219,8 +190,6 @@ public class MessageFormat extends Format {
             formats[i] = newFormats[i];
         }
     }
-
-
     public void setFormatByArgumentIndex(int argumentIndex, Format newFormat) {
         for (int j = 0; j <= maxOffset; j++) {
             if (argumentNumbers[j] == argumentIndex) {
@@ -228,13 +197,9 @@ public class MessageFormat extends Format {
             }
         }
     }
-
-
     public void setFormat(int formatElementIndex, Format newFormat) {
         formats[formatElementIndex] = newFormat;
     }
-
-
     public Format[] getFormatsByArgumentIndex() {
         int maximumArgumentNumber = -1;
         for (int i = 0; i <= maxOffset; i++) {
@@ -248,40 +213,29 @@ public class MessageFormat extends Format {
         }
         return resultArray;
     }
-
-
     public Format[] getFormats() {
         Format[] resultArray = new Format[maxOffset + 1];
         System.arraycopy(formats, 0, resultArray, 0, maxOffset + 1);
         return resultArray;
     }
-
-
     public final StringBuffer format(Object[] arguments, StringBuffer result,
                                      FieldPosition pos)
     {
         return subformat(arguments, result, pos, null);
     }
-
-
     public static String format(String pattern, Object ... arguments) {
         MessageFormat temp = new MessageFormat(pattern);
         return temp.format(arguments);
     }
-
     // Overrides
-
     public final StringBuffer format(Object arguments, StringBuffer result,
                                      FieldPosition pos)
     {
         return subformat((Object[]) arguments, result, pos, null);
     }
-
-
     public AttributedCharacterIterator formatToCharacterIterator(Object arguments) {
         StringBuffer result = new StringBuffer();
         ArrayList<AttributedCharacterIterator> iterators = new ArrayList<>();
-
         if (arguments == null) {
             throw new NullPointerException(
                    "formatToCharacterIterator must be passed non-null object");
@@ -294,14 +248,11 @@ public class MessageFormat extends Format {
                      iterators.toArray(
                      new AttributedCharacterIterator[iterators.size()]));
     }
-
-
     public Object[] parse(String source, ParsePosition pos) {
         if (source == null) {
             Object[] empty = {};
             return empty;
         }
-
         int maximumArgumentNumber = -1;
         for (int i = 0; i <= maxOffset; i++) {
             if (argumentNumbers[i] > maximumArgumentNumber) {
@@ -309,7 +260,6 @@ public class MessageFormat extends Format {
             }
         }
         Object[] resultArray = new Object[maximumArgumentNumber + 1];
-
         int patternOffset = 0;
         int sourceOffset = pos.index;
         ParsePosition tempStatus = new ParsePosition(0);
@@ -324,14 +274,12 @@ public class MessageFormat extends Format {
                 pos.errorIndex = sourceOffset;
                 return null; // leave index as is to signal error
             }
-
             // now use format
             if (formats[i] == null) {   // string format
                 // if at end, use longest possible match
                 // otherwise uses first match to intervening string
                 // does NOT recursively try all possibilities
                 int tempLength = (i != maxOffset) ? offsets[i+1] : pattern.length();
-
                 int next;
                 if (patternOffset >= tempLength) {
                     next = source.length();
@@ -339,7 +287,6 @@ public class MessageFormat extends Format {
                     next = source.indexOf(pattern.substring(patternOffset, tempLength),
                                           sourceOffset);
                 }
-
                 if (next < 0) {
                     pos.errorIndex = sourceOffset;
                     return null; // leave index as is to signal error
@@ -371,26 +318,18 @@ public class MessageFormat extends Format {
         }
         return resultArray;
     }
-
-
     public Object[] parse(String source) throws ParseException {
         ParsePosition pos  = new ParsePosition(0);
         Object[] result = parse(source, pos);
         if (pos.index == 0)  // unchanged, returned object is null
             throw new ParseException("MessageFormat parse error!", pos.errorIndex);
-
         return result;
     }
-
-
     public Object parseObject(String source, ParsePosition pos) {
         return parse(source, pos);
     }
-
-
     public Object clone() {
         MessageFormat other = (MessageFormat) super.clone();
-
         // clone arrays. Can't do with utility because of bug in Cloneable
         other.formats = formats.clone(); // shallow clone
         for (int i = 0; i < formats.length; ++i) {
@@ -400,11 +339,8 @@ public class MessageFormat extends Format {
         // for primitives or immutables, shallow clone is enough
         other.offsets = offsets.clone();
         other.argumentNumbers = argumentNumbers.clone();
-
         return other;
     }
-
-
     public boolean equals(Object obj) {
         if (this == obj)                      // quick check
             return true;
@@ -419,66 +355,35 @@ public class MessageFormat extends Format {
                 && Arrays.equals(argumentNumbers,other.argumentNumbers)
                 && Arrays.equals(formats,other.formats));
     }
-
-
     public int hashCode() {
         return pattern.hashCode(); // enough for reasonable distribution
     }
-
-
-
     public static class Field extends Format.Field {
-
         // Proclaim serial compatibility with 1.4 FCS
         private static final long serialVersionUID = 7899943957617360810L;
-
-
         protected Field(String name) {
             super(name);
         }
-
-
         protected Object readResolve() throws InvalidObjectException {
             if (this.getClass() != MessageFormat.Field.class) {
                 throw new InvalidObjectException("subclass didn't correctly implement readResolve");
             }
-
             return ARGUMENT;
         }
-
         //
         // The constants
         //
-
-
         public final static Field ARGUMENT =
                            new Field("message argument field");
     }
-
     // ===========================privates============================
-
-
     private Locale locale;
-
-
     private String pattern = "";
-
-
     private static final int INITIAL_FORMATS = 10;
-
-
     private Format[] formats = new Format[INITIAL_FORMATS];
-
-
     private int[] offsets = new int[INITIAL_FORMATS];
-
-
     private int[] argumentNumbers = new int[INITIAL_FORMATS];
-
-
     private int maxOffset = -1;
-
-
     private StringBuffer subformat(Object[] arguments, StringBuffer result,
                                    FieldPosition fp, List<AttributedCharacterIterator> characterIterators) {
         // note: this implementation assumes a fast substring & index.
@@ -522,16 +427,13 @@ public class MessageFormat extends Format {
                              DateFormat.SHORT, DateFormat.SHORT, locale);//fix
                 } else if (obj instanceof String) {
                     arg = (String) obj;
-
                 } else {
                     arg = obj.toString();
                     if (arg == null) arg = "null";
                 }
-
                 // At this point we are in two states, either subFormatter
                 // is non-null indicating we should format obj using it,
                 // or arg is non-null and we should use it as the value.
-
                 if (characterIterators != null) {
                     // If characterIterators is non-null, it indicates we need
                     // to get the CharacterIterator from the child formatter.
@@ -544,7 +446,6 @@ public class MessageFormat extends Format {
                     if (subFormatter != null) {
                         AttributedCharacterIterator subIterator =
                                    subFormatter.formatToCharacterIterator(obj);
-
                         append(result, subIterator);
                         if (last != result.length()) {
                             characterIterators.add(
@@ -586,32 +487,26 @@ public class MessageFormat extends Format {
         }
         return result;
     }
-
-
     private void append(StringBuffer result, CharacterIterator iterator) {
         if (iterator.first() != CharacterIterator.DONE) {
             char aChar;
-
             result.append(iterator.first());
             while ((aChar = iterator.next()) != CharacterIterator.DONE) {
                 result.append(aChar);
             }
         }
     }
-
     // Indices for segments
     private static final int SEG_RAW      = 0;
     private static final int SEG_INDEX    = 1;
     private static final int SEG_TYPE     = 2;
     private static final int SEG_MODIFIER = 3; // modifier or subformat
-
     // Indices for type keywords
     private static final int TYPE_NULL    = 0;
     private static final int TYPE_NUMBER  = 1;
     private static final int TYPE_DATE    = 2;
     private static final int TYPE_TIME    = 3;
     private static final int TYPE_CHOICE  = 4;
-
     private static final String[] TYPE_KEYWORDS = {
         "",
         "number",
@@ -619,26 +514,22 @@ public class MessageFormat extends Format {
         "time",
         "choice"
     };
-
     // Indices for number modifiers
     private static final int MODIFIER_DEFAULT  = 0; // common in number and date-time
     private static final int MODIFIER_CURRENCY = 1;
     private static final int MODIFIER_PERCENT  = 2;
     private static final int MODIFIER_INTEGER  = 3;
-
     private static final String[] NUMBER_MODIFIER_KEYWORDS = {
         "",
         "currency",
         "percent",
         "integer"
     };
-
     // Indices for date-time modifiers
     private static final int MODIFIER_SHORT   = 1;
     private static final int MODIFIER_MEDIUM  = 2;
     private static final int MODIFIER_LONG    = 3;
     private static final int MODIFIER_FULL    = 4;
-
     private static final String[] DATE_TIME_MODIFIER_KEYWORDS = {
         "",
         "short",
@@ -646,7 +537,6 @@ public class MessageFormat extends Format {
         "long",
         "full"
     };
-
     // Date-time style values corresponding to the date-time modifiers.
     private static final int[] DATE_TIME_MODIFIERS = {
         DateFormat.DEFAULT,
@@ -655,7 +545,6 @@ public class MessageFormat extends Format {
         DateFormat.LONG,
         DateFormat.FULL,
     };
-
     private void makeFormat(int position, int offsetNumber,
                             StringBuilder[] textSegments)
     {
@@ -664,7 +553,6 @@ public class MessageFormat extends Format {
             StringBuilder oneseg = textSegments[i];
             segments[i] = (oneseg != null) ? oneseg.toString() : "";
         }
-
         // get the argument number
         int argumentNumber;
         try {
@@ -677,7 +565,6 @@ public class MessageFormat extends Format {
             throw new IllegalArgumentException("negative argument number: "
                                                + argumentNumber);
         }
-
         // resize format information arrays if necessary
         if (offsetNumber >= formats.length) {
             int newLength = formats.length * 2;
@@ -695,7 +582,6 @@ public class MessageFormat extends Format {
         maxOffset = offsetNumber;
         offsets[offsetNumber] = segments[SEG_RAW].length();
         argumentNumbers[offsetNumber] = argumentNumber;
-
         // now get the format
         Format newFormat = null;
         if (segments[SEG_TYPE].length() != 0) {
@@ -705,7 +591,6 @@ public class MessageFormat extends Format {
                 // Type "" is allowed. e.g., "{0,}", "{0,,}", and "{0,,#}"
                 // are treated as "{0}".
                 break;
-
             case TYPE_NUMBER:
                 switch (findKeyword(segments[SEG_MODIFIER], NUMBER_MODIFIER_KEYWORDS)) {
                 case MODIFIER_DEFAULT:
@@ -731,7 +616,6 @@ public class MessageFormat extends Format {
                     break;
                 }
                 break;
-
             case TYPE_DATE:
             case TYPE_TIME:
                 int mod = findKeyword(segments[SEG_MODIFIER], DATE_TIME_MODIFIER_KEYWORDS);
@@ -753,7 +637,6 @@ public class MessageFormat extends Format {
                     }
                 }
                 break;
-
             case TYPE_CHOICE:
                 try {
                     // ChoiceFormat pattern
@@ -764,7 +647,6 @@ public class MessageFormat extends Format {
                                                        + segments[SEG_MODIFIER], e);
                 }
                 break;
-
             default:
                 maxOffset = oldMaxOffset;
                 throw new IllegalArgumentException("unknown format type: " +
@@ -773,13 +655,11 @@ public class MessageFormat extends Format {
         }
         formats[offsetNumber] = newFormat;
     }
-
     private static final int findKeyword(String s, String[] list) {
         for (int i = 0; i < list.length; ++i) {
             if (s.equals(list[i]))
                 return i;
         }
-
         // Try trimmed lowercase.
         String ls = s.trim().toLowerCase(Locale.ROOT);
         if (ls != s) {
@@ -790,11 +670,9 @@ public class MessageFormat extends Format {
         }
         return -1;
     }
-
     private static final void copyAndFixQuotes(String source, int start, int end,
                                                StringBuilder target) {
         boolean quoted = false;
-
         for (int i = start; i < end; ++i) {
             char ch = source.charAt(i);
             if (ch == '{') {
@@ -817,8 +695,6 @@ public class MessageFormat extends Format {
             target.append('\'');
         }
     }
-
-
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         boolean isValid = maxOffset >= -1

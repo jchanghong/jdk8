@@ -1,8 +1,5 @@
-
 package java.lang.invoke;
-
 import sun.util.logging.PlatformLogger;
-
 import java.io.FilePermission;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -12,8 +9,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-
 final class ProxyClassesDumper {
     private static final char[] HEX = {
         '0', '1', '2', '3', '4', '5', '6', '7',
@@ -25,9 +20,7 @@ final class ProxyClassesDumper {
     private static final String[] REPLACEMENT = {
         "%5C", "%3A", "%2A", "%3F", "%22", "%3C", "%3E", "%7C"
     };
-
     private final Path dumpDir;
-
     public static ProxyClassesDumper getInstance(String path) {
         if (null == path) {
             return null;
@@ -52,11 +45,9 @@ final class ProxyClassesDumper {
         }
         return null;
     }
-
     private ProxyClassesDumper(Path path) {
         dumpDir = Objects.requireNonNull(path);
     }
-
     private static void validateDumpDir(Path path) {
         if (!Files.exists(path)) {
             throw new IllegalArgumentException("Directory " + path + " does not exist");
@@ -66,11 +57,9 @@ final class ProxyClassesDumper {
             throw new IllegalArgumentException("Directory " + path + " is not writable");
         }
     }
-
     public static String encodeForFilename(String className) {
         final int len = className.length();
         StringBuilder sb = new StringBuilder(len);
-
         for (int i = 0; i < len; i++) {
             char c = className.charAt(i);
             // control characters
@@ -91,10 +80,8 @@ final class ProxyClassesDumper {
                 }
             }
         }
-
         return sb.toString();
     }
-
     public void dumpClass(String className, final byte[] classBytes) {
         Path file;
         try {
@@ -104,7 +91,6 @@ final class ProxyClassesDumper {
                           .warning("Invalid path for class " + className);
             return;
         }
-
         try {
             Path dir = file.getParent();
             Files.createDirectories(dir);

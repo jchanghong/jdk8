@@ -1,24 +1,14 @@
-
-
 package java.nio.file;
-
 import java.nio.file.attribute.*;
 import java.io.InputStream;
 import java.io.IOException;
-
-
-
 class CopyMoveHelper {
     private CopyMoveHelper() { }
-
-
     private static class CopyOptions {
         boolean replaceExisting = false;
         boolean copyAttributes = false;
         boolean followLinks = true;
-
         private CopyOptions() { }
-
         static CopyOptions parse(CopyOption... options) {
             CopyOptions result = new CopyOptions();
             for (CopyOption option: options) {
@@ -42,8 +32,6 @@ class CopyMoveHelper {
             return result;
         }
     }
-
-
     private static CopyOption[] convertMoveToCopyOptions(CopyOption... options)
         throws AtomicMoveNotSupportedException
     {
@@ -61,8 +49,6 @@ class CopyMoveHelper {
         newOptions[len+1] = StandardCopyOption.COPY_ATTRIBUTES;
         return newOptions;
     }
-
-
     static void copyToForeignTarget(Path source, Path target,
                                     CopyOption... options)
         throws IOException
@@ -70,20 +56,17 @@ class CopyMoveHelper {
         CopyOptions opts = CopyOptions.parse(options);
         LinkOption[] linkOptions = (opts.followLinks) ? new LinkOption[0] :
             new LinkOption[] { LinkOption.NOFOLLOW_LINKS };
-
         // attributes of source file
         BasicFileAttributes attrs = Files.readAttributes(source,
                                                          BasicFileAttributes.class,
                                                          linkOptions);
         if (attrs.isSymbolicLink())
             throw new IOException("Copying of symbolic links not supported");
-
         // delete target if it exists and REPLACE_EXISTING is specified
         if (opts.replaceExisting) {
             Files.deleteIfExists(target);
         } else if (Files.exists(target))
             throw new FileAlreadyExistsException(target.toString());
-
         // create directory or copy file
         if (attrs.isDirectory()) {
             Files.createDirectory(target);
@@ -92,7 +75,6 @@ class CopyMoveHelper {
                 Files.copy(in, target);
             }
         }
-
         // copy basic attributes to target
         if (opts.copyAttributes) {
             BasicFileAttributeView view =
@@ -112,8 +94,6 @@ class CopyMoveHelper {
             }
         }
     }
-
-
     static void moveToForeignTarget(Path source, Path target,
                                     CopyOption... options) throws IOException
     {

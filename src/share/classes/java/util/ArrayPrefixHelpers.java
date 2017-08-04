@@ -1,37 +1,23 @@
-
 package java.util;
-
-
-
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.CountedCompleter;
 import java.util.function.BinaryOperator;
 import java.util.function.IntBinaryOperator;
 import java.util.function.LongBinaryOperator;
 import java.util.function.DoubleBinaryOperator;
-
-
 class ArrayPrefixHelpers {
     private ArrayPrefixHelpers() {}; // non-instantiable
-
-
-
     // see above
     static final int CUMULATE = 1;
     static final int SUMMED   = 2;
     static final int FINISHED = 4;
-
-
     static final int MIN_PARTITION = 16;
-
     static final class CumulateTask<T> extends CountedCompleter<Void> {
         final T[] array;
         final BinaryOperator<T> function;
         CumulateTask<T> left, right;
         T in, out;
         final int lo, hi, origin, fence, threshold;
-
-
         public CumulateTask(CumulateTask<T> parent,
                             BinaryOperator<T> function,
                             T[] array, int lo, int hi) {
@@ -43,8 +29,6 @@ class ArrayPrefixHelpers {
                     (p = (hi - lo) / (ForkJoinPool.getCommonPoolParallelism() << 3))
                     <= MIN_PARTITION ? MIN_PARTITION : p;
         }
-
-
         CumulateTask(CumulateTask<T> parent, BinaryOperator<T> function,
                      T[] array, int origin, int fence, int threshold,
                      int lo, int hi) {
@@ -54,7 +38,6 @@ class ArrayPrefixHelpers {
             this.threshold = threshold;
             this.lo = lo; this.hi = hi;
         }
-
         @SuppressWarnings("unchecked")
         public final void compute() {
             final BinaryOperator<T> fn;
@@ -116,7 +99,6 @@ class ArrayPrefixHelpers {
                         if (t.compareAndSetPendingCount(b, b|state))
                             break;
                     }
-
                     T sum;
                     if (state != SUMMED) {
                         int first;
@@ -173,15 +155,12 @@ class ArrayPrefixHelpers {
             }
         }
     }
-
     static final class LongCumulateTask extends CountedCompleter<Void> {
         final long[] array;
         final LongBinaryOperator function;
         LongCumulateTask left, right;
         long in, out;
         final int lo, hi, origin, fence, threshold;
-
-
         public LongCumulateTask(LongCumulateTask parent,
                                 LongBinaryOperator function,
                                 long[] array, int lo, int hi) {
@@ -193,8 +172,6 @@ class ArrayPrefixHelpers {
                     (p = (hi - lo) / (ForkJoinPool.getCommonPoolParallelism() << 3))
                     <= MIN_PARTITION ? MIN_PARTITION : p;
         }
-
-
         LongCumulateTask(LongCumulateTask parent, LongBinaryOperator function,
                          long[] array, int origin, int fence, int threshold,
                          int lo, int hi) {
@@ -204,7 +181,6 @@ class ArrayPrefixHelpers {
             this.threshold = threshold;
             this.lo = lo; this.hi = hi;
         }
-
         public final void compute() {
             final LongBinaryOperator fn;
             final long[] a;
@@ -265,7 +241,6 @@ class ArrayPrefixHelpers {
                         if (t.compareAndSetPendingCount(b, b|state))
                             break;
                     }
-
                     long sum;
                     if (state != SUMMED) {
                         int first;
@@ -322,15 +297,12 @@ class ArrayPrefixHelpers {
             }
         }
     }
-
     static final class DoubleCumulateTask extends CountedCompleter<Void> {
         final double[] array;
         final DoubleBinaryOperator function;
         DoubleCumulateTask left, right;
         double in, out;
         final int lo, hi, origin, fence, threshold;
-
-
         public DoubleCumulateTask(DoubleCumulateTask parent,
                                   DoubleBinaryOperator function,
                                   double[] array, int lo, int hi) {
@@ -342,8 +314,6 @@ class ArrayPrefixHelpers {
                     (p = (hi - lo) / (ForkJoinPool.getCommonPoolParallelism() << 3))
                     <= MIN_PARTITION ? MIN_PARTITION : p;
         }
-
-
         DoubleCumulateTask(DoubleCumulateTask parent, DoubleBinaryOperator function,
                            double[] array, int origin, int fence, int threshold,
                            int lo, int hi) {
@@ -353,7 +323,6 @@ class ArrayPrefixHelpers {
             this.threshold = threshold;
             this.lo = lo; this.hi = hi;
         }
-
         public final void compute() {
             final DoubleBinaryOperator fn;
             final double[] a;
@@ -414,7 +383,6 @@ class ArrayPrefixHelpers {
                         if (t.compareAndSetPendingCount(b, b|state))
                             break;
                     }
-
                     double sum;
                     if (state != SUMMED) {
                         int first;
@@ -471,15 +439,12 @@ class ArrayPrefixHelpers {
             }
         }
     }
-
     static final class IntCumulateTask extends CountedCompleter<Void> {
         final int[] array;
         final IntBinaryOperator function;
         IntCumulateTask left, right;
         int in, out;
         final int lo, hi, origin, fence, threshold;
-
-
         public IntCumulateTask(IntCumulateTask parent,
                                IntBinaryOperator function,
                                int[] array, int lo, int hi) {
@@ -491,8 +456,6 @@ class ArrayPrefixHelpers {
                     (p = (hi - lo) / (ForkJoinPool.getCommonPoolParallelism() << 3))
                     <= MIN_PARTITION ? MIN_PARTITION : p;
         }
-
-
         IntCumulateTask(IntCumulateTask parent, IntBinaryOperator function,
                         int[] array, int origin, int fence, int threshold,
                         int lo, int hi) {
@@ -502,7 +465,6 @@ class ArrayPrefixHelpers {
             this.threshold = threshold;
             this.lo = lo; this.hi = hi;
         }
-
         public final void compute() {
             final IntBinaryOperator fn;
             final int[] a;
@@ -563,7 +525,6 @@ class ArrayPrefixHelpers {
                         if (t.compareAndSetPendingCount(b, b|state))
                             break;
                     }
-
                     int sum;
                     if (state != SUMMED) {
                         int first;

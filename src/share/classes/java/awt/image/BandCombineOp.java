@@ -1,7 +1,4 @@
-
-
 package java.awt.image;
-
 import java.awt.GraphicsEnvironment;
 import java.awt.color.ICC_Profile;
 import java.awt.geom.Rectangle2D;
@@ -10,21 +7,16 @@ import java.awt.geom.Point2D;
 import java.awt.RenderingHints;
 import sun.awt.image.ImagingLib;
 import java.util.Arrays;
-
-
 public class BandCombineOp implements  RasterOp {
     float[][] matrix;
     int nrows = 0;
     int ncols = 0;
     RenderingHints hints;
-
-
     public BandCombineOp (float[][] matrix, RenderingHints hints) {
         nrows = matrix.length;
         ncols = matrix[0].length;
         this.matrix = new float[nrows][];
         for (int i=0; i < nrows; i++) {
-
             if (ncols > matrix[i].length) {
                 throw new IndexOutOfBoundsException("row "+i+" too short");
             }
@@ -32,8 +24,6 @@ public class BandCombineOp implements  RasterOp {
         }
         this.hints  = hints;
     }
-
-
     public final float[][] getMatrix() {
         float[][] ret = new float[nrows][];
         for (int i = 0; i < nrows; i++) {
@@ -41,8 +31,6 @@ public class BandCombineOp implements  RasterOp {
         }
         return ret;
     }
-
-
     public WritableRaster filter(Raster src, WritableRaster dst) {
         int nBands = src.getNumBands();
         if (ncols != nBands && ncols != (nBands+1)) {
@@ -62,11 +50,9 @@ public class BandCombineOp implements  RasterOp {
                                                " of bands ([+1]) in dst ("+
                                                nBands+").");
         }
-
         if (ImagingLib.filter(this, src, dst) != null) {
             return dst;
         }
-
         int[] pixel = null;
         int[] dstPixel = new int[dst.getNumBands()];
         float accum;
@@ -111,17 +97,11 @@ public class BandCombineOp implements  RasterOp {
                 }
             }
         }
-
         return dst;
     }
-
-
     public final Rectangle2D getBounds2D (Raster src) {
         return src.getBounds();
     }
-
-
-
     public WritableRaster createCompatibleDestRaster (Raster src) {
         int nBands = src.getNumBands();
         if ((ncols != nBands) && (ncols != (nBands+1))) {
@@ -140,18 +120,13 @@ public class BandCombineOp implements  RasterOp {
                                                nrows+" bands.");
         }
     }
-
-
     public final Point2D getPoint2D (Point2D srcPt, Point2D dstPt) {
         if (dstPt == null) {
             dstPt = new Point2D.Float();
         }
         dstPt.setLocation(srcPt.getX(), srcPt.getY());
-
         return dstPt;
     }
-
-
     public final RenderingHints getRenderingHints() {
         return hints;
     }

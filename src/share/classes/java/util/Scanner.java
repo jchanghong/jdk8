@@ -1,7 +1,4 @@
-
-
 package java.util;
-
 import java.nio.file.Path;
 import java.nio.file.Files;
 import java.util.regex.*;
@@ -12,69 +9,46 @@ import java.nio.channels.*;
 import java.nio.charset.*;
 import java.text.*;
 import java.util.Locale;
-
 import sun.misc.LRUCache;
-
-
 public final class Scanner implements Iterator<String>, Closeable {
-
     // Internal buffer used to hold input
     private CharBuffer buf;
-
     // Size of internal character buffer
     private static final int BUFFER_SIZE = 1024; // change to 1024;
-
     // The index into the buffer currently held by the Scanner
     private int position;
-
     // Internal matcher used for finding delimiters
     private Matcher matcher;
-
     // Pattern used to delimit tokens
     private Pattern delimPattern;
-
     // Pattern found in last hasNext operation
     private Pattern hasNextPattern;
-
     // Position after last hasNext operation
     private int hasNextPosition;
-
     // Result after last hasNext operation
     private String hasNextResult;
-
     // The input source
     private Readable source;
-
     // Boolean is true if source is done
     private boolean sourceClosed = false;
-
     // Boolean indicating more input is required
     private boolean needInput = false;
-
     // Boolean indicating if a delim has been skipped this operation
     private boolean skipped = false;
-
     // A store of a position that the scanner may fall back to
     private int savedScannerPosition = -1;
-
     // A cache of the last primitive type scanned
     private Object typeCache = null;
-
     // Boolean indicating if a match result is available
     private boolean matchValid = false;
-
     // Boolean indicating if this scanner has been closed
     private boolean closed = false;
-
     // The current radix used by this scanner
     private int radix = 10;
-
     // The default radix for this scanner
     private int defaultRadix = 10;
-
     // The locale used by this scanner
     private Locale locale = null;
-
     // A cache of the last few recently used Patterns
     private LRUCache<String,Pattern> patternCache =
     new LRUCache<String,Pattern>(7) {
@@ -85,24 +59,17 @@ public final class Scanner implements Iterator<String>, Closeable {
             return p.pattern().equals(s);
         }
     };
-
     // A holder of the last IOException encountered
     private IOException lastException;
-
     // A pattern for java whitespace
     private static Pattern WHITESPACE_PATTERN = Pattern.compile(
                                                 "\\p{javaWhitespace}+");
-
     // A pattern for any token
     private static Pattern FIND_ANY_PATTERN = Pattern.compile("(?s).*");
-
     // A pattern for non-ASCII digits
     private static Pattern NON_ASCII_DIGIT = Pattern.compile(
         "[\\p{javaDigit}&&[^0-9]]");
-
     // Fields and methods to support scanning primitive types
-
-
     private String groupSeparator = "\\,";
     private String decimalSeparator = "\\.";
     private String nanString = "NaN";
@@ -111,8 +78,6 @@ public final class Scanner implements Iterator<String>, Closeable {
     private String negativePrefix = "\\-";
     private String positiveSuffix = "";
     private String negativeSuffix = "";
-
-
     private static volatile Pattern boolPattern;
     private static final String BOOLEAN_PATTERN = "true|false";
     private static Pattern boolPattern() {
@@ -122,8 +87,6 @@ public final class Scanner implements Iterator<String>, Closeable {
                                           Pattern.CASE_INSENSITIVE);
         return bp;
     }
-
-
     private Pattern integerPattern;
     private String digits = "0123456789abcdefghijklmnopqrstuvwxyz";
     private String non0Digit = "[\\p{javaDigit}&&[^0]]";
@@ -153,29 +116,23 @@ public final class Scanner implements Iterator<String>, Closeable {
         }
         return integerPattern;
     }
-
-
     private static volatile Pattern separatorPattern;
     private static volatile Pattern linePattern;
     private static final String LINE_SEPARATOR_PATTERN =
                                            "\r\n|[\n\r\u2028\u2029\u0085]";
     private static final String LINE_PATTERN = ".*("+LINE_SEPARATOR_PATTERN+")|.+$";
-
     private static Pattern separatorPattern() {
         Pattern sp = separatorPattern;
         if (sp == null)
             separatorPattern = sp = Pattern.compile(LINE_SEPARATOR_PATTERN);
         return sp;
     }
-
     private static Pattern linePattern() {
         Pattern lp = linePattern;
         if (lp == null)
             linePattern = lp = Pattern.compile(LINE_PATTERN);
         return lp;
     }
-
-
     private Pattern floatPattern;
     private Pattern decimalPattern;
     private void buildFloatAndDecimalPattern() {
@@ -222,10 +179,7 @@ public final class Scanner implements Iterator<String>, Closeable {
         }
         return decimalPattern;
     }
-
     // Constructors
-
-
     private Scanner(Readable source, Pattern pattern) {
         assert source != null : "source should not be null";
         assert pattern != null : "pattern should not be null";
@@ -238,24 +192,16 @@ public final class Scanner implements Iterator<String>, Closeable {
         matcher.useAnchoringBounds(false);
         useLocale(Locale.getDefault(Locale.Category.FORMAT));
     }
-
-
     public Scanner(Readable source) {
         this(Objects.requireNonNull(source, "source"), WHITESPACE_PATTERN);
     }
-
-
     public Scanner(InputStream source) {
         this(new InputStreamReader(source), WHITESPACE_PATTERN);
     }
-
-
     public Scanner(InputStream source, String charsetName) {
         this(makeReadable(Objects.requireNonNull(source, "source"), toCharset(charsetName)),
              WHITESPACE_PATTERN);
     }
-
-
     private static Charset toCharset(String csn) {
         Objects.requireNonNull(csn, "charsetName");
         try {
@@ -265,29 +211,22 @@ public final class Scanner implements Iterator<String>, Closeable {
             throw new IllegalArgumentException(e);
         }
     }
-
     private static Readable makeReadable(InputStream source, Charset charset) {
         return new InputStreamReader(source, charset);
     }
-
-
     public Scanner(File source) throws FileNotFoundException {
         this((ReadableByteChannel)(new FileInputStream(source).getChannel()));
     }
-
-
     public Scanner(File source, String charsetName)
         throws FileNotFoundException
     {
         this(Objects.requireNonNull(source), toDecoder(charsetName));
     }
-
     private Scanner(File source, CharsetDecoder dec)
         throws FileNotFoundException
     {
         this(makeReadable((ReadableByteChannel)(new FileInputStream(source).getChannel()), dec));
     }
-
     private static CharsetDecoder toDecoder(String charsetName) {
         Objects.requireNonNull(charsetName, "charsetName");
         try {
@@ -296,86 +235,65 @@ public final class Scanner implements Iterator<String>, Closeable {
             throw new IllegalArgumentException(charsetName);
         }
     }
-
     private static Readable makeReadable(ReadableByteChannel source,
                                          CharsetDecoder dec) {
         return Channels.newReader(source, dec, -1);
     }
-
-
     public Scanner(Path source)
         throws IOException
     {
         this(Files.newInputStream(source));
     }
-
-
     public Scanner(Path source, String charsetName) throws IOException {
         this(Objects.requireNonNull(source), toCharset(charsetName));
     }
-
     private Scanner(Path source, Charset charset)  throws IOException {
         this(makeReadable(Files.newInputStream(source), charset));
     }
-
-
     public Scanner(String source) {
         this(new StringReader(source), WHITESPACE_PATTERN);
     }
-
-
     public Scanner(ReadableByteChannel source) {
         this(makeReadable(Objects.requireNonNull(source, "source")),
              WHITESPACE_PATTERN);
     }
-
     private static Readable makeReadable(ReadableByteChannel source) {
         return makeReadable(source, Charset.defaultCharset().newDecoder());
     }
-
-
     public Scanner(ReadableByteChannel source, String charsetName) {
         this(makeReadable(Objects.requireNonNull(source, "source"), toDecoder(charsetName)),
              WHITESPACE_PATTERN);
     }
-
     // Private primitives used to support scanning
-
     private void saveState() {
         savedScannerPosition = position;
     }
-
     private void revertState() {
         this.position = savedScannerPosition;
         savedScannerPosition = -1;
         skipped = false;
     }
-
     private boolean revertState(boolean b) {
         this.position = savedScannerPosition;
         savedScannerPosition = -1;
         skipped = false;
         return b;
     }
-
     private void cacheResult() {
         hasNextResult = matcher.group();
         hasNextPosition = matcher.end();
         hasNextPattern = matcher.pattern();
     }
-
     private void cacheResult(String result) {
         hasNextResult = result;
         hasNextPosition = matcher.end();
         hasNextPattern = matcher.pattern();
     }
-
     // Clears both regular cache and type cache
     private void clearCaches() {
         hasNextPattern = null;
         typeCache = null;
     }
-
     // Also clears both the regular cache and the type cache
     private String getCachedResult() {
         position = hasNextPosition;
@@ -383,7 +301,6 @@ public final class Scanner implements Iterator<String>, Closeable {
         typeCache = null;
         return hasNextResult;
     }
-
     // Also clears both the regular cache and the type cache
     private void useTypeCache() {
         if (closed)
@@ -392,17 +309,14 @@ public final class Scanner implements Iterator<String>, Closeable {
         hasNextPattern = null;
         typeCache = null;
     }
-
     // Tries to read more input. May block.
     private void readInput() {
         if (buf.limit() == buf.capacity())
             makeSpace();
-
         // Prepare to receive data
         int p = buf.position();
         buf.position(buf.limit());
         buf.limit(buf.capacity());
-
         int n = 0;
         try {
             n = source.read(buf);
@@ -410,20 +324,16 @@ public final class Scanner implements Iterator<String>, Closeable {
             lastException = ioe;
             n = -1;
         }
-
         if (n == -1) {
             sourceClosed = true;
             needInput = false;
         }
-
         if (n > 0)
             needInput = false;
-
         // Restore current position and limit for reading
         buf.limit(buf.position());
         buf.position(p);
     }
-
     // After this method is called there will either be an exception
     // or else there will be space in the buffer
     private boolean makeSpace() {
@@ -450,14 +360,12 @@ public final class Scanner implements Iterator<String>, Closeable {
         matcher.reset(buf);
         return true;
     }
-
     // When a buffer compaction/reallocation occurs the saved indexes must
     // be modified appropriately
     private void translateSavedIndexes(int offset) {
         if (savedScannerPosition != -1)
             savedScannerPosition -= offset;
     }
-
     // If we are at the end of input then NoSuchElement;
     // If there is still input left then InputMismatch
     private void throwFor() {
@@ -467,7 +375,6 @@ public final class Scanner implements Iterator<String>, Closeable {
         else
             throw new InputMismatchException();
     }
-
     // Returns true if a complete token or partial token is in the buffer.
     // It is not necessary to find a complete token since a partial token
     // means that there will be another token with or without more input.
@@ -475,22 +382,16 @@ public final class Scanner implements Iterator<String>, Closeable {
         matchValid = false;
         matcher.usePattern(delimPattern);
         matcher.region(position, buf.limit());
-
         // Skip delims first
         if (matcher.lookingAt())
             position = matcher.end();
-
         // If we are sitting at the end, no more tokens in buffer
         if (position == buf.limit())
             return false;
-
         return true;
     }
-
-
     private String getCompleteTokenInBuffer(Pattern pattern) {
         matchValid = false;
-
         // Skip delims first
         matcher.usePattern(delimPattern);
         if (!skipped) { // Enforcing only one skip of leading delims
@@ -507,7 +408,6 @@ public final class Scanner implements Iterator<String>, Closeable {
                 position = matcher.end();
             }
         }
-
         // If we are sitting at the end, no more tokens in buffer
         if (position == buf.limit()) {
             if (sourceClosed)
@@ -515,12 +415,10 @@ public final class Scanner implements Iterator<String>, Closeable {
             needInput = true;
             return null;
         }
-
         // Must look for next delims. Simply attempting to match the
         // pattern at this point may find a match but it might not be
         // the first longest match because of missing input, or it might
         // match a partial token instead of the whole thing.
-
         // Then look for next delims
         matcher.region(position, buf.limit());
         boolean foundNextDelim = matcher.find();
@@ -558,7 +456,6 @@ public final class Scanner implements Iterator<String>, Closeable {
                 return null;
             }
         }
-
         // If we can't find the next delims but no more input is coming,
         // then we can treat the remainder as a whole token
         if (sourceClosed) {
@@ -577,13 +474,11 @@ public final class Scanner implements Iterator<String>, Closeable {
             // Last piece does not match
             return null;
         }
-
         // There is a partial token in the buffer; must read more
         // to complete it
         needInput = true;
         return null;
     }
-
     // Finds the specified pattern in the buffer up to horizon.
     // Returns a match for the specified input pattern.
     private String findPatternInBuffer(Pattern pattern, int horizon) {
@@ -619,17 +514,14 @@ public final class Scanner implements Iterator<String>, Closeable {
             position = matcher.end();
             return matcher.group();
         }
-
         if (sourceClosed)
             return null;
-
         // If there is no specified horizon, or if we have not searched
         // to the specified horizon yet, get more input
         if ((horizon == 0) || (searchLimit != horizonLimit))
             needInput = true;
         return null;
     }
-
     // Returns a match for the specified input pattern anchored at
     // the current position
     private String matchPatternInBuffer(Pattern pattern) {
@@ -645,24 +537,18 @@ public final class Scanner implements Iterator<String>, Closeable {
             position = matcher.end();
             return matcher.group();
         }
-
         if (sourceClosed)
             return null;
-
         // Read more to find pattern
         needInput = true;
         return null;
     }
-
     // Throws if the scanner is closed
     private void ensureOpen() {
         if (closed)
             throw new IllegalStateException("Scanner closed");
     }
-
     // Public methods
-
-
     public void close() {
         if (closed)
             return;
@@ -677,49 +563,34 @@ public final class Scanner implements Iterator<String>, Closeable {
         source = null;
         closed = true;
     }
-
-
     public IOException ioException() {
         return lastException;
     }
-
-
     public Pattern delimiter() {
         return delimPattern;
     }
-
-
     public Scanner useDelimiter(Pattern pattern) {
         delimPattern = pattern;
         return this;
     }
-
-
     public Scanner useDelimiter(String pattern) {
         delimPattern = patternCache.forName(pattern);
         return this;
     }
-
-
     public Locale locale() {
         return this.locale;
     }
-
-
     public Scanner useLocale(Locale locale) {
         if (locale.equals(this.locale))
             return this;
-
         this.locale = locale;
         DecimalFormat df =
             (DecimalFormat)NumberFormat.getNumberInstance(locale);
         DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance(locale);
-
         // These must be literalized to avoid collision with regex
         // metacharacters such as dot or parenthesis
         groupSeparator =   "\\" + dfs.getGroupingSeparator();
         decimalSeparator = "\\" + dfs.getDecimalSeparator();
-
         // Quoting the nonzero length locale-specific things
         // to avoid potential conflict with metacharacters
         nanString = "\\Q" + dfs.getNaN() + "\\E";
@@ -736,25 +607,18 @@ public final class Scanner implements Iterator<String>, Closeable {
         negativeSuffix = df.getNegativeSuffix();
         if (negativeSuffix.length() > 0)
             negativeSuffix = "\\Q" + negativeSuffix + "\\E";
-
         // Force rebuilding and recompilation of locale dependent
         // primitive patterns
         integerPattern = null;
         floatPattern = null;
-
         return this;
     }
-
-
     public int radix() {
         return this.defaultRadix;
     }
-
-
     public Scanner useRadix(int radix) {
         if ((radix < Character.MIN_RADIX) || (radix > Character.MAX_RADIX))
             throw new IllegalArgumentException("radix:"+radix);
-
         if (this.defaultRadix == radix)
             return this;
         this.defaultRadix = radix;
@@ -762,7 +626,6 @@ public final class Scanner implements Iterator<String>, Closeable {
         integerPattern = null;
         return this;
     }
-
     // The next operation should occur in the specified radix but
     // the default is left untouched.
     private void setRadix(int radix) {
@@ -772,15 +635,11 @@ public final class Scanner implements Iterator<String>, Closeable {
             this.radix = radix;
         }
     }
-
-
     public MatchResult match() {
         if (!matchValid)
             throw new IllegalStateException("No match result available");
         return matcher.toMatchResult();
     }
-
-
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("java.util.Scanner");
@@ -800,8 +659,6 @@ public final class Scanner implements Iterator<String>, Closeable {
         sb.append("[infinity string=" + infinityString + "]");
         return sb.toString();
     }
-
-
     public boolean hasNext() {
         ensureOpen();
         saveState();
@@ -813,12 +670,9 @@ public final class Scanner implements Iterator<String>, Closeable {
         boolean result = hasTokenInBuffer();
         return revertState(result);
     }
-
-
     public String next() {
         ensureOpen();
         clearCaches();
-
         while (true) {
             String token = getCompleteTokenInBuffer(null);
             if (token != null) {
@@ -832,30 +686,21 @@ public final class Scanner implements Iterator<String>, Closeable {
                 throwFor();
         }
     }
-
-
     public void remove() {
         throw new UnsupportedOperationException();
     }
-
-
     public boolean hasNext(String pattern)  {
         return hasNext(patternCache.forName(pattern));
     }
-
-
     public String next(String pattern)  {
         return next(patternCache.forName(pattern));
     }
-
-
     public boolean hasNext(Pattern pattern) {
         ensureOpen();
         if (pattern == null)
             throw new NullPointerException();
         hasNextPattern = null;
         saveState();
-
         while (true) {
             if (getCompleteTokenInBuffer(pattern) != null) {
                 matchValid = true;
@@ -868,18 +713,14 @@ public final class Scanner implements Iterator<String>, Closeable {
                 return revertState(false);
         }
     }
-
-
     public String next(Pattern pattern) {
         ensureOpen();
         if (pattern == null)
             throw new NullPointerException();
-
         // Did we already find this pattern?
         if (hasNextPattern == pattern)
             return getCachedResult();
         clearCaches();
-
         // Search for the pattern
         while (true) {
             String token = getCompleteTokenInBuffer(pattern);
@@ -894,11 +735,8 @@ public final class Scanner implements Iterator<String>, Closeable {
                 throwFor();
         }
     }
-
-
     public boolean hasNextLine() {
         saveState();
-
         String result = findWithinHorizon(linePattern(), 0);
         if (result != null) {
             MatchResult mr = this.match();
@@ -907,7 +745,6 @@ public final class Scanner implements Iterator<String>, Closeable {
                 result = result.substring(0, result.length() -
                                           lineSep.length());
                 cacheResult(result);
-
             } else {
                 cacheResult();
             }
@@ -915,13 +752,10 @@ public final class Scanner implements Iterator<String>, Closeable {
         revertState();
         return (result != null);
     }
-
-
     public String nextLine() {
         if (hasNextPattern == linePattern())
             return getCachedResult();
         clearCaches();
-
         String result = findWithinHorizon(linePattern, 0);
         if (result == null)
             throw new NoSuchElementException("No line found");
@@ -934,15 +768,10 @@ public final class Scanner implements Iterator<String>, Closeable {
         else
             return result;
     }
-
     // Public methods that ignore delimiters
-
-
     public String findInLine(String pattern) {
         return findInLine(patternCache.forName(pattern));
     }
-
-
     public String findInLine(Pattern pattern) {
         ensureOpen();
         if (pattern == null)
@@ -974,13 +803,9 @@ public final class Scanner implements Iterator<String>, Closeable {
         // Search for the pattern
         return findWithinHorizon(pattern, horizonForLine);
     }
-
-
     public String findWithinHorizon(String pattern, int horizon) {
         return findWithinHorizon(patternCache.forName(pattern), horizon);
     }
-
-
     public String findWithinHorizon(Pattern pattern, int horizon) {
         ensureOpen();
         if (pattern == null)
@@ -988,7 +813,6 @@ public final class Scanner implements Iterator<String>, Closeable {
         if (horizon < 0)
             throw new IllegalArgumentException("horizon < 0");
         clearCaches();
-
         // Search for the pattern
         while (true) {
             String token = findPatternInBuffer(pattern, horizon);
@@ -1003,14 +827,11 @@ public final class Scanner implements Iterator<String>, Closeable {
         }
         return null;
     }
-
-
     public Scanner skip(Pattern pattern) {
         ensureOpen();
         if (pattern == null)
             throw new NullPointerException();
         clearCaches();
-
         // Search for the pattern
         while (true) {
             String token = matchPatternInBuffer(pattern);
@@ -1025,31 +846,20 @@ public final class Scanner implements Iterator<String>, Closeable {
                 throw new NoSuchElementException();
         }
     }
-
-
     public Scanner skip(String pattern) {
         return skip(patternCache.forName(pattern));
     }
-
     // Convenience methods for scanning primitives
-
-
     public boolean hasNextBoolean()  {
         return hasNext(boolPattern());
     }
-
-
     public boolean nextBoolean()  {
         clearCaches();
         return Boolean.parseBoolean(next(boolPattern()));
     }
-
-
     public boolean hasNextByte() {
         return hasNextByte(defaultRadix);
     }
-
-
     public boolean hasNextByte(int radix) {
         setRadix(radix);
         boolean result = hasNext(integerPattern());
@@ -1065,13 +875,9 @@ public final class Scanner implements Iterator<String>, Closeable {
         }
         return result;
     }
-
-
     public byte nextByte() {
          return nextByte(defaultRadix);
     }
-
-
     public byte nextByte(int radix) {
         // Check cached result
         if ((typeCache != null) && (typeCache instanceof Byte)
@@ -1093,13 +899,9 @@ public final class Scanner implements Iterator<String>, Closeable {
             throw new InputMismatchException(nfe.getMessage());
         }
     }
-
-
     public boolean hasNextShort() {
         return hasNextShort(defaultRadix);
     }
-
-
     public boolean hasNextShort(int radix) {
         setRadix(radix);
         boolean result = hasNext(integerPattern());
@@ -1115,13 +917,9 @@ public final class Scanner implements Iterator<String>, Closeable {
         }
         return result;
     }
-
-
     public short nextShort() {
         return nextShort(defaultRadix);
     }
-
-
     public short nextShort(int radix) {
         // Check cached result
         if ((typeCache != null) && (typeCache instanceof Short)
@@ -1143,13 +941,9 @@ public final class Scanner implements Iterator<String>, Closeable {
             throw new InputMismatchException(nfe.getMessage());
         }
     }
-
-
     public boolean hasNextInt() {
         return hasNextInt(defaultRadix);
     }
-
-
     public boolean hasNextInt(int radix) {
         setRadix(radix);
         boolean result = hasNext(integerPattern());
@@ -1165,8 +959,6 @@ public final class Scanner implements Iterator<String>, Closeable {
         }
         return result;
     }
-
-
     private String processIntegerToken(String token) {
         String result = token.replaceAll(""+groupSeparator, "");
         boolean isNegative = false;
@@ -1185,13 +977,9 @@ public final class Scanner implements Iterator<String>, Closeable {
             result = "-" + result;
         return result;
     }
-
-
     public int nextInt() {
         return nextInt(defaultRadix);
     }
-
-
     public int nextInt(int radix) {
         // Check cached result
         if ((typeCache != null) && (typeCache instanceof Integer)
@@ -1213,13 +1001,9 @@ public final class Scanner implements Iterator<String>, Closeable {
             throw new InputMismatchException(nfe.getMessage());
         }
     }
-
-
     public boolean hasNextLong() {
         return hasNextLong(defaultRadix);
     }
-
-
     public boolean hasNextLong(int radix) {
         setRadix(radix);
         boolean result = hasNext(integerPattern());
@@ -1235,13 +1019,9 @@ public final class Scanner implements Iterator<String>, Closeable {
         }
         return result;
     }
-
-
     public long nextLong() {
         return nextLong(defaultRadix);
     }
-
-
     public long nextLong(int radix) {
         // Check cached result
         if ((typeCache != null) && (typeCache instanceof Long)
@@ -1262,8 +1042,6 @@ public final class Scanner implements Iterator<String>, Closeable {
             throw new InputMismatchException(nfe.getMessage());
         }
     }
-
-
     private String processFloatToken(String token) {
         String result = token.replaceAll(groupSeparator, "");
         if (!decimalSeparator.equals("\\."))
@@ -1286,7 +1064,6 @@ public final class Scanner implements Iterator<String>, Closeable {
             result = "Infinity";
         if (isNegative)
             result = "-" + result;
-
         // Translate non-ASCII digits
         Matcher m = NON_ASCII_DIGIT.matcher(result);
         if (m.find()) {
@@ -1305,11 +1082,8 @@ public final class Scanner implements Iterator<String>, Closeable {
             }
             result = inASCII.toString();
         }
-
         return result;
     }
-
-
     public boolean hasNextFloat() {
         setRadix(10);
         boolean result = hasNext(floatPattern());
@@ -1323,8 +1097,6 @@ public final class Scanner implements Iterator<String>, Closeable {
         }
         return result;
     }
-
-
     public float nextFloat() {
         // Check cached result
         if ((typeCache != null) && (typeCache instanceof Float)) {
@@ -1341,8 +1113,6 @@ public final class Scanner implements Iterator<String>, Closeable {
             throw new InputMismatchException(nfe.getMessage());
         }
     }
-
-
     public boolean hasNextDouble() {
         setRadix(10);
         boolean result = hasNext(floatPattern());
@@ -1356,8 +1126,6 @@ public final class Scanner implements Iterator<String>, Closeable {
         }
         return result;
     }
-
-
     public double nextDouble() {
         // Check cached result
         if ((typeCache != null) && (typeCache instanceof Double)) {
@@ -1375,15 +1143,10 @@ public final class Scanner implements Iterator<String>, Closeable {
             throw new InputMismatchException(nfe.getMessage());
         }
     }
-
     // Convenience methods for scanning multi precision numbers
-
-
     public boolean hasNextBigInteger() {
         return hasNextBigInteger(defaultRadix);
     }
-
-
     public boolean hasNextBigInteger(int radix) {
         setRadix(radix);
         boolean result = hasNext(integerPattern());
@@ -1399,13 +1162,9 @@ public final class Scanner implements Iterator<String>, Closeable {
         }
         return result;
     }
-
-
     public BigInteger nextBigInteger() {
         return nextBigInteger(defaultRadix);
     }
-
-
     public BigInteger nextBigInteger(int radix) {
         // Check cached result
         if ((typeCache != null) && (typeCache instanceof BigInteger)
@@ -1427,8 +1186,6 @@ public final class Scanner implements Iterator<String>, Closeable {
             throw new InputMismatchException(nfe.getMessage());
         }
     }
-
-
     public boolean hasNextBigDecimal() {
         setRadix(10);
         boolean result = hasNext(decimalPattern());
@@ -1442,8 +1199,6 @@ public final class Scanner implements Iterator<String>, Closeable {
         }
         return result;
     }
-
-
     public BigDecimal nextBigDecimal() {
         // Check cached result
         if ((typeCache != null) && (typeCache instanceof BigDecimal)) {
@@ -1462,8 +1217,6 @@ public final class Scanner implements Iterator<String>, Closeable {
             throw new InputMismatchException(nfe.getMessage());
         }
     }
-
-
     public Scanner reset() {
         delimPattern = WHITESPACE_PATTERN;
         useLocale(Locale.getDefault(Locale.Category.FORMAT));

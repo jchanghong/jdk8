@@ -1,22 +1,13 @@
-
-
 package java.util.zip;
-
-
 interface ZipConstants {
-
     static long LOCSIG = 0x04034b50L;   // "PK\003\004"
     static long EXTSIG = 0x08074b50L;   // "PK\007\008"
     static long CENSIG = 0x02014b50L;   // "PK\001\002"
     static long ENDSIG = 0x06054b50L;   // "PK\005\006"
-
-
     static final int LOCHDR = 30;       // LOC header size
     static final int EXTHDR = 16;       // EXT header size
     static final int CENHDR = 46;       // CEN header size
     static final int ENDHDR = 22;       // END header size
-
-
     static final int LOCVER = 4;        // version needed to extract
     static final int LOCFLG = 6;        // general purpose bit flag
     static final int LOCHOW = 8;        // compression method
@@ -26,13 +17,9 @@ interface ZipConstants {
     static final int LOCLEN = 22;       // uncompressed size
     static final int LOCNAM = 26;       // filename length
     static final int LOCEXT = 28;       // extra field length
-
-
     static final int EXTCRC = 4;        // uncompressed file crc-32 value
     static final int EXTSIZ = 8;        // compressed size
     static final int EXTLEN = 12;       // uncompressed size
-
-
     static final int CENVEM = 4;        // version made by
     static final int CENVER = 6;        // version needed to extract
     static final int CENFLG = 8;        // encrypt, decrypt flags
@@ -48,8 +35,6 @@ interface ZipConstants {
     static final int CENATT = 36;       // internal file attributes
     static final int CENATX = 38;       // external file attributes
     static final int CENOFF = 42;       // LOC header offset
-
-
     static final int ENDSUB = 8;        // number of entries on this disk
     static final int ENDTOT = 10;       // total number of entries
     static final int ENDSIZ = 12;       // central directory size in bytes

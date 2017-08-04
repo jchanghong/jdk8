@@ -1,15 +1,6 @@
-
-
-
-
 package java.util.concurrent;
 import java.util.concurrent.locks.LockSupport;
-
-
 public class FutureTask<V> implements RunnableFuture<V> {
-
-
-
     private volatile int state;
     private static final int NEW          = 0;
     private static final int COMPLETING   = 1;
@@ -18,17 +9,10 @@ public class FutureTask<V> implements RunnableFuture<V> {
     private static final int CANCELLED    = 4;
     private static final int INTERRUPTING = 5;
     private static final int INTERRUPTED  = 6;
-
-
     private Callable<V> callable;
-
     private Object outcome; // non-volatile, protected by state reads/writes
-
     private volatile Thread runner;
-
     private volatile WaitNode waiters;
-
-
     @SuppressWarnings("unchecked")
     private V report(int s) throws ExecutionException {
         Object x = outcome;
@@ -38,29 +22,22 @@ public class FutureTask<V> implements RunnableFuture<V> {
             throw new CancellationException();
         throw new ExecutionException((Throwable)x);
     }
-
-
     public FutureTask(Callable<V> callable) {
         if (callable == null)
             throw new NullPointerException();
         this.callable = callable;
         this.state = NEW;       // ensure visibility of callable
     }
-
-
     public FutureTask(Runnable runnable, V result) {
         this.callable = Executors.callable(runnable, result);
         this.state = NEW;       // ensure visibility of callable
     }
-
     public boolean isCancelled() {
         return state >= CANCELLED;
     }
-
     public boolean isDone() {
         return state != NEW;
     }
-
     public boolean cancel(boolean mayInterruptIfRunning) {
         if (!(state == NEW &&
               UNSAFE.compareAndSwapInt(this, stateOffset, NEW,
@@ -81,16 +58,12 @@ public class FutureTask<V> implements RunnableFuture<V> {
         }
         return true;
     }
-
-
     public V get() throws InterruptedException, ExecutionException {
         int s = state;
         if (s <= COMPLETING)
             s = awaitDone(false, 0L);
         return report(s);
     }
-
-
     public V get(long timeout, TimeUnit unit)
         throws InterruptedException, ExecutionException, TimeoutException {
         if (unit == null)
@@ -101,11 +74,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
             throw new TimeoutException();
         return report(s);
     }
-
-
     protected void done() { }
-
-
     protected void set(V v) {
         if (UNSAFE.compareAndSwapInt(this, stateOffset, NEW, COMPLETING)) {
             outcome = v;
@@ -113,8 +82,6 @@ public class FutureTask<V> implements RunnableFuture<V> {
             finishCompletion();
         }
     }
-
-
     protected void setException(Throwable t) {
         if (UNSAFE.compareAndSwapInt(this, stateOffset, NEW, COMPLETING)) {
             outcome = t;
@@ -122,7 +89,6 @@ public class FutureTask<V> implements RunnableFuture<V> {
             finishCompletion();
         }
     }
-
     public void run() {
         if (state != NEW ||
             !UNSAFE.compareAndSwapObject(this, runnerOffset,
@@ -155,8 +121,6 @@ public class FutureTask<V> implements RunnableFuture<V> {
                 handlePossibleCancellationInterrupt(s);
         }
     }
-
-
     protected boolean runAndReset() {
         if (state != NEW ||
             !UNSAFE.compareAndSwapObject(this, runnerOffset,
@@ -186,17 +150,13 @@ public class FutureTask<V> implements RunnableFuture<V> {
         }
         return ran && s == NEW;
     }
-
-
     private void handlePossibleCancellationInterrupt(int s) {
         // It is possible for our interrupter to stall before getting a
         // chance to interrupt us.  Let's spin-wait patiently.
         if (s == INTERRUPTING)
             while (state == INTERRUPTING)
                 Thread.yield(); // wait out pending interrupt
-
         // assert state == INTERRUPTED;
-
         // We want to clear any interrupt we may have received from
         // cancel(true).  However, it is permissible to use interrupts
         // as an independent mechanism for a task to communicate with
@@ -205,15 +165,11 @@ public class FutureTask<V> implements RunnableFuture<V> {
         //
         // Thread.interrupted();
     }
-
-
     static final class WaitNode {
         volatile Thread thread;
         volatile WaitNode next;
         WaitNode() { thread = Thread.currentThread(); }
     }
-
-
     private void finishCompletion() {
         // assert state > COMPLETING;
         for (WaitNode q; (q = waiters) != null;) {
@@ -233,13 +189,9 @@ public class FutureTask<V> implements RunnableFuture<V> {
                 break;
             }
         }
-
         done();
-
         callable = null;        // to reduce footprint
     }
-
-
     private int awaitDone(boolean timed, long nanos)
         throws InterruptedException {
         final long deadline = timed ? System.nanoTime() + nanos : 0L;
@@ -250,7 +202,6 @@ public class FutureTask<V> implements RunnableFuture<V> {
                 removeWaiter(q);
                 throw new InterruptedException();
             }
-
             int s = state;
             if (s > COMPLETING) {
                 if (q != null)
@@ -276,8 +227,6 @@ public class FutureTask<V> implements RunnableFuture<V> {
                 LockSupport.park(this);
         }
     }
-
-
     private void removeWaiter(WaitNode node) {
         if (node != null) {
             node.thread = null;
@@ -300,7 +249,6 @@ public class FutureTask<V> implements RunnableFuture<V> {
             }
         }
     }
-
     // Unsafe mechanics
     private static final sun.misc.Unsafe UNSAFE;
     private static final long stateOffset;
@@ -320,5 +268,4 @@ public class FutureTask<V> implements RunnableFuture<V> {
             throw new Error(e);
         }
     }
-
 }

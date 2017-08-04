@@ -1,19 +1,11 @@
-
 package java.security.spec;
-
-
 public final class DSAGenParameterSpec implements AlgorithmParameterSpec {
-
     private final int pLen;
     private final int qLen;
     private final int seedLen;
-
-
     public DSAGenParameterSpec(int primePLen, int subprimeQLen) {
         this(primePLen, subprimeQLen, subprimeQLen);
     }
-
-
     public DSAGenParameterSpec(int primePLen, int subprimeQLen, int seedLen) {
         switch (primePLen) {
         case 1024:
@@ -46,18 +38,12 @@ public final class DSAGenParameterSpec implements AlgorithmParameterSpec {
         this.qLen = subprimeQLen;
         this.seedLen = seedLen;
     }
-
-
     public int getPrimePLength() {
         return pLen;
     }
-
-
     public int getSubprimeQLength() {
         return qLen;
     }
-
-
     public int getSeedLength() {
         return seedLen;
     }
