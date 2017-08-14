@@ -23,7 +23,30 @@ public final class FilePermission extends Permission implements Serializable {
     private String actions; // Left null as long as possible, then
                             // created and re-used in the getAction function.
     // canonicalized dir path. In the case of
-    // directories, it is the name "/blah
+    // directories, it is the name "/blah/*" or "/blah/-" without
+    // the last character (the "*" or "-").
+
+    private transient String cpath;
+
+    // static Strings used by init(int mask)
+    private static final char RECURSIVE_CHAR = '-';
+    private static final char WILD_CHAR = '*';
+
+/*
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append("***\n");
+        sb.append("cpath = "+cpath+"\n");
+        sb.append("mask = "+mask+"\n");
+        sb.append("actions = "+getActions()+"\n");
+        sb.append("directory = "+directory+"\n");
+        sb.append("recursive = "+recursive+"\n");
+        sb.append("***\n");
+        return sb.toString();
+    }
+*/
+
     private static final long serialVersionUID = 7930732926638008763L;
     private void init(int mask) {
         if ((mask & ALL) != mask)
